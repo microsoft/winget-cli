@@ -33,6 +33,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Creates the unique index that allows at most one live row per package rowid.
         static void CreateLiveRowIndex(SQLite::Connection& connection);
 
+        // Creates the index over the change sequence.
+        static void CreateChangeSequenceIndex(SQLite::Connection& connection);
+
         // Creates the table if it does not exist.
         static void EnsureExists(SQLite::Connection& connection, RemovalBehavior removals);
 
@@ -74,6 +77,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // The rowid is reported rather than the identifier because it is the identity a delta is
         // keyed on and the only one that can be compared exactly; see the implementation.
         static std::set<SQLite::rowid_t> GetRemovalsSince(const SQLite::Connection& connection, int64_t updateBaseTime, RemovalBehavior removals);
+
+        // Gets the data on updates written after the given change sequence, exclusive.
+        // Only available when removals are being recorded, as only then does the column exist.
+        static std::vector<PackageData> GetUpdatesSinceSequence(const SQLite::Connection& connection, int64_t baseSequence, RemovalBehavior removals);
+
+        // Gets the rowids vacated by packages removed after the given change sequence, exclusive.
+        // Only available when removals are being recorded, as only then does the column exist.
+        static std::set<SQLite::rowid_t> GetRemovalsSinceSequence(const SQLite::Connection& connection, int64_t baseSequence, RemovalBehavior removals);
+
+        // Gets the most recently issued change sequence, or 0 if nothing has been written.
+        // Only available when removals are being recorded, as only then does the column exist.
+        static int64_t GetCurrentChangeSequence(const SQLite::Connection& connection, RemovalBehavior removals);
 
         // Gets the data hash for the given package identifier.
         static SQLite::blob_t GetDataHash(const SQLite::Connection& connection, const std::string& packageIdentifier, RemovalBehavior removals);

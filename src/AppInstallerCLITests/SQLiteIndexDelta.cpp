@@ -17,13 +17,11 @@
 #include <Microsoft/Schema/2_1/DeltaViews.h>
 
 #include <algorithm>
-#include <chrono>
 #include <filesystem>
 #include <map>
 #include <optional>
 #include <set>
 #include <string>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -157,15 +155,8 @@ namespace
 
         // Copies the working index out, prepares it, and designates it as a baseline.
         // Everything the working index does afterwards is what the delta will describe.
-        //
-        // The sleep is load bearing. Preparing the baseline records the time from which a delta
-        // against it is computed, and tracking times are whole seconds compared inclusively, so a
-        // baseline captured in the same second as the data it holds would report all of it as
-        // changed. Advancing past that second is what makes the boundary observable.
         void CaptureBaseline(bool markAsBaseline = true)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
             std::filesystem::copy_file(WorkingFile.GetPath(), BaselineFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
 
             SQLiteIndex prepared = SQLiteIndex::Open(BaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
@@ -182,8 +173,8 @@ namespace
         // Opens the working index for the changes that the delta will carry.
         //
         // The base time reset governs the version data manifest export that preparing performs; the
-        // window the delta itself uses comes from the baseline, and was fixed when it was captured.
-        // The sleep is what makes this boundary observable, as tracking times are whole seconds.
+        // window the delta itself uses comes from the baseline's change sequence, and was fixed when
+        // the baseline was captured.
         SQLiteIndex OpenWorkingForChanges()
         {
             SQLiteIndex index = SQLiteIndex::Open(WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
@@ -191,7 +182,6 @@ namespace
             if (!m_baseTimeReset)
             {
                 index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
-                std::this_thread::sleep_for(std::chrono::seconds(1));
                 m_baseTimeReset = true;
             }
 
@@ -1706,4 +1696,155 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithEmptyDelta", "[sqliteindex][V2_1][de
     SQLiteIndex full = context.OpenFullIndex();
 
     RequireEquivalent(combined, full);
+}
+
+
+// ---------------------------------------------------------------------------------------------
+// Group K - the change sequence
+//
+// The window a delta describes is defined by a monotonic sequence rather than by the write time.
+// These cases cover the boundary that a whole second time cannot express, and the one failure
+// mode a sequence has that a time does not.
+// ---------------------------------------------------------------------------------------------
+
+// K1. Every write takes a new sequence, and a package written twice keeps only the later one.
+// A sequence that did not advance on update would leave the second change outside any window
+// opened after the first.
+TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex][V2_1][updatetracking]")
+{
+    TempFile indexFile{ "changeseq"s, ".db"s };
+
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+
+        Manifest m1 = CreateManifest(p1);
+        index.AddManifest(m1, p1.Path);
+
+        Manifest m2 = CreateManifest(p2);
+        index.AddManifest(m2, p2.Path);
+
+        Manifest m1Updated = CreateManifest(MakePackage("Publisher1.Id", "Package 1 Renamed"));
+        REQUIRE(index.UpdateManifest(m1Updated, p1.Path));
+    }
+
+    Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
+
+    // Three writes, but only two rows: the update replaced the first package's sequence rather
+    // than adding a row.
+    REQUIRE(GetRowCount(connection, "update_tracking") == 2);
+    REQUIRE(GetScalar(connection, "SELECT MAX([change_seq]) FROM [update_tracking]") == 3);
+
+    int64_t first = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher1.Id'");
+    int64_t second = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher2.Id'");
+
+    // The updated package is now the more recent of the two, having started as the older.
+    REQUIRE(first == 3);
+    REQUIRE(second == 2);
+}
+
+// K2. The boundary case that the time based window could not express at all: a baseline captured
+// in the same instant as the data it holds. Under whole second times compared inclusively, the
+// entire baseline fell inside its own delta window.
+TEST_CASE("SQLiteIndex_Delta_BaselineCapturedImmediatelyExcludesItsOwnData", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    // No delay anywhere: creation, capture and generation all happen as fast as they can.
+    DeltaTestContext context{ { p1, p2 } };
+    context.GenerateDelta();
+
+    {
+        Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+
+        // Both packages were written before the baseline was taken, so the baseline's own sequence
+        // must already account for them.
+        REQUIRE(MetadataTable::GetNamedValue<int64_t>(baseline, "deltaBaselineSequence") == 2);
+    }
+
+    Connection delta = context.OpenDeltaConnection();
+    REQUIRE(GetRowCount(delta, "delta_packages") == 0);
+
+    SQLiteIndex combined = context.OpenCombined();
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+}
+
+// K3. A migrated table has no sequences, so every row backfills to the same value and the first
+// one issued afterwards is above it. An index designated as a baseline at that moment records 0,
+// and the exclusive window correctly reports nothing that preceded the migration.
+TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqliteindex][V2_1][updatetracking]")
+{
+    TempFile indexFile{ "changeseq_migrate"s, ".db"s };
+
+    ManifestAndPath m1;
+    CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
+    ManifestAndPath m2;
+    CreateFakeManifestAndPath(m2, "Publisher2", "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+        index.AddManifest(m1.Manifest, m1.Path);
+        index.AddManifest(m2.Manifest, m2.Path);
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(indexFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE(index.MigrateTo(s_DeltaVersion));
+        REQUIRE(index.CheckConsistency(true));
+    }
+
+    {
+        Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
+        REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [change_seq] = 0") == 2);
+    }
+
+    // A write after the migration has to be distinguishable from everything that preceded it.
+    {
+        SQLiteIndex index = SQLiteIndex::Open(indexFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        ManifestAndPath m3;
+        CreateFakeManifestAndPath(m3, "Publisher3", "1.0");
+        index.AddManifest(m3.Manifest, m3.Path);
+    }
+
+    Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
+    REQUIRE(GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher3.Id'") == 1);
+}
+
+// K4. The one direction a sequence fails in that a time does not. If the working index is rebuilt,
+// its counter restarts below the baseline's and the window is empty, which would produce a
+// silently empty delta. Generation has to refuse instead.
+TEST_CASE("SQLiteIndex_Delta_SequenceBelowBaselineIsRejected", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+    auto p3 = MakePackage("Publisher3.Id", "Package 3");
+
+    DeltaTestContext context{ { p1, p2, p3 } };
+
+    {
+        Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+        REQUIRE(MetadataTable::GetNamedValue<int64_t>(baseline, "deltaBaselineSequence") == 3);
+    }
+
+    // A rebuilt working index, holding the same data but having recorded far fewer changes.
+    TempFile rebuiltFile{ "changeseq_rebuilt"s, ".db"s };
+    TempFile rebuiltDeltaFile{ "changeseq_rebuilt_delta"s, ".db"s };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(rebuiltFile, s_DeltaVersion);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+        Manifest manifest = CreateManifest(p1);
+        index.AddManifest(manifest, p1.Path);
+    }
+
+    SQLiteIndex rebuilt = SQLiteIndex::Open(rebuiltFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+    rebuilt.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
+    rebuilt.SetProperty(SQLiteIndex::Property::DeltaOutputPath, rebuiltDeltaFile.GetPath().u8string());
+
+    REQUIRE_THROWS_HR(rebuilt.PrepareForPackaging(), APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
 }

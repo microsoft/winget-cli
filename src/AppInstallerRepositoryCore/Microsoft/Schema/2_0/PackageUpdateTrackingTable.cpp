@@ -27,6 +27,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     static constexpr std::string_view s_PUTT_Hash = "hash"sv;
     static constexpr std::string_view s_PUTT_IsRemoved = "is_removed"sv;
     static constexpr std::string_view s_PUTT_PackageRowId = "package_rowid"sv;
+    static constexpr std::string_view s_PUTT_ChangeSequence = "change_seq"sv;
+    static constexpr std::string_view s_PUTT_ChangeSequenceIndex_Name = "update_tracking_change_seq_idx"sv;
 
     namespace
     {
@@ -69,6 +71,138 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return result;
         }
+
+        // The sequence to stamp on the row about to be written.
+        //
+        // Allocated as one above the highest ever issued rather than from a stored counter, which
+        // needs no separate value to keep in step with the table and no migration when it is
+        // absent. It never goes backwards: rows are only ever inserted or updated in place while
+        // removals are being recorded, so no sequence is released once issued. SQLite answers the
+        // aggregate from the index with a single seek.
+        int64_t GetNextChangeSequence(const SQLite::Connection& connection)
+        {
+            Builder::StatementBuilder builder;
+            builder.Select().Column(Builder::Aggregate::Max, s_PUTT_ChangeSequence).From(s_PUTT_Table_Name);
+
+            Statement statement = builder.Prepare(connection);
+
+            // The aggregate produces a single row holding null when the table is empty.
+            if (statement.Step() && !statement.GetColumnIsNull(0))
+            {
+                return statement.GetColumn<int64_t>(0) + 1;
+            }
+
+            return 1;
+        }
+
+        // The rows written after the given point, as measured by the given column.
+        //
+        // The boundary is exclusive for the sequence and inclusive for the write time. That is not
+        // an inconsistency: whole second times cannot distinguish "written during the base second,
+        // before the base was taken" from "after", so the inclusive form is the only safe one and
+        // it over-reports by design. A sequence has no such ambiguity, so it takes the exact
+        // boundary and reports precisely what followed.
+        std::vector<PackageUpdateTrackingTable::PackageData> GetUpdates(
+            const SQLite::Connection& connection,
+            std::string_view boundaryColumn,
+            int64_t boundaryValue,
+            bool exclusive,
+            PackageUpdateTrackingTable::RemovalBehavior removals)
+        {
+            bool recordingRemovals = (removals == PackageUpdateTrackingTable::RemovalBehavior::Record);
+
+            Builder::StatementBuilder builder;
+
+            if (recordingRemovals)
+            {
+                builder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash, s_PUTT_PackageRowId });
+            }
+            else
+            {
+                builder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash });
+            }
+
+            builder.From(s_PUTT_Table_Name).Where(boundaryColumn);
+
+            if (exclusive)
+            {
+                builder.IsGreaterThan(boundaryValue);
+            }
+            else
+            {
+                builder.IsGreaterThanOrEqualTo(boundaryValue);
+            }
+
+            if (recordingRemovals)
+            {
+                // Removals are reported separately, so that this remains the set of packages that
+                // have data to write out, exactly as it is when removals delete their row.
+                builder.And(s_PUTT_IsRemoved).Equals(0);
+            }
+
+            Statement select = builder.Prepare(connection);
+
+            std::vector<PackageUpdateTrackingTable::PackageData> result;
+
+            while (select.Step())
+            {
+                PackageUpdateTrackingTable::PackageData item;
+                item.RowID = select.GetColumn<rowid_t>(0);
+                item.PackageIdentifier = select.GetColumn<std::string>(1);
+                item.WriteTime = select.GetColumn<int64_t>(2);
+                item.Manifest = select.GetColumn<blob_t>(3);
+                item.Hash = select.GetColumn<blob_t>(4);
+
+                if (recordingRemovals)
+                {
+                    item.PackageRowId = select.GetColumn<rowid_t>(5);
+                }
+
+                result.emplace_back(std::move(item));
+            }
+
+            return result;
+        }
+
+        // The rowids vacated after the given point, as measured by the given column.
+        //
+        // The rowid is reported rather than the identifier because it is the identity a delta is
+        // keyed on, and it is the only one that can be compared exactly. Identifiers cannot: the
+        // casing recorded for a package is frozen when its row is written, so one package can leave
+        // tombstones under several spellings, and no string comparison available here reproduces
+        // the ICU LIKE that decides identity elsewhere. Two packages can still vacate the same
+        // rowid in turn, so the result is a set.
+        std::set<SQLite::rowid_t> GetRemovals(
+            const SQLite::Connection& connection,
+            std::string_view boundaryColumn,
+            int64_t boundaryValue,
+            bool exclusive)
+        {
+            Builder::StatementBuilder builder;
+            builder.Select(s_PUTT_PackageRowId).From(s_PUTT_Table_Name).Where(boundaryColumn);
+
+            if (exclusive)
+            {
+                builder.IsGreaterThan(boundaryValue);
+            }
+            else
+            {
+                builder.IsGreaterThanOrEqualTo(boundaryValue);
+            }
+
+            builder.And(s_PUTT_IsRemoved).Equals(1);
+
+            Statement select = builder.Prepare(connection);
+
+            std::set<SQLite::rowid_t> result;
+
+            while (select.Step())
+            {
+                result.emplace(select.GetColumn<SQLite::rowid_t>(0));
+            }
+
+            return result;
+        }
     }
 
     std::string_view PackageUpdateTrackingTable::TableName()
@@ -97,6 +231,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             // Always known: the add path resolves it while the package is present, and the remove
             // path is given it by the caller, which resolves it before the package leaves.
             builder.Column(ColumnBuilder(s_PUTT_PackageRowId, Type::Int64).NotNull());
+
+            // A monotonically increasing stamp identifying when this row was last written,
+            // relative only to the other rows in this table. See GetUpdatesSinceSequence for why
+            // a delta uses this in preference to the write time.
+            builder.Column(ColumnBuilder(s_PUTT_ChangeSequence, Type::Int64).NotNull());
         }
 
         builder.EndColumns();
@@ -110,7 +249,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         if (removals == RemovalBehavior::Record)
         {
             CreateLiveRowIndex(connection);
+            CreateChangeSequenceIndex(connection);
         }
+    }
+
+    void PackageUpdateTrackingTable::CreateChangeSequenceIndex(SQLite::Connection& connection)
+    {
+        // Serves both the range scan that reports changes and the maximum that allocates the next
+        // sequence. Not unique: a row updated in place takes a new sequence and leaves none behind,
+        // but nothing depends on two rows never sharing one, and the migration backfills every
+        // existing row with the same value.
+        Builder::StatementBuilder builder;
+        builder.CreateIndex(s_PUTT_ChangeSequenceIndex_Name).On(s_PUTT_Table_Name).Columns(s_PUTT_ChangeSequence);
+        builder.Execute(connection);
     }
 
     void PackageUpdateTrackingTable::CreateLiveRowIndex(SQLite::Connection& connection)
@@ -193,10 +344,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 THROW_HR_IF(E_NOT_VALID_STATE, !removedPackageRowId);
 
                 int64_t currentTime = Utility::GetCurrentUnixEpoch();
+                int64_t changeSequence = GetNextChangeSequence(connection);
 
                 Builder::StatementBuilder updateBuilder;
                 updateBuilder.Update(s_PUTT_Table_Name).Set().
                     Column(s_PUTT_WriteTime).Equals(currentTime).
+                    Column(s_PUTT_ChangeSequence).Equals(changeSequence).
                     Column(s_PUTT_Manifest).AssignValue(nullptr).
                     Column(s_PUTT_Hash).AssignValue(nullptr).
                     Column(s_PUTT_IsRemoved).Equals(1).
@@ -211,8 +364,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                     // older baseline still learns that the rowid was vacated.
                     Builder::StatementBuilder insertBuilder;
                     insertBuilder.InsertInto(s_PUTT_Table_Name).
-                        Columns({ s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_IsRemoved, s_PUTT_PackageRowId }).
-                        Values(packageIdentifier, currentTime, 1, removedPackageRowId.value());
+                        Columns({ s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_IsRemoved, s_PUTT_PackageRowId, s_PUTT_ChangeSequence }).
+                        Values(packageIdentifier, currentTime, 1, removedPackageRowId.value(), changeSequence);
                     insertBuilder.Execute(connection);
                 }
             }
@@ -251,12 +404,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             // recorded alongside the data. It is resolved here rather than at removal time because
             // the package is still in the index at this point.
             SQLite::rowid_t packageRowId = 0;
+            int64_t changeSequence = 0;
 
             if (removals == RemovalBehavior::Record)
             {
                 std::optional<SQLite::rowid_t> indexRowId = GetPackageRowIdInIndex(connection, packageIdentifier);
                 THROW_HR_IF(E_NOT_VALID_STATE, !indexRowId);
                 packageRowId = indexRowId.value();
+                changeSequence = GetNextChangeSequence(connection);
             }
 
             // First attempt to update the row and then insert it if no modification occurred.
@@ -270,6 +425,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             {
                 // Clear the flag in case this package was previously removed and is now being re-added.
                 updateBuilder.Column(s_PUTT_IsRemoved).Equals(0);
+                updateBuilder.Column(s_PUTT_ChangeSequence).Equals(changeSequence);
             }
 
             updateBuilder.Where(s_PUTT_Package).LikeWithEscape(packageIdentifier);
@@ -300,6 +456,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 if (removals == RemovalBehavior::Record)
                 {
                     insertBuilder.Column(s_PUTT_PackageRowId);
+                    insertBuilder.Column(s_PUTT_ChangeSequence);
                 }
 
                 insertBuilder.EndColumns().BeginValues();
@@ -312,6 +469,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 if (removals == RemovalBehavior::Record)
                 {
                     insertBuilder.Value(packageRowId);
+                    insertBuilder.Value(changeSequence);
                 }
 
                 insertBuilder.EndValues();
@@ -442,81 +600,47 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     std::vector<PackageUpdateTrackingTable::PackageData> PackageUpdateTrackingTable::GetUpdatesSince(const SQLite::Connection& connection, int64_t updateBaseTime, RemovalBehavior removals)
     {
-        bool recordingRemovals = (removals == RemovalBehavior::Record);
+        return GetUpdates(connection, s_PUTT_WriteTime, updateBaseTime, false, removals);
+    }
 
-        Builder::StatementBuilder builder;
+    std::vector<PackageUpdateTrackingTable::PackageData> PackageUpdateTrackingTable::GetUpdatesSinceSequence(const SQLite::Connection& connection, int64_t baseSequence, RemovalBehavior removals)
+    {
+        // Only the recording form has the column, and only a delta asks this question.
+        THROW_HR_IF(E_NOT_VALID_STATE, removals != RemovalBehavior::Record);
 
-        if (recordingRemovals)
-        {
-            builder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash, s_PUTT_PackageRowId });
-        }
-        else
-        {
-            builder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash });
-        }
-
-        builder.From(s_PUTT_Table_Name).Where(s_PUTT_WriteTime).IsGreaterThanOrEqualTo(updateBaseTime);
-
-        if (recordingRemovals)
-        {
-            // Removals are reported separately, so that this remains the set of packages that
-            // have data to write out, exactly as it is when removals delete their row.
-            builder.And(s_PUTT_IsRemoved).Equals(0);
-        }
-
-        Statement select = builder.Prepare(connection);
-
-        std::vector<PackageData> result;
-
-        while (select.Step())
-        {
-            PackageData item;
-            item.RowID = select.GetColumn<rowid_t>(0);
-            item.PackageIdentifier = select.GetColumn<std::string>(1);
-            item.WriteTime = select.GetColumn<int64_t>(2);
-            item.Manifest = select.GetColumn<blob_t>(3);
-            item.Hash = select.GetColumn<blob_t>(4);
-
-            if (recordingRemovals)
-            {
-                item.PackageRowId = select.GetColumn<rowid_t>(5);
-            }
-
-            result.emplace_back(std::move(item));
-        }
-
-        return result;
+        return GetUpdates(connection, s_PUTT_ChangeSequence, baseSequence, true, removals);
     }
 
     std::set<SQLite::rowid_t> PackageUpdateTrackingTable::GetRemovalsSince(const SQLite::Connection& connection, int64_t updateBaseTime, RemovalBehavior removals)
     {
-        std::set<SQLite::rowid_t> result;
-
         if (removals == RemovalBehavior::Delete)
         {
             // Removals delete their row, so there is nothing to report.
-            return result;
+            return {};
         }
 
-        Builder::StatementBuilder builder;
-        builder.Select(s_PUTT_PackageRowId).From(s_PUTT_Table_Name).
-            Where(s_PUTT_WriteTime).IsGreaterThanOrEqualTo(updateBaseTime).
-            And(s_PUTT_IsRemoved).Equals(1);
+        return GetRemovals(connection, s_PUTT_WriteTime, updateBaseTime, false);
+    }
 
-        Statement select = builder.Prepare(connection);
+    std::set<SQLite::rowid_t> PackageUpdateTrackingTable::GetRemovalsSinceSequence(const SQLite::Connection& connection, int64_t baseSequence, RemovalBehavior removals)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, removals != RemovalBehavior::Record);
 
-        // The rowid is reported rather than the identifier because it is the identity a delta is
-        // keyed on, and it is the only one that can be compared exactly. Identifiers cannot: the
-        // casing recorded for a package is frozen when its row is written, so one package can leave
-        // tombstones under several spellings, and no string comparison available here reproduces
-        // the ICU LIKE that decides identity elsewhere. Two packages can still vacate the same
-        // rowid in turn, so the result is a set.
-        while (select.Step())
+        return GetRemovals(connection, s_PUTT_ChangeSequence, baseSequence, true);
+    }
+
+    int64_t PackageUpdateTrackingTable::GetCurrentChangeSequence(const SQLite::Connection& connection, RemovalBehavior removals)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, removals != RemovalBehavior::Record);
+
+        if (!Exists(connection))
         {
-            result.emplace(select.GetColumn<SQLite::rowid_t>(0));
+            // The table is created on demand, so an index to which no manifest has ever been
+            // written has none. Nothing has been recorded, so nothing has been sequenced.
+            return 0;
         }
 
-        return result;
+        return GetNextChangeSequence(connection) - 1;
     }
 
     SQLite::blob_t PackageUpdateTrackingTable::GetDataHash(const SQLite::Connection& connection, const std::string& packageIdentifier, RemovalBehavior removals)
@@ -555,6 +679,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         packageRowIdBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_PackageRowId, Builder::Type::Int64).NotNull().Default(0));
         packageRowIdBuilder.Execute(connection);
 
+        // Every existing row is backfilled with the same sequence, and the next one issued is 1.
+        // That is correct rather than merely convenient: an index designated as a baseline
+        // immediately after migrating records 0 as its own sequence, so a delta against it reports
+        // only what followed - and what preceded is exactly what the baseline already contains.
+        Builder::StatementBuilder changeSequenceBuilder;
+        changeSequenceBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_ChangeSequence, Builder::Type::Int64).NotNull().Default(0));
+        changeSequenceBuilder.Execute(connection);
+
         // Backfill the rowid for the rows already present. Every one of them is live: 2.0 deletes
         // the row when a package is removed, so a table being migrated has no tombstones and every
         // package it names is still in the index.
@@ -591,5 +723,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         CreateLiveRowIndex(connection);
+        CreateChangeSequenceIndex(connection);
     }
 }
