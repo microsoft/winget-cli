@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "MatchCriteriaResolver.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include <winget/HttpClientHelper.h>
@@ -21,6 +22,32 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         // Query params
         constexpr std::string_view VersionQueryParam = "Version"sv;
         constexpr std::string_view ChannelQueryParam = "Channel"sv;
+
+        void FilterSearchResult(const SearchRequest& request, IRestClient::SearchResult& result)
+        {
+            for (const auto& filter : request.Filters)
+            {
+                // Other fields may match metadata omitted from the search response, such as localized names.
+                if (filter.Field != PackageMatchField::Id)
+                {
+                    continue;
+                }
+
+                auto& matches = result.Matches;
+                matches.erase(std::remove_if(matches.begin(), matches.end(), [&](const IRestClient::Package& package)
+                {
+                    auto match = MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
+                    if (match && !match.value())
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Discarding REST package " << package.PackageInformation.PackageIdentifier <<
+                            ": does not match ID filter '" << filter.Value << "' [" << ToString(filter.Type) << "]");
+                        return true;
+                    }
+
+                    return false;
+                }), matches.end());
+            }
+        }
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
@@ -134,6 +161,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             if (jsonObject)
             {
                 SearchResult currentResult = GetSearchResult(jsonObject.value());
+                FilterSearchResult(request, currentResult);
 
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
@@ -250,6 +278,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             searchResult.Matches.emplace_back(std::move(package));
         }
 
+        FilterSearchResult(request, searchResult);
         return searchResult;
     }
 
