@@ -80,6 +80,7 @@ dotnet
 downloaders
 dsx
 DWORDLONG
+EApp
 emoji
 ENDDIALOG
 ensureandinsert
