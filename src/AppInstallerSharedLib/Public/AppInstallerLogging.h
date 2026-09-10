@@ -98,6 +98,15 @@ namespace AppInstaller::Logging
         ShortGuid,
     };
 
+    // The format used when writing log entries to a file.
+    enum class LogFileFormat
+    {
+        // Default WinGet format: "<timestamp> <level> [channel] message"
+        WinGet,
+        // CCM/CMTrace-compatible format: "<![LOG[message]LOG]!><time="<time>" date="<date>" component="<channel>" context="" type="N" thread="<id>" file="">"
+        CCM,
+    };
+
     // Indicates a location of significance in the logging stream.
     enum class Tag
     {
