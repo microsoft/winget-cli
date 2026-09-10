@@ -45,6 +45,9 @@ jobs:
   timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
   condition: always()
+  # Use custom agent with additional resources.
+  pool:
+    name: 1es-pool-winget
 
   strategy:
     matrix:
@@ -134,7 +137,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true
+                    /p:PreferredToolArchitecture=x64
                     /p:WingetDisableIncrementalLinkTimeCodeGeneration=true'
       maximumCpuCount: true
 
@@ -680,6 +683,9 @@ jobs:
 - job: 'Fuzzing'
   timeoutInMinutes: 60
   condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+  # Use custom agent with additional resources.
+  pool:
+    name: 1es-pool-winget
 
   strategy:
     matrix:
