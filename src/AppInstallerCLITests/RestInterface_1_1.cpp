@@ -403,8 +403,26 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
     AppInstaller::Repository::SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
+    size_t expectedCount = 1;
+
+    SECTION("Name filter") {}
+    SECTION("Matching ID filter")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "GIT.PACKAGE");
+    }
+    SECTION("Mismatching ID filter")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "Other.Package");
+        expectedCount = 0;
+    }
+
     Schema::IRestClient::SearchResult searchResponse = v1_1.Search(request);
-    REQUIRE(searchResponse.Matches.size() == 1);
+    REQUIRE(searchResponse.Matches.size() == expectedCount);
+    if (!expectedCount)
+    {
+        return;
+    }
+
     Schema::IRestClient::Package package = searchResponse.Matches.at(0);
     REQUIRE(package.PackageInformation.PackageIdentifier.compare("git.package") == 0);
     REQUIRE(package.PackageInformation.Publisher.compare("git") == 0);

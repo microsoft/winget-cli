@@ -23,6 +23,30 @@ namespace
 {
     const std::string TestRestUriString = "http://restsource.com/api";
 
+    utility::string_t GetSearchResponse_PackageIds(
+        std::initializer_list<utility::string_t> identifiers, const utility::string_t& continuationToken = {})
+    {
+        web::json::value response;
+        response[L"Data"] = web::json::value::array();
+        size_t index = 0;
+        for (const auto& identifier : identifiers)
+        {
+            web::json::value package;
+            package[L"PackageIdentifier"] = web::json::value::string(identifier);
+            package[L"PackageName"] = web::json::value::string(L"Microsoft Teams");
+            package[L"Publisher"] = web::json::value::string(L"Microsoft");
+            package[L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
+            response[L"Data"][index++] = std::move(package);
+        }
+
+        if (!continuationToken.empty())
+        {
+            response[L"ContinuationToken"] = web::json::value::string(continuationToken);
+        }
+
+        return response.serialize();
+    }
+
     utility::string_t GetGoodManifest_RequiredFields()
     {
         return _XPLATSTR(
@@ -398,6 +422,188 @@ TEST_CASE("Search_GoodResponse_404AsEmpty", "[RestSource][Interface_1_0]")
     REQUIRE(searchResponse.Matches.size() == 0);
 }
 
+TEST_CASE("Search_ExplicitIdFilters", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"XP8BT8DW290MPQ", L"Microsoft.Teams", L"Microsoft.Teams.Preview" })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, "Microsoft Teams");
+    std::vector<std::string> expected{ "Microsoft.Teams" };
+
+    SECTION("Exact")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Microsoft.Teams");
+    }
+    SECTION("Exact case mismatch")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "microsoft.teams");
+        expected.clear();
+    }
+    SECTION("Case insensitive")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "microsoft.teams");
+    }
+    SECTION("Starts with")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "microsoft.teams");
+        expected.emplace_back("Microsoft.Teams.Preview");
+    }
+    SECTION("Substring")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Substring, "teams");
+        expected.emplace_back("Microsoft.Teams.Preview");
+    }
+    SECTION("All ID filters must match")
+    {
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Microsoft.Teams");
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Microsoft.Teams.Preview");
+        expected.clear();
+    }
+    SECTION("Query and inclusions cannot override a failed filter")
+    {
+        request.Query.emplace(MatchType::Substring, "Teams");
+        request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Exact, "Microsoft Teams");
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Other.Package");
+        expected.clear();
+    }
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == expected.size());
+    REQUIRE_FALSE(result.Truncated);
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == expected[i]);
+    }
+}
+
+TEST_CASE("Search_ExplicitIdFilters_UnicodePrefix", "[RestSource][Interface_1_0]")
+{
+    std::wstring id = GENERATE(L"Vendor.\u1E9EApp", L"Vendor.\u00DFApp", L"Vendor.SSApp");
+    std::string prefix = GENERATE(u8"vendor.\u00DF", u8"vendor.\u1E9E", "vendor.ss");
+    CAPTURE(id, prefix);
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"Vendor.Other", id })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, prefix);
+    request.MaximumResults = 1;
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == ConvertToUTF8(id));
+    REQUIRE_FALSE(result.Truncated);
+}
+
+TEST_CASE("Search_ExplicitIdFilters_UnsupportedMatchType", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"Foo.Bar" })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    auto type = GENERATE(MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Wildcard);
+    request.Filters.emplace_back(PackageMatchField::Id, type, "Other");
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+}
+
+TEST_CASE("Search_ExplicitIdFilters_UnavailableMetadata", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"Foo.Bar" })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
+    auto field = GENERATE(PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag,
+        PackageMatchField::Command, PackageMatchField::PackageFamilyName, PackageMatchField::ProductCode,
+        PackageMatchField::UpgradeCode, PackageMatchField::NormalizedNameAndPublisher, PackageMatchField::Market);
+    request.Filters.emplace_back(field, MatchType::Exact, "Not in the response");
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+}
+
+TEST_CASE("Search_ExplicitIdFilters_NoFilters", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"Foo.Bar" })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+
+    SECTION("Everything") {}
+    SECTION("Query")
+    {
+        request.Query.emplace(MatchType::Exact, "Not in the response");
+    }
+    SECTION("Inclusions")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Not in the response");
+    }
+    SECTION("Correlation")
+    {
+        request.Purpose = SearchPurpose::CorrelationToAvailable;
+        request.Inclusions.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, "Not in the response");
+    }
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+}
+
+TEST_CASE("Search_ExplicitIdFilters_Continuation", "[RestSource][Interface_1_0]")
+{
+    bool allFiltered = GENERATE(false, true);
+    std::vector<utility::string_t> pages
+    {
+        GetSearchResponse_PackageIds({ L"Other.One", L"Other.Two" }, L"next"),
+        GetSearchResponse_PackageIds({ allFiltered ? L"Other.Three" : L"Match.One" }, L"last"),
+        GetSearchResponse_PackageIds({ allFiltered ? L"Other.Four" : L"Match.Two",
+            allFiltered ? L"Other.Five" : L"Match.Three" }),
+    };
+    std::vector<utility::string_t> continuationTokens;
+    size_t requestCount = 0;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::BadRequest };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (request.method() == web::http::methods::POST && requestCount < pages.size())
+            {
+                continuationTokens.emplace_back(request.headers()[L"ContinuationToken"]);
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(pages[requestCount]));
+            }
+            ++requestCount;
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Match.");
+    request.MaximumResults = GENERATE(0, 1, 2, 3, 9);
+
+    auto result = v1.Search(request);
+    size_t expectedCount = allFiltered ? 0 : (request.MaximumResults ? std::min(size_t{ 3 }, request.MaximumResults) : 3);
+    REQUIRE(result.Matches.size() == expectedCount);
+    REQUIRE(result.Truncated == (!allFiltered && expectedCount < 3));
+    REQUIRE(requestCount == (!allFiltered && request.MaximumResults == 1 ? size_t{ 2 } : size_t{ 3 }));
+    REQUIRE(continuationTokens[0].empty());
+    REQUIRE(continuationTokens[1] == L"next");
+    if (requestCount == 3)
+    {
+        REQUIRE(continuationTokens[2] == L"last");
+    }
+    const std::vector<std::string> expectedIds{ "Match.One", "Match.Two", "Match.Three" };
+    for (size_t i = 0; i < expectedCount; ++i)
+    {
+        REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == expectedIds[i]);
+    }
+}
+
 TEST_CASE("Search_ContinuationToken", "[RestSource][Interface_1_0]")
 {
     utility::string_t sample = _XPLATSTR(
@@ -462,7 +668,7 @@ TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource][Interface_1_0]")
     utility::string_t sample = GetGoodManifest_RequiredFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
     AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
+    PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo.Bar" };
     request.Filters.emplace_back(std::move(filter));
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search(request);
@@ -514,12 +720,36 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource][Interface_1_
     REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
+TEST_CASE("Search_Optimized_ExplicitIdFilter", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, GetGoodManifest_RequiredFields()) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    auto type = GENERATE(MatchType::Exact, MatchType::CaseInsensitive);
+    std::string id = GENERATE("Foo.Bar", "foo.bar", "Foo", "Other.Package");
+    request.Filters.emplace_back(PackageMatchField::Id, type, id);
+
+    auto result = v1.Search(request);
+    bool expected = id == "Foo.Bar" || (type == MatchType::CaseInsensitive && id == "foo.bar");
+    REQUIRE(result.Matches.size() == (expected ? size_t{ 1 } : size_t{ 0 }));
+    REQUIRE_FALSE(result.Truncated);
+    if (expected)
+    {
+        REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+        REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+    }
+}
+
 TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface_1_0]")
 {
-    utility::string_t emptySearchResponse = _XPLATSTR(R"delimiter({ "Data" : [] })delimiter");
+    bool filteredSearch = GENERATE(false, true);
+    bool manifestMatches = GENERATE(false, true);
+    auto searchResponse = filteredSearch ? GetSearchResponse_PackageIds({ L"Unrelated.Package" }) : GetSearchResponse_PackageIds({});
+    size_t searchCount = 0;
+    size_t manifestCount = 0;
 
     auto handler = std::make_shared<TestRestRequestHandler>(
-        [emptySearchResponse](web::http::http_request request) -> pplx::task<web::http::http_response>
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
         {
             web::http::http_response response;
             response.headers().set_content_type(web::http::details::mime_types::application_json);
@@ -527,11 +757,13 @@ TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface
 
             if (request.method() == web::http::methods::POST)
             {
+                ++searchCount;
                 response.set_status_code(web::http::status_codes::OK);
-                response.set_body(web::json::value::parse(emptySearchResponse));
+                response.set_body(web::json::value::parse(searchResponse));
             }
             else if (request.method() == web::http::methods::GET)
             {
+                ++manifestCount;
                 response.set_status_code(web::http::status_codes::OK);
                 response.set_body(web::json::value::parse(GetGoodManifest_RequiredFields()));
             }
@@ -545,15 +777,21 @@ TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface
 
     HttpClientHelper helper{ std::move(handler) };
     AppInstaller::Repository::SearchRequest request;
-    request.Filters.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::Substring, "Foo.Bar" });
+    std::string_view id = manifestMatches ? "Foo.Bar" : "Other.Id";
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Substring, id);
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search(request);
 
-    REQUIRE(result.Matches.size() == 1);
-    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
-    REQUIRE(result.Matches[0].Versions.size() == 1);
-    REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "5.0.0");
-    REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+    REQUIRE(searchCount == 1);
+    REQUIRE(manifestCount == 1);
+    REQUIRE(result.Matches.size() == (manifestMatches ? size_t{ 1 } : size_t{ 0 }));
+    if (manifestMatches)
+    {
+        REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+        REQUIRE(result.Matches[0].Versions.size() == 1);
+        REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "5.0.0");
+        REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+    }
 }
 
 TEST_CASE("Search_SubstringId_NoFallbackWhenSearchMatches", "[RestSource][Interface_1_0]")

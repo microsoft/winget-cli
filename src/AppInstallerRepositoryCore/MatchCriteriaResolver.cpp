@@ -9,11 +9,6 @@ namespace AppInstaller::Repository
     {
         using ValueMatchFunction = bool (*)(const Utility::NormalizedString&, const Utility::NormalizedString&);
 
-        bool ValueMatchFunction_AlwaysFalse(const Utility::NormalizedString&, const Utility::NormalizedString&)
-        {
-            return false;
-        }
-
         bool ValueMatchFunction_Exact(const Utility::NormalizedString& a, const Utility::NormalizedString& b)
         {
             return a == b;
@@ -50,7 +45,7 @@ namespace AppInstaller::Repository
             case MatchType::FuzzySubstring:
             case MatchType::Wildcard:
             default:
-                return ValueMatchFunction_AlwaysFalse;
+                return nullptr;
             }
         }
 
@@ -167,6 +162,16 @@ namespace AppInstaller::Repository
 
             return MatchType::Exact == result.Type;
         }
+    }
+
+    std::optional<bool> MatchesRequest(const RequestMatch& request, const Utility::NormalizedString& value)
+    {
+        if (auto matchFunction = GetMatchTypeFunction(request.Type))
+        {
+            return matchFunction(value, request.Value);
+        }
+
+        return std::nullopt;
     }
 
     PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)
