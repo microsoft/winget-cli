@@ -5,15 +5,8 @@
 #include <winget/Manifest.h>
 #include <winget/SQLiteWrapper.h>
 
-#include <initializer_list>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
 
-
-// Fixture helpers shared by the index test files. They live here rather than in TestCommon so that
-// only the tests that build indexes pay for the manifest and index headers.
+// Fixture helpers shared by the index test files.
 namespace TestCommon
 {
     using SQLiteVersion = AppInstaller::SQLite::Version;
@@ -169,9 +162,6 @@ namespace TestCommon
     void ApplyIndexFields(AppInstaller::Manifest::Manifest& manifest, const IndexFields& fields);
 
     // Produces the manifest described by the given fields.
-    //
-    // Unlike ApplyIndexFields, nothing can carry over from a previously described package, which is
-    // what a test that replaces a package's data wants.
     AppInstaller::Manifest::Manifest CreateManifest(const IndexFields& fields);
 
     // Creates an index containing the given data.

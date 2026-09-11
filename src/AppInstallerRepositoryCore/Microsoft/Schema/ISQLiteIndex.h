@@ -155,12 +155,12 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Version 2.1
 
         // Designates this index as a baseline that delta indexes may be generated against, giving
-        // it an identity that a delta can name. A schema version that cannot be a baseline throws.
+        // it an identity that a delta can name.
         virtual void MarkAsBaseline(SQLite::Connection& connection);
 
         // Sets this index up to read the combination of a delta and the baseline that it was
         // generated against, so that every subsequent read sees the merged data. Must be called
-        // before any read. A schema version that cannot read a delta throws.
+        // before any read.
         virtual void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline);
     };
 

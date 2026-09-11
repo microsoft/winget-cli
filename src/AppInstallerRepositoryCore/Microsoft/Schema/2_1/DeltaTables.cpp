@@ -96,11 +96,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
                 ColumnBuilder(s_Delta_IsRemovedColumn, Type::Int64).NotNull()
                 });
             builder.Execute(connection);
-
-            // No index on the identifier. Identity here is the rowid, and one identifier can
-            // legitimately occupy two rows: a package removed and re-added within the window
-            // vacates one rowid and takes another, which is recorded as a removal at the first and
-            // a change at the second. Uniqueness on the rowid is already given by the primary key.
         }
 
         // The system reference tables hold the value itself, so the delta only adds the removal flag.
@@ -162,12 +157,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         using namespace SQLite::Builder;
 
         // Every index here exists only to serve generation: those on the one to many data tables
-        // let generation find the rowid it already allocated for a value. Nothing reads them.
-        //
-        // The merged views need no index at all. They suppress baseline packages by rowid, and
-        // baseline associations by the (value, package) pair that is the primary key of a WITHOUT
-        // ROWID table, so every probe already lands on a key. This matches the 2.0 index itself,
-        // which drops all of its indexes in PrepareForPackaging and ships as plain tables.
+        // let generation find the rowid it already allocated for a value.
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "delta_preparetables_v2_1");
 
@@ -182,9 +172,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             savepoint.Commit();
         }
 
-        // Generation only ever inserts, so there is nothing to reclaim from the data itself. The
-        // indexes just dropped are the exception, and the whole point of a delta is the bytes it
-        // costs to deliver, so it is worth returning those pages to the file.
         StatementBuilder vacuumBuilder;
         vacuumBuilder.Vacuum();
         vacuumBuilder.Execute(connection);

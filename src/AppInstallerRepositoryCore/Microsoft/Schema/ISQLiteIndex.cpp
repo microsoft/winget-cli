@@ -56,9 +56,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
             return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();
         }
 
-        // Version 2.x is designed solely for minimizing the size of the index for transport.
+        // Version 2.* is designed solely for minimizing the size of the index for transport.
         // Unless it is prepared for packaging, it will be identical to a 1.N index.
-        // Version 2.1 adds is_removed tracking to enable delta index generation.
         if (version.MajorVersion == 2)
         {
             constexpr std::array<std::unique_ptr<ISQLiteIndex>(*)(), 2> versionCreatorMap =

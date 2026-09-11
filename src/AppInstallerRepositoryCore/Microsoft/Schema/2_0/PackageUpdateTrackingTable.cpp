@@ -7,12 +7,6 @@
 #include <winget/SQLiteStatementBuilder.h>
 #include <AppInstallerStrings.h>
 
-#include <optional>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
-
 using namespace AppInstaller::SQLite;
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
@@ -33,20 +27,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     namespace
     {
         // Finds the rowid that the package occupies in the index.
-        //
-        // The identity of a package is the rowid of its `ids` row, not the identifier string.
-        // AddManifest calls IdTable::EnsureExists with overwriteLikeMatch, so identifiers that
-        // match under LIKE collapse onto a single rowid and the stored string is replaced by the
-        // most recent casing. Matching by rowid therefore inherits the index's own notion of
-        // identity, and is stable against that string changing underneath us.
         std::optional<SQLite::rowid_t> GetPackageRowIdInIndex(const SQLite::Connection& connection, const std::string& packageIdentifier)
         {
             return V1_0::IdTable::SelectIdByValue(connection, packageIdentifier, true);
         }
 
         // The tombstones, as the identifier recorded for the package and the rowid it vacated.
-        // Generation needs only the rowid, so the public accessor reports that; the consistency
-        // check needs both in order to say which package is at fault.
         std::vector<std::pair<std::string, SQLite::rowid_t>> GetRemovedRows(
             const SQLite::Connection& connection,
             PackageUpdateTrackingTable::RemovalBehavior removals)
@@ -73,12 +59,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         // The sequence to stamp on the row about to be written.
-        //
-        // Allocated as one above the highest ever issued rather than from a stored counter, which
-        // needs no separate value to keep in step with the table and no migration when it is
-        // absent. It never goes backwards: rows are only ever inserted or updated in place while
-        // removals are being recorded, so no sequence is released once issued. SQLite answers the
-        // aggregate from the index with a single seek.
         int64_t GetNextChangeSequence(const SQLite::Connection& connection)
         {
             Builder::StatementBuilder builder;
@@ -96,12 +76,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         // The rows written after the given point, as measured by the given column.
-        //
-        // The boundary is exclusive for the sequence and inclusive for the write time. That is not
-        // an inconsistency: whole second times cannot distinguish "written during the base second,
-        // before the base was taken" from "after", so the inclusive form is the only safe one and
-        // it over-reports by design. A sequence has no such ambiguity, so it takes the exact
-        // boundary and reports precisely what followed.
+        // The boundary is exclusive for the sequence and inclusive for the write time.
         std::vector<PackageUpdateTrackingTable::PackageData> GetUpdates(
             const SQLite::Connection& connection,
             std::string_view boundaryColumn,
@@ -165,13 +140,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         // The rowids vacated after the given point, as measured by the given column.
-        //
-        // The rowid is reported rather than the identifier because it is the identity a delta is
-        // keyed on, and it is the only one that can be compared exactly. Identifiers cannot: the
-        // casing recorded for a package is frozen when its row is written, so one package can leave
-        // tombstones under several spellings, and no string comparison available here reproduces
-        // the ICU LIKE that decides identity elsewhere. Two packages can still vacate the same
-        // rowid in turn, so the result is a set.
         std::set<SQLite::rowid_t> GetRemovals(
             const SQLite::Connection& connection,
             std::string_view boundaryColumn,
@@ -226,15 +194,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         if (removals == RemovalBehavior::Record)
         {
             builder.Column(ColumnBuilder(s_PUTT_IsRemoved, Type::Int64).NotNull().Default(0));
-
-            // The rowid the package occupies in the index, which is what a delta is keyed on.
-            // Always known: the add path resolves it while the package is present, and the remove
-            // path is given it by the caller, which resolves it before the package leaves.
             builder.Column(ColumnBuilder(s_PUTT_PackageRowId, Type::Int64).NotNull());
-
-            // A monotonically increasing stamp identifying when this row was last written,
-            // relative only to the other rows in this table. See GetUpdatesSinceSequence for why
-            // a delta uses this in preference to the write time.
             builder.Column(ColumnBuilder(s_PUTT_ChangeSequence, Type::Int64).NotNull());
         }
 
@@ -333,14 +293,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             else
             {
                 // Mark the package as removed rather than deleting the row, clearing the data columns.
-                // The row is found by the rowid the package occupied rather than by its identifier:
-                // that is the identity a delta is keyed on, and matching on it means a package whose
-                // identifier changed casing still marks the row it actually owns. Earlier tombstones
-                // refer to rowids the package has already vacated and must be preserved so that a
-                // delta learns about each of them.
-                //
-                // The rowid cannot be looked up here, because the package has already left the index.
-                // The caller resolves it beforehand and passes it in.
+                // The row is found by the rowid the package occupied rather than by its identifier.
                 THROW_HR_IF(E_NOT_VALID_STATE, !removedPackageRowId);
 
                 int64_t currentTime = Utility::GetCurrentUnixEpoch();
@@ -515,10 +468,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             }
         }
 
-        // A package recorded as removed must no longer occupy the rowid it vacated. Comparing the
-        // rowid rather than merely checking for absence is what makes this precise: a package that
-        // was removed and re-added is legitimately back in the index, but at a different rowid, and
-        // the tombstone for the one it gave up is still meaningful.
+        // A package recorded as removed must no longer occupy the rowid it vacated.
         for (const auto& [packageIdentifier, vacatedRowId] : GetRemovedRows(connection, removals))
         {
             std::optional<SQLite::rowid_t> indexRowId = GetPackageRowIdInIndex(connection, packageIdentifier);
@@ -537,9 +487,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             }
         }
 
-        // Every live row must name the rowid that the package actually occupies, since that is the
-        // identity a delta is keyed on. A disagreement means either this table or the rowid
-        // pinning performed during packaging has drifted.
+        // Every live row must name the rowid that the package actually occupies.
         if (removals == RemovalBehavior::Record)
         {
             for (const PackageData& packageData : GetUpdatesSince(connection, 0, removals))
@@ -680,9 +628,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         packageRowIdBuilder.Execute(connection);
 
         // Every existing row is backfilled with the same sequence, and the next one issued is 1.
-        // That is correct rather than merely convenient: an index designated as a baseline
-        // immediately after migrating records 0 as its own sequence, so a delta against it reports
-        // only what followed - and what preceded is exactly what the baseline already contains.
         Builder::StatementBuilder changeSequenceBuilder;
         changeSequenceBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_ChangeSequence, Builder::Type::Int64).NotNull().Default(0));
         changeSequenceBuilder.Execute(connection);

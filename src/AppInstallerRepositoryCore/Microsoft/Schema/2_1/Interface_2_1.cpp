@@ -9,14 +9,12 @@
 #include <winget/SQLiteMetadataTable.h>
 #include <AppInstallerDateTime.h>
 
-#include <sstream>
-
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 {
     Interface::Interface(Utility::NormalizationVersion normVersion) : V2_0::Interface(normVersion)
     {
         // Removals are recorded rather than deleted, so that delta generation can see which
-        // packages have gone away. This is the difference that 2.1 exists for.
+        // packages have gone away.
         m_trackingRemovalBehavior = V2_0::PackageUpdateTrackingTable::RemovalBehavior::Record;
     }
 
@@ -36,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // Attempt a migration to 2.0 first, which will only return true if it actually performed a migration
         bool v2result = V2_0::Interface::MigrateFrom(connection, current);
 
-        // Migration from 2.0 → 2.1: add the is_removed column to update_tracking.
+        // Migration from 2.0 → 2.1
         if (v2result || (currentVersion.MajorVersion == 2 && currentVersion.MinorVersion == 0))
         {
             V2_0::PackageUpdateTrackingTable::AddRemovalTrackingColumns(connection);
@@ -77,24 +75,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
     {
         SQLite::Connection& connection = context.Connection;
 
-        // Record the point from which a delta against this index should be computed. Every 2.1 index
-        // does this, because any of them may later be designated as a baseline.
-        // TODO: We also need to ensure that our times are UTC / not impacted by timezone shifts, etc.
-        SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_DeltaBaselineTime, std::to_string(Utility::GetCurrentUnixEpoch()));
-
-        // The sequence is what a delta actually uses; the time is retained because it is what the
-        // 2.0 version data manifest export reads, and because it remains useful diagnostically.
-        // A sequence is preferred here because the boundary it defines is exact. Whole second times
-        // cannot separate a change written during the baseline's own second from one written before
-        // it, so the time based window has to be inclusive and re-carries everything written in that
-        // second. A sequence is also immune to the clock stepping backwards, which under the time
-        // scheme silently drops a change and leaves a stale baseline row visible forever.
-        //
-        // It has to be recorded rather than recomputed from the baseline later: preparing an index
-        // drops the tracking table, so a baseline has none to read. That is also why this runs where
-        // it does, before the drop. Even had the table survived, its maximum is taken over whatever
-        // rows remain and would fall below the true high water mark once any were removed, so a
-        // later delta would re-carry changes the baseline already contains.
         int64_t currentSequence = V2_0::PackageUpdateTrackingTable::GetCurrentChangeSequence(connection, m_trackingRemovalBehavior);
         SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_DeltaBaselineSequence, std::to_string(currentSequence));
 
@@ -111,7 +91,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 
         SQLite::Connection baselineConnection = SQLite::Connection::Create(baselinePath.u8string(), SQLite::Connection::OpenDisposition::ReadOnly);
 
-        // The changes to capture are those written after the baseline recorded its own sequence.
+        // The baseline must be a previous version of this database.
+        std::string databaseIdentifier = SQLite::MetadataTable::GetNamedValue<std::string>(connection, SQLite::s_MetadataValueName_DatabaseIdentifier);
+        std::string baselineDatabaseIdentifier = SQLite::MetadataTable::GetNamedValue<std::string>(baselineConnection, SQLite::s_MetadataValueName_DatabaseIdentifier);
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED, databaseIdentifier != baselineDatabaseIdentifier);
+
+        // Ensure that the baseline is earlier in the sequence.
         int64_t baselineSequence = 0;
         std::optional<std::string> baselineSequenceString = SQLite::MetadataTable::TryGetNamedValue<std::string>(baselineConnection, s_MetadataValueName_DeltaBaselineSequence);
         if (baselineSequenceString && !baselineSequenceString->empty())
@@ -119,10 +105,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
             baselineSequence = std::stoll(baselineSequenceString.value());
         }
 
-        // A sequence fails in the one direction a time does not: if this index was rebuilt since the
-        // baseline was taken, its counter restarted below the baseline's value and the window is
-        // empty. That would produce a silently empty delta, so refuse instead. The equal case is
-        // legitimate and simply means nothing has changed.
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED, currentSequence < baselineSequence);
 
         auto changedPackages = V2_0::PackageUpdateTrackingTable::GetUpdatesSinceSequence(connection, baselineSequence, m_trackingRemovalBehavior);

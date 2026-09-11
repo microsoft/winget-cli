@@ -58,11 +58,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLiteIndex result{ SQLite::DatabaseSpecifier{ deltaFilePath, disposition }, {} };
 
-        result.m_contextData.Add<Schema::Property::DeltaBaselineIndexPath>(baselinePath);
-
-        // The interface for the delta's schema version establishes the combined view. A version
-        // that does not understand deltas throws, which is the right answer: nothing else here
-        // could make sense of the pair.
+        // The interface for the delta's schema version establishes the combined view.
         result.m_interface->SetupDeltaReadMode(result.m_dbconn, SQLite::DatabaseSpecifier{ baselineFilePath, disposition });
 
         return result;

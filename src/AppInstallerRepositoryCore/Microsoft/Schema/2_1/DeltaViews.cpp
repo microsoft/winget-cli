@@ -12,9 +12,6 @@
 #include <winget/SQLiteStatementBuilder.h>
 #include <winget/SQLiteMetadataTable.h>
 
-#include <optional>
-#include <string>
-
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 {
@@ -98,8 +95,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         //
         // The delta records only the associations that changed, rather than the full current set
         // for a changed package. A baseline association therefore survives unless the delta names
-        // that exact pair, or the package it belongs to has gone away entirely. Suppressing at the
-        // level of the package instead would discard every association a changed package still has.
+        // that exact pair, or the package it belongs to has gone away entirely.
         void CreateAssociationView(
             SQLite::Connection& connection,
             std::string_view viewName,
@@ -151,13 +147,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         }
 
         // Verifies that the baseline is the one that the delta was generated against.
-        //
-        // Merging a delta with any other baseline produces plausible looking nonsense rather than
-        // an error: the packages it did not change are taken from a version of the world it never
-        // saw, and the rowids that tie the two together mean different things on each side.
-        //
-        // The baseline is read on a connection of its own because the metadata accessors always
-        // read the main database, and by the time it is attached it is not that.
         void ValidateBaselineAffinity(const SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline)
         {
             std::optional<std::string> expected =

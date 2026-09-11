@@ -97,14 +97,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         mutable bool m_internalInterfaceChecked = false;
 
         // Determines how the removal of a package is recorded in the update tracking table.
-        // Version 2.0 deletes the row; a derived version sets this to record the removal instead,
-        // so that a delta index can express it. This varies only by schema version, so the
-        // constructor of that version establishes it rather than a virtual answering per call.
         PackageUpdateTrackingTable::RemovalBehavior m_trackingRemovalBehavior = PackageUpdateTrackingTable::RemovalBehavior::Delete;
 
         // Set when the tables that this interface reads are the merged views over a delta and its
-        // baseline rather than tables of this database. Version 2.0 cannot produce that state
-        // itself; a derived version sets this when it establishes the views.
+        // baseline rather than tables of this database.
         mutable bool m_isDeltaReadMode = false;
 
         // Interface to the data before PrepareForPackaging is called.

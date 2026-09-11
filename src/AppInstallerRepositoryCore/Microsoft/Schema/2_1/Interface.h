@@ -5,19 +5,10 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 {
-    // The point in time from which the next delta generated against this index should be computed.
-    static constexpr std::string_view s_MetadataValueName_DeltaBaselineTime = "deltaBaselineTime"sv;
-
     // The change sequence from which the next delta generated against this index should be computed.
-    // This is the value a delta actually uses; the time above is retained for the 2.0 export and for
-    // diagnostics. A sequence gives an exact, exclusive boundary that whole second times cannot.
     static constexpr std::string_view s_MetadataValueName_DeltaBaselineSequence = "deltaBaselineSequence"sv;
 
     // Identifies this index as a baseline that deltas may be generated against.
-    //
-    // The database identifier cannot serve this purpose. An index is prepared from a copy of a
-    // long lived working index, and copying carries the identifier along, so every index produced
-    // in a baseline period shares one. Designation therefore stamps its own fresh identity.
     static constexpr std::string_view s_MetadataValueName_BaselineIdentifier = "baselineIdentifier"sv;
 
     // Written into a delta, naming the baseline that it was generated against. A delta is only
@@ -48,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline) override;
 
     protected:
-        // Records the baseline time for this index, and generates a delta index against a previous
+        // Records the baseline sequence for this index, and generates a delta index against a previous
         // baseline when the caller has supplied the paths to do so.
         void CreateAdditionalPackagingOutput(const SQLiteIndexContext& context) override;
     };

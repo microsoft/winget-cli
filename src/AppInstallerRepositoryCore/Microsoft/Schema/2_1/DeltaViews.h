@@ -3,8 +3,6 @@
 #pragma once
 #include <winget/SQLiteWrapper.h>
 
-#include <filesystem>
-
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 {

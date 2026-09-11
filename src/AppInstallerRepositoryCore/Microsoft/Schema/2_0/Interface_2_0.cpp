@@ -732,7 +732,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             auto idRowId = V1_0::IdTable::SelectIdByValue(connection, packageIdentifier);
             THROW_HR_IF(E_NOT_VALID_STATE, !idRowId);
 
-            SQLite::rowid_t packageId = PackagesTable::InsertWithRowId(connection, idRowId.value(), packageData);
+            SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData, idRowId);
 
             PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, PackageUpdateTrackingTable::GetDataHash(connection, packageIdentifier, m_trackingRemovalBehavior));
 
@@ -749,7 +749,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             }
         }
 
-        // Extension point for later schema versions; see the declaration for why it must be here.
         CreateAdditionalPackagingOutput(context);
 
         PackagesTable::PrepareForPackaging<

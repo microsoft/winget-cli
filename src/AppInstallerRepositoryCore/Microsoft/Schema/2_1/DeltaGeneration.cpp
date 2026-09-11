@@ -13,11 +13,6 @@
 #include <winget/SQLiteStorageBase.h>
 #include <winget/SQLiteMetadataTable.h>
 
-#include <algorithm>
-#include <map>
-#include <optional>
-#include <set>
-
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 {
@@ -25,10 +20,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
     namespace
     {
-        // The delta database is created through SQLiteStorageBase rather than as a bare connection
-        // so that it carries the same metadata as any other index: a schema version, a database
-        // identifier, and a last write time. Without that metadata it could not be opened, as
-        // opening reads the schema version to decide which interface to use.
         struct DeltaDatabase : public SQLite::SQLiteStorageBase
         {
             DeltaDatabase(const std::filesystem::path& path, const SQLite::Version& version) :
@@ -134,8 +125,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         }
 
         // Records that the package with the given identifier is no longer present.
-        // The rowid is the one that the baseline gave the package, as that is what the rest of the
-        // baseline data refers to.
         void WriteRemovedPackage(SQLite::Connection& deltaConnection, SQLite::rowid_t packageRowId, const std::string& packageIdentifier)
         {
             std::string tableName = GetTableName(V2_0::PackagesTable::TableName());
@@ -199,9 +188,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             builder.Execute(deltaConnection);
         }
 
-        // Records only the system reference values that changed for the package, rather than its
-        // entire set of values. A package with many product codes that gains one more therefore
-        // costs a single row.
+        // Records only the system reference values that changed for the package.
         void WriteSystemReferenceDifference(
             SQLite::Connection& deltaConnection,
             const SQLite::Connection& sourceConnection,
@@ -226,9 +213,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         }
 
         // Gets a rowid that identifies the value in the merged data table, creating one if needed.
-        // Reusing the baseline's rowid where possible keeps the delta data table to just the values
-        // that the baseline has never seen; new rowids continue above the baseline's maximum so
-        // that the two tables can be combined without renumbering either of them.
         SQLite::rowid_t EnsureValueRowId(
             SQLite::Connection& deltaConnection,
             const SQLite::Connection& baselineConnection,
@@ -282,8 +266,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             builder.Execute(deltaConnection);
         }
 
-        // Records only the map entries that changed for the package; see the note on the system
-        // reference equivalent for why the full set is not written.
+        // Records only the map entries that changed for the package.
         void WriteOneToManyDifference(
             SQLite::Connection& deltaConnection,
             const SQLite::Connection& sourceConnection,
@@ -392,12 +375,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
             if (writtenRowIds.count(removedRowId))
             {
-                // The rowid has already been written, either by a package that has since taken it
-                // or by an earlier tombstone that vacated it. Writing it again is both impossible,
-                // since the rowid is the primary key of the delta's package table, and unnecessary:
-                // the row already there suppresses the baseline row, and where a new occupant wrote
-                // it the association differences were computed against the baseline at that same
-                // rowid, so the old package's data is displaced entirely.
+                // The rowid has already been written by a package that has since taken it..
                 AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but has already been written");
                 continue;
             }

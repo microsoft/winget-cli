@@ -21,9 +21,9 @@ namespace TestCommon
         // If no specific version requested, then use generator to run against the last 3 versions.
         if (!version)
         {
-            SQLiteVersion latestVersion{ 2, 0 };
-            SQLiteVersion versionMinus1 = SQLiteVersion{ 1, 7 };
-            SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 6 };
+            SQLiteVersion latestVersion{ 2, 1 };
+            SQLiteVersion versionMinus1 = SQLiteVersion{ 2, 0 };
+            SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 7 };
 
             version = GENERATE_COPY(SQLiteVersion{ versionMinus2 }, SQLiteVersion{ versionMinus1 }, SQLiteVersion{ latestVersion });
         }

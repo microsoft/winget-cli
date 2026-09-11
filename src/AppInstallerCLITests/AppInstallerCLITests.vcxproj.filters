@@ -99,6 +99,9 @@
     <ClInclude Include="TestConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SQLiteIndexTestCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -417,6 +420,15 @@
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="RepairFlow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteIndexTestCommon.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteIndexDelta.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
