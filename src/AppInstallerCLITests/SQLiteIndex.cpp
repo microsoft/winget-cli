@@ -26,9 +26,6 @@
 #include <Microsoft/Schema/2_0/Interface.h>
 #include <Microsoft/Schema/2_0/PackageUpdateTrackingTable.h>
 
-#include <chrono>
-#include <thread>
-
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace TestCommon;
@@ -70,10 +67,6 @@ SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
     return index.GetVersion();
 }
 
-
-
-
-
 SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::optional<SQLiteVersion> version = {})
 {
     SQLiteIndex index = CreateTestIndex(filePath, version);
@@ -87,7 +80,6 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
 
     return index;
 }
-
 
 bool ArePackageFamilyNameAndProductCodeSupported(const SQLiteIndex& index, const SQLiteVersion& testVersion)
 {

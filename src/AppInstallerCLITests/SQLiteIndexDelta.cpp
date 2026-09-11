@@ -16,15 +16,6 @@
 #include <Microsoft/Schema/2_1/DeltaTables.h>
 #include <Microsoft/Schema/2_1/DeltaViews.h>
 
-#include <algorithm>
-#include <filesystem>
-#include <map>
-#include <optional>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
-
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace TestCommon;
@@ -85,11 +76,7 @@ namespace
         return {};
     }
 
-    // Reads a package's associated values through whatever the given connection calls the tables.
-    //
-    // Against a combined connection these names resolve to the merged views, so this reads exactly
-    // what the 2.0 search path would: the map decides which values a package has, and the value
-    // table holds the strings.
+    // Reads a package's associated 1:N values through the given connection.
     std::set<std::string> GetOneToManyValues(
         const Connection& connection,
         std::string_view tableName,
@@ -120,12 +107,6 @@ namespace
         return GetStrings(connection, sql);
     }
 
-    // Drives the delta workflow, which is otherwise 40 lines of identical ceremony per test.
-    //
-    // The shape is fixed by what generation needs: a working index that accumulates changes, a
-    // designated baseline copied out of it at a chosen point, and a delta produced by preparing the
-    // working index afterwards. Preparing the working index also leaves it as an ordinary full
-    // index, which is what the equivalence tests compare the combined form against.
     struct DeltaTestContext
     {
         TempFile WorkingFile{ "delta_working"s, ".db"s };
@@ -171,15 +152,11 @@ namespace
         }
 
         // Opens the working index for the changes that the delta will carry.
-        //
-        // The base time reset governs the version data manifest export that preparing performs; the
-        // window the delta itself uses comes from the baseline's change sequence, and was fixed when
-        // the baseline was captured.
-        SQLiteIndex OpenWorkingForChanges()
+        SQLiteIndex OpenWorkingForChanges(bool resetBaseTimeIfNeeded = true)
         {
             SQLiteIndex index = SQLiteIndex::Open(WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
-            if (!m_baseTimeReset)
+            if (resetBaseTimeIfNeeded && !m_baseTimeReset)
             {
                 index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
                 m_baseTimeReset = true;
@@ -188,18 +165,9 @@ namespace
             return index;
         }
 
-        void Add(const IndexFields& fields)
+        void Add(const IndexFields& fields, bool resetBaseTimeIfNeeded = true)
         {
-            SQLiteIndex index = OpenWorkingForChanges();
-            Manifest manifest = CreateManifest(fields);
-            index.AddManifest(manifest, fields.Path);
-        }
-
-        // Adds to the working index without moving the change window, for setup that has to be
-        // part of the baseline rather than part of the delta.
-        void AddToWorking(const IndexFields& fields)
-        {
-            SQLiteIndex index = SQLiteIndex::Open(WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+            SQLiteIndex index = OpenWorkingForChanges(resetBaseTimeIfNeeded);
             Manifest manifest = CreateManifest(fields);
             index.AddManifest(manifest, fields.Path);
         }
@@ -277,8 +245,6 @@ namespace
         bool m_deltaGenerated = false;
     };
 
-    // A package with everything the index can store, so that the system reference tables are
-    // actually populated. The default fake manifest sets none of them.
     IndexFields MakePackage(
         std::string id,
         std::string name,
@@ -323,7 +289,7 @@ namespace
 // ---------------------------------------------------------------------------------------------
 // Group B - package rowid identity
 //
-// The merged packages view suppresses a baseline row when the delta names the same rowid, and
+// The merged package's view suppresses a baseline row when the delta names the same rowid, and
 // every association refers to a package by that rowid. These cases cover the ways that identity
 // can be broken.
 // ---------------------------------------------------------------------------------------------
@@ -339,7 +305,7 @@ TEST_CASE("SQLiteIndex_Delta_PackageRemovedThenReAdded", "[sqliteindex][V2_1][de
 
     DeltaTestContext context{ { p1, p2, p3 } };
 
-    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), "Publisher2.Id").value();
+    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), p2.Id).value();
 
     // Removing the middle package frees its rowid, but the next insert takes one above the highest
     // in use, so the re-add cannot land back on it.
@@ -348,7 +314,7 @@ TEST_CASE("SQLiteIndex_Delta_PackageRemovedThenReAdded", "[sqliteindex][V2_1][de
 
     context.GenerateDelta();
 
-    rowid_t newRowId = GetPreparedPackageRowId(context.WorkingFile.GetPath(), "Publisher2.Id").value();
+    rowid_t newRowId = GetPreparedPackageRowId(context.WorkingFile.GetPath(), p2.Id).value();
     REQUIRE(newRowId != originalRowId);
 
     {
@@ -362,13 +328,13 @@ TEST_CASE("SQLiteIndex_Delta_PackageRemovedThenReAdded", "[sqliteindex][V2_1][de
     SQLiteIndex combined = context.OpenCombined();
 
     SearchRequest request;
-    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "Publisher2.Id"));
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, p2.Id));
 
     // Exactly one, and from the delta rather than the stale baseline row.
     auto results = combined.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id", "Publisher3.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id, p3.Id });
 }
 
 // B2. Removing the package that holds the highest rowid frees it for the next package added, so
@@ -681,7 +647,7 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Removed", "[sqliteindex][V2_
 
     DeltaTestContext context;
     context.CreateWorking({ original, MakePackage("Publisher2.Id", "Package 2") });
-    context.AddToWorking(recased);
+    context.Add(recased, false);
     context.CaptureBaseline();
 
     REQUIRE(GetPreparedPackageRowId(context.BaselineFile.GetPath(), "publisher1.id").has_value());
