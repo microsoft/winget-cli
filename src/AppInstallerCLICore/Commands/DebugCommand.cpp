@@ -14,8 +14,6 @@
 #include <winget/Certificates.h>
 #include <winget/HttpClientHelper.h>
 #include <winget/RepositorySource.h>
-#include <iomanip>
-#include <mutex>
 
 using namespace AppInstaller::CLI::Execution;
 
@@ -719,13 +717,6 @@ namespace AppInstaller::CLI
 
     namespace
     {
-        std::string HResultToString(HRESULT value)
-        {
-            std::ostringstream stream;
-            stream << "0x" << std::hex << std::setw(8) << std::setfill('0') << static_cast<uint32_t>(value);
-            return std::move(stream).str();
-        }
-
         std::string PercentageToString(double value)
         {
             std::ostringstream stream;
@@ -857,7 +848,7 @@ namespace AppInstaller::CLI
         }
         else
         {
-            context.Reporter.Warn() << "Connection failed with: " << HResultToString(connectionResult) << std::endl;
+            context.Reporter.Warn() << "Connection failed with: 0x" << Logging::SetHRFormat << connectionResult << std::endl;
         }
 
         if (!state->CertificateSeen)
@@ -868,8 +859,8 @@ namespace AppInstaller::CLI
 
         if (FAILED(state->Error))
         {
-            context.Reporter.Error() << "Failed to evaluate the certificate against the pinning configuration: " <<
-                HResultToString(state->Error) << std::endl;
+            context.Reporter.Error() << "Failed to evaluate the certificate against the pinning configuration: 0x" <<
+                Logging::SetHRFormat << state->Error << std::endl;
             AICLI_TERMINATE_CONTEXT(state->Error);
         }
 
