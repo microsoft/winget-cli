@@ -61,6 +61,11 @@ namespace
         return result;
     }
 
+    std::set<std::string> ToStringSet(const std::vector<NormalizedString>& values)
+    {
+        return std::set<std::string>(values.begin(), values.end());
+    }
+
     // Reads the rowid that a prepared index gave a package identifier.
     std::optional<rowid_t> GetPreparedPackageRowId(const std::filesystem::path& indexPath, std::string_view packageIdentifier)
     {
@@ -347,7 +352,7 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackageRowIdReused", "[sqliteindex][V2_1][de
 
     DeltaTestContext context{ { p1, p2, p3 } };
 
-    rowid_t reusedRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), "Publisher3.Id").value();
+    rowid_t reusedRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), p3.Id).value();
 
     auto p4 = MakePackage("Publisher4.Id", "Package 4");
 
@@ -357,7 +362,7 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackageRowIdReused", "[sqliteindex][V2_1][de
     REQUIRE_NOTHROW(context.GenerateDelta());
 
     // The new package took the rowid that the removed one gave up.
-    REQUIRE(GetPreparedPackageRowId(context.WorkingFile.GetPath(), "Publisher4.Id").value() == reusedRowId);
+    REQUIRE(GetPreparedPackageRowId(context.WorkingFile.GetPath(), p4.Id).value() == reusedRowId);
 
     {
         Connection delta = context.OpenDeltaConnection();
@@ -366,11 +371,11 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackageRowIdReused", "[sqliteindex][V2_1][de
         // rowid already displaces the baseline row, and it cannot be written in any case.
         REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [rowid] = " + std::to_string(reusedRowId)) == 1);
         REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [rowid] = " + std::to_string(reusedRowId)) ==
-            std::set<std::string>{ "Publisher4.Id" });
+            std::set<std::string>{ p4.Id });
     }
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id", "Publisher4.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id, p4.Id });
 }
 
 // B2 continued. The displaced package's associations must go with it. They are diffed against the
@@ -391,12 +396,12 @@ TEST_CASE("SQLiteIndex_Delta_ReusedRowIdReplacesAssociations", "[sqliteindex][V2
     Connection merged = context.OpenMergedConnection();
 
     // Nothing of the old occupant survives at the shared rowid.
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher3.Id") == std::set<std::string>{ "new1" });
-    REQUIRE(GetOneToManyValues(merged, "commands2", "command", "Publisher3.Id") == std::set<std::string>{ "newcmd" });
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", "Publisher3.Id") == std::set<std::string>{ "newpc" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p3.Id) == ToStringSet(p3.Tags));
+    REQUIRE(GetOneToManyValues(merged, "commands2", "command", p3.Id) == ToStringSet(p3.Commands));
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p3.Id) == std::set<std::string>{ "newpc" });
 
     // The untouched package is unaffected.
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher1.Id") == std::set<std::string>{ "keep" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1.Id) == ToStringSet(p1.Tags));
 }
 
 // B6. Remove, re-add, and remove again leaves a tombstone for each rowid the package vacated. Both
@@ -411,7 +416,7 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove", "[sqliteindex][V2_1][delta]")
 
     DeltaTestContext context{ { p1, p2, p3 } };
 
-    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), "Publisher2.Id").value();
+    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), p2.Id).value();
 
     context.Remove(p2);
     context.Add(p2);
@@ -421,7 +426,7 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove", "[sqliteindex][V2_1][delta]")
         Connection working = Connection::Create(context.WorkingFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
 
         // One tombstone per vacated rowid, and generation is told about both of them.
-        REQUIRE(GetScalar(working, "SELECT COUNT(*) FROM [update_tracking] WHERE [package] = 'Publisher2.Id' AND [is_removed] = 1") == 2);
+        REQUIRE(GetScalar(working, "SELECT COUNT(*) FROM [update_tracking] WHERE [package] = '" + p2.Id + "' AND [is_removed] = 1") == 2);
 
         auto removals = Tracking::GetRemovalsSince(working, 0, Tracking::RemovalBehavior::Record);
         REQUIRE(removals.size() == 2);
@@ -434,12 +439,12 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove", "[sqliteindex][V2_1][delta]")
         Connection delta = context.OpenDeltaConnection();
         // Only the rowid the baseline actually holds is written; the one the re-add briefly
         // occupied is above the baseline's range, so there is nothing there to suppress.
-        REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = 'Publisher2.Id'") == 1);
+        REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = '" + p2.Id + "'") == 1);
         REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [rowid] = " + std::to_string(originalRowId) + " AND [is_removed] = 1") == 1);
     }
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher3.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p3.Id });
 }
 
 // B14. The same sequence, but the re-add changes the casing of the identifier. The tracking table
@@ -455,7 +460,7 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove_CasingChanged", "[sqliteindex][V2_1
 
     DeltaTestContext context{ { p1, p2, p3 } };
 
-    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), "Publisher2.Id").value();
+    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), p2.Id).value();
 
     // Publisher3 holds the highest rowid, so the re-add lands on a new one and leaves the first
     // tombstone in place rather than reviving it.
@@ -485,7 +490,7 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove_CasingChanged", "[sqliteindex][V2_1
     }
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher3.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p3.Id });
 }
 
 // B7. When the re-add happens to land on the rowid the package just gave up, the tracking row is
@@ -497,7 +502,7 @@ TEST_CASE("SQLiteIndex_Delta_ReAddOnSameRowIdUpdatesInPlace", "[sqliteindex][V2_
 
     DeltaTestContext context{ { p1, p2 } };
 
-    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), "Publisher2.Id").value();
+    rowid_t originalRowId = GetPreparedPackageRowId(context.BaselineFile.GetPath(), p2.Id).value();
 
     // Publisher2 holds the highest rowid, so removing it frees the value that the re-add takes.
     context.Remove(p2);
@@ -505,16 +510,16 @@ TEST_CASE("SQLiteIndex_Delta_ReAddOnSameRowIdUpdatesInPlace", "[sqliteindex][V2_
 
     context.GenerateDelta();
 
-    REQUIRE(GetPreparedPackageRowId(context.WorkingFile.GetPath(), "Publisher2.Id").value() == originalRowId);
+    REQUIRE(GetPreparedPackageRowId(context.WorkingFile.GetPath(), p2.Id).value() == originalRowId);
 
     Connection delta = context.OpenDeltaConnection();
 
     // A single live row, and no tombstone left behind to contradict it.
-    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = 'Publisher2.Id'") == 1);
-    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = 'Publisher2.Id' AND [is_removed] = 0") == 1);
+    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = '" + p2.Id + "'") == 1);
+    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] = '" + p2.Id + "' AND [is_removed] = 0") == 1);
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
 }
 
 // B8. Two identifiers legitimately share a rowid in the tracking table when one vacates it and the
@@ -542,8 +547,8 @@ TEST_CASE("SQLiteIndex_Delta_TrackingAllowsSharedRowIdAcrossPackages", "[sqlitei
 
     Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
 
-    int64_t sharedRowId = GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = 'Publisher2.Id'");
-    REQUIRE(GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = 'Publisher1.Id'") == sharedRowId);
+    int64_t sharedRowId = GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = '" + m2.Manifest.Id + "'");
+    REQUIRE(GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = '" + m1.Manifest.Id + "'") == sharedRowId);
 
     REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = " + std::to_string(sharedRowId)) == 2);
     REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = " + std::to_string(sharedRowId) + " AND [is_removed] = 0") == 1);
@@ -620,12 +625,16 @@ TEST_CASE("SQLiteIndex_Delta_TrackingRowIdMatchesPreparedIndex", "[sqliteindex][
 // entire index.
 TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Changed", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1"), MakePackage("Publisher2.Id", "Package 2") } };
+    auto original = MakePackage("Publisher1.Id", "Package 1");
+    auto unchanged = MakePackage("Publisher2.Id", "Package 2");
+    auto recased = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
+
+    DeltaTestContext context{ { original, unchanged } };
 
     // Adding a version under a different casing rewrites the ids table entry, and with it the
     // identifier that packaging will put in the packages table. The tracking row keeps the
     // original casing.
-    context.Add(MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s));
+    context.Add(recased);
 
     REQUIRE_NOTHROW(context.GenerateDelta());
 
@@ -633,7 +642,7 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Changed", "[sqliteindex][V2_
 
     // Exactly one row for the package. Resolving to no rowid would have left the baseline row
     // unsuppressed alongside the delta's, showing it twice.
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "publisher1.id", "Publisher2.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ recased.Id, unchanged.Id });
 }
 
 // B13. The silent half of the same defect. Here the casing changed before the baseline was taken,
@@ -644,13 +653,14 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Removed", "[sqliteindex][V2_
 {
     auto original = MakePackage("Publisher1.Id", "Package 1");
     auto recased = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
+    auto unchanged = MakePackage("Publisher2.Id", "Package 2");
 
     DeltaTestContext context;
-    context.CreateWorking({ original, MakePackage("Publisher2.Id", "Package 2") });
+    context.CreateWorking({ original, unchanged });
     context.Add(recased, false);
     context.CaptureBaseline();
 
-    REQUIRE(GetPreparedPackageRowId(context.BaselineFile.GetPath(), "publisher1.id").has_value());
+    REQUIRE(GetPreparedPackageRowId(context.BaselineFile.GetPath(), recased.Id).has_value());
 
     context.Remove(original);
     context.Remove(recased);
@@ -659,7 +669,7 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Removed", "[sqliteindex][V2_
 
     SQLiteIndex combined = context.OpenCombined();
 
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher2.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ unchanged.Id });
 }
 
 // B11. The migration adds the rowid column to a table whose rows predate it. A backfill that left
@@ -694,7 +704,7 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V
     REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = 0") == 0);
 
     // The backfilled value has to be the one the index itself uses, not just any non null.
-    for (std::string_view packageId : { "Publisher1.Id"sv, "Publisher2.Id"sv })
+    for (const auto& packageId : { m1.Manifest.Id, m2.Manifest.Id })
     {
         INFO(packageId);
         int64_t tracked = GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = '" + std::string{ packageId } + "'");
@@ -756,22 +766,22 @@ TEST_CASE("SQLiteIndex_Delta_RowIdsAreStableAcrossPrepares", "[sqliteindex][V2_0
     prepareCopy(third);
 
     // Publisher3 is present throughout and must never move.
-    rowid_t p3First = GetPreparedPackageRowId(first.GetPath(), "Publisher3.Id").value();
-    REQUIRE(GetPreparedPackageRowId(second.GetPath(), "Publisher3.Id").value() == p3First);
-    REQUIRE(GetPreparedPackageRowId(third.GetPath(), "Publisher3.Id").value() == p3First);
+    rowid_t p3First = GetPreparedPackageRowId(first.GetPath(), manifests[2].Manifest.Id).value();
+    REQUIRE(GetPreparedPackageRowId(second.GetPath(), manifests[2].Manifest.Id).value() == p3First);
+    REQUIRE(GetPreparedPackageRowId(third.GetPath(), manifests[2].Manifest.Id).value() == p3First);
 
     // Publisher4 survives from round two to round three.
-    REQUIRE(GetPreparedPackageRowId(third.GetPath(), "Publisher4.Id").value() == GetPreparedPackageRowId(second.GetPath(), "Publisher4.Id").value());
+    REQUIRE(GetPreparedPackageRowId(third.GetPath(), manifests[3].Manifest.Id).value() == GetPreparedPackageRowId(second.GetPath(), manifests[3].Manifest.Id).value());
 
     // B5. A package added after the baseline must land above everything the baseline holds, or it
     // would collide with an untouched package when the two are merged.
     rowid_t maxInFirst = 0;
-    for (std::string_view id : { "Publisher1.Id"sv, "Publisher2.Id"sv, "Publisher3.Id"sv })
+    for (const auto& id : { manifests[0].Manifest.Id, manifests[1].Manifest.Id, manifests[2].Manifest.Id })
     {
         maxInFirst = std::max(maxInFirst, GetPreparedPackageRowId(first.GetPath(), id).value());
     }
 
-    REQUIRE(GetPreparedPackageRowId(second.GetPath(), "Publisher4.Id").value() > maxInFirst);
+    REQUIRE(GetPreparedPackageRowId(second.GetPath(), manifests[3].Manifest.Id).value() > maxInFirst);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -780,15 +790,18 @@ TEST_CASE("SQLiteIndex_Delta_RowIdsAreStableAcrossPrepares", "[sqliteindex][V2_0
 
 TEST_CASE("SQLiteIndex_Delta_AddedPackage", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
 
-    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+    DeltaTestContext context{ { p1 } };
+
+    context.Add(p2);
     context.GenerateDelta();
 
     Connection delta = context.OpenDeltaConnection();
 
     REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [is_removed] = 0") == 1);
-    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 0") == std::set<std::string>{ "Publisher2.Id" });
+    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 0") == std::set<std::string>{ p2.Id });
 }
 
 TEST_CASE("SQLiteIndex_Delta_RemovedPackage", "[sqliteindex][V2_1][delta]")
@@ -804,7 +817,7 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackage", "[sqliteindex][V2_1][delta]")
     Connection delta = context.OpenDeltaConnection();
 
     REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [is_removed] = 1") == 1);
-    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 1") == std::set<std::string>{ "Publisher2.Id" });
+    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 1") == std::set<std::string>{ p2.Id });
 
     // A removal carries no data beyond identity, so the rest of the row stays null.
     REQUIRE(GetScalar(delta,
@@ -816,12 +829,11 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackage", "[sqliteindex][V2_1][delta]")
 TEST_CASE("SQLiteIndex_Delta_ChangedPackageCopiesEveryColumn", "[sqliteindex][V2_1][delta]")
 {
     DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+    ManifestAndPath added;
+    CreateFakeManifestAndPath(added, "Publisher2", "3.4.5", "1.2"sv, "6.7"sv);
 
     {
         SQLiteIndex index = context.OpenWorkingForChanges();
-
-        ManifestAndPath added;
-        CreateFakeManifestAndPath(added, "Publisher2", "3.4.5", "1.2"sv, "6.7"sv);
         index.AddManifest(added.Manifest, added.Path);
     }
 
@@ -834,8 +846,8 @@ TEST_CASE("SQLiteIndex_Delta_ChangedPackageCopiesEveryColumn", "[sqliteindex][V2
     {
         INFO(column);
 
-        auto fromDelta = GetStrings(delta, "SELECT [" + std::string{ column } + "] FROM [delta_packages] WHERE [id] = 'Publisher2.Id'");
-        auto fromSource = GetStrings(source, "SELECT [" + std::string{ column } + "] FROM [packages] WHERE [id] = 'Publisher2.Id'");
+        auto fromDelta = GetStrings(delta, "SELECT [" + std::string{ column } + "] FROM [delta_packages] WHERE [id] = '" + added.Manifest.Id + "'");
+        auto fromSource = GetStrings(source, "SELECT [" + std::string{ column } + "] FROM [packages] WHERE [id] = '" + added.Manifest.Id + "'");
 
         REQUIRE(fromDelta == fromSource);
         REQUIRE(fromDelta.size() == 1);
@@ -843,9 +855,9 @@ TEST_CASE("SQLiteIndex_Delta_ChangedPackageCopiesEveryColumn", "[sqliteindex][V2
     }
 
     // The hash is a blob, so compare it as one rather than through the string accessor.
-    Statement deltaHash = Statement::Create(delta, "SELECT [hash] FROM [delta_packages] WHERE [id] = 'Publisher2.Id'");
+    Statement deltaHash = Statement::Create(delta, "SELECT [hash] FROM [delta_packages] WHERE [id] = '" + added.Manifest.Id + "'");
     REQUIRE(deltaHash.Step());
-    Statement sourceHash = Statement::Create(source, "SELECT [hash] FROM [packages] WHERE [id] = 'Publisher2.Id'");
+    Statement sourceHash = Statement::Create(source, "SELECT [hash] FROM [packages] WHERE [id] = '" + added.Manifest.Id + "'");
     REQUIRE(sourceHash.Step());
 
     auto hashValue = deltaHash.GetColumn<blob_t>(0);
@@ -859,45 +871,50 @@ TEST_CASE("SQLiteIndex_Delta_MultipleChangesAndRemovals", "[sqliteindex][V2_1][d
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
     auto p3 = MakePackage("Publisher3.Id", "Package 3");
     auto p4 = MakePackage("Publisher4.Id", "Package 4");
+    auto p3Updated = MakePackage(p3.Id, "Renamed 3");
+    auto p5 = MakePackage("Publisher5.Id", "Package 5");
+    auto p6 = MakePackage("Publisher6.Id", "Package 6");
 
     DeltaTestContext context{ { p1, p2, p3, p4 } };
 
     context.Remove(p1);
     context.Remove(p2);
-    context.Update(MakePackage("Publisher3.Id", "Renamed 3"));
-    context.Add(MakePackage("Publisher5.Id", "Package 5"));
-    context.Add(MakePackage("Publisher6.Id", "Package 6"));
+    context.Update(p3Updated);
+    context.Add(p5);
+    context.Add(p6);
 
     context.GenerateDelta();
 
     Connection delta = context.OpenDeltaConnection();
 
     REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 1") ==
-        std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+        std::set<std::string>{ p1.Id, p2.Id });
     REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 0") ==
-        std::set<std::string>{ "Publisher3.Id", "Publisher5.Id", "Publisher6.Id" });
+        std::set<std::string>{ p3Updated.Id, p5.Id, p6.Id });
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher3.Id", "Publisher4.Id", "Publisher5.Id", "Publisher6.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p3Updated.Id, p4.Id, p5.Id, p6.Id });
 }
 
 // C6. A package that came and went within the window was never in the baseline, so there is
 // nothing to suppress and the delta must not claim to remove it.
 TEST_CASE("SQLiteIndex_Delta_PackageAddedAndRemovedWithinWindow", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
-
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto transient = MakePackage("Transient.Id", "Transient");
+
+    DeltaTestContext context{ { p1 } };
+
     context.Add(transient);
     context.Remove(transient);
 
     REQUIRE_NOTHROW(context.GenerateDelta());
 
     Connection delta = context.OpenDeltaConnection();
-    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] LIKE 'Transient.Id'") == 0);
+    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_packages] WHERE [id] LIKE '" + transient.Id + "'") == 0);
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id });
 }
 
 // C8. The identifier lookup used to be a LIKE, which treats these characters as wildcards. A
@@ -916,15 +933,17 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierWithLikeWildcards", "[sqliteindex][V2_1][
     Connection delta = context.OpenDeltaConnection();
 
     // Only the package actually removed; a LIKE would also have matched the decoy.
-    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 1") == std::set<std::string>{ "Publisher_A.Id" });
+    REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages] WHERE [is_removed] = 1") == std::set<std::string>{ wild.Id });
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "PublisherXA.Id", "Pub%cent.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ decoy.Id, percent.Id });
 }
 
 TEST_CASE("SQLiteIndex_Delta_NoChanges_EmptyDelta", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+
+    DeltaTestContext context{ { p1 } };
 
     // Reset the base time without making any change, so nothing is reported.
     context.OpenWorkingForChanges();
@@ -960,7 +979,7 @@ TEST_CASE("SQLiteIndex_Delta_NoChanges_EmptyDelta", "[sqliteindex][V2_1][delta]"
 
     // An empty delta still has to merge cleanly.
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -973,11 +992,12 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_AddAndRemove", "[sqliteindex][V2_1]
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, { "Family1_8wekyb3d8bbwe" }, { "PC-KEEP", "PC-DROP" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t1" }, { "c1" }, { "Family2_8wekyb3d8bbwe" }, { "PC-OTHER" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1" }, { "c1" }, { "Family3_8wekyb3d8bbwe" }, { "PC-KEEP", "PC-NEW" });
 
     DeltaTestContext context{ { p1, p2 } };
 
     // Trade one product code for another while keeping a third, and swap the family name.
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, { "Family3_8wekyb3d8bbwe" }, { "PC-KEEP", "PC-NEW" }));
+    context.Update(p1Updated);
 
     context.GenerateDelta();
 
@@ -999,13 +1019,13 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_AddAndRemove", "[sqliteindex][V2_1]
     Connection merged = context.OpenMergedConnection();
 
     // D3. Suppression is per row: the kept code survives even though the package changed.
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", "Publisher1.Id") ==
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p1Updated.Id) ==
         std::set<std::string>{ "pc-keep", "pc-new" });
-    REQUIRE(GetSystemReferenceValues(merged, "pfns2", "pfn", "Publisher1.Id") ==
+    REQUIRE(GetSystemReferenceValues(merged, "pfns2", "pfn", p1Updated.Id) ==
         std::set<std::string>{ "family3_8wekyb3d8bbwe" });
 
     // The untouched package keeps everything.
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", "Publisher2.Id") ==
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p2.Id) ==
         std::set<std::string>{ "pc-other" });
 }
 
@@ -1013,47 +1033,52 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_AddAndRemove", "[sqliteindex][V2_1]
 TEST_CASE("SQLiteIndex_Delta_SystemReference_CorrelationThroughCombined", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, { "Family1_8wekyb3d8bbwe" }, { "PC-KEEP", "PC-DROP" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1" }, { "c1" }, p1.PackageFamilyNames, { "PC-KEEP", "PC-NEW" });
 
-    DeltaTestContext context{ { p1, MakePackage("Publisher2.Id", "Package 2") } };
+    DeltaTestContext context{ { p1, p2 } };
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, { "Family1_8wekyb3d8bbwe" }, { "PC-KEEP", "PC-NEW" }));
+    context.Update(p1Updated);
     context.GenerateDelta();
 
     SQLiteIndex combined = context.OpenCombined();
 
-    for (std::string_view productCode : { "PC-KEEP"sv, "PC-NEW"sv })
+    for (const auto& productCode : p1Updated.ProductCodes)
     {
         INFO(productCode);
 
         SearchRequest request;
         request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, std::string{ productCode }));
 
-        REQUIRE(GetSearchedIds(combined, request) == std::set<std::string>{ "Publisher1.Id" });
+        REQUIRE(GetSearchedIds(combined, request) == std::set<std::string>{ p1Updated.Id });
     }
 
     // The dropped code must no longer correlate to anything.
     SearchRequest dropped;
-    dropped.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, "PC-DROP"s));
+    dropped.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, p1.ProductCodes[1]));
     REQUIRE(combined.Search(dropped).Matches.empty());
 
     // And the family name still resolves through the merged view.
     SearchRequest family;
-    family.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, "Family1_8wekyb3d8bbwe"s));
-    REQUIRE(GetSearchedIds(combined, family) == std::set<std::string>{ "Publisher1.Id" });
+    family.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, p1Updated.PackageFamilyNames[0]));
+    REQUIRE(GetSearchedIds(combined, family) == std::set<std::string>{ p1Updated.Id });
 }
 
 // D5. The normalized name and publisher tables are populated as a side effect of the package name,
 // so a rename has to move them. Nothing asserted on them before.
 TEST_CASE("SQLiteIndex_Delta_SystemReference_NormalizedNameFollowsRename", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Original Name") } };
+    auto original = MakePackage("Publisher1.Id", "Original Name");
+    auto renamed = MakePackage(original.Id, "Replacement Name");
 
-    context.Update(MakePackage("Publisher1.Id", "Replacement Name"));
+    DeltaTestContext context{ { original } };
+
+    context.Update(renamed);
     context.GenerateDelta();
 
     Connection merged = context.OpenMergedConnection();
 
-    auto names = GetSystemReferenceValues(merged, "norm_names2", "norm_name", "Publisher1.Id");
+    auto names = GetSystemReferenceValues(merged, "norm_names2", "norm_name", renamed.Id);
     REQUIRE(names.size() == 1);
 
     // The old name must be gone rather than merely joined by the new one.
@@ -1066,11 +1091,11 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_NormalizedNameFollowsRename", "[sql
     // exactly what a full index built from the same data holds.
     Connection reference = Connection::Create(context.WorkingFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
 
-    REQUIRE(GetSystemReferenceValues(merged, "norm_names2", "norm_name", "Publisher1.Id") ==
-        GetSystemReferenceValues(reference, "norm_names2", "norm_name", "Publisher1.Id"));
+    REQUIRE(GetSystemReferenceValues(merged, "norm_names2", "norm_name", renamed.Id) ==
+        GetSystemReferenceValues(reference, "norm_names2", "norm_name", renamed.Id));
 
-    REQUIRE(GetSystemReferenceValues(merged, "norm_publishers2", "norm_publisher", "Publisher1.Id") ==
-        GetSystemReferenceValues(reference, "norm_publishers2", "norm_publisher", "Publisher1.Id"));
+    REQUIRE(GetSystemReferenceValues(merged, "norm_publishers2", "norm_publisher", renamed.Id) ==
+        GetSystemReferenceValues(reference, "norm_publishers2", "norm_publisher", renamed.Id));
 }
 
 TEST_CASE("SQLiteIndex_Delta_SystemReference_RemovedPackageValuesAreInvisible", "[sqliteindex][V2_1][delta]")
@@ -1094,14 +1119,14 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_RemovedPackageValuesAreInvisible", 
 
     Connection merged = context.OpenMergedConnection();
 
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", "Publisher2.Id").empty());
-    REQUIRE(GetSystemReferenceValues(merged, "pfns2", "pfn", "Publisher2.Id").empty());
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", "Publisher1.Id") == std::set<std::string>{ "pc-1" });
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p2.Id).empty());
+    REQUIRE(GetSystemReferenceValues(merged, "pfns2", "pfn", p2.Id).empty());
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p1.Id) == std::set<std::string>{ "pc-1" });
 
     SQLiteIndex combined = context.OpenCombined();
 
     SearchRequest request;
-    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, "PC-2"s));
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, p2.ProductCodes[0]));
     REQUIRE(combined.Search(request).Matches.empty());
 }
 
@@ -1115,24 +1140,25 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_AssociationsAreSuppressedPerRow", "[sqlit
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "keep", "drop", "alsokeep" }, { "cmdkeep", "cmddrop" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "other" }, { "othercmd" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "keep", "added", "alsokeep" }, { "cmdkeep", "cmdadded" });
 
     DeltaTestContext context{ { p1, p2 } };
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "keep", "added", "alsokeep" }, { "cmdkeep", "cmdadded" }));
+    context.Update(p1Updated);
     context.Remove(p2);
 
     context.GenerateDelta();
 
     Connection merged = context.OpenMergedConnection();
 
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher1.Id") == std::set<std::string>{ "keep", "added", "alsokeep" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1Updated.Id) == ToStringSet(p1Updated.Tags));
 
     // E2. The same defect on the other one to many table.
-    REQUIRE(GetOneToManyValues(merged, "commands2", "command", "Publisher1.Id") == std::set<std::string>{ "cmdkeep", "cmdadded" });
+    REQUIRE(GetOneToManyValues(merged, "commands2", "command", p1Updated.Id) == ToStringSet(p1Updated.Commands));
 
     // F3 again, for the map tables.
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher2.Id").empty());
-    REQUIRE(GetOneToManyValues(merged, "commands2", "command", "Publisher2.Id").empty());
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p2.Id).empty());
+    REQUIRE(GetOneToManyValues(merged, "commands2", "command", p2.Id).empty());
 }
 
 // E3/E4. A value the baseline already knows is referenced at its existing rowid rather than copied,
@@ -1141,11 +1167,12 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_ValueRowIdAllocation", "[sqliteindex][V2_
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "shared", "only1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "other" });
+    auto p2Updated = MakePackage(p2.Id, p2.Name, { "other", "shared", "brandnew" });
 
     DeltaTestContext context{ { p1, p2 } };
 
     // Publisher2 gains a tag the baseline already has, plus one it does not.
-    context.Update(MakePackage("Publisher2.Id", "Package 2", { "other", "shared", "brandnew" }));
+    context.Update(p2Updated);
     context.GenerateDelta();
 
     rowid_t baselineMaxTagRowId = 0;
@@ -1154,23 +1181,23 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_ValueRowIdAllocation", "[sqliteindex][V2_
     {
         Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
         baselineMaxTagRowId = static_cast<rowid_t>(GetScalar(baseline, "SELECT MAX([rowid]) FROM [tags2]"));
-        sharedRowIdInBaseline = static_cast<rowid_t>(GetScalar(baseline, "SELECT [rowid] FROM [tags2] WHERE [tag] = 'shared'"));
+        sharedRowIdInBaseline = static_cast<rowid_t>(GetScalar(baseline, "SELECT [rowid] FROM [tags2] WHERE [tag] = '" + p1.Tags[0] + "'"));
     }
 
     Connection delta = context.OpenDeltaConnection();
 
     // E4. The shared value is not copied into the delta; the map points at the baseline rowid.
-    REQUIRE(GetStrings(delta, "SELECT [tag] FROM [delta_tags2]") == std::set<std::string>{ "brandnew" });
+    REQUIRE(GetStrings(delta, "SELECT [tag] FROM [delta_tags2]") == std::set<std::string>{ p2Updated.Tags[2] });
 
     auto mapTable = Delta::GetMapTableName("tags2");
     REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [" + mapTable + "] WHERE [tag] = " + std::to_string(sharedRowIdInBaseline) + " AND [is_removed] = 0") == 1);
 
     // E3. The new value is numbered above the baseline, so the union cannot collide.
-    REQUIRE(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = 'brandnew'") > baselineMaxTagRowId);
+    REQUIRE(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = '" + p2Updated.Tags[2] + "'") > baselineMaxTagRowId);
 
     // F4. Both sides resolve through the unioned value view.
     Connection merged = context.OpenMergedConnection();
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher2.Id") == std::set<std::string>{ "other", "shared", "brandnew" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p2Updated.Id) == ToStringSet(p2Updated.Tags));
 }
 
 // E5. One new value shared by two packages is stored once and mapped twice.
@@ -1178,35 +1205,39 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_NewValueSharedByPackages", "[sqliteindex]
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "commontag" });
+    auto p2Updated = MakePackage(p2.Id, p2.Name, { "t2", "commontag" });
 
     DeltaTestContext context{ { p1, p2 } };
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "t1", "commontag" }));
-    context.Update(MakePackage("Publisher2.Id", "Package 2", { "t2", "commontag" }));
+    context.Update(p1Updated);
+    context.Update(p2Updated);
 
     context.GenerateDelta();
 
     Connection delta = context.OpenDeltaConnection();
 
-    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_tags2] WHERE [tag] = 'commontag'") == 1);
+    REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [delta_tags2] WHERE [tag] = '" + p1Updated.Tags[1] + "'") == 1);
 
-    rowid_t valueRowId = static_cast<rowid_t>(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = 'commontag'"));
+    rowid_t valueRowId = static_cast<rowid_t>(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = '" + p1Updated.Tags[1] + "'"));
     auto mapTable = Delta::GetMapTableName("tags2");
     REQUIRE(GetScalar(delta, "SELECT COUNT(*) FROM [" + mapTable + "] WHERE [tag] = " + std::to_string(valueRowId) + " AND [is_removed] = 0") == 2);
 
     Connection merged = context.OpenMergedConnection();
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher1.Id") == std::set<std::string>{ "t1", "commontag" });
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher2.Id") == std::set<std::string>{ "t2", "commontag" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1Updated.Id) == ToStringSet(p1Updated.Tags));
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p2Updated.Id) == ToStringSet(p2Updated.Tags));
 }
 
 // E6. Every value removed from a package. An empty current set must not read as "nothing changed".
 TEST_CASE("SQLiteIndex_Delta_OneToMany_AllValuesRemoved", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1", "t2" }, { "c1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t3" }, { "c2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, {}, {});
 
-    DeltaTestContext context{ { p1, MakePackage("Publisher2.Id", "Package 2", { "t3" }, { "c2" }) } };
+    DeltaTestContext context{ { p1, p2 } };
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", {}, {}));
+    context.Update(p1Updated);
     context.GenerateDelta();
 
     {
@@ -1216,33 +1247,36 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_AllValuesRemoved", "[sqliteindex][V2_1][d
     }
 
     Connection merged = context.OpenMergedConnection();
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher1.Id").empty());
-    REQUIRE(GetOneToManyValues(merged, "commands2", "command", "Publisher1.Id").empty());
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1Updated.Id).empty());
+    REQUIRE(GetOneToManyValues(merged, "commands2", "command", p1Updated.Id).empty());
 
     // The other package is untouched.
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher2.Id") == std::set<std::string>{ "t3" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p2.Id) == ToStringSet(p2.Tags));
 }
 
 // E7. A baseline with no values at all, so the maximum rowid query has nothing to report.
 TEST_CASE("SQLiteIndex_Delta_OneToMany_EmptyBaselineValueTable", "[sqliteindex][V2_1][delta]")
 {
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1", {}, {}) } };
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", {}, {});
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "first" }, { "firstcmd" });
+
+    DeltaTestContext context{ { p1 } };
 
     {
         Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
         REQUIRE(GetRowCount(baseline, "tags2") == 0);
     }
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "first" }, { "firstcmd" }));
+    context.Update(p1Updated);
     REQUIRE_NOTHROW(context.GenerateDelta());
 
     Connection delta = context.OpenDeltaConnection();
 
     // Numbering has to start somewhere valid; rowid 0 is not.
-    REQUIRE(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = 'first'") > 0);
+    REQUIRE(GetScalar(delta, "SELECT [rowid] FROM [delta_tags2] WHERE [tag] = '" + p1Updated.Tags[0] + "'") > 0);
 
     Connection merged = context.OpenMergedConnection();
-    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", "Publisher1.Id") == std::set<std::string>{ "first" });
+    REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1Updated.Id) == ToStringSet(p1Updated.Tags));
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1279,14 +1313,16 @@ TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_Search", "[sqliteindex][V2_1][delt
     // a URI rather than a plain path, so both files have to be named that way for the attach to
     // resolve at all.
     auto disposition = GENERATE(SQLiteStorageBase::OpenDisposition::Read, SQLiteStorageBase::OpenDisposition::Immutable);
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
 
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+    DeltaTestContext context{ { p1 } };
 
-    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+    context.Add(p2);
     context.GenerateDelta();
 
     SQLiteIndex combined = context.OpenCombined(disposition);
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
 }
 
 TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_RemovedPackageExcluded", "[sqliteindex][V2_1][delta]")
@@ -1300,7 +1336,7 @@ TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_RemovedPackageExcluded", "[sqlitei
     context.GenerateDelta();
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id });
 }
 
 TEST_CASE("SQLiteIndex_Delta_UnmarkedBaselineRejected", "[sqliteindex][V2_1][delta]")
@@ -1441,7 +1477,7 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ReAddedPackageIsNotCorruption", "[
     REQUIRE(index.CheckConsistency(true));
 
     Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
-    REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package] = 'Publisher2.Id'") == 2);
+    REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package] = '" + m2.Manifest.Id + "'") == 2);
 
     // The removal is still reported, since the old rowid genuinely was vacated.
     auto removals = Tracking::GetRemovalsSince(connection, 0, Tracking::RemovalBehavior::Record);
@@ -1449,17 +1485,18 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ReAddedPackageIsNotCorruption", "[
 
     // And it is not also reported as an update under that identity being gone.
     auto updates = Tracking::GetUpdatesSince(connection, 0, Tracking::RemovalBehavior::Record);
-    REQUIRE(std::count_if(updates.begin(), updates.end(), [](const auto& u) { return u.PackageIdentifier == "Publisher2.Id"; }) == 1);
+    REQUIRE(std::count_if(updates.begin(), updates.end(), [&](const auto& u) { return u.PackageIdentifier == m2.Manifest.Id; }) == 1);
 }
 
 TEST_CASE("SQLiteIndex_Delta_CheckConsistency_OnCombinedIndex", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "t3" }, p1.Commands, p1.PackageFamilyNames, p1.ProductCodes);
 
     DeltaTestContext context{ { p1, p2 } };
 
-    context.Update(MakePackage("Publisher1.Id", "Package 1", { "t1", "t3" }, { "c1" }, {}, { "PC-1" }));
+    context.Update(p1Updated);
     context.Remove(p2);
     context.GenerateDelta();
 
@@ -1624,13 +1661,16 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithFullIndex", "[sqliteindex][V2_1][del
     auto retagged = MakePackage("Equivalence.Retagged", "Package Retagged", { "shared", "changed" }, { "cmdold" }, { "Family2_8wekyb3d8bbwe" }, { "PC-OLD", "PC-BOTH" });
     auto renamed = MakePackage("Equivalence.Renamed", "Package Original", { "shared" }, { "cmdkeep" }, { "Family3_8wekyb3d8bbwe" }, { "PC-RENAMED" });
     auto roundTrip = MakePackage("Equivalence.RoundTrip", "Package RoundTrip", { "shared" }, { "cmdkeep" }, {}, { "PC-ROUND" });
+    auto retaggedUpdated = MakePackage(retagged.Id, retagged.Name, { "shared", "changednew" }, { "cmdnew" }, retagged.PackageFamilyNames, { "PC-NEW", "PC-BOTH" });
+    auto renamedUpdated = MakePackage(renamed.Id, "Package Replacement", renamed.Tags, renamed.Commands, renamed.PackageFamilyNames, renamed.ProductCodes);
+    auto added = MakePackage("Equivalence.Added", "Package Added", { "shared", "brand" }, { "cmdadded" }, { "Family4_8wekyb3d8bbwe" }, { "PC-ADDED" });
 
     DeltaTestContext context{ { untouched, removed, retagged, renamed, roundTrip } };
 
     context.Remove(removed);
-    context.Update(MakePackage("Equivalence.Retagged", "Package Retagged", { "shared", "changednew" }, { "cmdnew" }, { "Family2_8wekyb3d8bbwe" }, { "PC-NEW", "PC-BOTH" }));
-    context.Update(MakePackage("Equivalence.Renamed", "Package Replacement", { "shared" }, { "cmdkeep" }, { "Family3_8wekyb3d8bbwe" }, { "PC-RENAMED" }));
-    context.Add(MakePackage("Equivalence.Added", "Package Added", { "shared", "brand" }, { "cmdadded" }, { "Family4_8wekyb3d8bbwe" }, { "PC-ADDED" }));
+    context.Update(retaggedUpdated);
+    context.Update(renamedUpdated);
+    context.Add(added);
 
     // A removal and re-add in the same window, which is where rowid identity is hardest.
     context.Remove(roundTrip);
@@ -1642,7 +1682,7 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithFullIndex", "[sqliteindex][V2_1][del
     SQLiteIndex full = context.OpenFullIndex();
 
     REQUIRE(GetSearchedIds(full) == std::set<std::string>{
-        "Equivalence.Untouched", "Equivalence.Retagged", "Equivalence.Renamed", "Equivalence.RoundTrip", "Equivalence.Added" });
+        untouched.Id, retaggedUpdated.Id, renamedUpdated.Id, roundTrip.Id, added.Id });
 
     RequireEquivalent(combined, full);
 }
@@ -1682,6 +1722,7 @@ TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex]
 
     auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
+    auto p1Updated = MakePackage(p1.Id, "Package 1 Renamed");
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
@@ -1693,7 +1734,7 @@ TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex]
         Manifest m2 = CreateManifest(p2);
         index.AddManifest(m2, p2.Path);
 
-        Manifest m1Updated = CreateManifest(MakePackage("Publisher1.Id", "Package 1 Renamed"));
+        Manifest m1Updated = CreateManifest(p1Updated);
         REQUIRE(index.UpdateManifest(m1Updated, p1.Path));
     }
 
@@ -1704,8 +1745,8 @@ TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex]
     REQUIRE(GetRowCount(connection, "update_tracking") == 2);
     REQUIRE(GetScalar(connection, "SELECT MAX([change_seq]) FROM [update_tracking]") == 3);
 
-    int64_t first = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher1.Id'");
-    int64_t second = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher2.Id'");
+    int64_t first = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = '" + p1Updated.Id + "'");
+    int64_t second = GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = '" + p2.Id + "'");
 
     // The updated package is now the more recent of the two, having started as the older.
     REQUIRE(first == 3);
@@ -1736,7 +1777,7 @@ TEST_CASE("SQLiteIndex_Delta_BaselineCapturedImmediatelyExcludesItsOwnData", "[s
     REQUIRE(GetRowCount(delta, "delta_packages") == 0);
 
     SQLiteIndex combined = context.OpenCombined();
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
 }
 
 // K3. A migrated table has no sequences, so every row backfills to the same value and the first
@@ -1750,6 +1791,8 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqlite
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
     ManifestAndPath m2;
     CreateFakeManifestAndPath(m2, "Publisher2", "1.0");
+    ManifestAndPath m3;
+    CreateFakeManifestAndPath(m3, "Publisher3", "1.0");
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
@@ -1772,13 +1815,11 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqlite
     // A write after the migration has to be distinguishable from everything that preceded it.
     {
         SQLiteIndex index = SQLiteIndex::Open(indexFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-        ManifestAndPath m3;
-        CreateFakeManifestAndPath(m3, "Publisher3", "1.0");
         index.AddManifest(m3.Manifest, m3.Path);
     }
 
     Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
-    REQUIRE(GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = 'Publisher3.Id'") == 1);
+    REQUIRE(GetScalar(connection, "SELECT [change_seq] FROM [update_tracking] WHERE [package] = '" + m3.Manifest.Id + "'") == 1);
 }
 
 // K4. The one direction a sequence fails in that a time does not. If the working index is rebuilt,
