@@ -128,6 +128,20 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // Validates the Microsoft Store source certificate pinning configuration against an endpoint.
+    struct ValidateStorePinningCommand final : public Command
+    {
+        ValidateStorePinningCommand(std::string_view parent) : Command("validate-store-pinning", {}, parent) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }
 
 #endif
