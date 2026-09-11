@@ -58,6 +58,15 @@
 #include <wil/registry_helpers.h>
 #pragma warning( pop )
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
+#pragma warning( push )
+#pragma warning ( disable : 26495 26439 )
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/uri_builder.h>
+#pragma warning( pop )
+#endif
+
 #include <wrl/client.h>
 #include <wrl/implements.h>
 #include <AppxPackaging.h>
