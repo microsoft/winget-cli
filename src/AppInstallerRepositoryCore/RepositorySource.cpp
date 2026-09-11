@@ -432,6 +432,11 @@ namespace AppInstaller::Repository
         return CheckForWellKnownSourceMatch(sourceDetails.Name, sourceDetails.Arg, sourceDetails.Type);
     }
 
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source)
+    {
+        return GetWellKnownSourceDetailsInternal(source);
+    }
+
     Source::Source() {}
 
     Source::Source(std::string_view name)
