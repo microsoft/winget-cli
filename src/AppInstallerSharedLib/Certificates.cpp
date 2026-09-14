@@ -841,6 +841,34 @@ namespace AppInstaller::Certificates
         return result;
     }
 
+    std::string PinningConfiguration::GetDescription() const
+    {
+        std::ostringstream stream;
+        stream << "Pinning configuration [" << m_identifier << "]";
+
+        if (m_configuration.empty())
+        {
+            stream << ": <no pinning configured>";
+        }
+        else
+        {
+            size_t index = 0;
+
+            for (const auto& chain : m_configuration)
+            {
+                stream << std::endl << "Chain #" << ++index << ':' << std::endl << chain->GetDescription();
+            }
+        }
+
+        return std::move(stream).str();
+    }
+
+    std::string GetCertificateChainDescription(PCCERT_CHAIN_CONTEXT chainContext)
+    {
+        THROW_HR_IF(E_INVALIDARG, !chainContext || chainContext->cChain == 0);
+        return GetDescriptionOfCertChain(chainContext);
+    }
+
     std::string GetAuthenticodeSubject(const std::filesystem::path& filePath)
     {
         const std::wstring& pathStr = filePath.wstring();
