@@ -27,6 +27,10 @@ namespace AppInstaller::Filesystem
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
 
+    // Creates a hardlink at linkPath pointing to targetPath.
+    // Returns true if successful, false if hardlinks are not supported or creation failed.
+    bool CreateHardlink(const std::filesystem::path& target, const std::filesystem::path& link);
+
     // Creates a symlink that points to the target path.
     bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 
