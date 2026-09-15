@@ -335,12 +335,6 @@ jobs:
   # time, staged with its directory structure intact so that the artifact copy can substitute for
   # the sources. Those jobs point their source root here and check out nothing; see the "Running
   # the test jobs without a checkout" section of README.md.
-  #
-  # Structure matters, and flattenFolders is deliberately absent: several of these scripts navigate
-  # relative to their own location. Microsoft.WinGet.Configuration.Tests.ps1 reaches TestData
-  # through '$PSScriptRoot\..\..\AppInstallerCLIE2ETests\TestData\Configuration', and
-  # Microsoft.Management.Configuration.UnitTests expects ExternalModules at
-  # '<source root>\src\PowerShell\ExternalModules'. Both only work if the layout is preserved.
   - task: CopyFiles@2
     displayName: 'Copy sources needed by the test jobs'
     inputs:
