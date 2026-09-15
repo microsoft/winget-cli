@@ -7,6 +7,7 @@ pr:
   branches:
     include:
     - master
+    - 'feature/*'
   paths:
     include:
     - azure-pipelines.yml
@@ -15,10 +16,11 @@ pr:
     - schemas/JSON/manifests/*
 
 pool:
-  vmImage: 'windows-2025'
+  vmImage: 'windows-2025-vs2026'
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
+  nugetConfig: 'src\nuget.config'
   EnableDetectorVcpkg: true
 
 # Do not set the build version for a PR build.
@@ -39,6 +41,10 @@ jobs:
       workingDirectory: 'src'
 
 - template: templates/jobs-build.yml
+  parameters:
+    # Use custom agent with additional resources.
+    pool:
+      name: 1es-pool-winget
 
 - template: templates/jobs-test.yml
 
@@ -47,6 +53,9 @@ jobs:
 - job: 'Fuzzing'
   timeoutInMinutes: 60
   condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+  # Use custom agent with additional resources.
+  pool:
+    name: 1es-pool-winget
 
   strategy:
     matrix:
@@ -66,6 +75,8 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - task: CmdLine@2
     displayName: Enable Vcpkg Install

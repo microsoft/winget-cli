@@ -60,6 +60,8 @@ jobs:
   variables:
     # Overrides the pipeline level variable, which cannot be rooted at sourceRoot.
     solution: ${{ parameters.sourceRoot }}\src\AppInstallerCLI.sln
+    # Overrides the pipeline level variable, which cannot be rooted at sourceRoot.
+    nugetConfig: ${{ parameters.sourceRoot }}\src\nuget.config
     # Opts the Component Governance task below in to vcpkg detection, which is off by default.
     # Set here rather than at pipeline level so that a consuming pipeline cannot omit it; without
     # it the scan succeeds while silently ignoring the native dependencies.
@@ -80,6 +82,12 @@ jobs:
   - ${{ each step in parameters.preSteps }}:
     - ${{ step }}
 
+  - task: PowerShell@2
+    displayName: Report Initial Disk Space
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -88,6 +96,8 @@ jobs:
     displayName: Restore Solution
     inputs:
       restoreSolution: '$(solution)'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
   # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
@@ -95,11 +105,15 @@ jobs:
     displayName: Restore AppInstallerCLIPackage
     inputs:
       restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - task: NuGetCommand@2
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   # Scoped to src, which is where winget-cli's Directory.Build.props / Directory.Packages.props sit.
@@ -110,6 +124,8 @@ jobs:
     inputs:
       command: 'restore'
       projects: '${{ parameters.sourceRoot }}\src\**\*.csproj'
+      feedsToUse: 'config'
+      nugetConfigPath: '$(nugetConfig)'
 
   - ${{ if parameters.useAgentVcpkg }}:
     - task: CmdLine@2
@@ -140,9 +156,17 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:WingetCleanIntermediateFiles=true
+                    /p:PreferredToolArchitecture=x64
+                    /p:WingetDisableIncrementalLinkTimeCodeGeneration=true
                     ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
+
+  - task: PowerShell@2
+    displayName: Report Disk Space
+    condition: succeededOrFailed()
+    inputs:
+      targetType: 'inline'
+      script: 'Get-PSDrive -PSProvider FileSystem | Format-Table Name, @{Name="UsedGB";Expression={[math]::Round($_.Used/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.Free/1GB,2)}}'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
