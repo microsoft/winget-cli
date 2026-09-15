@@ -333,8 +333,8 @@ jobs:
 
   # Everything under the winget-cli tree that the Test and BuildPowerShellModule jobs read at run
   # time, staged with its directory structure intact so that the artifact copy can substitute for
-  # the sources. Those jobs point their source root here and check out nothing; see the "Running
-  # the test jobs without a checkout" section of README.md.
+  # the sources. Those jobs check out nothing and point their source root here, so this step is not
+  # optional; see the "The test jobs never check out" section of README.md.
   - task: CopyFiles@2
     displayName: 'Copy sources needed by the test jobs'
     inputs:

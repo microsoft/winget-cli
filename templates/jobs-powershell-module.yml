@@ -1,11 +1,6 @@
 # Build and test PowerShell module
 
 parameters:
-# Root of the winget-cli sources. Defaults to the repository root; override when
-# winget-cli is consumed as a subtree at a non-root path.
-- name: sourceRoot
-  type: string
-  default: $(Build.SourcesDirectory)
 # Steps run before any winget-cli step, for environment preparation the consuming repository
 # requires. See jobs-build.yml.
 - name: preSteps
@@ -17,13 +12,6 @@ parameters:
 - name: pool
   type: object
   default: ''
-# Whether to take the winget-cli sources this job reads at run time from the build artifact instead
-# of from a checkout. When true the job checks nothing out, so a consuming repository's sources
-# never reach this job's agent; see the "Running the test jobs without a checkout" section of
-# README.md. sourceRoot is then unused.
-- name: useArtifactSource
-  type: boolean
-  default: false
 
 jobs:
 - job: 'BuildPowerShellModule'
@@ -33,13 +21,11 @@ jobs:
   ${{ if ne(parameters.pool, '') }}:
     pool: ${{ parameters.pool }}
   variables:
-    # Root of the winget-cli sources this job reads at run time: either the checkout, or the copy
-    # staged into the build artifact. Steps use this rather than the parameter directly, so that
-    # both cases resolve at run time to a real directory on this agent.
-    ${{ if parameters.useArtifactSource }}:
-      wingetSourceRoot: $(Pipeline.Workspace)\Build.x64Release\Source
-    ${{ else }}:
-      wingetSourceRoot: ${{ parameters.sourceRoot }}
+    # Root of the winget-cli sources this job reads at run time. This job compiles nothing, so it
+    # takes those sources from the copy staged into the build artifact rather than from a checkout:
+    # the files are then guaranteed to be the ones the artifact was built from, and no checkout of
+    # the consuming repository is needed on this agent. See README.md.
+    wingetSourceRoot: $(Pipeline.Workspace)\Build.x64Release\Source
     # Exported to every step as an environment variable. winget-cli content that has to find the
     # sources at runtime, rather than through an MSBuild or task input, reads it: localsource.json
     # and Microsoft.Management.Configuration.UnitTests both used to read BUILD_SOURCESDIRECTORY,
@@ -48,8 +34,7 @@ jobs:
     buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:
-  - ${{ if parameters.useArtifactSource }}:
-    - checkout: none
+  - checkout: none
 
   - ${{ each step in parameters.preSteps }}:
     - ${{ step }}

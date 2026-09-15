@@ -18,7 +18,7 @@ The two step templates are used by the job templates; a consumer does not refere
 
 ## `sourceRoot`
 
-The job templates and `e2e-test.template.yml` take a `sourceRoot` parameter that points at the root
+`jobs-build.yml` and `e2e-test.template.yml` take a `sourceRoot` parameter that points at the root
 of the winget-cli sources. It defaults to `$(Build.SourcesDirectory)`, so a pipeline at the
 repository root needs to pass nothing. (`e2e-setup.yml` predates this and spells the same idea
 `sourceDir`, which is required rather than defaulted.)
@@ -28,6 +28,10 @@ repository root needs to pass nothing. (`e2e-setup.yml` predates this and spells
   parameters:
     sourceRoot: $(Build.SourcesDirectory)\subtree
 ```
+
+`jobs-test.yml` and `jobs-powershell-module.yml` deliberately have no such parameter: they never
+check anything out and read their sources from the build artifact instead. See "The test jobs never
+check out" below.
 
 Everything that lives in the winget-cli tree is rooted at this parameter: the solution, the wapproj
 files, the PowerShell scripts invoked by `filePath`, the `workingDirectory` of those tasks, the
@@ -54,7 +58,7 @@ resolves the sources at *runtime*, from inside a process the pipeline merely lau
 content used to read `BUILD_SOURCESDIRECTORY` — which is the root of the repository being built, and
 so points outside the subtree.
 
-All three job templates therefore export `sourceRoot` as a job-scope variable named
+All three job templates therefore export their source root as a job-scope variable named
 `WINGET_SOURCE_ROOT`, which reaches every step as an environment variable. Two things read it:
 
 - `src\AppInstallerCLIE2ETests\TestData\localsource.json`, whose `%WINGET_SOURCE_ROOT%` tokens locate
@@ -66,8 +70,9 @@ Both failed silently-ish in a subtree rather than obviously: `LocalhostWebServer
 `Start-Process`, which does not propagate an exit code, so it crashed on a missing installer while
 its step reported success, and the damage only surfaced as HTTP 404s in the E2E tests one job later.
 
-Nothing needs to be passed for this; it follows `sourceRoot`. It is listed here because it is the
-one part of the contract that is neither a parameter nor a path in this directory.
+Nothing needs to be passed for this; in `jobs-build.yml` it follows `sourceRoot`, and in the two test
+jobs it follows the artifact copy. It is listed here because it is the one part of the contract that
+is neither a parameter nor a path in this directory.
 
 ## What a consuming pipeline must provide
 
@@ -123,7 +128,6 @@ consumer can send these two jobs somewhere suitable while building elsewhere:
 ```yaml
 - template: templates/jobs-test.yml
   parameters:
-    sourceRoot: $(Build.SourcesDirectory)\subtree
     pool:
       vmImage: windows-2025
 ```
@@ -132,29 +136,20 @@ The parameter accepts whatever the `pool` key accepts — a `vmImage`, a `name`,
 (the default) the job inherits the pipeline's pool, so a pipeline with a single suitable pool passes
 nothing and is unaffected.
 
-If the reason a consumer cannot simply use a hosted pool is that its sources must not be cloned onto
-one, see the next section — these two jobs can run without a checkout at all.
+Sending these jobs to a pool a consumer's sources must not be cloned onto costs nothing, because
+they are never cloned onto any pool; see the next section.
 
-## Running the test jobs without a checkout
+## The test jobs never check out
 
-Sending `Test` and `BuildPowerShellModule` to a different pool raises a question for a consumer whose
-sources are not public: that pool's agents would get a checkout of the consuming repository, purely
-so a handful of scripts and test data files are on disk.
+`Test` and `BuildPowerShellModule` both declare `checkout: none` and read every source file they
+need from the build artifact. This is not optional, and there is no parameter to turn it off.
 
-They do not have to. Both jobs take a `useArtifactSource` boolean. When it is true the job adds
-`checkout: none` and reads those files from the build artifact instead, so **the consuming
-repository is never cloned onto that agent**:
-
-```yaml
-- template: templates/jobs-test.yml
-  parameters:
-    useArtifactSource: true
-    pool:
-      vmImage: windows-2025
-```
-
-`sourceRoot` is then unused and need not be passed. The build job always stages the files, so
-turning this on costs nothing extra in the build.
+Two reasons. The jobs read scripts and test data that have to match the binaries they are testing,
+and a checkout is not guaranteed to match: it resolves to whatever the consuming repository's
+default branch or commit gives that job, which for a subtree consumer can drift from the sources the
+artifact was built from. Taking the files from the artifact removes the question. It also means the
+consuming repository is **never cloned onto these agents**, which matters when its sources are not
+public and the jobs have to run on a hosted pool for the reasons above.
 
 What makes it work is that these two jobs only ever *read* from the source tree — they compile
 nothing. `jobs-build.yml` has a `Copy sources needed by the test jobs` step that stages exactly what
@@ -169,9 +164,9 @@ relative to their own location, so a flattened copy would break them.
 If a step in these two jobs ever comes to need another file from the tree, add it to that step's
 `Contents` list; the failure mode is a missing-file error naming the path, under `…\Build.*\Source\`.
 
-Steps in these jobs use a `$(wingetSourceRoot)` variable rather than `${{ parameters.sourceRoot }}`
-directly, because the artifact path is only known at run time. That is also why the parameter is a
-job-level switch rather than something a consumer expresses by passing a different `sourceRoot`.
+Steps in these jobs use a `$(wingetSourceRoot)` variable rather than `${{ parameters.sourceRoot }}`,
+because the artifact path is only known at run time. That variable is set by the template and is not
+a consumer's to choose, which is why neither job takes a `sourceRoot`.
 
 ## `preSteps`
 
@@ -294,24 +289,21 @@ jobs:
     releaseTagJob: ''
 
 - template: subtree/templates/jobs-test.yml
-  parameters:
-    sourceRoot: $(Build.SourcesDirectory)\subtree
 
 - template: subtree/templates/jobs-powershell-module.yml
-  parameters:
-    sourceRoot: $(Build.SourcesDirectory)\subtree
 ```
 
 The `- template:` paths are relative to the consuming repository's root, since that is where the
-entry pipeline lives. The `sourceRoot` values are spelled out rather than held in a variable, because
-a variable referenced from a template's `variables:` block relies on nested macro expansion that is
+entry pipeline lives. Only the build job takes a `sourceRoot`; the test jobs read their sources from
+the artifact it publishes. The value is spelled out rather than held in a variable, because a
+variable referenced from a template's `variables:` block relies on nested macro expansion that is
 easy to get subtly wrong.
 
 To stamp a version instead, add a job that produces the tag and name it in `releaseTagJob`;
 `azure-pipelines.yml` in this repository is the worked example of that arrangement.
 
-A consumer that has to build on its own pool but can only run the test jobs on a hosted agent — and
-does not want its sources cloned there — combines `pool` with `useArtifactSource`:
+A consumer that has to build on its own pool but can only run the test jobs on a hosted agent sends
+just those two elsewhere; nothing else changes, because they are already checkout-free:
 
 ```yaml
 pool:
@@ -325,13 +317,11 @@ jobs:
 
 - template: subtree/templates/jobs-test.yml
   parameters:
-    useArtifactSource: true
     pool:
       vmImage: windows-2025
 
 - template: subtree/templates/jobs-powershell-module.yml
   parameters:
-    useArtifactSource: true
     pool:
       vmImage: windows-2025
 ```
@@ -344,9 +334,9 @@ The failure mode to watch for is a path that works at the repository root and on
 subtree, which this repository's own pipeline will not catch. When adding a task:
 
 - Root anything inside the winget-cli tree at `${{ parameters.sourceRoot }}`, except in
-  `jobs-test.yml` and `jobs-powershell-module.yml`, which use `$(wingetSourceRoot)` so that the
-  source can come from the build artifact instead. Adding a source file those two jobs read also
-  means adding it to the `Copy sources needed by the test jobs` step in `jobs-build.yml`.
+  `jobs-test.yml` and `jobs-powershell-module.yml`, which use `$(wingetSourceRoot)` because their
+  source comes from the build artifact. Adding a source file those two jobs read also means adding
+  it to the `Copy sources needed by the test jobs` step in `jobs-build.yml`.
 - Never leave a `filePath`, `solution`, `restoreSolution`, `projects`, or `workingDirectory` value
   as a repo-relative path such as `src\...`. Those resolve against the *consuming* repository.
 - Prefer `${{ parameters.sourceRoot }}` over `$(Build.SourcesDirectory)` for source files. The latter
