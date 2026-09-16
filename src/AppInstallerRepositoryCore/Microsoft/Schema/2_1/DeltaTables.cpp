@@ -159,7 +159,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         // Every index here exists only to serve generation: those on the one to many data tables
         // let generation find the rowid it already allocated for a value.
         {
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "delta_preparetables_v2_1");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "delta_prepare_tables_v2_1");
 
             for (const auto& table : OneToManyTables())
             {

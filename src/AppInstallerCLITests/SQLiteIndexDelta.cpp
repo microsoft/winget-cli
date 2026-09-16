@@ -388,7 +388,7 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackageRowIdReused", "[sqliteindex][V2_1][de
     REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id, p4.Id });
 }
 
-// B2 continued. The displaced package's associations must go with it. They are diff'd against the
+// B2 continued. The displaced package's associations must go with it. They are compared against the
 // baseline at the shared rowid, so the values belonging to the old occupant are removed.
 TEST_CASE("SQLiteIndex_Delta_ReusedRowIdReplacesAssociations", "[sqliteindex][V2_1][delta]")
 {
@@ -535,7 +535,7 @@ TEST_CASE("SQLiteIndex_Delta_ReAddOnSameRowIdUpdatesInPlace", "[sqliteindex][V2_
 // B8. Two identifiers legitimately share a rowid in the tracking table when one vacates it and the
 // other takes it. A unique index on the rowid alone would reject exactly the case that the
 // tombstone exists to record; only the live rows are constrained.
-TEST_CASE("SQLiteIndex_Delta_TrackingAllowsSharedRowIdAcrossPackages", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_TrackingAllowsSharedRowIdAcrossPackages", "[sqliteindex][V2_1][update_tracking]")
 {
     TempFile indexFile{ "update_tracking"s, ".db"s };
 
@@ -566,9 +566,9 @@ TEST_CASE("SQLiteIndex_Delta_TrackingAllowsSharedRowIdAcrossPackages", "[sqlitei
 
 // B9. Identifiers that differ only by case are the same package. The index decides that with the
 // ICU LIKE implementation, which folds beyond ASCII, so a NOCASE index would disagree here.
-TEST_CASE("SQLiteIndex_Delta_TrackingIdentityIsIcuCaseInsensitive", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_TrackingIdentityIsIcuCaseInsensitive", "[sqliteindex][V2_1][update_tracking]")
 {
-    TempFile indexFile{ "updatetracking"s, ".db"s };
+    TempFile indexFile{ "update_tracking"s, ".db"s };
 
     // Cyrillic, where the case mapping is well defined but outside the ASCII range that the
     // built in NOCASE collation folds.
@@ -595,7 +595,7 @@ TEST_CASE("SQLiteIndex_Delta_TrackingIdentityIsIcuCaseInsensitive", "[sqliteinde
 
 // B10. The rowid the tracking table stores has to be the one the prepared index assigns, since
 // that is what generation and the merged views agree on. This also fails if pinning regresses.
-TEST_CASE("SQLiteIndex_Delta_TrackingRowIdMatchesPreparedIndex", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_TrackingRowIdMatchesPreparedIndex", "[sqliteindex][V2_1][update_tracking]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
@@ -662,18 +662,18 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Changed", "[sqliteindex][V2_
 TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Removed", "[sqliteindex][V2_1][delta]")
 {
     auto original = MakePackage("Publisher1.Id", "Package 1");
-    auto recased = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
+    auto newCase = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
     auto unchanged = MakePackage("Publisher2.Id", "Package 2");
 
     DeltaTestContext context;
     context.CreateWorking({ original, unchanged });
-    context.Add(recased, false);
+    context.Add(newCase, false);
     context.CaptureBaseline();
 
-    REQUIRE(GetPreparedPackageRowId(context.BaselineFile.GetPath(), recased.Id).has_value());
+    REQUIRE(GetPreparedPackageRowId(context.BaselineFile.GetPath(), newCase.Id).has_value());
 
     context.Remove(original);
-    context.Remove(recased);
+    context.Remove(newCase);
 
     context.GenerateDelta();
 
@@ -684,9 +684,9 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Removed", "[sqliteindex][V2_
 
 // B11. The migration adds the rowid column to a table whose rows predate it. A backfill that left
 // nulls behind would break the first delta generated after an upgrade.
-TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V2_1][update_tracking]")
 {
-    TempFile indexFile{ "updatetracking"s, ".db"s };
+    TempFile indexFile{ "update_tracking"s, ".db"s };
 
     ManifestAndPath m1;
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
@@ -1463,9 +1463,9 @@ TEST_CASE("SQLiteIndex_Delta_NotSupportedBefore_2_1", "[sqliteindex][V2_0][delta
 // I2/I3. A package recorded as removed while still present in the index is a real inconsistency,
 // but a package that was removed and re-added is not: it legitimately has both a tombstone and a
 // live row. Confusing the two turns a silent bug into a loud but wrong integrity failure.
-TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ReAddedPackageIsNotCorruption", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ReAddedPackageIsNotCorruption", "[sqliteindex][V2_1][update_tracking]")
 {
-    TempFile indexFile{ "updatetracking"s, ".db"s };
+    TempFile indexFile{ "update_tracking"s, ".db"s };
 
     ManifestAndPath m1;
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
@@ -1700,7 +1700,7 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithFullIndex", "[sqliteindex][V2_1][del
 // H5. The degenerate case, which a consumer must not have to special case.
 TEST_CASE("SQLiteIndex_Delta_EquivalenceWithEmptyDelta", "[sqliteindex][V2_1][delta]")
 {
-    auto p1 = MakePackage("Equivalence.One", "Package One", { "shared" }, { "cmdkeep" }, { "Family0_8wekyb3d8bbwe" }, { "PC-1" });
+    auto p1 = MakePackage("Equivalence.One", "Package One", { "shared" }, { "cmd_keep" }, { "Family0_8wekyb3d8bbwe" }, { "PC-1" });
     auto p2 = MakePackage("Equivalence.Two", "Package Two", { "shared", "changed" }, { "cmd2" }, {}, { "PC-2" });
 
     DeltaTestContext context{ { p1, p2 } };
@@ -1726,7 +1726,7 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithEmptyDelta", "[sqliteindex][V2_1][de
 // K1. Every write takes a new sequence, and a package written twice keeps only the later one.
 // A sequence that did not advance on update would leave the second change outside any window
 // opened after the first.
-TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex][V2_1][update_tracking]")
 {
     TempFile indexFile{ "change_seq"s, ".db"s };
 
@@ -1793,7 +1793,7 @@ TEST_CASE("SQLiteIndex_Delta_BaselineCapturedImmediatelyExcludesItsOwnData", "[s
 // K3. A migrated table has no sequences, so every row backfills to the same value and the first
 // one issued afterwards is above it. An index designated as a baseline at that moment records 0,
 // and the exclusive window correctly reports nothing that preceded the migration.
-TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqliteindex][V2_1][updatetracking]")
+TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqliteindex][V2_1][update_tracking]")
 {
     TempFile indexFile{ "change_seq_migrate"s, ".db"s };
 

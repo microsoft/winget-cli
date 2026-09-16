@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             DeltaDatabase(const std::filesystem::path& path, const SQLite::Version& version) :
                 SQLiteStorageBase(path.u8string(), version)
             {
-                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "delta_createdatabase_v2_1");
+                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "delta_create_database_v2_1");
 
                 m_version.SetSchemaVersion(m_dbconn);
                 CreateTables(m_dbconn);

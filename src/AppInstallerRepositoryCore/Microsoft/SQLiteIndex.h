@@ -56,7 +56,7 @@ namespace AppInstaller::Repository::Microsoft
         static SQLiteIndex CopyFrom(const std::string& filePath, SQLiteIndex& source);
 
         // Opens a delta index combined with its baseline for reading.
-        // The delta is the main connection; the baseline is ATTACHed and TEMP VIEWs are created
+        // The delta is the main connection; the baseline is attached and temp views are created
         // so that existing search code operates transparently across both.
         // The disposition applies to both files, because the pair is only meaningful as a unit.
         static SQLiteIndex OpenWithBaseline(const std::string& deltaFilePath, const std::string& baselineFilePath, OpenDisposition disposition = OpenDisposition::Read);

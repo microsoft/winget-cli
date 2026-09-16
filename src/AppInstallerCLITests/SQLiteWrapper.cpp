@@ -802,7 +802,7 @@ TEST_CASE("SQLBuilder_CreateTempView", "[sqlbuilder]")
     InsertIntoSimpleTestTable(connection, 1, "one");
     InsertIntoSimpleTestTable(connection, 2, "two");
 
-    constexpr std::string_view viewName = "simpleview";
+    constexpr std::string_view viewName = "simple_view";
 
     {
         // Note that SQLite prohibits bound parameters in a view definition, so the
@@ -866,7 +866,7 @@ TEST_CASE("SQLBuilder_NotExists", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
-    constexpr std::string_view otherTable = "othertest";
+    constexpr std::string_view otherTable = "other_test";
 
     CreateSimpleTestTable(connection);
     InsertIntoSimpleTestTable(connection, 1, "one");
@@ -912,7 +912,7 @@ TEST_CASE("SQLBuilder_AttachAndTempView", "[sqlbuilder]")
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
     constexpr std::string_view baselineAlias = "baseline";
-    constexpr std::string_view deltaTable = "deltatest";
+    constexpr std::string_view deltaTable = "delta_test";
 
     {
         INFO("Create a local table with a distinct row");
@@ -968,8 +968,8 @@ TEST_CASE("SQLBuilder_ViewWithTombstoneSuppression", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
-    constexpr std::string_view valueTombstoneTable = "valuetombstone";
-    constexpr std::string_view ownerTombstoneTable = "ownertombstone";
+    constexpr std::string_view valueTombstoneTable = "value_tombstone";
+    constexpr std::string_view ownerTombstoneTable = "owner_tombstone";
     constexpr std::string_view removedColumn = "is_removed";
     constexpr std::string_view valueAlias = "v";
     constexpr std::string_view ownerAlias = "o";
