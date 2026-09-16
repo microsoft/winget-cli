@@ -66,10 +66,6 @@ All three job templates therefore export their source root as a job-scope variab
 - `Microsoft.Management.Configuration.UnitTests`, which uses it to find
   `src\PowerShell\ExternalModules`.
 
-Both failed silently-ish in a subtree rather than obviously: `LocalhostWebServer` is started with
-`Start-Process`, which does not propagate an exit code, so it crashed on a missing installer while
-its step reported success, and the damage only surfaced as HTTP 404s in the E2E tests one job later.
-
 Nothing needs to be passed for this; in `jobs-build.yml` it follows `sourceRoot`, and in the two test
 jobs it follows the artifact copy. It is listed here because it is the one part of the contract that
 is neither a parameter nor a path in this directory.
@@ -142,7 +138,7 @@ they are never cloned onto any pool; see the next section.
 ## The test jobs never check out
 
 `Test` and `BuildPowerShellModule` both declare `checkout: none` and read every source file they
-need from the build artifact. This is not optional, and there is no parameter to turn it off.
+need from the build artifact.
 
 Two reasons. The jobs read scripts and test data that have to match the binaries they are testing,
 and a checkout is not guaranteed to match: it resolves to whatever the consuming repository's
@@ -173,30 +169,9 @@ a consumer's to choose, which is why neither job takes a `sourceRoot`.
 Each job template takes a `preSteps` step list, injected ahead of every winget-cli step. It exists
 because a job template cannot know what a consuming repository needs done to the agent first.
 
-The case that forced it: MSBuild resolves `global.json` by walking up from the *project* directory,
-so it walks straight out of the subtree and into the consuming repository's root. If that repository
-pins a .NET SDK version, every restore in these jobs inherits the pin — and fails if the agent does
-not have that exact SDK. winget-cli has no `global.json` of its own, so this never happens here and
-this repository's pipeline cannot catch it.
-
-```yaml
-- template: subtree/templates/jobs-build.yml
-  parameters:
-    preSteps:
-    - task: UseDotNet@2
-      inputs:
-        useGlobalJson: true
-```
-
-The same hook suits feed authentication (`NuGetAuthenticate@1`) and any other agent preparation.
-Keep it to environment setup: steps that build or test winget-cli belong in the templates, where
-both consumers get them.
-
 ## `additionalMSBuildArgs`
 
-`jobs-build.yml` appends this string to both of its build tasks. It exists for the other half of the
-walk-up problem: a consuming repository's `Directory.Build.props` can not only *break* our build but
-silently *reconfigure* it, and unlike a path there is nothing for `sourceRoot` to fix.
+`jobs-build.yml` appends this string to both of its build tasks.
 
 `src\Directory.Build.props` imports any `Directory.Build.props` found above winget-cli, by design,
 so a consumer's settings reach every project under `src\`. If those settings turn on the release
@@ -344,25 +319,3 @@ subtree, which this repository's own pipeline will not catch. When adding a task
 - Watch globs. `**/*.csproj` looks harmless but would restore the entire consuming repository.
 - Keep MSBuild work inside `src\`, which is where winget-cli's `Directory.Build.props` and
   `Directory.Packages.props` sit. See below.
-
-## The `src\` boundary
-
-MSBuild and NuGet find `Directory.Build.props`, `Directory.Packages.props`, and `global.json` by
-walking **up** from each project directory until they hit one. winget-cli has none at its root, so
-that walk leaves the subtree and lands in the consuming repository, which silently applies its
-settings to our projects. This is the one hazard `sourceRoot` cannot address: nothing here is a path.
-
-In practice `src\Directory.Packages.props` does stop the walk for package versions, which is why the
-`samples\` projects — which have no such file above them inside winget-cli — were the ones that broke
-first, and why the restore glob above is scoped to `src\` rather than to `sourceRoot`. (They are in
-no solution this pipeline builds, so nothing is lost.)
-
-`src\Directory.Build.props` is different, and worth reading before assuming anything under `src\` is
-insulated. Its first line is an explicit `GetPathOfFileAbove` import: *"Consume containing solution
-build props if present."* It deliberately chains to whatever sits above winget-cli, so a consumer's
-properties reach every project under `src\` by design, not by accident. That is what
-`additionalMSBuildArgs` is for. `global.json` has no guard of any kind, which is what `preSteps` is
-for.
-
-Two consequences when editing: build only what lives under `src\`, and expect a consumer to hit all
-of this before we do, since at depth zero the walk finds nothing and everything looks fine.
