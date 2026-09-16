@@ -66,6 +66,16 @@ namespace
         return std::set<std::string>(values.begin(), values.end());
     }
 
+    std::set<std::string> ToFoldedStringSet(const std::vector<NormalizedString>& values)
+    {
+        std::set<std::string> result;
+        for (const auto& value : values)
+        {
+            result.insert(FoldCase(value));
+        }
+        return result;
+    }
+
     // Reads the rowid that a prepared index gave a package identifier.
     std::optional<rowid_t> GetPreparedPackageRowId(const std::filesystem::path& indexPath, std::string_view packageIdentifier)
     {
@@ -378,16 +388,16 @@ TEST_CASE("SQLiteIndex_Delta_RemovedPackageRowIdReused", "[sqliteindex][V2_1][de
     REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id, p4.Id });
 }
 
-// B2 continued. The displaced package's associations must go with it. They are diffed against the
+// B2 continued. The displaced package's associations must go with it. They are diff'd against the
 // baseline at the shared rowid, so the values belonging to the old occupant are removed.
 TEST_CASE("SQLiteIndex_Delta_ReusedRowIdReplacesAssociations", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "keep" });
-    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "old1", "old2" }, { "oldcmd" }, {}, { "OLDPC" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "old1", "old2" }, { "old_cmd" }, {}, { "OLD_PC" });
 
     DeltaTestContext context{ { p1, p2 } };
 
-    auto p3 = MakePackage("Publisher3.Id", "Package 3", { "new1" }, { "newcmd" }, {}, { "NEWPC" });
+    auto p3 = MakePackage("Publisher3.Id", "Package 3", { "new1" }, { "new_cmd" }, {}, { "NEW_PC" });
 
     context.Remove(p2);
     context.Add(p3);
@@ -398,7 +408,7 @@ TEST_CASE("SQLiteIndex_Delta_ReusedRowIdReplacesAssociations", "[sqliteindex][V2
     // Nothing of the old occupant survives at the shared rowid.
     REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p3.Id) == ToStringSet(p3.Tags));
     REQUIRE(GetOneToManyValues(merged, "commands2", "command", p3.Id) == ToStringSet(p3.Commands));
-    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p3.Id) == std::set<std::string>{ "newpc" });
+    REQUIRE(GetSystemReferenceValues(merged, "productcodes2", "productcode", p3.Id) == ToFoldedStringSet(p3.ProductCodes));
 
     // The untouched package is unaffected.
     REQUIRE(GetOneToManyValues(merged, "tags2", "tag", p1.Id) == ToStringSet(p1.Tags));
@@ -456,7 +466,7 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove_CasingChanged", "[sqliteindex][V2_1
     auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
     auto p3 = MakePackage("Publisher3.Id", "Package 3");
-    auto p2Recased = MakePackage("publisher2.id", "Package 2");
+    auto p2_NewCase = MakePackage("publisher2.id", "Package 2");
 
     DeltaTestContext context{ { p1, p2, p3 } };
 
@@ -465,8 +475,8 @@ TEST_CASE("SQLiteIndex_Delta_RemoveAddRemove_CasingChanged", "[sqliteindex][V2_1
     // Publisher3 holds the highest rowid, so the re-add lands on a new one and leaves the first
     // tombstone in place rather than reviving it.
     context.Remove(p2);
-    context.Add(p2Recased);
-    context.Remove(p2Recased);
+    context.Add(p2_NewCase);
+    context.Remove(p2_NewCase);
 
     {
         Connection working = Connection::Create(context.WorkingFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
@@ -527,7 +537,7 @@ TEST_CASE("SQLiteIndex_Delta_ReAddOnSameRowIdUpdatesInPlace", "[sqliteindex][V2_
 // tombstone exists to record; only the live rows are constrained.
 TEST_CASE("SQLiteIndex_Delta_TrackingAllowsSharedRowIdAcrossPackages", "[sqliteindex][V2_1][updatetracking]")
 {
-    TempFile indexFile{ "updatetracking"s, ".db"s };
+    TempFile indexFile{ "update_tracking"s, ".db"s };
 
     ManifestAndPath m1;
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
@@ -616,7 +626,7 @@ TEST_CASE("SQLiteIndex_Delta_TrackingRowIdMatchesPreparedIndex", "[sqliteindex][
     }
 }
 
-// B12. Package identity is case insensitive everywhere in the index: the ids table collapses
+// B12. Package identity is case-insensitive everywhere in the index: the ids table collapses
 // LIKE equal identifiers onto one rowid and overwrites the stored string with the most recent
 // casing, while the tracking table freezes the casing it first saw. Generation therefore has to
 // resolve a package across a casing difference between the two.
@@ -627,14 +637,14 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Changed", "[sqliteindex][V2_
 {
     auto original = MakePackage("Publisher1.Id", "Package 1");
     auto unchanged = MakePackage("Publisher2.Id", "Package 2");
-    auto recased = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
+    auto newCase = MakePackage("publisher1.id", "Package 1 V2", { "t1", "t2" }, { "c1" }, {}, {}, "2.0"s);
 
     DeltaTestContext context{ { original, unchanged } };
 
     // Adding a version under a different casing rewrites the ids table entry, and with it the
     // identifier that packaging will put in the packages table. The tracking row keeps the
     // original casing.
-    context.Add(recased);
+    context.Add(newCase);
 
     REQUIRE_NOTHROW(context.GenerateDelta());
 
@@ -642,7 +652,7 @@ TEST_CASE("SQLiteIndex_Delta_IdentifierCasingChange_Changed", "[sqliteindex][V2_
 
     // Exactly one row for the package. Resolving to no rowid would have left the baseline row
     // unsuppressed alongside the delta's, showing it twice.
-    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ recased.Id, unchanged.Id });
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ newCase.Id, unchanged.Id });
 }
 
 // B13. The silent half of the same defect. Here the casing changed before the baseline was taken,
@@ -700,7 +710,7 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V
 
     REQUIRE(GetRowCount(connection, "update_tracking") == 2);
 
-    // The column arrives with a default of 0, so an unbackfilled row is 0 rather than null.
+    // The column arrives with a default of 0, ensure that they all got mapped to the real value.
     REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = 0") == 0);
 
     // The backfilled value has to be the one the index itself uses, not just any non null.
@@ -1138,9 +1148,9 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_RemovedPackageValuesAreInvisible", 
 // at the level of the package would lose the kept tag, because the delta never mentions it.
 TEST_CASE("SQLiteIndex_Delta_OneToMany_AssociationsAreSuppressedPerRow", "[sqliteindex][V2_1][delta]")
 {
-    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "keep", "drop", "alsokeep" }, { "cmdkeep", "cmddrop" });
-    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "other" }, { "othercmd" });
-    auto p1Updated = MakePackage(p1.Id, p1.Name, { "keep", "added", "alsokeep" }, { "cmdkeep", "cmdadded" });
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "keep", "drop", "also_keep" }, { "cmd_keep", "cmd_drop" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "other" }, { "other_cmd" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "keep", "added", "also_keep" }, { "cmd_keep", "cmd_added" });
 
     DeltaTestContext context{ { p1, p2 } };
 
@@ -1167,7 +1177,7 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_ValueRowIdAllocation", "[sqliteindex][V2_
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "shared", "only1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "other" });
-    auto p2Updated = MakePackage(p2.Id, p2.Name, { "other", "shared", "brandnew" });
+    auto p2Updated = MakePackage(p2.Id, p2.Name, { "other", "shared", "brand_new" });
 
     DeltaTestContext context{ { p1, p2 } };
 
@@ -1205,8 +1215,8 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_NewValueSharedByPackages", "[sqliteindex]
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" });
-    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "commontag" });
-    auto p2Updated = MakePackage(p2.Id, p2.Name, { "t2", "commontag" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "common_tag" });
+    auto p2Updated = MakePackage(p2.Id, p2.Name, { "t2", "common_tag" });
 
     DeltaTestContext context{ { p1, p2 } };
 
@@ -1258,7 +1268,7 @@ TEST_CASE("SQLiteIndex_Delta_OneToMany_AllValuesRemoved", "[sqliteindex][V2_1][d
 TEST_CASE("SQLiteIndex_Delta_OneToMany_EmptyBaselineValueTable", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", {}, {});
-    auto p1Updated = MakePackage(p1.Id, p1.Name, { "first" }, { "firstcmd" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "first" }, { "first_cmd" });
 
     DeltaTestContext context{ { p1 } };
 
@@ -1656,14 +1666,14 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithFullIndex", "[sqliteindex][V2_1][del
 {
     // The mutation set covers every kind of change the delta has to describe: a package added, one
     // removed, one whose values change, one renamed, and one left entirely alone.
-    auto untouched = MakePackage("Equivalence.Untouched", "Package Untouched", { "shared", "keep" }, { "cmdkeep" }, { "Family0_8wekyb3d8bbwe" }, { "PC-UNTOUCHED" });
-    auto removed = MakePackage("Equivalence.Removed", "Package Removed", { "shared", "gone" }, { "cmdgone" }, { "Family1_8wekyb3d8bbwe" }, { "PC-REMOVED" });
-    auto retagged = MakePackage("Equivalence.Retagged", "Package Retagged", { "shared", "changed" }, { "cmdold" }, { "Family2_8wekyb3d8bbwe" }, { "PC-OLD", "PC-BOTH" });
-    auto renamed = MakePackage("Equivalence.Renamed", "Package Original", { "shared" }, { "cmdkeep" }, { "Family3_8wekyb3d8bbwe" }, { "PC-RENAMED" });
-    auto roundTrip = MakePackage("Equivalence.RoundTrip", "Package RoundTrip", { "shared" }, { "cmdkeep" }, {}, { "PC-ROUND" });
-    auto retaggedUpdated = MakePackage(retagged.Id, retagged.Name, { "shared", "changednew" }, { "cmdnew" }, retagged.PackageFamilyNames, { "PC-NEW", "PC-BOTH" });
+    auto untouched = MakePackage("Equivalence.Untouched", "Package Untouched", { "shared", "keep" }, { "cmd_keep" }, { "Family0_8wekyb3d8bbwe" }, { "PC-UNTOUCHED" });
+    auto removed = MakePackage("Equivalence.Removed", "Package Removed", { "shared", "gone" }, { "cmd_gone" }, { "Family1_8wekyb3d8bbwe" }, { "PC-REMOVED" });
+    auto retagged = MakePackage("Equivalence.Retagged", "Package Retagged", { "shared", "changed" }, { "cmd_old" }, { "Family2_8wekyb3d8bbwe" }, { "PC-OLD", "PC-BOTH" });
+    auto renamed = MakePackage("Equivalence.Renamed", "Package Original", { "shared" }, { "cmd_keep" }, { "Family3_8wekyb3d8bbwe" }, { "PC-RENAMED" });
+    auto roundTrip = MakePackage("Equivalence.RoundTrip", "Package RoundTrip", { "shared" }, { "cmd_keep" }, {}, { "PC-ROUND" });
+    auto retaggedUpdated = MakePackage(retagged.Id, retagged.Name, { "shared", "changed_new" }, { "cmd_new" }, retagged.PackageFamilyNames, { "PC-NEW", "PC-BOTH" });
     auto renamedUpdated = MakePackage(renamed.Id, "Package Replacement", renamed.Tags, renamed.Commands, renamed.PackageFamilyNames, renamed.ProductCodes);
-    auto added = MakePackage("Equivalence.Added", "Package Added", { "shared", "brand" }, { "cmdadded" }, { "Family4_8wekyb3d8bbwe" }, { "PC-ADDED" });
+    auto added = MakePackage("Equivalence.Added", "Package Added", { "shared", "brand" }, { "cmd_added" }, { "Family4_8wekyb3d8bbwe" }, { "PC-ADDED" });
 
     DeltaTestContext context{ { untouched, removed, retagged, renamed, roundTrip } };
 
@@ -1718,7 +1728,7 @@ TEST_CASE("SQLiteIndex_Delta_EquivalenceWithEmptyDelta", "[sqliteindex][V2_1][de
 // opened after the first.
 TEST_CASE("SQLiteIndex_Delta_ChangeSequenceAdvancesOnEveryWrite", "[sqliteindex][V2_1][updatetracking]")
 {
-    TempFile indexFile{ "changeseq"s, ".db"s };
+    TempFile indexFile{ "change_seq"s, ".db"s };
 
     auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
@@ -1785,7 +1795,7 @@ TEST_CASE("SQLiteIndex_Delta_BaselineCapturedImmediatelyExcludesItsOwnData", "[s
 // and the exclusive window correctly reports nothing that preceded the migration.
 TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsChangeSequence", "[sqliteindex][V2_1][updatetracking]")
 {
-    TempFile indexFile{ "changeseq_migrate"s, ".db"s };
+    TempFile indexFile{ "change_seq_migrate"s, ".db"s };
 
     ManifestAndPath m1;
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
@@ -1839,8 +1849,8 @@ TEST_CASE("SQLiteIndex_Delta_SequenceBelowBaselineIsRejected", "[sqliteindex][V2
     }
 
     // A rebuilt working index, holding the same data but having recorded far fewer changes.
-    TempFile rebuiltFile{ "changeseq_rebuilt"s, ".db"s };
-    TempFile rebuiltDeltaFile{ "changeseq_rebuilt_delta"s, ".db"s };
+    TempFile rebuiltFile{ "change_seq_rebuilt"s, ".db"s };
+    TempFile rebuiltDeltaFile{ "change_seq_rebuilt_delta"s, ".db"s };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(rebuiltFile, s_DeltaVersion);
