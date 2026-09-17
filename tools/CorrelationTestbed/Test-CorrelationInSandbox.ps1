@@ -107,12 +107,12 @@ $ Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClien
 # Close Windows Sandbox
 
 function Close-WindowsSandbox {
-    $sandbox = Get-Process 'WindowsSandboxClient' -ErrorAction SilentlyContinue
+    $sandbox = Get-Process 'WindowsSandboxRemoteSession' -ErrorAction SilentlyContinue
     if ($sandbox)
     {
       Write-Host '--> Closing Windows Sandbox'
 
-      $sandboxServer = Get-Process 'WindowsSandbox' -ErrorAction SilentlyContinue
+      $sandboxServer = Get-Process 'WindowsSandboxServer' -ErrorAction SilentlyContinue
 
       $sandbox | Stop-Process
       $sandbox | Wait-Process -Timeout 120
