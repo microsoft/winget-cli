@@ -525,6 +525,9 @@ namespace AppInstaller::SQLite::Builder
         // the attachment is released when that connection is closed.
         StatementBuilder& Attach(const DatabaseSpecifier& specifier, std::string_view alias);
 
+        // Releases a database previously attached under the given alias.
+        StatementBuilder& Detach(std::string_view alias);
+
         // General purpose functions to begin and end a parenthetical expression.
         StatementBuilder& BeginParenthetical();
         StatementBuilder& EndParenthetical();

@@ -980,6 +980,13 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Detach(std::string_view alias)
+    {
+        m_stream << "DETACH DATABASE";
+        OutputOperationAndTable(m_stream, "", alias);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::BeginParenthetical()
     {
         m_stream << '(';

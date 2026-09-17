@@ -11,6 +11,7 @@
 
 #include <winget/SQLiteStatementBuilder.h>
 #include <winget/SQLiteMetadataTable.h>
+#include <winget/SQLiteVersion.h>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
@@ -146,20 +147,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             builder.Execute(connection);
         }
 
-        // Verifies that the baseline is the one that the delta was generated against.
-        void ValidateBaselineAffinity(const SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline)
+        // Verifies that the attached baseline is the one that the delta was generated against.
+        void ValidateAttachedBaseline(const SQLite::Connection& connection)
         {
             std::optional<std::string> expected =
                 SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier);
 
-            SQLite::Connection baselineConnection = SQLite::Connection::Create(baseline);
             std::optional<std::string> actual =
-                SQLite::MetadataTable::TryGetNamedValue<std::string>(baselineConnection, s_MetadataValueName_BaselineIdentifier);
+                SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_BaselineIdentifier, s_Delta_BaselineSchema);
 
             if (!expected || !actual || expected.value() != actual.value())
             {
                 AICLI_LOG(Repo, Error, << "Delta expects baseline [" << expected.value_or("<none>") <<
                     "] but was given [" << actual.value_or("<none>") << "]");
+                THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+            }
+
+            // Ensure that the baseline also has the same schema version
+            auto baselineVersion = SQLite::Version::GetSchemaVersion(connection, s_Delta_BaselineSchema);
+            auto deltaVersion = SQLite::Version::GetSchemaVersion(connection);
+
+            if (baselineVersion != deltaVersion)
+            {
+                AICLI_LOG(Repo, Error, << "Delta at version [" << deltaVersion << "] cannot use a baseline at version [" << baselineVersion << "]");
                 THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
             }
         }
@@ -169,12 +179,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     {
         AICLI_LOG(Repo, Info, << "Setting up delta read mode with baseline [" << baseline.Path() << "]");
 
-        ValidateBaselineAffinity(connection, baseline);
-
         {
             StatementBuilder builder;
             builder.Attach(baseline, s_Delta_BaselineSchema);
             builder.Execute(connection);
+        }
+
+        try
+        {
+            ValidateAttachedBaseline(connection);
+        }
+        catch (...)
+        {
+            // Best effor attempt to restore the state
+            try
+            {
+                StatementBuilder builder;
+                builder.Detach(s_Delta_BaselineSchema);
+                builder.Execute(connection);
+            }
+            CATCH_LOG();
+
+            throw;
         }
 
         CreatePackagesView(connection);

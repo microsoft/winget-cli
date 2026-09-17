@@ -5,9 +5,12 @@
 #include <AppInstallerErrors.h>
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteStatementBuilder.h>
+#include <winget/SQLiteMetadataTable.h>
+#include <winget/SQLiteVersion.h>
 
 using namespace AppInstaller::SQLite;
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 static const char* s_firstColumn = "first";
 static const char* s_secondColumn = "second";
@@ -962,6 +965,99 @@ TEST_CASE("SQLBuilder_AttachAndTempView", "[sqlbuilder]")
 
         REQUIRE(!statement.Step());
     }
+}
+
+// Reading metadata from an attached database is what lets a caller validate the database it is
+// actually going to read, rather than a separate connection's view of the same path.
+TEST_CASE("SQLiteMetadata_AttachedDatabase", "[sqlitewrapper]")
+{
+    TestCommon::TempFile attachedFile{ "repolibtest_metadata_attached"s, ".db"s };
+    INFO("Using temporary file named: " << attachedFile.GetPath());
+
+    {
+        Connection attached = Connection::Create(attachedFile, Connection::OpenDisposition::Create);
+        MetadataTable::Create(attached);
+        MetadataTable::SetNamedValue(attached, s_MetadataValueName_MajorVersion, 2);
+        MetadataTable::SetNamedValue(attached, s_MetadataValueName_MinorVersion, 1);
+        MetadataTable::SetNamedValue(attached, "shared"sv, "attachedValue"s);
+        MetadataTable::SetNamedValue(attached, "onlyAttached"sv, "present"s);
+    }
+
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+    MetadataTable::Create(connection);
+    MetadataTable::SetNamedValue(connection, s_MetadataValueName_MajorVersion, 3);
+    MetadataTable::SetNamedValue(connection, s_MetadataValueName_MinorVersion, 4);
+    MetadataTable::SetNamedValue(connection, "shared"sv, "mainValue"s);
+
+    constexpr std::string_view alias = "other";
+
+    {
+        Builder::StatementBuilder attach;
+        attach.Attach(DatabaseSpecifier{ attachedFile.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+        attach.Execute(connection);
+    }
+
+    // Both databases have a metadata table holding the same name, so an unqualified read would
+    // silently answer from the wrong one.
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "shared"sv) == "mainValue");
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "shared"sv, alias) == "attachedValue");
+
+    // A value only the attachment has is unreachable without targeting it.
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, "onlyAttached"sv).has_value());
+    REQUIRE(MetadataTable::TryGetNamedValue<std::string>(connection, "onlyAttached"sv, alias) == "present"s);
+
+    // Absence is still reported as absence rather than falling back to the primary database.
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, "onlyMain"sv, alias).has_value());
+
+    REQUIRE(Version::GetSchemaVersion(connection) == Version{ 3, 4 });
+    REQUIRE(Version::GetSchemaVersion(connection, alias) == Version{ 2, 1 });
+}
+
+// Detaching has to actually release the alias, or a caller that rejects one database cannot try
+// another on the same connection.
+TEST_CASE("SQLBuilder_Detach", "[sqlbuilder]")
+{
+    TestCommon::TempFile firstFile{ "repolibtest_detach_first"s, ".db"s };
+    TestCommon::TempFile secondFile{ "repolibtest_detach_second"s, ".db"s };
+
+    constexpr std::string_view firstMarker = "first";
+    constexpr std::string_view secondMarker = "second";
+
+    auto seed = [](const TestCommon::TempFile& file, std::string_view marker)
+        {
+            Connection attached = Connection::Create(file, Connection::OpenDisposition::Create);
+            MetadataTable::Create(attached);
+            MetadataTable::SetNamedValue(attached, "which"sv, std::string{ marker });
+        };
+
+    seed(firstFile, firstMarker);
+    seed(secondFile, secondMarker);
+
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view alias = "attached";
+
+    auto attach = [&](const TestCommon::TempFile& file)
+        {
+            Builder::StatementBuilder builder;
+            builder.Attach(DatabaseSpecifier{ file.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+            builder.Execute(connection);
+        };
+
+    attach(firstFile);
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "which"sv, alias) == firstMarker);
+
+    // Reusing an alias that is still in use is an error, which is what makes releasing it matter.
+    REQUIRE_THROWS(attach(secondFile));
+
+    {
+        Builder::StatementBuilder detach;
+        detach.Detach(alias);
+        detach.Execute(connection);
+    }
+
+    attach(secondFile);
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "which"sv, alias) == secondMarker);
 }
 
 TEST_CASE("SQLBuilder_ViewWithTombstoneSuppression", "[sqlbuilder]")

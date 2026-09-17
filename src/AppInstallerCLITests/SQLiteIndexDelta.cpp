@@ -1865,3 +1865,59 @@ TEST_CASE("SQLiteIndex_Delta_SequenceBelowBaselineIsRejected", "[sqliteindex][V2
 
     REQUIRE_THROWS_HR(rebuilt.PrepareForPackaging(), APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
 }
+
+// G10. The identifier says the two were once a pair; it does not say they still fit together. It
+// is minted once and never changes, so a baseline migrated to a later schema keeps naming the same
+// identity while its tables may no longer have the shape the delta was built against. Defining the
+// merged views over that is silent corruption, so the schema versions are checked as well.
+TEST_CASE("SQLiteIndex_Delta_BaselineSchemaVersionMismatchRejected", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+    context.GenerateDelta();
+
+    REQUIRE_NOTHROW(context.OpenCombined());
+
+    // Move the baseline's recorded schema version without touching anything else, which is what a
+    // migration would leave behind as far as the affinity check can see.
+    {
+        Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+        MetadataTable::SetNamedValue(baseline, s_MetadataValueName_MajorVersion, 1);
+    }
+
+    REQUIRE_THROWS_HR(context.OpenCombined(), APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+}
+
+// G11. A rejected baseline has to leave the connection as it was found. The attachment happens
+// before the values can be read, so refusing one and then trying another on the same connection is
+// the case that proves the attachment was released.
+TEST_CASE("SQLiteIndex_Delta_RejectedBaselineReleasesAttachment", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    // A second baseline with its own identity, which this delta was not generated against.
+    TempFile otherBaselineFile{ "delta_baseline_other"s, ".db"s };
+    std::filesystem::copy_file(context.WorkingFile.GetPath(), otherBaselineFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
+
+    {
+        SQLiteIndex other = SQLiteIndex::Open(otherBaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        other.PrepareForPackaging();
+        other.MarkAsBaseline();
+    }
+
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+    context.GenerateDelta();
+
+    Connection connection = context.OpenDeltaConnection();
+
+    REQUIRE_THROWS_HR(
+        Delta::SetupReadMode(connection, DatabaseSpecifier{ otherBaselineFile.GetPath().u8string(), DatabaseDisposition::Read }),
+        APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+
+    // Had the rejected baseline stayed attached, this would fail complaining that the schema name
+    // is already in use, which says nothing about why the first one was refused.
+    REQUIRE_NOTHROW(Delta::SetupReadMode(connection, DatabaseSpecifier{ context.BaselineFile.GetPath().u8string(), DatabaseDisposition::Read }));
+
+    REQUIRE(GetStrings(connection, "SELECT [id] FROM [packages]") == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+}
