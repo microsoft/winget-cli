@@ -174,7 +174,6 @@ ewgs
 execustom
 EXEHASH
 experimentalfeatures
-XPRESS
 fdw
 fdwgp
 FECAFEB
@@ -209,8 +208,8 @@ GHS
 github
 gitlab
 gity
-Gotchas
 goku
+Gotchas
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef
@@ -296,11 +295,12 @@ learnxinyminutes
 LEBOM
 lhs
 LIBYAML
-liv
 listsort
+liv
 liwpx
 localizationpriority
 localsource
+lockdown
 Logon
 LONGLONG
 LOWORD
@@ -370,6 +370,7 @@ mszyml
 mta
 Mugiwara
 Multideclaration
+myconfig
 mysource
 nativehandle
 NBLGGH
@@ -513,6 +514,7 @@ RTTI
 runspace
 runtimeclass
 runtimes
+rustup
 rwgch
 rwgs
 ryfu
@@ -545,6 +547,7 @@ shortguid
 SHOWNORMAL
 sid
 Sideload
+sideloading
 SIGNATUREHASH
 silentpreferred
 SINGLETHREADED
@@ -702,6 +705,7 @@ Xms
 XMUGIWARAMODULE
 XName
 XPLATSTR
+XPRESS
 XRESOURCEZORO
 xsi
 yamato
