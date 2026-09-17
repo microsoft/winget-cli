@@ -54,11 +54,8 @@ the entry point has to know where the subtree lives.
 ## `WINGET_SOURCE_ROOT`
 
 Not everything that needs the source root can be handed a task input. Some winget-cli content
-resolves the sources at *runtime*, from inside a process the pipeline merely launches, and that
-content used to read `BUILD_SOURCESDIRECTORY` — which is the root of the repository being built, and
-so points outside the subtree.
-
-All three job templates therefore export their source root as a job-scope variable named
+resolves the sources at *runtime*, from inside a process the pipeline merely launches. All three
+job templates therefore export their source root as a job-scope variable named
 `WINGET_SOURCE_ROOT`, which reaches every step as an environment variable. Two things read it:
 
 - `src\AppInstallerCLIE2ETests\TestData\localsource.json`, whose `%WINGET_SOURCE_ROOT%` tokens locate
@@ -74,9 +71,6 @@ is neither a parameter nor a path in this directory.
 
 **Pipeline variables.** None. `jobs-build.yml` sets what it needs at job scope — `solution`, so it
 can be rooted, and `EnableDetectorVcpkg`, so Component Governance detects the vcpkg dependencies.
-Both were previously pipeline-level variables in `azure-pipelines.yml`; a consumer that omitted
-`EnableDetectorVcpkg` would have gotten a passing scan that silently skipped the native
-dependencies, so the template owns it now.
 
 **A Windows agent** with Visual Studio 2022 and vcpkg, exposing `VCPKG_INSTALLATION_ROOT`. The
 Microsoft-hosted `windows-2025` image qualifies. **The `Test` and `BuildPowerShellModule` jobs need
@@ -187,10 +181,6 @@ does not even build.
       /p:WingetDisableTestHooks=false
       /p:UseProdCLSIDs=false
 ```
-
-These must be command line properties. A consumer that assigns the property in a `.props` file
-assigns it unconditionally, and only a global property — which is what `/p:` creates — takes
-precedence over that.
 
 ## `useAgentVcpkg`
 
@@ -318,4 +308,5 @@ subtree, which this repository's own pipeline will not catch. When adding a task
   is the consuming repository's root, which is only the same thing at depth zero.
 - Watch globs. `**/*.csproj` looks harmless but would restore the entire consuming repository.
 - Keep MSBuild work inside `src\`, which is where winget-cli's `Directory.Build.props` and
-  `Directory.Packages.props` sit. See below.
+  `Directory.Packages.props` sit.
+  

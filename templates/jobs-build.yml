@@ -102,16 +102,9 @@ jobs:
   # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
   # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
   - task: NuGetCommand@2
-    displayName: Restore AppInstallerCLIPackage
+    displayName: Restore All Package Projects
     inputs:
-      restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
-      feedsToUse: 'config'
-      nugetConfigPath: '$(nugetConfig)'
-
-  - task: NuGetCommand@2
-    displayName: Restore AppInstallerTestMsixInstaller
-    inputs:
-      restoreSolution: '${{ parameters.sourceRoot }}\src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
+      restoreSolution: '${{ parameters.sourceRoot }}\src\**\*.wapproj'
       feedsToUse: 'config'
       nugetConfigPath: '$(nugetConfig)'
 
