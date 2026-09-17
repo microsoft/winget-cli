@@ -724,6 +724,87 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V
     }
 }
 
+// A 1.7 index migrating straight to 2.1 takes a different path than 2.0 -> 2.1: the 2.0 migration
+// runs under the 2.1 interface, so it creates the tracking table already carrying the removal
+// columns. Adding them again afterwards fails with a duplicate column, which made this migration
+// impossible. The rowids it records also have to be the ones the index goes on to use, since a
+// delta generated after the upgrade is keyed on them.
+TEST_CASE("SQLiteIndex_Delta_TrackingMigrationFrom1_7", "[sqliteindex][V2_1][update_tracking]")
+{
+    TempFile indexFile{ "update_tracking"s, ".db"s };
+
+    ManifestAndPath m1;
+    CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
+    ManifestAndPath m2;
+    CreateFakeManifestAndPath(m2, "Publisher2", "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 1, 7 });
+        index.AddManifest(m1.Manifest, m1.Path);
+        index.AddManifest(m2.Manifest, m2.Path);
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(indexFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE(index.MigrateTo(s_DeltaVersion));
+        REQUIRE(index.GetVersion() == s_DeltaVersion);
+        REQUIRE(index.CheckConsistency(true));
+    }
+
+    {
+        Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
+
+        REQUIRE(GetRowCount(connection, "update_tracking") == 2);
+        REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [is_removed] != 0") == 0);
+        REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = 0") == 0);
+
+        // A 1.7 table has no sequences at all, so these are issued rather than backfilled.
+        REQUIRE(GetScalar(connection, "SELECT COUNT(DISTINCT [change_seq]) FROM [update_tracking]") == 2);
+        REQUIRE(GetScalar(connection, "SELECT MIN([change_seq]) FROM [update_tracking]") == 1);
+
+        for (const auto& packageId : { m1.Manifest.Id, m2.Manifest.Id })
+        {
+            INFO(packageId);
+            int64_t tracked = GetScalar(connection, "SELECT [package_rowid] FROM [update_tracking] WHERE [package] = '" + std::string{ packageId } + "'");
+            auto idRowId = Schema::V1_0::IdTable::SelectIdByValue(connection, std::string{ packageId });
+            REQUIRE(idRowId.has_value());
+            REQUIRE(idRowId.value() == tracked);
+        }
+    }
+
+    // The tracked rowid is only useful if it is the one that packaging pins, as that is the
+    // identity a delta built against this index would be expressed in.
+    TempFile preparedFile{ "update_tracking_prepared"s, ".db"s };
+    std::filesystem::copy_file(indexFile.GetPath(), preparedFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
+
+    std::map<std::string, int64_t> trackedRowIds;
+
+    {
+        Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadOnly);
+        Statement statement = Statement::Create(connection, "SELECT [package], [package_rowid] FROM [update_tracking]");
+
+        while (statement.Step())
+        {
+            trackedRowIds.emplace(statement.GetColumn<std::string>(0), statement.GetColumn<int64_t>(1));
+        }
+    }
+
+    {
+        SQLiteIndex prepared = SQLiteIndex::Open(preparedFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        prepared.PrepareForPackaging();
+    }
+
+    REQUIRE(trackedRowIds.size() == 2);
+
+    for (const auto& tracked : trackedRowIds)
+    {
+        INFO(tracked.first);
+        auto preparedRowId = GetPreparedPackageRowId(preparedFile.GetPath(), tracked.first);
+        REQUIRE(preparedRowId.has_value());
+        REQUIRE(preparedRowId.value() == tracked.second);
+    }
+}
+
 // B3/B4. Rowids have to survive repeated preparation, not just one round. Two rounds cannot
 // distinguish a stable assignment from one that happens to repeat.
 TEST_CASE("SQLiteIndex_Delta_RowIdsAreStableAcrossPrepares", "[sqliteindex][V2_0]")

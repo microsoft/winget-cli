@@ -27,22 +27,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
     {
         THROW_HR_IF_NULL(E_POINTER, current);
 
-        auto currentVersion = current->GetVersion();
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migrate_from_v2_1");
-
-        // Attempt a migration to 2.0 first, which will only return true if it actually performed a migration
-        bool v2result = V2_0::Interface::MigrateFrom(connection, current);
+        // The 2.0 migration will go to 2.1 due to the removal behavior
+        if (V2_0::Interface::MigrateFrom(connection, current))
+        {
+            return true;
+        }
 
         // Migration from 2.0 → 2.1
-        if (v2result || (currentVersion.MajorVersion == 2 && currentVersion.MinorVersion == 0))
+        auto currentVersion = current->GetVersion();
+        if (currentVersion.MajorVersion == 2 && currentVersion.MinorVersion == 0)
         {
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migrate_from_v2_1");
             V2_0::PackageUpdateTrackingTable::AddRemovalTrackingColumns(connection);
             savepoint.Commit();
             return true;
         }
 
-        savepoint.Rollback(true);
         return false;
     }
 
