@@ -156,6 +156,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Designates this index as a baseline that delta indexes may be generated against, giving
         // it an identity that a delta can name.
+        // The index must be in its prepared, shipped form, and must not itself be a delta.
         virtual void MarkAsBaseline(SQLite::Connection& connection);
 
         // Sets this index up to read the combination of a delta and the baseline that it was

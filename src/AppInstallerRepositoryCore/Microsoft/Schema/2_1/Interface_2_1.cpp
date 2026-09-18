@@ -48,6 +48,23 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 
     void Interface::MarkAsBaseline(SQLite::Connection& connection)
     {
+        // A delta is a description of change rather than a whole index, so it cannot stand as the
+        // baseline for another one. Both forms are refused: the delta opened on its own, which
+        // records the baseline it was built against, and the combined form, whose tables are views
+        // over a union and whose underlying database is that same delta.
+        // This is checked first because a prepared delta has no packages table, so the check below
+        // would otherwise reject it for the wrong reason.
+        THROW_HR_IF(E_NOT_VALID_STATE, m_isDeltaReadMode);
+        THROW_HR_IF(E_NOT_VALID_STATE,
+            !SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier).value_or(std::string{}).empty());
+
+        // A baseline is the thing a delta is computed against and later merged with, and the merged
+        // views are defined over the 2.x tables. An index that has not been prepared does not have
+        // them yet -- it still holds the 1.7 tables that PrepareForPackaging reads from -- so
+        // designating one would produce a baseline that no delta could be built from or attached to.
+        EnsureInternalInterface(connection);
+        THROW_HR_IF(E_NOT_VALID_STATE, static_cast<bool>(m_internalInterface));
+
         GUID baselineIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&baselineIdentifier));
 

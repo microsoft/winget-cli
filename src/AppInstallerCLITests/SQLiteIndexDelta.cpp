@@ -15,6 +15,7 @@
 #include <Microsoft/Schema/2_0/PackageUpdateTrackingTable.h>
 #include <Microsoft/Schema/2_1/DeltaTables.h>
 #include <Microsoft/Schema/2_1/DeltaViews.h>
+#include <Microsoft/Schema/2_1/Interface.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -1696,6 +1697,63 @@ TEST_CASE("SQLiteIndex_Delta_NotSupportedBefore_2_1", "[sqliteindex][V2_0][delta
     REQUIRE_THROWS_HR(
         SQLiteIndex::OpenWithBaseline(indexFile.GetPath().u8string(), baselineFile.GetPath().u8string()),
         HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+}
+
+// M1. A baseline is what a delta is merged with, and the merged views are defined over the 2.x
+// tables. An index that has not been prepared still holds the 1.7 tables, so designating one would
+// mint an identity for something no delta could ever be built from or attached to.
+TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRequiresPreparedIndex", "[sqliteindex][V2_1][delta]")
+{
+    TempFile indexFile{ "delta_unprepared"s, ".db"s };
+
+    ManifestAndPath m1;
+    CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
+    index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+    index.AddManifest(m1.Manifest, m1.Path);
+
+    REQUIRE_THROWS_HR(index.MarkAsBaseline(), E_NOT_VALID_STATE);
+
+    // Nothing was recorded, so the refusal is complete rather than partial.
+    {
+        Connection connection = Connection::Create(indexFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+        REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, Schema::V2_1::s_MetadataValueName_BaselineIdentifier).has_value());
+    }
+
+    // Preparing it is the only thing that was missing.
+    index.PrepareForPackaging();
+    REQUIRE_NOTHROW(index.MarkAsBaseline());
+}
+
+// M2. A delta describes change rather than holding a whole index, so it cannot stand as the
+// baseline for another one. Opened on its own it is a perfectly valid 2.1 database that would
+// otherwise be designated without complaint. A prepared delta has no packages table, so the
+// delta check has to run before the prepared check for this to be refused for the right reason.
+TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRejectsADelta", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    DeltaTestContext context{ { p1 } };
+    context.Add(p2);
+    context.GenerateDelta();
+
+    {
+        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE_THROWS_HR(delta.MarkAsBaseline(), E_NOT_VALID_STATE);
+    }
+
+    // The combined form is the same delta with its baseline attached, and its tables are views over
+    // a union rather than an index of its own.
+    SQLiteIndex combined = context.OpenCombined();
+    REQUIRE_THROWS_HR(combined.MarkAsBaseline(), E_NOT_VALID_STATE);
+
+    // The delta was left alone, so the baseline it names is still the only designation in play.
+    {
+        Connection connection = context.OpenDeltaConnection();
+        REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, Schema::V2_1::s_MetadataValueName_BaselineIdentifier).has_value());
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
