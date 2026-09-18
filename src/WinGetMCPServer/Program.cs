@@ -10,6 +10,7 @@ namespace WinGetMCPServer
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using ModelContextProtocol.Protocol;
+    using WinGetMCPServer.Extensions;
 
     internal class Program
     {
@@ -20,14 +21,16 @@ namespace WinGetMCPServer
             var builder = Host.CreateApplicationBuilder();
             builder.Logging.AddConsole(consoleOptions => { consoleOptions.LogToStandardErrorThreshold = LogLevel.Trace; });
 
+            var icons = ServerIcons.Icons;
+
             builder.Services
                 .AddMcpServer(configureOptions =>
                 {
                     // TODO: More options setup?
-                    configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerConnection.Instance.Version };
+                    configureOptions.ServerInfo = new Implementation() { Name = ServerName, Version = ServerConnection.Instance.Version, Icons = icons };
                 })
                 .WithStdioServerTransport()
-                .WithTools<WingetPackageTools>();
+                .WithToolsAndIcons<WingetPackageTools>(icons);
 
             builder.Build().Run();
         }
