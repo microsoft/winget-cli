@@ -14,10 +14,6 @@ namespace WinGetMCPServer
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The icon bytes are read from the containing package at runtime rather than being embedded in
-    /// this assembly.
-    /// </para>
-    /// <para>
     /// The unplated target size assets are selected deliberately. The only scaled asset the package
     /// carries for this logo is <c>AppList.scale-200.png</c>, which is an 88x88 image containing a
     /// 64x64 glyph; the surrounding transparent margin is intended for tile plating and makes the
@@ -28,9 +24,7 @@ namespace WinGetMCPServer
     /// <para>
     /// Assets are located by file name rather than by a fixed relative path because the folder differs
     /// between the development package (<c>Images\</c>) and the shipped package
-    /// (<c>Assets\WinGet\</c>); the file names are identical in both. The logo named by the package
-    /// manifest (<c>AppList.png</c>) is a logical resource name that has no file on disk, so it cannot
-    /// be used to locate an asset directly.
+    /// (<c>Assets\WinGet\</c>); the file names are identical in both.
     /// </para>
     /// </remarks>
     internal static class ServerIcons
