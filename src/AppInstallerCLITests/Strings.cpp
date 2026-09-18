@@ -136,6 +136,25 @@ TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
     REQUIRE(!CaseInsensitiveStartsWith(" starts", "starts"));
 }
 
+TEST_CASE("ICUCaseInsensitiveStartsWith", "[strings]")
+{
+    REQUIRE(ICUCaseInsensitiveStartsWith("startswith", "starts"));
+    REQUIRE(ICUCaseInsensitiveStartsWith("startswith", "STAR"));
+    REQUIRE(ICUCaseInsensitiveStartsWith("startswith", "STARTSWITH"));
+    REQUIRE(ICUCaseInsensitiveStartsWith("startswith", ""));
+    REQUIRE(ICUCaseInsensitiveStartsWith("", ""));
+    REQUIRE_FALSE(ICUCaseInsensitiveStartsWith("starts", "startswith"));
+    REQUIRE_FALSE(ICUCaseInsensitiveStartsWith("", "starts"));
+    REQUIRE_FALSE(ICUCaseInsensitiveStartsWith("withstarts", "starts"));
+    REQUIRE_FALSE(ICUCaseInsensitiveStartsWith(" starts", "starts"));
+
+    REQUIRE(ICUCaseInsensitiveStartsWith(u8"Vendor.\u1E9EApp", u8"vendor.\u00DF"));
+    REQUIRE(ICUCaseInsensitiveStartsWith(u8"Vendor.\u00DFApp", u8"vendor.\u1E9E"));
+    REQUIRE(ICUCaseInsensitiveStartsWith(u8"Stra\u00DFe", "STRASSE"));
+    REQUIRE(ICUCaseInsensitiveStartsWith("STRASSE", u8"stra\u00DFe"));
+    REQUIRE_FALSE(ICUCaseInsensitiveStartsWith(u8"Vendor.\u00DFApp", "vendor.st"));
+}
+
 TEST_CASE("FoldCase", "[strings]")
 {
     REQUIRE(FoldCase(""sv) == FoldCase(""sv));

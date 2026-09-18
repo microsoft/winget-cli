@@ -20,6 +20,47 @@ void RequireMatchCriteria(const PackageMatchFilter& expected, const PackageMatch
     REQUIRE(expected.Value == actual.Value);
 }
 
+TEST_CASE("MatchCriteriaResolver_MatchesRequest", "[MatchCriteriaResolver]")
+{
+    struct MatchCase
+    {
+        MatchType Type;
+        std::string_view Query;
+        std::string_view Value;
+        bool Expected;
+    };
+
+    const MatchCase cases[] =
+    {
+        { MatchType::Exact, "Foo.Bar", "Foo.Bar", true },
+        { MatchType::Exact, "foo.bar", "Foo.Bar", false },
+        { MatchType::Exact, "Foo", "Foo.Bar", false },
+        { MatchType::CaseInsensitive, "foo.bar", "Foo.Bar", true },
+        { MatchType::CaseInsensitive, "foo", "Foo.Bar", false },
+        { MatchType::StartsWith, "foo", "Foo.Bar", true },
+        { MatchType::StartsWith, "bar", "Foo.Bar", false },
+        { MatchType::Substring, "BAR", "Foo.Bar", true },
+        { MatchType::Substring, "Baz", "Foo.Bar", false },
+        { MatchType::Exact, "caf\xC3\xA9", "cafe\xCC\x81", true },
+        { MatchType::CaseInsensitive, "CAF\xC3\x89", "caf\xC3\xA9", true },
+        { MatchType::Exact, "", "Foo.Bar", false },
+    };
+
+    for (const auto& test : cases)
+    {
+        CAPTURE(ToString(test.Type), test.Query, test.Value);
+        auto result = MatchesRequest(RequestMatch{ test.Type, test.Query }, test.Value);
+        REQUIRE(result.has_value());
+        REQUIRE(result.value() == test.Expected);
+    }
+}
+
+TEST_CASE("MatchCriteriaResolver_MatchesRequest_Unsupported", "[MatchCriteriaResolver]")
+{
+    auto type = GENERATE(MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Wildcard);
+    REQUIRE_FALSE(MatchesRequest(RequestMatch{ type, "Foo" }, "Foo.Bar").has_value());
+}
+
 TEST_CASE("MatchCriteriaResolver_MatchType", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;
