@@ -314,81 +314,119 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             SQLite::MetadataTable::TryGetNamedValue<std::string>(baselineConnection, s_MetadataValueName_BaselineIdentifier);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED, !baselineIdentifier || baselineIdentifier->empty());
 
-        DeltaDatabase deltaDatabase{ deltaOutputPath, version };
-        SQLite::Connection& deltaConnection = deltaDatabase.GetConnection();
+        // The output is written in full before anything appears at the path that was asked for, so
+        // that a failure partway through cannot leave a file that looks like a usable delta. An
+        // existing file is refused rather than replaced: the database is opened for creation, so it
+        // would otherwise be reopened and fail later with a confusing complaint about its tables.
+        THROW_WIN32_IF(ERROR_FILE_EXISTS, std::filesystem::exists(deltaOutputPath));
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(deltaConnection, "delta_generate_v2_1");
+        // A sibling of the destination, so that the two are necessarily on the same volume and
+        // moving the result is a rename rather than a copy. The name carries a fresh GUID, so it
+        // cannot collide with another generation running against the same destination directory.
+        std::filesystem::path temporaryPath = deltaOutputPath.u8string() + "." + Utility::ConvertToUTF8(Utility::CreateNewGuidNameWString()) + ".tmp";
+        THROW_WIN32_IF(ERROR_FILE_EXISTS, std::filesystem::exists(temporaryPath));
 
-        SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineIdentifier, baselineIdentifier.value());
-
-        std::map<std::string_view, SQLite::rowid_t> nextValueRowIds;
-
-        for (const auto& table : OneToManyTables())
-        {
-            nextValueRowIds[table.TableName] = GetMaximumRowId(baselineConnection, table.TableName);
-        }
-
-        // Every rowid already written to the delta's packages table. The changed packages are
-        // written first so that a removal can tell whether the rowid it is about to vacate has
-        // since been taken, and each removal joins the set so that two tombstones resolving to one
-        // baseline rowid cannot both be written.
-        std::set<SQLite::rowid_t> writtenRowIds;
-
-        for (const auto& package : changedPackages)
-        {
-            // The rowid comes from the source rather than the baseline so that packages new to this
-            // delta are covered by the same lookup; rowid stability is what makes the two agree.
-            std::optional<SQLite::rowid_t> packageRowId = SelectPackageRowId(sourceConnection, package.PackageIdentifier);
-            THROW_HR_IF(E_NOT_VALID_STATE, !packageRowId);
-
-            AICLI_LOG(Repo, Verbose, << "Delta: recording change to [" << package.PackageIdentifier << "] (rowid " << packageRowId.value() << ")");
-
-            writtenRowIds.insert(packageRowId.value());
-            WriteChangedPackage(deltaConnection, sourceConnection, packageRowId.value());
-
-            for (const auto& table : SystemReferenceTables())
+        auto removeTemporaryFilesOnExit = wil::scope_exit([&]()
             {
-                WriteSystemReferenceDifference(deltaConnection, sourceConnection, baselineConnection, table, packageRowId.value());
-            }
+                try
+                {
+                    // The auxiliary files should be gone once the connection is closed, but a
+                    // failure can leave them behind and they must not outlive the database.
+                    for (const auto& suffix : { L"", L"-journal", L"-wal" })
+                    {
+                        std::filesystem::path auxiliaryPath = temporaryPath;
+                        auxiliaryPath += suffix;
+                        std::filesystem::remove(auxiliaryPath);
+                    }
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Info, << "Failed to remove temporary delta index file at: " << temporaryPath);
+                }
+            });
+
+        {
+            DeltaDatabase deltaDatabase{ temporaryPath, version };
+            SQLite::Connection& deltaConnection = deltaDatabase.GetConnection();
+
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(deltaConnection, "delta_generate_v2_1");
+
+            SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineIdentifier, baselineIdentifier.value());
+
+            std::map<std::string_view, SQLite::rowid_t> nextValueRowIds;
 
             for (const auto& table : OneToManyTables())
             {
-                WriteOneToManyDifference(deltaConnection, sourceConnection, baselineConnection, table, packageRowId.value(), nextValueRowIds[table.TableName]);
+                nextValueRowIds[table.TableName] = GetMaximumRowId(baselineConnection, table.TableName);
             }
+
+            // Every rowid already written to the delta's packages table. The changed packages are
+            // written first so that a removal can tell whether the rowid it is about to vacate has
+            // since been taken, and each removal joins the set so that two tombstones resolving to one
+            // baseline rowid cannot both be written.
+            std::set<SQLite::rowid_t> writtenRowIds;
+
+            for (const auto& package : changedPackages)
+            {
+                // The rowid comes from the source rather than the baseline so that packages new to this
+                // delta are covered by the same lookup; rowid stability is what makes the two agree.
+                std::optional<SQLite::rowid_t> packageRowId = SelectPackageRowId(sourceConnection, package.PackageIdentifier);
+                THROW_HR_IF(E_NOT_VALID_STATE, !packageRowId);
+
+                AICLI_LOG(Repo, Verbose, << "Delta: recording change to [" << package.PackageIdentifier << "] (rowid " << packageRowId.value() << ")");
+
+                writtenRowIds.insert(packageRowId.value());
+                WriteChangedPackage(deltaConnection, sourceConnection, packageRowId.value());
+
+                for (const auto& table : SystemReferenceTables())
+                {
+                    WriteSystemReferenceDifference(deltaConnection, sourceConnection, baselineConnection, table, packageRowId.value());
+                }
+
+                for (const auto& table : OneToManyTables())
+                {
+                    WriteOneToManyDifference(deltaConnection, sourceConnection, baselineConnection, table, packageRowId.value(), nextValueRowIds[table.TableName]);
+                }
+            }
+
+            for (SQLite::rowid_t removedRowId : removedPackages)
+            {
+                // The rowid is resolved against the baseline directly, which is exact and is a primary
+                // key lookup. Whatever identifier the tracking table recorded is irrelevant here: what
+                // the delta suppresses is the baseline row at this rowid, so that row is also where the
+                // identifier stored alongside the tombstone comes from.
+                std::optional<std::string> baselinePackageId = SelectPackageIdByRowId(baselineConnection, removedRowId);
+
+                if (!baselinePackageId)
+                {
+                    // The rowid was allocated after the baseline was produced, so as far as the
+                    // baseline is concerned it never held anything and there is nothing to suppress.
+                    AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but is not in the baseline");
+                    continue;
+                }
+
+                if (writtenRowIds.count(removedRowId))
+                {
+                    // The rowid has already been written by a package that has since taken it.
+                    AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but has already been written");
+                    continue;
+                }
+
+                AICLI_LOG(Repo, Verbose, << "Delta: recording removal of [" << baselinePackageId.value() << "] (rowid " << removedRowId << ")");
+
+                WriteRemovedPackage(deltaConnection, removedRowId, baselinePackageId.value());
+            }
+
+            savepoint.Commit();
+
+            // Outside the savepoint, since this vacuums.
+            PrepareTablesForPackaging(deltaConnection);
         }
 
-        for (SQLite::rowid_t removedRowId : removedPackages)
-        {
-            // The rowid is resolved against the baseline directly, which is exact and is a primary
-            // key lookup. Whatever identifier the tracking table recorded is irrelevant here: what
-            // the delta suppresses is the baseline row at this rowid, so that row is also where the
-            // identifier stored alongside the tombstone comes from.
-            std::optional<std::string> baselinePackageId = SelectPackageIdByRowId(baselineConnection, removedRowId);
-
-            if (!baselinePackageId)
-            {
-                // The rowid was allocated after the baseline was produced, so as far as the
-                // baseline is concerned it never held anything and there is nothing to suppress.
-                AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but is not in the baseline");
-                continue;
-            }
-
-            if (writtenRowIds.count(removedRowId))
-            {
-                // The rowid has already been written by a package that has since taken it.
-                AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but has already been written");
-                continue;
-            }
-
-            AICLI_LOG(Repo, Verbose, << "Delta: recording removal of [" << baselinePackageId.value() << "] (rowid " << removedRowId << ")");
-
-            WriteRemovedPackage(deltaConnection, removedRowId, baselinePackageId.value());
-        }
-
-        savepoint.Commit();
-
-        // Outside the savepoint, since this vacuums.
-        PrepareTablesForPackaging(deltaConnection);
+        // Only now, with the database complete and its connection closed, does anything appear at
+        // the path that was asked for.
+        SQLite::SQLiteStorageBase::RenameSQLiteDatabase(temporaryPath, deltaOutputPath);
+        removeTemporaryFilesOnExit.release();
 
         AICLI_LOG(Repo, Info, << "Delta index generation complete");
     }

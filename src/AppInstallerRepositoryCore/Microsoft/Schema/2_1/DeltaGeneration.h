@@ -24,6 +24,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     //
     // The version is recorded as the delta's own schema version, so that opening the delta selects
     // the interface that knows how to merge it with a baseline.
+    //
+    // Nothing appears at the output path until the delta is complete: it is built beside the
+    // destination and moved into place only on success, so a failure partway through cannot leave
+    // something that looks like a usable delta. An output path that already exists is refused.
     void Generate(
         const SQLite::Connection& sourceConnection,
         const SQLite::Connection& baselineConnection,

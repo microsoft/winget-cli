@@ -76,6 +76,26 @@ namespace
         return result;
     }
 
+    // Files sitting beside the delta output whose names extend it. Generation builds the delta at a
+    // temporary sibling, so a leftover here means a failure did not clean up after itself.
+    std::vector<std::filesystem::path> GetDeltaOutputSiblings(const std::filesystem::path& deltaPath)
+    {
+        std::vector<std::filesystem::path> result;
+        std::string prefix = deltaPath.filename().u8string();
+
+        for (const auto& entry : std::filesystem::directory_iterator{ deltaPath.parent_path() })
+        {
+            std::string name = entry.path().filename().u8string();
+
+            if (name.size() > prefix.size() && name.compare(0, prefix.size(), prefix) == 0)
+            {
+                result.push_back(entry.path());
+            }
+        }
+
+        return result;
+    }
+
     // Reads the rowid that a prepared index gave a package identifier.
     std::optional<rowid_t> GetPreparedPackageRowId(const std::filesystem::path& indexPath, std::string_view packageIdentifier)
     {
@@ -1141,6 +1161,77 @@ TEST_CASE("SQLiteIndex_Delta_NoChanges_EmptyDelta", "[sqliteindex][V2_1][delta]"
     // An empty delta still has to merge cleanly.
     SQLiteIndex combined = context.OpenCombined();
     REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id });
+}
+
+// L1. The delta is built beside its destination and moved into place, so a successful generation
+// has to leave the file at the path that was asked for and nothing beside it.
+TEST_CASE("SQLiteIndex_Delta_GenerationLeavesOnlyTheDelta", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    DeltaTestContext context{ { p1 } };
+    context.Add(p2);
+    context.GenerateDelta();
+
+    REQUIRE(std::filesystem::exists(context.DeltaFile.GetPath()));
+    REQUIRE(GetDeltaOutputSiblings(context.DeltaFile.GetPath()).empty());
+
+    // The moved file is a working database rather than something that merely exists.
+    SQLiteIndex combined = context.OpenCombined();
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
+}
+
+// L2. An existing output is refused rather than replaced. The delta is created, so without this
+// the existing file would be opened and generation would fail later complaining about its tables,
+// after having written into a file it does not own.
+TEST_CASE("SQLiteIndex_Delta_ExistingOutputIsRefused", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    DeltaTestContext context{ { p1 } };
+    context.Add(p2);
+
+    std::string existingContent = "not a delta";
+
+    {
+        std::ofstream stream{ context.DeltaFile.GetPath(), std::ios::binary };
+        stream << existingContent;
+    }
+
+    REQUIRE_THROWS(context.GenerateDelta());
+
+    std::ifstream stream{ context.DeltaFile.GetPath(), std::ios::binary };
+    std::string content{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} };
+    REQUIRE(content == existingContent);
+
+    REQUIRE(GetDeltaOutputSiblings(context.DeltaFile.GetPath()).empty());
+}
+
+// L3. A failure after the delta database exists leaves nothing behind: neither a partial file at
+// the destination, which a consumer would take for a usable delta, nor the temporary it was being
+// built in.
+TEST_CASE("SQLiteIndex_Delta_FailedGenerationLeavesNothing", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+
+    DeltaTestContext context{ { p1 } };
+    context.Add(p2);
+
+    // Generation reads the baseline's value tables to number the values it adds. Removing one fails
+    // the generation after the delta database has been created and written to, which is the window
+    // that matters -- a failure before it could not have left anything behind in the first place.
+    {
+        Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+        Statement::Create(baseline, "DROP TABLE [" + std::string{ Delta::OneToManyTables().front().TableName } + "]").Execute();
+    }
+
+    REQUIRE_THROWS(context.GenerateDelta());
+
+    REQUIRE(!std::filesystem::exists(context.DeltaFile.GetPath()));
+    REQUIRE(GetDeltaOutputSiblings(context.DeltaFile.GetPath()).empty());
 }
 
 // ---------------------------------------------------------------------------------------------
