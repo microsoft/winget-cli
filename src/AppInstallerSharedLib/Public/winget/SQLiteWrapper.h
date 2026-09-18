@@ -229,8 +229,6 @@ namespace AppInstaller::SQLite
         {
             // No flags specified.
             None = 0,
-            // Indicate that the target can be a URI.
-            Uri = SQLITE_OPEN_URI,
         };
 
         static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags = OpenFlags::None);
@@ -297,8 +295,8 @@ namespace AppInstaller::SQLite
         Immutable,
     };
 
-    // Identifies a database and how it is to be used, translating that into the target string and
-    // flags that SQLite requires.
+    // Identifies a database and how it is to be used, translating that into the target string that
+    // SQLite requires.
     //
     // The translation cannot live inside the act of opening a connection, because `ATTACH` takes
     // the same target string as `sqlite3_open_v2` and has to be given the identical value. Anything
@@ -312,13 +310,14 @@ namespace AppInstaller::SQLite
 
         DatabaseDisposition Disposition() const { return m_disposition; }
 
-        // The value to hand to SQLite, which is a URI when the disposition requires query
-        // parameters to express it and the path itself otherwise.
+        // The value to hand to SQLite, which is always a URI so that the disposition travels with
+        // the name. `ATTACH` takes no flags of its own, so a database named by a plain path would
+        // inherit whatever access the connection it is attached to was opened with.
         const std::string& Target() const { return m_target; }
 
-        // The connection level disposition and flags that carry this disposition.
+        // The connection level disposition that agrees with the target. SQLite validates the mode
+        // named in the URI against the flags it is opened with, so the two cannot disagree.
         Connection::OpenDisposition ConnectionDisposition() const;
-        Connection::OpenFlags ConnectionFlags() const;
 
     private:
         std::string m_path;

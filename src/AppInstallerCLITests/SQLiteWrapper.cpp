@@ -912,6 +912,10 @@ TEST_CASE("SQLBuilder_AttachAndTempView", "[sqlbuilder]")
         InsertIntoSimpleTestTable(baseline, 1, "baseline");
     }
 
+    // The host is created rather than named through a specifier, which is the case that proves URI
+    // handling is a property of the connection: SQLite decides whether names are URIs when the
+    // connection is opened and applies that to every later ATTACH, so a host that did not ask for
+    // it would take the attached database's URI as a literal filename.
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
     constexpr std::string_view baselineAlias = "baseline";
@@ -964,6 +968,51 @@ TEST_CASE("SQLBuilder_AttachAndTempView", "[sqlbuilder]")
         REQUIRE(statement.GetColumn<std::string>(1) == "delta");
 
         REQUIRE(!statement.Step());
+    }
+}
+
+// ATTACH takes no flags of its own: it starts from the ones the connection was opened with. A
+// database named by a plain path would therefore be attached read/write whenever its host is, so
+// the disposition has to travel in the name.
+TEST_CASE("SQLBuilder_AttachHonorsDisposition", "[sqlbuilder]")
+{
+    TestCommon::TempFile mainFile{ "repolibtest_attach_main"s, ".db"s };
+    TestCommon::TempFile attachedFile{ "repolibtest_attach_readonly"s, ".db"s };
+
+    {
+        Connection main = Connection::Create(mainFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(main);
+    }
+
+    {
+        Connection attached = Connection::Create(attachedFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(attached);
+        InsertIntoSimpleTestTable(attached, 1, "attached");
+    }
+
+    constexpr std::string_view alias = "other";
+
+    // The host connection can write, which is what makes the attachment worth asserting.
+    Connection connection = Connection::Create(DatabaseSpecifier{ mainFile.GetPath().u8string(), DatabaseDisposition::ReadWrite });
+
+    {
+        Builder::StatementBuilder attach;
+        attach.Attach(DatabaseSpecifier{ attachedFile.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+        attach.Execute(connection);
+    }
+
+    {
+        INFO("The primary database is writable");
+        Builder::StatementBuilder insert;
+        insert.InsertInto(s_tableName).Columns({ s_firstColumn, s_secondColumn }).Values(2, "main"sv);
+        REQUIRE_NOTHROW(insert.Execute(connection));
+    }
+
+    {
+        INFO("The attached database is not");
+        Builder::StatementBuilder insert;
+        insert.InsertInto(Builder::QualifiedTable{ alias, s_tableName }).Columns({ s_firstColumn, s_secondColumn }).Values(3, "attached"sv);
+        REQUIRE_THROWS(insert.Execute(connection));
     }
 }
 
@@ -1257,12 +1306,17 @@ TEST_CASE("SQLiteWrapperTransactionWriteConflict", "[sqlitewrapper]")
 
 TEST_CASE("SQLiteDatabaseSpecifierTargets", "[sqlitewrapper]")
 {
-    // A disposition that SQLite can express with flags alone hands over the path untouched.
-    DatabaseSpecifier plain{ "D:\\test\\index.db"s, DatabaseDisposition::Read };
-    REQUIRE(plain.Target() == "D:\\test\\index.db");
-    REQUIRE(plain.ConnectionDisposition() == Connection::OpenDisposition::ReadOnly);
+    // Every disposition is carried as a URI query parameter, because ATTACH takes no flags of its
+    // own and would otherwise give the attached database whatever access its host connection has.
+    DatabaseSpecifier read{ "D:\\test\\index.db"s, DatabaseDisposition::Read };
+    REQUIRE(read.Target() == "file:/D:/test/index.db?mode=ro");
+    REQUIRE(read.ConnectionDisposition() == Connection::OpenDisposition::ReadOnly);
 
-    // Immutability can only be asked for through a URI query parameter.
+    DatabaseSpecifier readWrite{ "D:\\test\\index.db"s, DatabaseDisposition::ReadWrite };
+    REQUIRE(readWrite.Target() == "file:/D:/test/index.db?mode=rw");
+    REQUIRE(readWrite.ConnectionDisposition() == Connection::OpenDisposition::ReadWrite);
+
+    // Immutability is not something that the mode parameter can express.
     DatabaseSpecifier immutable{ "D:\\test\\index.db"s, DatabaseDisposition::Immutable };
     REQUIRE(immutable.Target() == "file:/D:/test/index.db?immutable=1");
     REQUIRE(immutable.ConnectionDisposition() == Connection::OpenDisposition::ReadOnly);
@@ -1272,10 +1326,11 @@ TEST_CASE("SQLiteDatabaseSpecifierTargets", "[sqlitewrapper]")
     DatabaseSpecifier escaped{ "D:\\a#b\\\\c?d\\index.db"s, DatabaseDisposition::Immutable };
     REQUIRE(escaped.Target() == "file:/D:/a%23b/c%3fd/index.db?immutable=1");
 
-    // Every disposition enables URI handling, because a connection that did not ask for it cannot
-    // attach one later regardless of how the attached database is named.
-    REQUIRE(plain.ConnectionFlags() == Connection::OpenFlags::Uri);
-    REQUIRE(immutable.ConnectionFlags() == Connection::OpenFlags::Uri);
+    // A UNC path is the one case where the leading separators must not collapse: the pair has to
+    // survive, which takes an empty authority ahead of it. Anything else names the server as the
+    // authority, which SQLite rejects.
+    DatabaseSpecifier unc{ "\\\\server\\share\\index.db"s, DatabaseDisposition::Read };
+    REQUIRE(unc.Target() == "file:////server/share/index.db?mode=ro");
 }
 
 TEST_CASE("SQLiteDatabaseSpecifierImmutableOpen", "[sqlitewrapper]")

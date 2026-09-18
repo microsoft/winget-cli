@@ -198,8 +198,13 @@ namespace AppInstaller::SQLite
         m_dbconn = std::make_shared<details::SharedConnection>();
         m_id = GetNextConnectionId();
         AICLI_LOG(SQL, Info, << "Opening SQLite connection #" << m_id << ": '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
-        // Always force connection serialization until we determine that there are situations where it is not needed
-        int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX;
+        // Always force connection serialization until we determine that there are situations where it is not needed.
+        // URI handling is likewise unconditional. SQLite decides whether names are URIs when the connection is opened
+        // and applies that decision to every later `ATTACH` (https://sqlite.org/uri.html [2]), so a connection that did
+        // not ask for it cannot attach one -- including a connection that created its own database and so never named
+        // one through a DatabaseSpecifier. The same section notes that enabling it unconditionally is safe, since a
+        // name that does not begin with "file:" is always taken literally.
+        int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_URI;
         THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), m_dbconn->GetPtr(), resultingFlags, nullptr), nullptr);
     }
 
@@ -215,7 +220,7 @@ namespace AppInstaller::SQLite
 
     Connection Connection::Create(const DatabaseSpecifier& specifier)
     {
-        return Create(specifier.Target(), specifier.ConnectionDisposition(), specifier.ConnectionFlags());
+        return Create(specifier.Target(), specifier.ConnectionDisposition());
     }
 
     void Connection::EnableICU()
@@ -273,22 +278,51 @@ namespace AppInstaller::SQLite
     DatabaseSpecifier::DatabaseSpecifier(std::string path, DatabaseDisposition disposition) :
         m_path(std::move(path)), m_disposition(disposition)
     {
-        if (m_disposition != DatabaseDisposition::Immutable)
+        // The disposition is expressed as a query parameter rather than being left to the flags
+        // alone. `ATTACH` does not take flags: it starts from the ones the connection was opened
+        // with, so an attached database would otherwise be read/write whenever its host is. A mode
+        // may only narrow what the connection already permits, which is all this ever asks for.
+        std::string_view parameters;
+
+        switch (m_disposition)
         {
-            m_target = m_path;
-            return;
+        case DatabaseDisposition::Read:
+            parameters = "?mode=ro";
+            break;
+        case DatabaseDisposition::ReadWrite:
+            parameters = "?mode=rw";
+            break;
+        case DatabaseDisposition::Immutable:
+            // Immutability implies read only, and is not something `mode` can express.
+            parameters = "?immutable=1";
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
         }
 
         // Following the algorithm set forth at https://sqlite.org/uri.html [3.1] to convert to a URI path.
         // The execution order builds out the string so that it shouldn't require any moves (other than growing).
-        // Add an 'arbitrary' growth size to prevent the majority of needing to grow (adding 'file:/' and '?immutable=1').
-        m_target.reserve(m_path.size() + 20);
+        // Add an 'arbitrary' growth size to prevent the majority of needing to grow (adding 'file:/' and the parameters).
+        m_target.reserve(m_path.size() + 24);
 
         m_target += "file:";
 
+        size_t pathBegin = 0;
         bool wasLastCharSlash = false;
 
-        if (m_path.size() >= 2 && m_path[1] == ':' &&
+        auto isSlash = [](char c) { return c == '\\' || c == '/'; };
+
+        if (m_path.size() >= 2 && isSlash(m_path[0]) && isSlash(m_path[1]))
+        {
+            // A UNC path only survives the conversion if its leading pair of slashes is preserved,
+            // and that requires an empty authority ahead of them. Collapsing them as the algorithm
+            // otherwise prescribes would turn the server name into the authority, which SQLite
+            // rejects for anything but localhost.
+            m_target += "////";
+            pathBegin = 2;
+            wasLastCharSlash = true;
+        }
+        else if (m_path.size() >= 2 && m_path[1] == ':' &&
             ((m_path[0] >= 'a' && m_path[0] <= 'z') ||
                 (m_path[0] >= 'A' && m_path[0] <= 'Z')))
         {
@@ -296,9 +330,11 @@ namespace AppInstaller::SQLite
             wasLastCharSlash = true;
         }
 
-        for (char c : m_path)
+        for (size_t i = pathBegin; i < m_path.size(); ++i)
         {
+            char c = m_path[i];
             bool wasThisCharSlash = false;
+
             switch (c)
             {
             case '?': m_target += "%3f"; break;
@@ -319,7 +355,7 @@ namespace AppInstaller::SQLite
             wasLastCharSlash = wasThisCharSlash;
         }
 
-        m_target += "?immutable=1";
+        m_target += parameters;
     }
 
     Connection::OpenDisposition DatabaseSpecifier::ConnectionDisposition() const
@@ -334,16 +370,6 @@ namespace AppInstaller::SQLite
         default:
             THROW_HR(E_UNEXPECTED);
         }
-    }
-
-    Connection::OpenFlags DatabaseSpecifier::ConnectionFlags() const
-    {
-        // URI handling is enabled unconditionally, not only for the dispositions that produce one.
-        // SQLite decides whether a name is a URI when the connection is opened and applies that
-        // same decision to every later `ATTACH`, so a connection that did not ask for URIs cannot
-        // attach one. A name that does not begin with "file:" is always taken literally, so this
-        // costs nothing for the dispositions that hand over a plain path.
-        return Connection::OpenFlags::Uri;
     }
 
     Statement::Statement(const Connection& connection, std::string_view sql)
