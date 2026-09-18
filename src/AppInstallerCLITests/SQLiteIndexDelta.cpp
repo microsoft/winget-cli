@@ -1048,19 +1048,19 @@ TEST_CASE("SQLiteIndex_Delta_SearchRankingIsIndependentOfIngestionOrder", "[sqli
 // table collapses identifiers that differ only by case onto a single row, overwriting the stored
 // string with the most recent casing. A package whose later version changes the casing of its
 // identifier is therefore the case where the two could disagree.
-TEST_CASE("SQLiteIndex_Delta_PrepareResolvesRecasedIdentifier", "[sqliteindex][V2_0]")
+TEST_CASE("SQLiteIndex_Delta_PrepareResolvesCaseChangedIdentifier", "[sqliteindex][V2_0]")
 {
     auto original = MakePackage("Publisher1.Id", "Package 1");
-    auto recased = MakePackage("publisher1.id", "Package 1", { "t1", "t2" }, { "c1" }, {}, {}, "2.0");
+    auto newCase = MakePackage("publisher1.id", "Package 1", { "t1", "t2" }, { "c1" }, {}, {}, "2.0");
     auto other = MakePackage("Publisher2.Id", "Package 2");
 
-    TempFile indexFile{ "recased_identifier"s, ".db"s };
+    TempFile indexFile{ "case_changed_identifier"s, ".db"s };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
         index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
 
-        for (const auto& fields : { original, recased, other })
+        for (const auto& fields : { original, newCase, other })
         {
             Manifest manifest = CreateManifest(fields);
             index.AddManifest(manifest, fields.Path);
@@ -1075,7 +1075,7 @@ TEST_CASE("SQLiteIndex_Delta_PrepareResolvesRecasedIdentifier", "[sqliteindex][V
         REQUIRE(GetRowCount(connection, "packages") == 2);
     }
 
-    auto rowId = GetPreparedPackageRowId(indexFile.GetPath(), recased.Id);
+    auto rowId = GetPreparedPackageRowId(indexFile.GetPath(), newCase.Id);
     REQUIRE(rowId.has_value());
 
     // Pinning still happened, which is the whole reason the lookup is there.
