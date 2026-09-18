@@ -24,6 +24,11 @@ namespace AppInstaller::Filesystem
     // Checks if a relative paths points to a location outside of the base path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
 
+    // Throws if a relative path points to a location outside of the base path.
+    // This is intended as a defense in depth check for path parts that originate from external data,
+    // such as manifest fields, that should already have been rejected by validation.
+    void ThrowIfPathEscapesBaseDirectory(std::string_view relativePath);
+
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
 

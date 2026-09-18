@@ -5,6 +5,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
 #include <winget/JsonUtil.h>
+#include <winget/ManifestValidation.h>
 #include <winget/Rest.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
@@ -20,6 +21,24 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view Versions = "Versions"sv;
         constexpr std::string_view PackageVersion = "PackageVersion"sv;
         constexpr std::string_view Channel = "Channel"sv;
+
+        // The package identifier and version flow into file system paths, so the manifest schema restrictions
+        // on them are enforced here as well; the schema itself is not applied to REST responses.
+        bool IsValidPathFieldValue(std::string_view fieldName, std::string_view value, bool disallowWhitespace = false)
+        {
+            bool result = true;
+
+            for (const auto& error : AppInstaller::Manifest::ValidatePathFieldValue(fieldName, value, disallowWhitespace))
+            {
+                if (error.ErrorLevel == AppInstaller::Manifest::ValidationError::Level::Error)
+                {
+                    AICLI_LOG(Repo, Error, << "Invalid " << fieldName << " received from rest source: " << error.GetErrorMessage());
+                    result = false;
+                }
+            }
+
+            return result;
+        }
     }
 
     IRestClient::SearchResult SearchResponseDeserializer::Deserialize(const web::json::value& searchResponseObject) const
@@ -59,6 +78,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 if (!JSON::IsValidNonEmptyStringValue(packageId) || !JSON::IsValidNonEmptyStringValue(packageName) || !JSON::IsValidNonEmptyStringValue(publisher))
                 {
                     AICLI_LOG(Repo, Error, << "Missing required package fields in manifest search results.");
+                    return {};
+                }
+
+                if (!IsValidPathFieldValue(PackageIdentifier, packageId.value(), /* disallowWhitespace */ true))
+                {
                     return {};
                 }
 
@@ -112,6 +136,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         if (!JSON::IsValidNonEmptyStringValue(version))
         {
             AICLI_LOG(Repo, Error, << "Received incomplete package version");
+            return {};
+        }
+
+        if (!IsValidPathFieldValue(PackageVersion, version.value()))
+        {
             return {};
         }
 

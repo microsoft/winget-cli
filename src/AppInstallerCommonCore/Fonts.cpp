@@ -54,13 +54,17 @@ namespace AppInstaller::Fonts
 
         void AssertPackageInformation(const FontContext& context)
         {
-            if (!context.PackageId.empty() && !context.PackageVersion.empty())
+            if (context.PackageId.empty() || context.PackageVersion.empty())
             {
-                return;
+                // This is a programming error if we reach this point where the package identifer cannot be created or derived.
+                THROW_HR_MSG(E_UNEXPECTED, "Package Id and Version must be provided and non-empty.");
             }
 
-            // This is a programming error if we reach this point where the package identifer cannot be created or derived.
-            THROW_HR_MSG(E_UNEXPECTED, "Package Id and Version must be provided and non-empty.");
+            // Defense in depth; the package id and version originate from a manifest and are used to
+            // construct both file system and registry paths. Manifest validation rejects these values,
+            // but verify again here as this is the point of use.
+            Filesystem::ThrowIfPathEscapesBaseDirectory(ConvertToUTF8(context.PackageId));
+            Filesystem::ThrowIfPathEscapesBaseDirectory(ConvertToUTF8(context.PackageVersion));
         }
 
         std::wstring GetFontRegistryPath(const FontContext& context)
@@ -76,6 +80,7 @@ namespace AppInstaller::Fonts
                 break;
             case InstallerSource::WinGet:
                 // WinGet path adds the WinGet prefix + package id + version.
+                AssertPackageInformation(context);
                 path << s_Separator << s_FontsWinGetPrefix << s_Separator << context.PackageId <<
                     s_Separator << context.PackageVersion;
                 break;

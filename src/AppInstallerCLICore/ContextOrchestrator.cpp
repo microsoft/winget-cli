@@ -7,6 +7,7 @@
 #include "Commands/COMCommand.h"
 #include "Public/ShutdownMonitoring.h"
 #include "winget/UserSettings.h"
+#include <winget/Filesystem.h>
 #include <Commands/RootCommand.h>
 
 namespace AppInstaller::CLI::Execution
@@ -144,7 +145,9 @@ namespace AppInstaller::CLI::Execution
         if (queueItem.IsApplicableForInstallingSource())
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-            m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+            std::string relativePath = manifest.Id + '.' + manifest.Version;
+            Filesystem::ThrowIfPathEscapesBaseDirectory(relativePath);
+            m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ relativePath });
         }
     }
 
@@ -153,7 +156,9 @@ namespace AppInstaller::CLI::Execution
         if (queueItem.IsApplicableForInstallingSource())
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-            m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+            std::string relativePath = manifest.Id + '.' + manifest.Version;
+            Filesystem::ThrowIfPathEscapesBaseDirectory(relativePath);
+            m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ relativePath });
         }
     }
 

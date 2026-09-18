@@ -41,6 +41,8 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(ExceededNestedInstallerFilesLimit);
         WINGET_DEFINE_RESOURCE_STRINGID(ExeInstallerMissingSilentSwitches);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldDuplicate);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldEscapesDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldExceedsMaxLength);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldFailedToProcess);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldIsNotPascalCase);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldNotSupported);
@@ -60,6 +62,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidBcp47Value);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidMsiSwitches);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathCharacters);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidWindowsFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
@@ -223,4 +226,11 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, const ManifestValidateOption& options);
     std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning = false);
+
+    // Validates a manifest field value that is used to construct file system paths.
+    // The manifest schemas restrict these fields to values that are safe to use as a path part, but the
+    // schema is not applied at runtime for all manifest sources (for example, REST sources), so the
+    // restrictions are enforced here as well.
+    // disallowWhitespace: set for fields whose schema definition excludes whitespace (for example, PackageIdentifier).
+    std::vector<ValidationError> ValidatePathFieldValue(std::string_view fieldName, std::string_view value, bool disallowWhitespace = false);
 }
