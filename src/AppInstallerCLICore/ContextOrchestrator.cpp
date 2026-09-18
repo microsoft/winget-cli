@@ -146,7 +146,7 @@ namespace AppInstaller::CLI::Execution
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
             std::string relativePath = manifest.Id + '.' + manifest.Version;
-            Filesystem::ThrowIfPathEscapesBaseDirectory(relativePath);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(relativePath), "Path part points to a location outside of its base directory: %hs", relativePath.c_str());
             m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ relativePath });
         }
     }
@@ -157,7 +157,7 @@ namespace AppInstaller::CLI::Execution
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
             std::string relativePath = manifest.Id + '.' + manifest.Version;
-            Filesystem::ThrowIfPathEscapesBaseDirectory(relativePath);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(relativePath), "Path part points to a location outside of its base directory: %hs", relativePath.c_str());
             m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ relativePath });
         }
     }

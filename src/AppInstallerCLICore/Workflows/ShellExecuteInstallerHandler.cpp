@@ -181,7 +181,7 @@ namespace AppInstaller::CLI::Workflow
                         // Results in <DefaultLogLocation>\<ManifestId>.<ManifestVersion>-<Timestamp>.log
                         {
                             std::string logFileNamePart = manifest.Id + '.' + manifest.Version;
-                            Filesystem::ThrowIfPathEscapesBaseDirectory(logFileNamePart);
+                            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(logFileNamePart), "Path part points to a location outside of its base directory: %hs", logFileNamePart.c_str());
                             path /= Utility::ConvertToUTF16(logFileNamePart);
                         }
                         path += '-';

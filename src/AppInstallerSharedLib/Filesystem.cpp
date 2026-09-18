@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Filesystem.h"
-#include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/winget/Runtime.h"
@@ -392,15 +391,6 @@ namespace AppInstaller::Filesystem
         }
 
         return false;
-    }
-
-    void ThrowIfPathEscapesBaseDirectory(std::string_view relativePath, HRESULT hr)
-    {
-        if (PathEscapesBaseDirectory(relativePath))
-        {
-            AICLI_LOG(Core, Error, << "Path part points to a location outside of its base directory: " << relativePath);
-            THROW_HR(hr);
-        }
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.

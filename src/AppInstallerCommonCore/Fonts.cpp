@@ -63,8 +63,11 @@ namespace AppInstaller::Fonts
             // Defense in depth; the package id and version originate from a manifest and are used to
             // construct both file system and registry paths. Manifest validation rejects these values,
             // but verify again here as this is the point of use.
-            Filesystem::ThrowIfPathEscapesBaseDirectory(ConvertToUTF8(context.PackageId));
-            Filesystem::ThrowIfPathEscapesBaseDirectory(ConvertToUTF8(context.PackageVersion));
+            std::string packageId = ConvertToUTF8(context.PackageId);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(packageId), "Path part points to a location outside of its base directory: %hs", packageId.c_str());
+
+            std::string packageVersion = ConvertToUTF8(context.PackageVersion);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(packageVersion), "Path part points to a location outside of its base directory: %hs", packageVersion.c_str());
         }
 
         std::wstring GetFontRegistryPath(const FontContext& context)

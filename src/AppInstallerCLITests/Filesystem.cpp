@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <AppInstallerErrors.h>
 #include <winget/Filesystem.h>
 #include <winget/PathTree.h>
 #include <AppInstallerStrings.h>
@@ -76,21 +75,6 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
         REQUIRE(PathEscapesBaseDirectory("C:target.exe"));
         REQUIRE(PathEscapesBaseDirectory("C:"));
     }
-}
-
-TEST_CASE("ThrowIfPathEscapesDirectory", "[filesystem]")
-{
-    REQUIRE_NOTHROW(ThrowIfPathEscapesBaseDirectory("target.exe"));
-    REQUIRE_NOTHROW(ThrowIfPathEscapesBaseDirectory("test\\subdir\\target.exe"));
-    REQUIRE_NOTHROW(ThrowIfPathEscapesBaseDirectory(""));
-
-    REQUIRE_THROWS_HR(ThrowIfPathEscapesBaseDirectory(".."), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
-    REQUIRE_THROWS_HR(ThrowIfPathEscapesBaseDirectory("..\\..\\target.exe"), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
-    REQUIRE_THROWS_HR(ThrowIfPathEscapesBaseDirectory("C:\\Windows\\target.exe"), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
-
-    // The error to throw can be overridden by the caller.
-    REQUIRE_THROWS_HR(ThrowIfPathEscapesBaseDirectory("..", E_INVALIDARG), E_INVALIDARG);
-    REQUIRE_NOTHROW(ThrowIfPathEscapesBaseDirectory("target.exe", E_INVALIDARG));
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerErrors.h>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -24,9 +23,6 @@ namespace AppInstaller::Filesystem
 
     // Checks if a relative paths points to a location outside of the base path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
-
-    // Throws if a relative path points to a location outside of the base path.
-    void ThrowIfPathEscapesBaseDirectory(std::string_view relativePath, HRESULT hr = APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
 
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);

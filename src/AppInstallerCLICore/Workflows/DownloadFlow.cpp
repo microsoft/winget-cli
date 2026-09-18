@@ -36,7 +36,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& manifest = context.Get<Execution::Data::Manifest>();
 
             std::string pathPart = manifest.Id + '.' + manifest.Version;
-            Filesystem::ThrowIfPathEscapesBaseDirectory(pathPart);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(pathPart), "Path part points to a location outside of its base directory: %hs", pathPart.c_str());
 
             std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
             tempInstallerPath /= Utility::ConvertToUTF16(pathPart);
@@ -758,7 +758,7 @@ namespace AppInstaller::CLI::Workflow
                 packageDownloadFolderName += '_' + manifest.Version;
             }
 
-            Filesystem::ThrowIfPathEscapesBaseDirectory(packageDownloadFolderName);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(packageDownloadFolderName), "Path part points to a location outside of its base directory: %hs", packageDownloadFolderName.c_str());
 
             context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
         }
