@@ -337,6 +337,7 @@ namespace AppInstaller::SQLite
 
             switch (c)
             {
+            case '%': m_target += "%25"; break;
             case '?': m_target += "%3f"; break;
             case '#': m_target += "%23"; break;
             case '\\':

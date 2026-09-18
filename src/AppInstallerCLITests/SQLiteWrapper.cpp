@@ -1331,6 +1331,33 @@ TEST_CASE("SQLiteDatabaseSpecifierTargets", "[sqlitewrapper]")
     // authority, which SQLite rejects.
     DatabaseSpecifier unc{ "\\\\server\\share\\index.db"s, DatabaseDisposition::Read };
     REQUIRE(unc.Target() == "file:////server/share/index.db?mode=ro");
+
+    // A percent is a legal filename character, but SQLite decodes %HH escapes out of the path. Left
+    // alone, this name would be read as index#.db -- a different file, if it exists at all.
+    DatabaseSpecifier percent{ "D:\\test\\index%23.db"s, DatabaseDisposition::Read };
+    REQUIRE(percent.Target() == "file:/D:/test/index%2523.db?mode=ro");
+}
+
+// The escaping is only worth anything if a file so named can actually be opened, which is the part
+// no amount of string comparison can establish.
+TEST_CASE("SQLiteDatabaseSpecifierEscapedPathOpen", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_temp%23db"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(connection);
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    DatabaseSpecifier specifier{ tempFile.GetPath().u8string(), DatabaseDisposition::Read };
+    Connection connection = Connection::Create(specifier);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
 TEST_CASE("SQLiteDatabaseSpecifierImmutableOpen", "[sqlitewrapper]")
