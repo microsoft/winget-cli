@@ -174,6 +174,45 @@ namespace AppInstaller::Repository
         return std::nullopt;
     }
 
+    std::optional<bool> MatchesRequest(const SearchRequest& request,
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesField)
+    {
+        std::optional<bool> filtersMatch = true;
+        for (const auto& filter : request.Filters)
+        {
+            auto match = matchesField(filter);
+            if (match && !match.value())
+            {
+                return false;
+            }
+            if (!match)
+            {
+                filtersMatch = std::nullopt;
+            }
+        }
+
+        if (!request.Query && request.Inclusions.empty())
+        {
+            return filtersMatch;
+        }
+
+        std::optional<bool> selectionMatch = request.Query ? std::nullopt : std::optional<bool>{ false };
+        for (const auto& inclusion : request.Inclusions)
+        {
+            auto match = matchesField(inclusion);
+            if (match && match.value())
+            {
+                return filtersMatch;
+            }
+            if (!match)
+            {
+                selectionMatch = std::nullopt;
+            }
+        }
+
+        return selectionMatch;
+    }
+
     PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)
     {
         PackageMatchFilter result{ PackageMatchField::Unknown, MatchType::Wildcard };

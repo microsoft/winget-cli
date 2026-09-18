@@ -61,6 +61,75 @@ TEST_CASE("MatchCriteriaResolver_MatchesRequest_Unsupported", "[MatchCriteriaRes
     REQUIRE_FALSE(MatchesRequest(RequestMatch{ type, "Foo" }, "Foo.Bar").has_value());
 }
 
+TEST_CASE("MatchCriteriaResolver_SearchRequest", "[MatchCriteriaResolver]")
+{
+    const PackageMatchFilter idMatch{ PackageMatchField::Id, MatchType::CaseInsensitive, "microsoft.powertoys" };
+    const PackageMatchFilter nameMatch{ PackageMatchField::Name, MatchType::Exact, "Microsoft PowerToys" };
+    const PackageMatchFilter idMismatch{ PackageMatchField::Id, MatchType::Exact, "Other.Package" };
+    const PackageMatchFilter unknown{ PackageMatchField::Moniker, MatchType::CaseInsensitive, "powertoys" };
+    const PackageMatchFilter unsupported{ PackageMatchField::Id, MatchType::Fuzzy, "powertoys" };
+
+    struct MatchCase
+    {
+        std::string_view Name;
+        std::vector<PackageMatchFilter> Filters;
+        std::vector<PackageMatchFilter> Inclusions;
+        bool HasQuery;
+        std::optional<bool> Expected;
+    };
+
+    const MatchCase cases[] =
+    {
+        { "Empty request", {}, {}, false, true },
+        { "All filters match", { idMatch, nameMatch }, {}, false, true },
+        { "Every filter must match", { idMatch, idMismatch }, {}, false, false },
+        { "Unknown filter", { idMatch, unknown }, {}, false, std::nullopt },
+        { "Failed filter after unknown", { unknown, idMismatch }, {}, false, false },
+        { "Any inclusion may match", {}, { idMismatch, nameMatch }, false, true },
+        { "Failed inclusions", {}, { idMismatch }, false, false },
+        { "Unknown inclusion may match", {}, { idMismatch, unknown }, false, std::nullopt },
+        { "Match after unknown inclusion", {}, { unknown, idMatch }, false, true },
+        { "Inclusion cannot override failed filter", { idMismatch }, { nameMatch }, false, false },
+        { "Filters cannot override failed inclusions", { idMatch }, { idMismatch }, false, false },
+        { "Matching inclusion with unknown filter", { unknown }, { idMatch }, false, std::nullopt },
+        { "Failed inclusions with unknown filter", { unknown }, { idMismatch }, false, false },
+        { "Failed filter with unknown inclusion", { idMismatch }, { unknown }, false, false },
+        { "Unknown filter and inclusion", { unknown }, { unknown }, false, std::nullopt },
+        { "Unsupported filter match type", { unsupported }, {}, false, std::nullopt },
+        { "Unsupported inclusion match type", {}, { unsupported }, false, std::nullopt },
+        { "Source-defined query", {}, {}, true, std::nullopt },
+        { "Query may select despite failed inclusions", { idMatch }, { idMismatch }, true, std::nullopt },
+        { "Query cannot override failed filter", { idMismatch }, { idMatch }, true, false },
+        { "Matching inclusion alongside query", {}, { idMatch }, true, true },
+    };
+
+    auto matchesField = [](const PackageMatchFilter& filter) -> std::optional<bool>
+    {
+        switch (filter.Field)
+        {
+        case PackageMatchField::Id:
+            return MatchesRequest(filter, "Microsoft.PowerToys");
+        case PackageMatchField::Name:
+            return MatchesRequest(filter, "Microsoft PowerToys");
+        default:
+            return std::nullopt;
+        }
+    };
+
+    for (const auto& test : cases)
+    {
+        CAPTURE(test.Name);
+        SearchRequest request;
+        request.Filters = test.Filters;
+        request.Inclusions = test.Inclusions;
+        if (test.HasQuery)
+        {
+            request.Query.emplace(MatchType::CaseInsensitive, "powertoys");
+        }
+        REQUIRE(MatchesRequest(request, matchesField) == test.Expected);
+    }
+}
+
 TEST_CASE("MatchCriteriaResolver_MatchType", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;
