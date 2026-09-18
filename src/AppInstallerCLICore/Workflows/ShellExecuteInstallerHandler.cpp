@@ -179,7 +179,11 @@ namespace AppInstaller::CLI::Workflow
                     case Logging::LogNameStrategy::Manifest:
                         // Use manifest ID and version for log file name
                         // Results in <DefaultLogLocation>\<ManifestId>.<ManifestVersion>-<Timestamp>.log
-                        path /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+                        {
+                            std::string logFileNamePart = manifest.Id + '.' + manifest.Version;
+                            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(logFileNamePart), "Path part points to a location outside of its base directory: %hs", logFileNamePart.c_str());
+                            path /= Utility::ConvertToUTF16(logFileNamePart);
+                        }
                         path += '-';
                         path += Utility::GetCurrentTimeForFilename(true);
                         break;

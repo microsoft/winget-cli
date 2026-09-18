@@ -1398,6 +1398,79 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
 }
 
+TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
+{
+    auto RequireSingleError = [](const std::vector<ValidationError>& errors, AppInstaller::StringResource::StringId message)
+    {
+        REQUIRE(errors.size() == 1);
+        REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+        REQUIRE(message == errors[0].Message);
+    };
+
+    auto ContainsError = [](const std::vector<ValidationError>& errors, AppInstaller::StringResource::StringId message)
+    {
+        return std::any_of(errors.begin(), errors.end(), [&](const ValidationError& error)
+            {
+                return error.Message == message && error.ErrorLevel == ValidationError::Level::Error;
+            });
+    };
+
+    // Valid values produce no errors.
+    REQUIRE(ValidatePackageVersion("1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0 beta").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar.Baz.Qux").empty());
+
+    // Whitespace is only excluded for the fields that require it.
+    auto errors = ValidatePackageIdentifier("Foo Bar");
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
+
+    // Empty values are covered by the required field validation.
+    REQUIRE(ValidatePackageVersion("").empty());
+
+    // Characters excluded by the schema because the values are used to construct paths.
+    for (const auto& value : { "ab\\c", "ab/c", "ab:c", "ab*c", "ab?c", "ab\"c", "ab<c", "ab>c", "ab|c", "ab\tc" })
+    {
+        REQUIRE(ContainsError(ValidatePackageVersion(value), ManifestError::InvalidPathCharacters));
+        REQUIRE(ContainsError(ValidatePackageIdentifier(value), ManifestError::InvalidPathCharacters));
+    }
+
+    // Values that exceed the maximum length declared by the schema.
+    RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
+
+    // Values consisting solely of relative path specifiers.
+    RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);
+    REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
+}
+
+TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+
+    // A valid manifest has no path related errors.
+    REQUIRE(ValidateManifest(manifest, false).size() == 0);
+
+    // These are enforced regardless of the full validation option, as manifests that are not validated
+    // against the schema (for example, those from a REST source) are only checked here.
+    manifest.Id = "Foo\\Bar";
+    auto errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", manifest.Id);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "1.0:0";
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageVersion", manifest.Version);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "..";
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::FieldEscapesDirectory, "PackageVersion", manifest.Version);
+}
+
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
 {
     Manifest installerManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InstallerTypeZip-PortableNotExe.yaml"));

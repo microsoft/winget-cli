@@ -94,6 +94,9 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::BlockedMsiProperty, "Contains a blocked MSI property."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidMsiSwitches, "Contains invalid MSI switches."sv },
                 { AppInstaller::Manifest::ManifestError::ContainsNetworkAddress, "Installer switch contains network address."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidPathCharacters, "The field value contains characters that are not allowed because the value is used to construct a file system path."sv },
+                { AppInstaller::Manifest::ManifestError::FieldExceedsMaxLength, "The field value exceeds the maximum allowed length."sv },
+                { AppInstaller::Manifest::ManifestError::FieldEscapesDirectory, "The field value must not point to a location outside of its base directory."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -110,11 +113,86 @@ namespace AppInstaller::Manifest
                 Utility::CaseInsensitiveContainsSubstring(input, "https://") ||
                 Utility::CaseInsensitiveContainsSubstring(input, "ftp://");
         }
+
+        // The characters excluded by the manifest schema from fields that are used to construct file system paths.
+        constexpr std::string_view s_InvalidPathFieldCharacters = "\\/:*?\"<>|"sv;
+
+        // The maximum length declared by the manifest schema for fields that are used to construct file system paths.
+        constexpr size_t s_MaxPathFieldLength = 128;
+
+        // Validates a manifest field value that is used to construct file system paths.
+        // disallowWhitespace: set for fields whose schema definition excludes whitespace (for example, PackageIdentifier).
+        std::vector<ValidationError> ValidatePathFieldValue(std::string_view fieldName, std::string_view value, bool disallowWhitespace)
+        {
+            std::vector<ValidationError> resultErrors;
+
+            if (value.empty())
+            {
+                return resultErrors;
+            }
+
+            std::string fieldNameString{ fieldName };
+            std::string valueString{ value };
+
+            if (value.length() > s_MaxPathFieldLength)
+            {
+                resultErrors.emplace_back(ManifestError::FieldExceedsMaxLength, fieldNameString, valueString);
+            }
+
+            for (char character : value)
+            {
+                auto rawCharacter = static_cast<unsigned char>(character);
+
+                // Control characters, characters that are not valid in a file system path, and (optionally) whitespace.
+                if ((rawCharacter >= 0x01 && rawCharacter <= 0x1f) ||
+                    rawCharacter == 0x7f ||
+                    s_InvalidPathFieldCharacters.find(character) != std::string_view::npos ||
+                    (disallowWhitespace && rawCharacter == ' '))
+                {
+                    resultErrors.emplace_back(ManifestError::InvalidPathCharacters, fieldNameString, valueString);
+                    break;
+                }
+            }
+
+            // The character restrictions above prevent traversal using path separators, but the value can still
+            // consist solely of relative path specifiers (for instance, ".."). Reject those as well.
+            if (AppInstaller::Filesystem::PathEscapesBaseDirectory(value))
+            {
+                resultErrors.emplace_back(ManifestError::FieldEscapesDirectory, fieldNameString, valueString);
+            }
+
+            return resultErrors;
+        }
+    }
+
+    std::vector<ValidationError> ValidatePackageIdentifier(std::string_view value)
+    {
+        return ValidatePathFieldValue("PackageIdentifier", value, /* disallowWhitespace */ true);
+    }
+
+    std::vector<ValidationError> ValidatePackageVersion(std::string_view value)
+    {
+        return ValidatePathFieldValue("PackageVersion", value, /* disallowWhitespace */ false);
+    }
+
+    std::vector<ValidationError> ValidatePathFields(const Manifest& manifest)
+    {
+        std::vector<ValidationError> resultErrors = ValidatePackageIdentifier(manifest.Id);
+
+        auto versionErrors = ValidatePackageVersion(manifest.Version);
+        std::move(versionErrors.begin(), versionErrors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+        return resultErrors;
     }
 
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, const ManifestValidateOption& options)
     {
         std::vector<ValidationError> resultErrors;
+
+        // PackageIdentifier and PackageVersion are used to construct file system paths, so the schema
+        // restrictions on them must be enforced at runtime for all manifest sources.
+        auto pathFieldErrors = ValidatePathFields(manifest);
+        std::move(pathFieldErrors.begin(), pathFieldErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Channel is not supported currently
         if (!manifest.Channel.empty())

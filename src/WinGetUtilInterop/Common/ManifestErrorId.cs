@@ -78,6 +78,12 @@ namespace Microsoft.WinGetUtil.Common
         /// <summary>Duplicate field found in the manifest.</summary>
         FieldDuplicate,
 
+        /// <summary>The field value must not point to a location outside of its base directory.</summary>
+        FieldEscapesDirectory,
+
+        /// <summary>The field value exceeds the maximum allowed length.</summary>
+        FieldExceedsMaxLength,
+
         /// <summary>Failed to process field.</summary>
         FieldFailedToProcess,
 
@@ -134,6 +140,9 @@ namespace Microsoft.WinGetUtil.Common
 
         /// <summary>Contains invalid MSI switches.</summary>
         InvalidMsiSwitches,
+
+        /// <summary>The field value contains characters that are not allowed because the value is used to construct a file system path.</summary>
+        InvalidPathCharacters,
 
         /// <summary>Encountered unexpected root node.</summary>
         InvalidRootNode,
