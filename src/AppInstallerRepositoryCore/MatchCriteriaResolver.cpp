@@ -100,7 +100,7 @@ namespace AppInstaller::Repository
 
                 auto matchFunction = GetMatchTypeFunction(matchType);
 
-                if (matchFunction(value, request.Value))
+                if (matchFunction && matchFunction(value, request.Value))
                 {
                     return matchType;
                 }
