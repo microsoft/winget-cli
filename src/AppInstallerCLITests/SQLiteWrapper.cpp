@@ -1360,6 +1360,51 @@ TEST_CASE("SQLiteDatabaseSpecifierEscapedPathOpen", "[sqlitewrapper]")
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
+// The administrative share is used rather than creating one, so this reaches the same local file by
+// a UNC name without changing the machine. It is not reachable without elevation, so the test
+// yields instead of failing when it is absent.
+TEST_CASE("SQLiteDatabaseSpecifierUncOpen", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::wstring localPath = tempFile.GetPath().wstring();
+
+    if (localPath.size() < 3 || localPath[1] != L':' || localPath[2] != L'\\')
+    {
+        WARN("Temporary file is not named by a drive letter; skipping UNC coverage");
+        return;
+    }
+
+    // C:\dir\file.db -> \\localhost\C$\dir\file.db
+    std::filesystem::path uncPath{ L"\\\\localhost\\" + localPath.substr(0, 1) + L"$" + localPath.substr(2) };
+    INFO("Using UNC name: " << uncPath);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(connection);
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    if (!std::filesystem::exists(uncPath))
+    {
+        WARN("Administrative share is not reachable; skipping UNC coverage");
+        return;
+    }
+
+    DatabaseSpecifier specifier{ uncPath.u8string(), DatabaseDisposition::Read };
+
+    std::string expectedPrefix = "file:////localhost/" + std::string{ static_cast<char>(localPath[0]) } + "$/";
+    REQUIRE(specifier.Target().substr(0, expectedPrefix.size()) == expectedPrefix);
+
+    Connection connection = Connection::Create(specifier);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
 TEST_CASE("SQLiteDatabaseSpecifierImmutableOpen", "[sqlitewrapper]")
 {
     TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };

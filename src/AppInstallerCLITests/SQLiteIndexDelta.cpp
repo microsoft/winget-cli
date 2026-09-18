@@ -966,6 +966,129 @@ TEST_CASE("SQLiteIndex_Delta_RowIdsAreStableAcrossPrepares", "[sqliteindex][V2_0
     REQUIRE(GetPreparedPackageRowId(second.GetPath(), manifests[3].Manifest.Id).value() > maxInFirst);
 }
 
+// B6. Pinning the packages rowid changed which rowid a package lands on. It used to follow the
+// alphabetical order that PrepareForPackaging iterates in, because rowids were handed out as the
+// rows were inserted; it now follows the order the package was first added. Search orders only by
+// match quality, so anything that ties is left to the order rows come out of the table.
+TEST_CASE("SQLiteIndex_Delta_SearchRankingIsIndependentOfIngestionOrder", "[sqliteindex][V2_0]")
+{
+    std::vector<IndexFields> packages{
+        MakePackage("Publisher1.Id", "Alpha Package", { "shared" }),
+        MakePackage("Publisher2.Id", "Bravo Package", { "shared" }),
+        MakePackage("Publisher3.Id", "Charlie Package", { "shared" }),
+        MakePackage("Publisher4.Id", "Zulu Package", { "shared" }),
+    };
+
+    auto buildPrepared = [](const TempFile& file, const std::vector<IndexFields>& order)
+    {
+        {
+            SQLiteIndex index = SQLiteIndex::CreateNew(file, SQLiteVersion{ 2, 0 });
+            index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+
+            for (const auto& fields : order)
+            {
+                Manifest manifest = CreateManifest(fields);
+                index.AddManifest(manifest, fields.Path);
+            }
+
+            index.PrepareForPackaging();
+        }
+
+        return SQLiteIndex::Open(file.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    };
+
+    TempFile forwardFile{ "ranking_forward"s, ".db"s };
+    SQLiteIndex forward = buildPrepared(forwardFile, packages);
+
+    // The reversed ingestion is what makes the rowids differ; alphabetical order is unchanged.
+    std::vector<IndexFields> reversedOrder{ packages.rbegin(), packages.rend() };
+    TempFile reversedFile{ "ranking_reversed"s, ".db"s };
+    SQLiteIndex reversed = buildPrepared(reversedFile, reversedOrder);
+
+    // The premise of the test: the same package really does sit on a different rowid in each.
+    REQUIRE(GetPreparedPackageRowId(forwardFile.GetPath(), packages[0].Id).value() !=
+        GetPreparedPackageRowId(reversedFile.GetPath(), packages[0].Id).value());
+
+    SearchRequest tied;
+    tied.Inclusions.emplace_back(PackageMatchField::Tag, MatchType::Exact, "shared");
+
+    SQLiteIndex::SearchResult forwardResults = forward.Search(tied);
+    SQLiteIndex::SearchResult reversedResults = reversed.Search(tied);
+
+    REQUIRE(forwardResults.Matches.size() == packages.size());
+    REQUIRE(reversedResults.Matches.size() == forwardResults.Matches.size());
+
+    // Every package is still found.
+    REQUIRE(GetSearchedIds(forward, tied) == GetSearchedIds(reversed, tied));
+
+    // And each position holds a match of the same quality, so the rowid a package happens to
+    // occupy cannot promote or demote it. The order within a tie is deliberately not asserted:
+    // the index does not define one, and ordering equally good matches is the caller's decision.
+    for (size_t i = 0; i < forwardResults.Matches.size(); ++i)
+    {
+        REQUIRE(forwardResults.Matches[i].second.Field == reversedResults.Matches[i].second.Field);
+        REQUIRE(forwardResults.Matches[i].second.Type == reversedResults.Matches[i].second.Type);
+    }
+
+    // Where there is no tie there is an order, and it has to be the same one.
+    SearchRequest exact;
+    exact.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, packages[2].Id);
+
+    SQLiteIndex::SearchResult forwardExact = forward.Search(exact);
+    SQLiteIndex::SearchResult reversedExact = reversed.Search(exact);
+
+    REQUIRE(forwardExact.Matches.size() == 1);
+    REQUIRE(reversedExact.Matches.size() == 1);
+    REQUIRE(forward.GetPropertyByPrimaryId(forwardExact.Matches[0].first, PackageVersionProperty::Id).value() == packages[2].Id);
+    REQUIRE(reversed.GetPropertyByPrimaryId(reversedExact.Matches[0].first, PackageVersionProperty::Id).value() == packages[2].Id);
+}
+
+// B7. Preparing resolves each package's identifier back to its ids rowid in order to pin it, and
+// refuses to continue if that lookup comes up empty. The lookup is an exact match while the ids
+// table collapses identifiers that differ only by case onto a single row, overwriting the stored
+// string with the most recent casing. A package whose later version changes the casing of its
+// identifier is therefore the case where the two could disagree.
+TEST_CASE("SQLiteIndex_Delta_PrepareResolvesRecasedIdentifier", "[sqliteindex][V2_0]")
+{
+    auto original = MakePackage("Publisher1.Id", "Package 1");
+    auto recased = MakePackage("publisher1.id", "Package 1", { "t1", "t2" }, { "c1" }, {}, {}, "2.0");
+    auto other = MakePackage("Publisher2.Id", "Package 2");
+
+    TempFile indexFile{ "recased_identifier"s, ".db"s };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+
+        for (const auto& fields : { original, recased, other })
+        {
+            Manifest manifest = CreateManifest(fields);
+            index.AddManifest(manifest, fields.Path);
+        }
+
+        REQUIRE_NOTHROW(index.PrepareForPackaging());
+    }
+
+    // The two versions collapsed onto one package, carrying the most recent casing.
+    {
+        Connection connection = Connection::Create(indexFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+        REQUIRE(GetRowCount(connection, "packages") == 2);
+    }
+
+    auto rowId = GetPreparedPackageRowId(indexFile.GetPath(), recased.Id);
+    REQUIRE(rowId.has_value());
+
+    // Pinning still happened, which is the whole reason the lookup is there.
+    SQLiteIndex index = SQLiteIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, original.Id);
+
+    SQLiteIndex::SearchResult result = index.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].first == rowId.value());
+}
+
 // ---------------------------------------------------------------------------------------------
 // Group C - generation of the packages table
 // ---------------------------------------------------------------------------------------------
