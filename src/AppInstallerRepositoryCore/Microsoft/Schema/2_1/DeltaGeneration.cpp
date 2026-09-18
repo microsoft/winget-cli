@@ -375,7 +375,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
             if (writtenRowIds.count(removedRowId))
             {
-                // The rowid has already been written by a package that has since taken it..
+                // The rowid has already been written by a package that has since taken it.
                 AICLI_LOG(Repo, Verbose, << "Delta: rowid " << removedRowId << " was vacated but has already been written");
                 continue;
             }

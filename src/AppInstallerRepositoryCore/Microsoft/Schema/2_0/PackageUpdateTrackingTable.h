@@ -81,7 +81,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Gets the data hash for the given package identifier.
         static SQLite::blob_t GetDataHash(const SQLite::Connection& connection, const std::string& packageIdentifier, RemovalBehavior removals);
 
-        // Adds the columns needed to record removals to an existing table that does not have them.
-        static void AddRemovalTrackingColumns(SQLite::Connection& connection);
+        // Rebuilds an existing 2.0 table in the shape that recording removals requires.
+        // The table is rebuilt rather than altered because a tombstone has no manifest or hash,
+        // and SQLite cannot drop the not null constraint that a 2.0 table places on them.
+        static void MigrateToRemovalTracking(SQLite::Connection& connection);
     };
 }

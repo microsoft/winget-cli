@@ -710,7 +710,7 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationBackfillsRowIds", "[sqliteindex][V
 
     REQUIRE(GetRowCount(connection, "update_tracking") == 2);
 
-    // The column arrives with a default of 0, ensure that they all got mapped to the real value.
+    // The rebuild has to carry the real rowid across, not leave the column at its initial value.
     REQUIRE(GetScalar(connection, "SELECT COUNT(*) FROM [update_tracking] WHERE [package_rowid] = 0") == 0);
 
     // The backfilled value has to be the one the index itself uses, not just any non null.
@@ -802,6 +802,76 @@ TEST_CASE("SQLiteIndex_Delta_TrackingMigrationFrom1_7", "[sqliteindex][V2_1][upd
         auto preparedRowId = GetPreparedPackageRowId(preparedFile.GetPath(), tracked.first);
         REQUIRE(preparedRowId.has_value());
         REQUIRE(preparedRowId.value() == tracked.second);
+    }
+}
+
+// The 2.0 table has to produce exactly the table it always
+// Nullability on the data columns relaxes only in 2.1, where a tombstone has no manifest or
+// hash to record. SQLite cannot drop a not null constraint in place, so the migration rebuilds the
+// table — and a rebuild is a data move, which has to arrive intact.
+TEST_CASE("SQLiteIndex_Delta_TrackingMigrationRelaxesDataNullability", "[sqliteindex][V2_1][update_tracking]")
+{
+    using RowData = std::pair<std::string, std::string>;
+
+    TempFile indexFile{ "update_tracking"s, ".db"s };
+
+    ManifestAndPath m1;
+    CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
+    ManifestAndPath m2;
+    CreateFakeManifestAndPath(m2, "Publisher2", "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
+        index.AddManifest(m1.Manifest, m1.Path);
+        index.AddManifest(m2.Manifest, m2.Path);
+    }
+
+    auto readRows = [](const Connection& connection)
+    {
+        std::map<std::string, RowData> result;
+        Statement statement = Statement::Create(connection, "SELECT [package], HEX([manifest]), HEX([hash]) FROM [update_tracking]");
+
+        while (statement.Step())
+        {
+            result.emplace(statement.GetColumn<std::string>(0), RowData{ statement.GetColumn<std::string>(1), statement.GetColumn<std::string>(2) });
+        }
+
+        return result;
+    };
+
+    std::map<std::string, RowData> before;
+
+    {
+        Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadWrite);
+
+        // A 2.0 table requires both, which is the constraint that cannot survive into 2.1.
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [manifest] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [hash] = NULL").Execute());
+
+        before = readRows(connection);
+    }
+
+    REQUIRE(before.size() == 2);
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(indexFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE(index.MigrateTo(s_DeltaVersion));
+        REQUIRE(index.CheckConsistency(true));
+    }
+
+    {
+        Connection connection = Connection::Create(indexFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(readRows(connection) == before);
+
+        // Only the columns a tombstone clears become nullable; the rest of the table does not.
+        REQUIRE_NOTHROW(Statement::Create(connection, "UPDATE [update_tracking] SET [manifest] = NULL, [hash] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [package] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [write_time] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [is_removed] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [package_rowid] = NULL").Execute());
+        REQUIRE_THROWS(Statement::Create(connection, "UPDATE [update_tracking] SET [change_seq] = NULL").Execute());
     }
 }
 

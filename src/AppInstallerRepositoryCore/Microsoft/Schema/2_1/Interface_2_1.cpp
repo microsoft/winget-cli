@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         if (currentVersion.MajorVersion == 2 && currentVersion.MinorVersion == 0)
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migrate_from_v2_1");
-            V2_0::PackageUpdateTrackingTable::AddRemovalTrackingColumns(connection);
+            V2_0::PackageUpdateTrackingTable::MigrateToRemovalTracking(connection);
             savepoint.Commit();
             return true;
         }

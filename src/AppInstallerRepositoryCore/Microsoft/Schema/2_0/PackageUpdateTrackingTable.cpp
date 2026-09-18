@@ -182,16 +182,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         using namespace Builder;
 
+        bool recordingRemovals = (removals == RemovalBehavior::Record);
+
         StatementBuilder builder;
         builder.CreateTable(s_PUTT_Table_Name).BeginColumns();
 
         builder.Column(IntegerPrimaryKey());
         builder.Column(ColumnBuilder(s_PUTT_Package, Type::Text).NotNull());
         builder.Column(ColumnBuilder(s_PUTT_WriteTime, Type::Int64).NotNull());
-        builder.Column(ColumnBuilder(s_PUTT_Manifest, Type::Blob));
-        builder.Column(ColumnBuilder(s_PUTT_Hash, Type::Blob));
+        builder.Column(ColumnBuilder(s_PUTT_Manifest, Type::Blob).NotNull(!recordingRemovals));
+        builder.Column(ColumnBuilder(s_PUTT_Hash, Type::Blob).NotNull(!recordingRemovals));
 
-        if (removals == RemovalBehavior::Record)
+        if (recordingRemovals)
         {
             builder.Column(ColumnBuilder(s_PUTT_IsRemoved, Type::Int64).NotNull().Default(0));
             builder.Column(ColumnBuilder(s_PUTT_PackageRowId, Type::Int64).NotNull());
@@ -206,7 +208,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         indexBuilder.CreateIndex(s_PUTT_WriteTimeIndex_Name).On(s_PUTT_Table_Name).Columns(s_PUTT_WriteTime);
         indexBuilder.Execute(connection);
 
-        if (removals == RemovalBehavior::Record)
+        if (recordingRemovals)
         {
             CreateLiveRowIndex(connection);
             CreateChangeSequenceIndex(connection);
@@ -610,64 +612,77 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return select.GetColumn<SQLite::blob_t>(0);
     }
 
-    void PackageUpdateTrackingTable::AddRemovalTrackingColumns(SQLite::Connection& connection)
+    void PackageUpdateTrackingTable::MigrateToRemovalTracking(SQLite::Connection& connection)
     {
-        // The table is created on demand, so an index that has never had a manifest written
-        // to it will not have one yet. It will be created with the columns when it is needed.
         if (!Exists(connection))
         {
             return;
         }
 
-        Builder::StatementBuilder isRemovedBuilder;
-        isRemovedBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_IsRemoved, Builder::Type::Int64).NotNull().Default(0));
-        isRemovedBuilder.Execute(connection);
+        // The 2.1 shape differs from 2.0 in more than the columns it adds: a tombstone carries no
+        // manifest or hash, so both have to become nullable, and SQLite cannot drop a not null
+        // constraint in place.
+        struct MigratedRow
+        {
+            rowid_t RowId = 0;
+            std::string Package;
+            int64_t WriteTime = 0;
+            SQLite::blob_t Manifest;
+            SQLite::blob_t Hash;
+            rowid_t PackageRowId = 0;
+        };
 
-        Builder::StatementBuilder packageRowIdBuilder;
-        packageRowIdBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_PackageRowId, Builder::Type::Int64).NotNull().Default(0));
-        packageRowIdBuilder.Execute(connection);
-
-        // Every existing row is backfilled with the same sequence, and the next one issued is 1.
-        Builder::StatementBuilder changeSequenceBuilder;
-        changeSequenceBuilder.AlterTable(s_PUTT_Table_Name).Add(Builder::ColumnBuilder(s_PUTT_ChangeSequence, Builder::Type::Int64).NotNull().Default(0));
-        changeSequenceBuilder.Execute(connection);
-
-        // Backfill the rowid for the rows already present. Every one of them is live: 2.0 deletes
-        // the row when a package is removed, so a table being migrated has no tombstones and every
-        // package it names is still in the index.
-        Builder::StatementBuilder selectBuilder;
-        selectBuilder.Select({ RowIDName, s_PUTT_Package }).From(s_PUTT_Table_Name);
-
-        std::vector<std::pair<rowid_t, std::string>> rows;
+        std::vector<MigratedRow> rows;
 
         {
+            Builder::StatementBuilder selectBuilder;
+            selectBuilder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash }).From(s_PUTT_Table_Name);
+
             Statement select = selectBuilder.Prepare(connection);
 
             while (select.Step())
             {
-                rows.emplace_back(select.GetColumn<rowid_t>(0), select.GetColumn<std::string>(1));
+                MigratedRow& row = rows.emplace_back();
+                row.RowId = select.GetColumn<rowid_t>(0);
+                row.Package = select.GetColumn<std::string>(1);
+                row.WriteTime = select.GetColumn<int64_t>(2);
+                row.Manifest = select.GetColumn<SQLite::blob_t>(3);
+                row.Hash = select.GetColumn<SQLite::blob_t>(4);
             }
         }
 
-        Builder::StatementBuilder updateBuilder;
-        updateBuilder.Update(s_PUTT_Table_Name).Set().
-            Column(s_PUTT_PackageRowId).Equals(Builder::Unbound).
-            Where(RowIDName).Equals(Builder::Unbound);
-
-        Statement update = updateBuilder.Prepare(connection);
-
-        for (const auto& row : rows)
+        // Resolve the rowid for the rows already present. Every one of them is live: 2.0 deletes
+        // the row when a package is removed, so a table being migrated has no tombstones and every
+        // package it names is still in the index.
+        for (MigratedRow& row : rows)
         {
-            std::optional<SQLite::rowid_t> packageRowId = GetPackageRowIdInIndex(connection, row.second);
+            std::optional<SQLite::rowid_t> packageRowId = GetPackageRowIdInIndex(connection, row.Package);
             THROW_HR_IF(E_NOT_VALID_STATE, !packageRowId);
-
-            update.Reset();
-            update.Bind(1, packageRowId.value());
-            update.Bind(2, row.first);
-            update.Execute();
+            row.PackageRowId = packageRowId.value();
         }
 
-        CreateLiveRowIndex(connection);
-        CreateChangeSequenceIndex(connection);
+        // Dropping the table takes its indexes with it, so the rebuilt form is free to reuse their
+        // names. The caller holds a savepoint, so the data is never at risk between the two.
+        Drop(connection);
+        Create(connection, RemovalBehavior::Record);
+
+        Builder::StatementBuilder insertBuilder;
+        insertBuilder.InsertInto(s_PUTT_Table_Name).
+            Columns({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash, s_PUTT_PackageRowId, s_PUTT_IsRemoved, s_PUTT_ChangeSequence }).
+            Values(Builder::Unbound, Builder::Unbound, Builder::Unbound, Builder::Unbound, Builder::Unbound, Builder::Unbound, 0, 0);
+
+        Statement insert = insertBuilder.Prepare(connection);
+
+        for (const MigratedRow& row : rows)
+        {
+            insert.Reset();
+            insert.Bind(1, row.RowId);
+            insert.Bind(2, row.Package);
+            insert.Bind(3, row.WriteTime);
+            insert.Bind(4, row.Manifest);
+            insert.Bind(5, row.Hash);
+            insert.Bind(6, row.PackageRowId);
+            insert.Execute();
+        }
     }
 }
