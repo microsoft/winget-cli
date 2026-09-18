@@ -394,12 +394,12 @@ namespace AppInstaller::Filesystem
         return false;
     }
 
-    void ThrowIfPathEscapesBaseDirectory(std::string_view relativePath)
+    void ThrowIfPathEscapesBaseDirectory(std::string_view relativePath, HRESULT hr)
     {
         if (PathEscapesBaseDirectory(relativePath))
         {
             AICLI_LOG(Core, Error, << "Path part points to a location outside of its base directory: " << relativePath);
-            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+            THROW_HR(hr);
         }
     }
 

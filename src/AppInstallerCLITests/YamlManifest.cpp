@@ -1416,31 +1416,31 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     };
 
     // Valid values produce no errors.
-    REQUIRE(ValidatePathFieldValue("PackageVersion", "1.0.0").empty());
-    REQUIRE(ValidatePathFieldValue("PackageVersion", "1.0 beta").empty());
-    REQUIRE(ValidatePathFieldValue("PackageIdentifier", "Foo.Bar", true).empty());
-    REQUIRE(ValidatePathFieldValue("PackageIdentifier", "Foo.Bar.Baz.Qux", true).empty());
+    REQUIRE(ValidatePackageVersion("1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0 beta").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar.Baz.Qux").empty());
 
     // Empty values are covered by the required field validation.
-    REQUIRE(ValidatePathFieldValue("PackageVersion", "").empty());
+    REQUIRE(ValidatePackageVersion("").empty());
 
     // Characters excluded by the schema because the values are used to construct paths.
     for (const auto& value : { "ab\\c", "ab/c", "ab:c", "ab*c", "ab?c", "ab\"c", "ab<c", "ab>c", "ab|c", "ab\tc" })
     {
-        REQUIRE(ContainsError(ValidatePathFieldValue("PackageVersion", value), ManifestError::InvalidPathCharacters));
+        REQUIRE(ContainsError(ValidatePackageVersion(value), ManifestError::InvalidPathCharacters));
     }
 
     // Whitespace is only excluded for the fields that require it.
-    auto errors = ValidatePathFieldValue("PackageIdentifier", "Foo Bar", true);
+    auto errors = ValidatePackageIdentifier("Foo Bar");
     REQUIRE(errors.size() == 1);
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
 
     // Values that exceed the maximum length declared by the schema.
-    RequireSingleError(ValidatePathFieldValue("PackageVersion", std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
+    RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
 
     // Values consisting solely of relative path specifiers.
-    RequireSingleError(ValidatePathFieldValue("PackageVersion", ".."), ManifestError::FieldEscapesDirectory);
-    REQUIRE(ContainsError(ValidatePathFieldValue("PackageVersion", "..\\.."), ManifestError::FieldEscapesDirectory));
+    RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);
+    REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
 }
 
 TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")

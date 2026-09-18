@@ -227,10 +227,15 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning = false);
 
-    // Validates a manifest field value that is used to construct file system paths.
+    // Validates the manifest fields that are used to construct file system paths.
     // The manifest schemas restrict these fields to values that are safe to use as a path part, but the
     // schema is not applied at runtime for all manifest sources (for example, REST sources), so the
     // restrictions are enforced here as well.
-    // disallowWhitespace: set for fields whose schema definition excludes whitespace (for example, PackageIdentifier).
-    std::vector<ValidationError> ValidatePathFieldValue(std::string_view fieldName, std::string_view value, bool disallowWhitespace = false);
+    std::vector<ValidationError> ValidatePathFields(const Manifest& manifest);
+
+    // Validates an individual PackageIdentifier value, for sources that do not produce a full manifest.
+    std::vector<ValidationError> ValidatePackageIdentifier(std::string_view value);
+
+    // Validates an individual PackageVersion value, for sources that do not produce a full manifest.
+    std::vector<ValidationError> ValidatePackageVersion(std::string_view value);
 }
