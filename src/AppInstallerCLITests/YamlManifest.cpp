@@ -1421,6 +1421,11 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     REQUIRE(ValidatePackageIdentifier("Foo.Bar").empty());
     REQUIRE(ValidatePackageIdentifier("Foo.Bar.Baz.Qux").empty());
 
+    // Whitespace is only excluded for the fields that require it.
+    auto errors = ValidatePackageIdentifier("Foo Bar");
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
+
     // Empty values are covered by the required field validation.
     REQUIRE(ValidatePackageVersion("").empty());
 
@@ -1428,12 +1433,8 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     for (const auto& value : { "ab\\c", "ab/c", "ab:c", "ab*c", "ab?c", "ab\"c", "ab<c", "ab>c", "ab|c", "ab\tc" })
     {
         REQUIRE(ContainsError(ValidatePackageVersion(value), ManifestError::InvalidPathCharacters));
+        REQUIRE(ContainsError(ValidatePackageIdentifier(value), ManifestError::InvalidPathCharacters));
     }
-
-    // Whitespace is only excluded for the fields that require it.
-    auto errors = ValidatePackageIdentifier("Foo Bar");
-    REQUIRE(errors.size() == 1);
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
 
     // Values that exceed the maximum length declared by the schema.
     RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
