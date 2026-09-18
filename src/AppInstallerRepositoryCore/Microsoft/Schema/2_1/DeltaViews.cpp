@@ -191,7 +191,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         }
         catch (...)
         {
-            // Best effor attempt to restore the state
+            // Best effort attempt to restore the state
             try
             {
                 StatementBuilder builder;

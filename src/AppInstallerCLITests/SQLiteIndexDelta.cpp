@@ -1730,7 +1730,7 @@ TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRequiresPreparedIndex", "[sqliteindex
 // baseline for another one. Opened on its own it is a perfectly valid 2.1 database that would
 // otherwise be designated without complaint. A prepared delta has no packages table, so the
 // delta check has to run before the prepared check for this to be refused for the right reason.
-TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRejectsADelta", "[sqliteindex][V2_1][delta]")
+TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRejectsDelta", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1");
     auto p2 = MakePackage("Publisher2.Id", "Package 2");
