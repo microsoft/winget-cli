@@ -18,7 +18,8 @@ Added a new `--ignore-unavailable` flag to the `install` command. When installin
 
 ## Bug Fixes
 
-* Fixed REST search results bypassing explicit package ID filters, including when combined with name filters.
+* Fixed REST search results bypassing package ID filters and ID-only selectors.
+* Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
 * Fixed Unicode case-insensitive prefix matching when case folding changes character lengths.
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
 * Updated NUnit to v4

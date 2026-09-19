@@ -495,6 +495,67 @@ TEST_CASE("Search_ExplicitIdFilters_UnicodePrefix", "[RestSource][Interface_1_0]
     REQUIRE_FALSE(result.Truncated);
 }
 
+TEST_CASE("Search_IdInclusions", "[RestSource][Interface_1_0]")
+{
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
+        GetSearchResponse_PackageIds({ L"Foo.Bar", L"Foo.Baz", L"Other.Package" })) };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
+    const std::vector<std::string> allIds{ "Foo.Bar", "Foo.Baz", "Other.Package" };
+    std::vector<std::string> expected{ "Foo.Bar" };
+
+    SECTION("Matching inclusion") {}
+    SECTION("Any inclusion may match")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Other.Package");
+        expected.emplace_back("Other.Package");
+    }
+    SECTION("No matching inclusion")
+    {
+        request.Inclusions[0].Value = "Missing.Package";
+        expected.clear();
+    }
+    SECTION("Filters narrow matching inclusions")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Other.Package");
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Foo.");
+    }
+    SECTION("Matching filters cannot override failed inclusions")
+    {
+        request.Inclusions[0].Value = "Missing.Package";
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
+        expected.clear();
+    }
+    SECTION("Unknown inclusion preserves candidates")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Exact, "Localized name");
+        expected = allIds;
+    }
+    SECTION("Unknown filter does not disable inclusion matching")
+    {
+        request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Localized name");
+    }
+    SECTION("A query may select independently of inclusions")
+    {
+        request.Query.emplace(MatchType::Substring, "Source-defined query");
+        expected = allIds;
+    }
+    SECTION("Unsupported match types remain unknown")
+    {
+        request.Inclusions[0].Type = GENERATE(MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Wildcard);
+        expected = allIds;
+    }
+
+    auto result = v1.Search(request);
+    REQUIRE(result.Matches.size() == expected.size());
+    REQUIRE_FALSE(result.Truncated);
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == expected[i]);
+    }
+}
+
 TEST_CASE("Search_ExplicitIdFilters_UnsupportedMatchType", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
@@ -532,6 +593,7 @@ TEST_CASE("Search_ExplicitIdFilters_NoFilters", "[RestSource][Interface_1_0]")
         GetSearchResponse_PackageIds({ L"Foo.Bar" })) };
     Interface v1{ TestRestUriString, helper };
     SearchRequest request;
+    size_t expectedCount = 1;
 
     SECTION("Everything") {}
     SECTION("Query")
@@ -541,6 +603,7 @@ TEST_CASE("Search_ExplicitIdFilters_NoFilters", "[RestSource][Interface_1_0]")
     SECTION("Inclusions")
     {
         request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Not in the response");
+        expectedCount = 0;
     }
     SECTION("Correlation")
     {
@@ -549,13 +612,18 @@ TEST_CASE("Search_ExplicitIdFilters_NoFilters", "[RestSource][Interface_1_0]")
     }
 
     auto result = v1.Search(request);
-    REQUIRE(result.Matches.size() == 1);
-    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+    REQUIRE(result.Matches.size() == expectedCount);
+    if (expectedCount)
+    {
+        REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+    }
 }
 
 TEST_CASE("Search_ExplicitIdFilters_Continuation", "[RestSource][Interface_1_0]")
 {
     bool allFiltered = GENERATE(false, true);
+    bool useInclusions = GENERATE(false, true);
+    CAPTURE(allFiltered, useInclusions);
     std::vector<utility::string_t> pages
     {
         GetSearchResponse_PackageIds({ L"Other.One", L"Other.Two" }, L"next"),
@@ -583,7 +651,8 @@ TEST_CASE("Search_ExplicitIdFilters_Continuation", "[RestSource][Interface_1_0]"
     HttpClientHelper helper{ handler };
     Interface v1{ TestRestUriString, helper };
     SearchRequest request;
-    request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Match.");
+    auto& criteria = useInclusions ? request.Inclusions : request.Filters;
+    criteria.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Match.");
     request.MaximumResults = GENERATE(0, 1, 2, 3, 9);
 
     auto result = v1.Search(request);

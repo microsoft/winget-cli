@@ -25,28 +25,28 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         void FilterSearchResult(const SearchRequest& request, IRestClient::SearchResult& result)
         {
-            for (const auto& filter : request.Filters)
+            auto& matches = result.Matches;
+            matches.erase(std::remove_if(matches.begin(), matches.end(), [&](const IRestClient::Package& package)
             {
-                // Other fields may match metadata omitted from the search response, such as localized names.
-                if (filter.Field != PackageMatchField::Id)
+                auto match = MatchesRequest(request, [&](const PackageMatchFilter& filter) -> std::optional<bool>
                 {
-                    continue;
-                }
-
-                auto& matches = result.Matches;
-                matches.erase(std::remove_if(matches.begin(), matches.end(), [&](const IRestClient::Package& package)
-                {
-                    auto match = MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
-                    if (match && !match.value())
+                    if (filter.Field == PackageMatchField::Id)
                     {
-                        AICLI_LOG(Repo, Verbose, << "Discarding REST package " << package.PackageInformation.PackageIdentifier <<
-                            ": does not match ID filter '" << filter.Value << "' [" << ToString(filter.Type) << "]");
-                        return true;
+                        return MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
                     }
 
-                    return false;
-                }), matches.end());
-            }
+                    // Other fields may match metadata omitted from the search response, such as localized names.
+                    return std::nullopt;
+                });
+                if (match && !match.value())
+                {
+                    AICLI_LOG(Repo, Verbose, << "Discarding REST package " << package.PackageInformation.PackageIdentifier <<
+                        ": does not match search request " << request.ToString());
+                    return true;
+                }
+
+                return false;
+            }), matches.end());
         }
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
@@ -145,6 +145,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
     {
         const SearchRequest validatedRequest = GetValidatedSearchRequest(request);
+        if (!validatedRequest.Query && !request.Inclusions.empty() && validatedRequest.Inclusions.empty())
+        {
+            AICLI_LOG(Repo, Info, << "No supported inclusions remain in the search request.");
+            return {};
+        }
+
         const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
         SearchResult results;
         utility::string_t continuationToken;
