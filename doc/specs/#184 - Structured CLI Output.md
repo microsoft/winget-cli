@@ -1,5 +1,5 @@
 ---
-author: Przemysław Kłys <PrzemyslawKlys>
+author: Przemysław Kłys
 created on: 2026-09-19
 last updated: 2026-09-19
 issue id: 184
@@ -66,7 +66,7 @@ Failures should be typed objects, for example:
 }
 ```
 
-The example code and message are illustrative, not a new error mapping. `code` should carry the actual HRESULT in a fixed representation. Preserve the command's exit code. A partial source failure may return packages from healthy sources and an error entry for the failed source; a command-level failure still produces a parseable document when the reporter has been initialized. Catastrophic startup failures before argument parsing may remain outside this guarantee and should be documented separately.
+The example code and message are illustrative, not a new error mapping. `code` should carry the actual HRESULT in a fixed representation. Preserve the command's exit code. A partial source failure may return packages from healthy sources and an error entry for the failed source; a command-level failure still produces a machine-readable document when the reporter has been initialized. Catastrophic startup failures before argument parsing may remain outside this guarantee and should be documented separately.
 
 ### Reporter and table ownership
 
@@ -129,7 +129,7 @@ JSON values must be escaped by a serializer, never assembled by string concatena
 
 ### Reliability
 
-One parseable document, explicit empty results, typed failures, and exit-code preservation give callers a reliable contract. Source provenance must come from the data model, not table-column visibility.
+One machine-readable document, explicit empty results, typed failures, and exit-code preservation give callers a reliable contract. Source provenance must come from the data model, not table-column visibility.
 
 ### Compatibility
 
