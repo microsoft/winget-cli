@@ -398,7 +398,22 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
             }]
         })delimiter");
 
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+    web::json::value searchBody;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request httpRequest) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::BadRequest };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (httpRequest.method() == web::http::methods::POST)
+            {
+                searchBody = httpRequest.extract_json().get();
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(sample));
+            }
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
     Interface v1_1{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {} };
     AppInstaller::Repository::SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
@@ -415,8 +430,26 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
         request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "Other.Package");
         expectedCount = 0;
     }
+    SECTION("Unsupported inclusion is removed")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::CaseInsensitive, "git");
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "GIT.PACKAGE");
+    }
 
     Schema::IRestClient::SearchResult searchResponse = v1_1.Search(request);
+    const auto& filters = searchBody.at(L"Filters").as_array();
+    REQUIRE(filters.size() == request.Filters.size() + 1);
+    REQUIRE(filters.at(0).at(L"PackageMatchField").as_string() == L"PackageName");
+    REQUIRE(filters.at(0).at(L"RequestMatch").at(L"KeyWord").as_string() == L"Foo");
+    REQUIRE(filters.at(request.Filters.size()).at(L"PackageMatchField").as_string() == L"Market");
+    if (!request.Inclusions.empty())
+    {
+        REQUIRE(request.Inclusions.size() == 2);
+        const auto& inclusions = searchBody.at(L"Inclusions").as_array();
+        REQUIRE(inclusions.size() == 1);
+        REQUIRE(inclusions.at(0).at(L"PackageMatchField").as_string() == L"PackageIdentifier");
+        REQUIRE(inclusions.at(0).at(L"RequestMatch").at(L"KeyWord").as_string() == L"GIT.PACKAGE");
+    }
     REQUIRE(searchResponse.Matches.size() == expectedCount);
     if (!expectedCount)
     {

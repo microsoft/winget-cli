@@ -78,7 +78,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
         return result;
     }
 
-    web::json::value Interface::GetValidatedSearchBody(const SearchRequest& searchRequest) const
+    SearchRequest Interface::GetValidatedSearchRequest(const SearchRequest& searchRequest) const
     {
         SearchRequest resultSearchRequest = searchRequest;
 
@@ -126,7 +126,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             }
         }
 
-        return V1_0::Interface::GetValidatedSearchBody(resultSearchRequest);
+        return resultSearchRequest;
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const

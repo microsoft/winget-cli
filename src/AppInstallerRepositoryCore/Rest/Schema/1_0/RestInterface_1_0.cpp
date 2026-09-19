@@ -144,6 +144,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
     {
+        const SearchRequest validatedRequest = GetValidatedSearchRequest(request);
+        const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
         SearchResult results;
         utility::string_t continuationToken;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
@@ -155,13 +157,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, searchBody, searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
 
             utility::string_t ct;
             if (jsonObject)
             {
                 SearchResult currentResult = GetSearchResult(jsonObject.value());
-                FilterSearchResult(request, currentResult);
+                FilterSearchResult(validatedRequest, currentResult);
 
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
@@ -329,10 +331,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return params;
     }
 
-    web::json::value Interface::GetValidatedSearchBody(const SearchRequest& searchRequest) const
+    SearchRequest Interface::GetValidatedSearchRequest(const SearchRequest& searchRequest) const
     {
-        SearchRequestComposer searchRequestComposer{ GetVersion() };
-        return searchRequestComposer.Serialize(searchRequest);
+        return searchRequest;
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
