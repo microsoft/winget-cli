@@ -385,8 +385,7 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details);
-        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details);
-        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion);
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details, bool removeInvalid = false);
 
         std::optional<Msix::PackageVersion> PackagedContextGetExtensionVersion(const SourceDetails& details)
         {
@@ -409,14 +408,14 @@ namespace AppInstaller::Repository::Microsoft
             Synchronization::CrossProcessLock lock(CreateNameForCPL(details));
             if (lock.TryAcquireNoWait())
             {
-                desktopVersion = TryGetDesktopContextCurrentVersion(details);
+                desktopVersion = TryGetDesktopContextCurrentVersion(details, true);
             }
             else
             {
                 AICLI_LOG(Repo, Verbose, << "Skipping local state fallback version probe because source lock is held for source: " << details.Name);
             }
 
-            if (ShouldPreferDesktopContext(desktopVersion, extensionVersion))
+            if (PreIndexedPackageSourceFactory::ShouldPreferDesktopContext(desktopVersion, extensionVersion, static_cast<bool>(lock)))
             {
                 return desktopVersion;
             }
@@ -433,43 +432,6 @@ namespace AppInstaller::Repository::Microsoft
             return result;
         }
 
-        std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details)
-        {
-            std::filesystem::path packageState = GetStatePathFromDetails(details);
-            std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
-
-            if (std::filesystem::exists(packagePath))
-            {
-                // If we already have a trusted index package, use it to determine if we need to update or not.
-                Msix::WriteLockedMsixFile indexPackage{ packagePath };
-                if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
-                {
-                    Msix::MsixInfo msixInfo{ packagePath };
-                    auto manifest = msixInfo.GetAppPackageManifests();
-
-                    if (manifest.size() == 1)
-                    {
-                        return manifest[0].GetIdentity().GetVersion();
-                    }
-                }
-            }
-
-            return std::nullopt;
-        }
-
-        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details)
-        {
-            try
-            {
-                return DesktopContextGetCurrentVersion(details);
-            }
-            catch (...)
-            {
-                LOG_CAUGHT_EXCEPTION_MSG("Failed to read local state source package version for source: %hs", details.Name.c_str());
-                return std::nullopt;
-            }
-        }
-
         void RemoveDesktopContextPackage(const SourceDetails& details)
         {
             try
@@ -482,14 +444,78 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
 
-        bool HasTrustedDesktopContextPackage(const SourceDetails& details)
+        struct DesktopContextVersionProbe
         {
-            return TryGetDesktopContextCurrentVersion(details).has_value();
+            std::optional<Msix::PackageVersion> Version;
+            bool Invalid = false;
+        };
+
+        DesktopContextVersionProbe ProbeDesktopContextPackage(const SourceDetails& details)
+        {
+            std::filesystem::path packageState = GetStatePathFromDetails(details);
+            std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
+
+            if (std::filesystem::exists(packagePath))
+            {
+                // A cached package must pass the same trust and identity checks as a fresh update.
+                Msix::WriteLockedMsixFile indexPackage{ packagePath };
+                if (!indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                {
+                    return { {}, true };
+                }
+
+                Msix::MsixInfo msixInfo{ packagePath };
+                if (msixInfo.GetIsBundle() ||
+                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(msixInfo.GetPackageFullName()))
+                {
+                    return { {}, true };
+                }
+
+                auto manifest = msixInfo.GetAppPackageManifests();
+                if (manifest.size() != 1)
+                {
+                    return { {}, true };
+                }
+
+                return { manifest[0].GetIdentity().GetVersion(), false };
+            }
+
+            return {};
         }
 
-        bool ShouldPreferDesktopContext(std::optional<Msix::PackageVersion> desktopVersion, std::optional<Msix::PackageVersion> packagedVersion)
+        std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details)
         {
-            return desktopVersion && (!packagedVersion || desktopVersion.value() > packagedVersion.value());
+            return ProbeDesktopContextPackage(details).Version;
+        }
+
+        std::optional<Msix::PackageVersion> TryGetDesktopContextCurrentVersion(const SourceDetails& details, bool removeInvalid)
+        {
+            try
+            {
+                auto probe = ProbeDesktopContextPackage(details);
+                if (removeInvalid && probe.Invalid)
+                {
+                    AICLI_LOG(Repo, Warning, << "Removing invalid local state fallback for source: " << details.Name);
+                    RemoveDesktopContextPackage(details);
+                }
+
+                return probe.Version;
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION_MSG("Failed to read local state source package version for source: %hs", details.Name.c_str());
+                if (removeInvalid)
+                {
+                    AICLI_LOG(Repo, Warning, << "Removing unreadable local state fallback for source: " << details.Name);
+                    RemoveDesktopContextPackage(details);
+                }
+                return std::nullopt;
+            }
+        }
+
+        bool HasValidDesktopContextPackage(const SourceDetails& details)
+        {
+            return TryGetDesktopContextCurrentVersion(details, true).has_value();
         }
 
         bool IsDeploymentBlockedByUserLogOff(HRESULT hr)
@@ -587,6 +613,9 @@ namespace AppInstaller::Repository::Microsoft
 
             // Populate temp index file.
             Msix::MsixInfo packageInfo(packageLocation);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.GetPackageFullName()));
             packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
 
             if (progress.IsCancelledBy(CancelReason::Any))
@@ -749,9 +778,11 @@ namespace AppInstaller::Repository::Microsoft
                     if (lock.TryAcquireNoWait())
                     {
                         auto packagedVersion = PackagedContextGetExtensionVersion(m_details);
-                        auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details);
+                        auto desktopVersion = TryGetDesktopContextCurrentVersion(m_details, true);
 
-                        if (ShouldPreferDesktopContext(desktopVersion, packagedVersion))
+                        // The fallback is a persistent recovery cache, not a mode tied to the current session.
+                        // Once the deployed extension catches up it wins; the cache stays dormant for later failures.
+                        if (PreIndexedPackageSourceFactory::ShouldPreferDesktopContext(desktopVersion, packagedVersion, static_cast<bool>(lock)))
                         {
                             AICLI_LOG(Repo, Warning, << "Local state fallback is newer than packaged source extension; using fallback for source: " << m_details.Name);
                             try
@@ -812,10 +843,24 @@ namespace AppInstaller::Repository::Microsoft
                             throw;
                         }
 
-                        if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING && HasTrustedDesktopContextPackage(m_details))
+                        if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING && HasValidDesktopContextPackage(m_details))
                         {
                             AICLI_LOG(Repo, Warning, << "Packaged source extension was not found; using trusted local state fallback for source: " << m_details.Name);
-                            index.emplace(OpenDesktopContextIndex(m_details, progress));
+                            try
+                            {
+                                index.emplace(OpenDesktopContextIndex(m_details, progress));
+                            }
+                            catch (...)
+                            {
+                                if (progress.IsCancelledBy(CancelReason::Any))
+                                {
+                                    throw;
+                                }
+
+                                LOG_CAUGHT_EXCEPTION_MSG("Local state fallback failed to open after packaged source extension was missing; removing it for source: %hs", m_details.Name.c_str());
+                                RemoveDesktopContextPackage(m_details);
+                                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                            }
                         }
                         else
                         {
@@ -925,8 +970,10 @@ namespace AppInstaller::Repository::Microsoft
                     return UpdateDesktopContextPackage(localFile.u8string(), details, progress, downloadedBytes);
                 }
 
-                if (HasTrustedDesktopContextPackage(details))
+                if (HasValidDesktopContextPackage(details))
                 {
+                    // Keep a verified standby copy after deployment. It becomes active only if it is newer
+                    // than the extension or the extension disappears; source removal deletes it.
                     AICLI_LOG(Repo, Info, << "Refreshing local state fallback after packaged source deployment for source: " << details.Name);
                     try
                     {
@@ -1057,5 +1104,13 @@ namespace AppInstaller::Repository::Microsoft
         {
             return std::make_unique<DesktopContextFactory>();
         }
+    }
+
+    bool PreIndexedPackageSourceFactory::ShouldPreferDesktopContext(
+        const std::optional<Msix::PackageVersion>& fallbackVersion,
+        const std::optional<Msix::PackageVersion>& extensionVersion,
+        bool sourceLockAcquired)
+    {
+        return sourceLockAcquired && fallbackVersion && (!extensionVersion || fallbackVersion.value() > extensionVersion.value());
     }
 }
