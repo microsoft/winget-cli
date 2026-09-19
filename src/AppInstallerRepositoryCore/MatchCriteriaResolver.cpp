@@ -174,6 +174,71 @@ namespace AppInstaller::Repository
         return std::nullopt;
     }
 
+    std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Utility::NormalizedString& value)
+    {
+        if (request.Type == MatchType::Exact &&
+            (request.Field == PackageMatchField::PackageFamilyName || request.Field == PackageMatchField::ProductCode ||
+                request.Field == PackageMatchField::UpgradeCode))
+        {
+            return ValueMatchFunction_CaseInsensitive(value, request.Value);
+        }
+
+        return MatchesRequest(static_cast<const RequestMatch&>(request), value);
+    }
+
+    std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Manifest::Manifest& manifest)
+    {
+        if (!GetMatchTypeFunction(request.Type))
+        {
+            return std::nullopt;
+        }
+
+        auto matches = [&](const Utility::NormalizedString& value)
+        {
+            return !value.empty() && MatchesRequest(request, value).value_or(false);
+        };
+        auto matchesAny = [&](const auto& values)
+        {
+            return std::any_of(values.begin(), values.end(), matches);
+        };
+        auto matchesName = [&](const Manifest::ManifestLocalization& localization)
+        {
+            return matches(localization.Get<Manifest::Localization::PackageName>());
+        };
+
+        switch (request.Field)
+        {
+        case PackageMatchField::Id:
+            return matches(manifest.Id);
+        case PackageMatchField::Name:
+            // GetPackageNames() folds case, so compare the original names here.
+            if (matchesName(manifest.DefaultLocalization) ||
+                std::any_of(manifest.Localizations.begin(), manifest.Localizations.end(), matchesName))
+            {
+                return true;
+            }
+            return std::any_of(manifest.Installers.begin(), manifest.Installers.end(), [&](const auto& installer)
+                {
+                    return std::any_of(installer.AppsAndFeaturesEntries.begin(), installer.AppsAndFeaturesEntries.end(),
+                        [&](const auto& entry) { return matches(entry.DisplayName); });
+                });
+        case PackageMatchField::Moniker:
+            return matches(manifest.Moniker);
+        case PackageMatchField::Tag:
+            return matchesAny(manifest.GetAggregatedTags());
+        case PackageMatchField::Command:
+            return matchesAny(manifest.GetAggregatedCommands());
+        case PackageMatchField::PackageFamilyName:
+            return matchesAny(manifest.GetPackageFamilyNames());
+        case PackageMatchField::ProductCode:
+            return matchesAny(manifest.GetProductCodes());
+        case PackageMatchField::UpgradeCode:
+            return matchesAny(manifest.GetUpgradeCodes());
+        default:
+            return std::nullopt;
+        }
+    }
+
     std::optional<bool> MatchesRequest(const SearchRequest& request,
         const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesField)
     {

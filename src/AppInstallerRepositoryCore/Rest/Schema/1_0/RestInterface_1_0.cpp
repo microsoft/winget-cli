@@ -23,6 +23,57 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         constexpr std::string_view VersionQueryParam = "Version"sv;
         constexpr std::string_view ChannelQueryParam = "Channel"sv;
 
+        std::optional<bool> MatchesPackage(const PackageMatchFilter& filter, const IRestClient::Package& package)
+        {
+            if (filter.Field == PackageMatchField::Id)
+            {
+                return MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
+            }
+            if (filter.Field == PackageMatchField::Name &&
+                MatchesRequest(filter, package.PackageInformation.PackageName).value_or(false))
+            {
+                return true;
+            }
+
+            std::optional<bool> result = package.Versions.empty() ? std::nullopt : std::optional<bool>{ false };
+            for (const auto& version : package.Versions)
+            {
+                const std::vector<std::string>* values = nullptr;
+                switch (filter.Field)
+                {
+                case PackageMatchField::PackageFamilyName:
+                    values = &version.PackageFamilyNames;
+                    break;
+                case PackageMatchField::ProductCode:
+                    values = &version.ProductCodes;
+                    break;
+                case PackageMatchField::UpgradeCode:
+                    values = &version.UpgradeCodes;
+                    break;
+                }
+
+                if (values && std::any_of(values->begin(), values->end(), [&](const auto& value)
+                    {
+                        return !value.empty() && MatchesRequest(filter, value).value_or(false);
+                    }))
+                {
+                    return true;
+                }
+
+                auto match = version.Manifest ? MatchesRequest(filter, version.Manifest.value()) : std::nullopt;
+                if (match && match.value())
+                {
+                    return true;
+                }
+                if (!match)
+                {
+                    result = std::nullopt;
+                }
+            }
+
+            return result;
+        }
+
         void FilterSearchResult(const SearchRequest& request, IRestClient::SearchResult& result)
         {
             auto& matches = result.Matches;
@@ -30,13 +81,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             {
                 auto match = MatchesRequest(request, [&](const PackageMatchFilter& filter) -> std::optional<bool>
                 {
-                    if (filter.Field == PackageMatchField::Id)
-                    {
-                        return MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
-                    }
-
-                    // Other fields may match metadata omitted from the search response, such as localized names.
-                    return std::nullopt;
+                    return MatchesPackage(filter, package);
                 });
                 if (match && !match.value())
                 {

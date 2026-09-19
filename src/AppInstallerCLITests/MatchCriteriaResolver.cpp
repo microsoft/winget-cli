@@ -61,6 +61,95 @@ TEST_CASE("MatchCriteriaResolver_MatchesRequest_Unsupported", "[MatchCriteriaRes
     REQUIRE_FALSE(MatchesRequest(RequestMatch{ type, "Foo" }, "Foo.Bar").has_value());
 }
 
+TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
+{
+    Manifest::Manifest manifest;
+    manifest.Id = "Foo.Bar";
+    manifest.Moniker = "FooBar";
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "DefaultTag" });
+    auto& localization = manifest.Localizations.emplace_back();
+    localization.Add<Manifest::Localization::PackageName>("Localized Name");
+    localization.Add<Manifest::Localization::Tags>({ "LocalizedTag" });
+    manifest.Localizations.emplace_back().Add<Manifest::Localization::PackageName>(u8"Caf\u00E9");
+    auto& installer = manifest.Installers.emplace_back();
+    installer.Commands.emplace_back("ToolCmd");
+    installer.PackageFamilyName = "Foo.Bar_123";
+    installer.ProductCode = "Installer.Code";
+    auto& entry = installer.AppsAndFeaturesEntries.emplace_back();
+    entry.DisplayName = "Installed Name";
+    entry.ProductCode = "ARP.Code";
+    entry.UpgradeCode = "ARP.Upgrade";
+
+    struct MatchCase
+    {
+        PackageMatchField Field;
+        MatchType Type;
+        std::string_view Value;
+        std::optional<bool> Expected;
+    };
+
+    const MatchCase cases[] =
+    {
+        { PackageMatchField::Id, MatchType::Exact, "Foo.Bar", true },
+        { PackageMatchField::Id, MatchType::Exact, "foo.bar", false },
+        { PackageMatchField::Name, MatchType::Exact, "Foo Bar", true },
+        { PackageMatchField::Name, MatchType::Exact, "foo bar", false },
+        { PackageMatchField::Name, MatchType::CaseInsensitive, "foo bar", true },
+        { PackageMatchField::Name, MatchType::Exact, "Localized Name", true },
+        { PackageMatchField::Name, MatchType::Exact, "localized name", false },
+        { PackageMatchField::Name, MatchType::Exact, "Installed Name", true },
+        { PackageMatchField::Name, MatchType::Exact, "installed name", false },
+        { PackageMatchField::Name, MatchType::StartsWith, "localized", true },
+        { PackageMatchField::Name, MatchType::Substring, "NAME", true },
+        { PackageMatchField::Name, MatchType::Exact, u8"Cafe\u0301", true },
+        { PackageMatchField::Moniker, MatchType::Exact, "FooBar", true },
+        { PackageMatchField::Moniker, MatchType::Exact, "foobar", false },
+        { PackageMatchField::Moniker, MatchType::CaseInsensitive, "foobar", true },
+        { PackageMatchField::Tag, MatchType::Exact, "DefaultTag", true },
+        { PackageMatchField::Tag, MatchType::Exact, "LocalizedTag", true },
+        { PackageMatchField::Tag, MatchType::Exact, "localizedtag", false },
+        { PackageMatchField::Command, MatchType::Exact, "ToolCmd", true },
+        { PackageMatchField::Command, MatchType::Exact, "toolcmd", false },
+        { PackageMatchField::PackageFamilyName, MatchType::Exact, "FOO.BAR_123", true },
+        { PackageMatchField::ProductCode, MatchType::Exact, "INSTALLER.CODE", true },
+        { PackageMatchField::ProductCode, MatchType::Exact, "ARP.CODE", true },
+        { PackageMatchField::UpgradeCode, MatchType::Exact, "ARP.UPGRADE", true },
+        { PackageMatchField::Name, MatchType::Fuzzy, "Foo", std::nullopt },
+        { PackageMatchField::Name, MatchType::FuzzySubstring, "Foo", std::nullopt },
+        { PackageMatchField::Name, MatchType::Wildcard, "Foo*", std::nullopt },
+        { PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, "Foo Bar", std::nullopt },
+        { PackageMatchField::Market, MatchType::Exact, "US", std::nullopt },
+        { PackageMatchField::Unknown, MatchType::Exact, "Foo Bar", std::nullopt },
+    };
+
+    for (const auto& test : cases)
+    {
+        CAPTURE(ToString(test.Field), ToString(test.Type), test.Value);
+        REQUIRE(MatchesRequest(PackageMatchFilter{ test.Field, test.Type, test.Value }, manifest) == test.Expected);
+    }
+    for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker,
+        PackageMatchField::Tag, PackageMatchField::Command, PackageMatchField::PackageFamilyName,
+        PackageMatchField::ProductCode, PackageMatchField::UpgradeCode })
+    {
+        CAPTURE(ToString(field));
+        REQUIRE(MatchesRequest(PackageMatchFilter{ field, MatchType::Exact, "Missing.Value" }, manifest) == std::optional<bool>{ false });
+    }
+}
+
+TEST_CASE("MatchCriteriaResolver_ManifestEmptyFields", "[MatchCriteriaResolver]")
+{
+    Manifest::Manifest manifest;
+    auto field = GENERATE(PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command,
+        PackageMatchField::PackageFamilyName, PackageMatchField::ProductCode, PackageMatchField::UpgradeCode);
+    auto type = GENERATE(MatchType::Exact, MatchType::CaseInsensitive, MatchType::StartsWith, MatchType::Substring);
+    CAPTURE(ToString(field), ToString(type));
+    PackageMatchFilter request{ field, type, "" };
+    REQUIRE(MatchesRequest(request, manifest) == std::optional<bool>{ false });
+    request.Type = MatchType::Wildcard;
+    REQUIRE_FALSE(MatchesRequest(request, manifest).has_value());
+}
+
 TEST_CASE("MatchCriteriaResolver_SearchRequest", "[MatchCriteriaResolver]")
 {
     const PackageMatchFilter idMatch{ PackageMatchField::Id, MatchType::CaseInsensitive, "microsoft.powertoys" };
