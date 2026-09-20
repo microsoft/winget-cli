@@ -134,6 +134,18 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-upgrade"_liv;
     }
 
+    std::optional<Execution::StructuredOutput::Mode> UpgradeCommand::GetStructuredOutputMode(const Execution::Args& execArgs) const
+    {
+        if (ShouldListUpgrade(execArgs) &&
+            !execArgs.Contains(Execution::Args::Type::IncludePinned) &&
+            !execArgs.Contains(Execution::Args::Type::Force))
+        {
+            return Execution::StructuredOutput::Mode::AvailableUpgrades;
+        }
+
+        return std::nullopt;
+    }
+
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         const auto argCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);

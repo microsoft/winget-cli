@@ -18,6 +18,8 @@ namespace AppInstaller::CLI
 
         Utility::LocIndView HelpLink() const override;
 
+        std::optional<Execution::StructuredOutput::Mode> GetStructuredOutputMode(const Execution::Args& execArgs) const override;
+
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;

@@ -336,6 +336,8 @@ namespace AppInstaller::CLI
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:
                 return { type, "arg"_liv };
+        case Execution::Args::Type::OutputFormat:
+            return { type, "format"_liv };
 
         default:
             THROW_HR(E_UNEXPECTED);
@@ -510,6 +512,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::CorrelationArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::ListDetails:
             return Argument{ type, Resource::String::ListDetailsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
+        case Args::Type::OutputFormat:
+            return Argument{ type, Resource::String::OutputFormatArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, ExperimentalFeature::Feature::StructuredOutput };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -530,6 +534,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::Proxy));
         args.push_back(ForType(Args::Type::NoProxy));
         args.push_back(ForType(Args::Type::Correlation));
+        args.push_back(ForType(Args::Type::OutputFormat));
     }
 
     std::string Argument::GetUsageString() const

@@ -315,6 +315,23 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
+    void TelemetryTraceLogger::LogStructuredOutput(std::string_view commandName, std::string_view mode, uint32_t schemaMajorVersion, std::string_view outcome) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "StructuredOutput",
+                AICLI_TraceLoggingStringView(commandName, "Command"),
+                AICLI_TraceLoggingStringView(mode, "Mode"),
+                TraceLoggingUInt32(schemaMajorVersion, "SchemaMajorVersion"),
+                AICLI_TraceLoggingStringView(outcome, "Outcome"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Info, << "Structured output: command=" << commandName << "; mode=" << mode << "; outcome=" << outcome);
+    }
+
     void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept
     {
         if (IsTelemetryEnabled())
