@@ -69,6 +69,8 @@ One invocation writes one UTF-8 JSON document without a byte order mark to stdou
 
 The envelope fields, `result`, `warnings`, and `errors` are always present. An empty successful query returns empty arrays and `result.truncated` set to `false`.
 
+If JSON was selected but the command or mode is unsupported, there is no normalized read operation or command result to describe. That failure uses the versioned error-envelope schema with `mode: null` and `result: null`. Supported `list` and `upgrade` operations continue to use their command schema even when they fail before returning packages; their typed result remains present and contains an empty package array.
+
 ### Package result
 
 The installed-package result uses the PowerShell object's property names and types where the concepts overlap. `UpgradeVersion` is CLI-specific because a list of all known versions does not show which version the command selected.
@@ -165,7 +167,7 @@ Add a privacy-conscious telemetry event for use of JSON mode, with the command, 
 
 ### Schema files and compatibility
 
-Store the output schemas under `schemas/JSON/cli-output/` and use JSON Schema draft 2020-12. Each supported command and schema version has a stable `$id`, exposed through the document's `$schema` property. The first files are the list 1.0 schema and upgrade 1.0 schema; shared envelope, package, warning, and error definitions may use referenced schema files in the same folder.
+Store the output schemas under `schemas/JSON/cli-output/` and use JSON Schema draft 2020-12. Each supported command and schema version has a stable `$id`, exposed through the document's `$schema` property. The first files are the list 1.0 schema, upgrade 1.0 schema, and error-envelope 1.0 schema; shared envelope, package, warning, and error definitions may use referenced schema files in the same folder.
 
 The schemas define every required field, nullable value, enumeration, and string format described here. Envelope, result, package, warning, and error objects allow additional properties so a consumer that supports the same major version can ignore later optional fields. A minor schema version may add optional fields or new warning codes. A major version is required to remove a field, make an optional field required, change a type, rename a value, or change existing semantics.
 
