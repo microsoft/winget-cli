@@ -1,5 +1,5 @@
 ---
-author: Przemysław Kłys @PrzemyslawKlys
+author: Przemysław Kłys https://github.com/PrzemyslawKlys
 created on: 2026-09-19
 last updated: 2026-09-20
 issue id: 184
