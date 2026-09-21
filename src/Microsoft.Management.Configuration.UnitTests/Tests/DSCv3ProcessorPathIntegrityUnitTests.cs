@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
+    using System.IO;
     using Microsoft.Management.Configuration.Processor.DSCv3.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -83,6 +84,29 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
+        /// Verifies that the handle returned by <see cref="ProcessorPathIntegrity.VerifyAndOpen"/>
+        /// pins the file: it cannot be written, renamed or deleted, but it can still be opened for
+        /// read, which is what is required to execute it.
+        /// </summary>
+        [Fact]
+        public void VerifyAndOpen_PinsFileAgainstReplacement()
+        {
+            using var tempFile = new TempFile(content: "test content");
+
+            string hash = ProcessorPathIntegrity.ComputeHash(tempFile.FullFileName, out bool isAlias);
+            using var handle = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias);
+
+            using (var readStream = File.OpenRead(tempFile.FullFileName))
+            {
+                Assert.True(readStream.Length > 0);
+            }
+
+            Assert.ThrowsAny<IOException>(() => File.OpenWrite(tempFile.FullFileName));
+            Assert.ThrowsAny<IOException>(() => File.Delete(tempFile.FullFileName));
+            Assert.ThrowsAny<IOException>(() => File.Move(tempFile.FullFileName, tempFile.FullFileName + ".attacker"));
+        }
+
+        /// <summary>
         /// Verifies that <see cref="ProcessorPathIntegrity.VerifyAndOpen"/> throws with the
         /// hash mismatch HRESULT when the wrong hash is supplied.
         /// </summary>
@@ -120,7 +144,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
         /// <summary>
         /// Verifies that <see cref="ProcessorSettings.EffectiveDscExecutablePath"/> returns the
-        /// path when the correct hash is provided.
+        /// pinned path of the verified file when the correct hash is provided.
         /// </summary>
         [Fact]
         public void ProcessorSettings_CustomPath_CorrectHash_ReturnsPath()
@@ -134,7 +158,76 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             settings.DscExecutablePathHash = hash;
             settings.DscExecutablePathIsAlias = isAlias;
 
-            Assert.Equal(tempFile.FullFileName, settings.EffectiveDscExecutablePath);
+            // The pinned path is the normalized path of the verified file, which is not necessarily
+            // character for character the path that was provided (for example if it contained a
+            // short name or a symbolic link).
+            string launchPath = settings.EffectiveDscExecutablePath;
+
+            Assert.Equal(Path.GetFileName(tempFile.FullFileName), Path.GetFileName(launchPath));
+            Assert.True(File.Exists(launchPath));
+            Assert.Equal(File.ReadAllText(tempFile.FullFileName), File.ReadAllText(launchPath));
+        }
+
+        /// <summary>
+        /// Verifies that pinning the processor path also pins the directories that the path is
+        /// composed of, so that the verified file cannot be swapped by renaming a directory.
+        /// </summary>
+        [Fact]
+        public void ProcessorSettings_CustomPath_PinsAncestorDirectories()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string processorDirectory = Path.Combine(tempDirectory.FullDirectoryPath, "processor");
+            Directory.CreateDirectory(processorDirectory);
+
+            string processorPath = Path.Combine(processorDirectory, "dsc.exe");
+            File.WriteAllText(processorPath, "test content");
+
+            string hash = ProcessorPathIntegrity.ComputeHash(processorPath, out bool isAlias);
+
+            using var settings = new ProcessorSettings();
+            settings.DscExecutablePath = processorPath;
+            settings.DscExecutablePathHash = hash;
+            settings.DscExecutablePathIsAlias = isAlias;
+
+            Assert.True(File.Exists(settings.EffectiveDscExecutablePath));
+
+            Assert.ThrowsAny<IOException>(() => Directory.Move(processorDirectory, processorDirectory + "-attacker"));
+            Assert.ThrowsAny<IOException>(() => Directory.Move(tempDirectory.FullDirectoryPath, tempDirectory.FullDirectoryPath + "-attacker"));
+        }
+
+        /// <summary>
+        /// Verifies that copies of the settings share a single pin, and that the pin is released
+        /// only when the settings object that owns it is disposed.
+        /// </summary>
+        [Fact]
+        public void ProcessorSettings_Clone_SharesSinglePin()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string processorPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
+            File.WriteAllText(processorPath, "test content");
+
+            string hash = ProcessorPathIntegrity.ComputeHash(processorPath, out bool isAlias);
+
+            var settings = new ProcessorSettings();
+            settings.DscExecutablePath = processorPath;
+            settings.DscExecutablePathHash = hash;
+            settings.DscExecutablePathIsAlias = isAlias;
+
+            ProcessorSettings copy = settings.Clone();
+
+            Assert.Equal(settings.EffectiveDscExecutablePath, copy.EffectiveDscExecutablePath);
+
+            // The copy does not own the pin, so disposing it leaves the file pinned.
+            copy.Dispose();
+            Assert.ThrowsAny<IOException>(() => File.Delete(processorPath));
+
+            // Disposing the owner releases both the file and the directory pins.
+            settings.Dispose();
+            File.Delete(processorPath);
+            Directory.Move(tempDirectory.FullDirectoryPath, tempDirectory.FullDirectoryPath + "-moved");
+            Directory.Move(tempDirectory.FullDirectoryPath + "-moved", tempDirectory.FullDirectoryPath);
         }
 
         /// <summary>
