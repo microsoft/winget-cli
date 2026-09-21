@@ -219,6 +219,206 @@ TEST_CASE("MatchCriteriaResolver_SearchRequest", "[MatchCriteriaResolver]")
     }
 }
 
+TEST_CASE("MatchCriteriaResolver_ResolveUnknownCriteria", "[MatchCriteriaResolver]")
+{
+    Manifest::Manifest manifest;
+    manifest.Id = "Foo.Bar";
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+    manifest.Moniker = "foobar";
+
+    const PackageMatchFilter idMatch{ PackageMatchField::Id, MatchType::Exact, "Foo.Bar" };
+    const PackageMatchFilter idMismatch{ PackageMatchField::Id, MatchType::Exact, "Other.Package" };
+    const PackageMatchFilter nameMatch{ PackageMatchField::Name, MatchType::Exact, "Foo Bar" };
+    const PackageMatchFilter monikerMismatch{ PackageMatchField::Moniker, MatchType::Exact, "other" };
+    const PackageMatchFilter unknown{ PackageMatchField::Market, MatchType::Exact, "US" };
+
+    struct MatchCase
+    {
+        std::string_view Name;
+        std::vector<PackageMatchFilter> Filters;
+        std::vector<PackageMatchFilter> Inclusions;
+        bool HasQuery;
+        std::optional<bool> Expected;
+        std::vector<PackageMatchField> ResolvedFields;
+    };
+
+    const MatchCase cases[] =
+    {
+        { "Empty request", {}, {}, false, true, {} },
+        { "Known matching filter", { idMatch }, {}, false, true, {} },
+        { "Known failed filter after unknown", { nameMatch, idMismatch }, {}, false, false, {} },
+        { "Known inclusion after unknown", {}, { nameMatch, idMatch }, false, true, {} },
+        { "Failed inclusions with unknown filter", { nameMatch }, { idMismatch }, false, false, {} },
+        { "Failed filter with unknown inclusion", { idMismatch }, { nameMatch }, false, false, {} },
+        { "Resolve matching filter", { idMatch, nameMatch }, {}, false, true, { PackageMatchField::Name } },
+        { "Resolve failing filter", { monikerMismatch }, {}, false, false, { PackageMatchField::Moniker } },
+        { "Filter remains unknown", { unknown }, {}, false, std::nullopt, { PackageMatchField::Market } },
+        { "Resolve matching inclusion", {}, { idMismatch, nameMatch }, false, true, { PackageMatchField::Name } },
+        { "Resolve failing inclusion", {}, { monikerMismatch }, false, false, { PackageMatchField::Moniker } },
+        { "Inclusion remains unknown", {}, { unknown }, false, std::nullopt, { PackageMatchField::Market } },
+        { "Resolved mismatch stops later filters", { monikerMismatch, nameMatch }, {}, false, false, { PackageMatchField::Moniker } },
+        { "Resolved mismatch avoids inclusion lookup", { monikerMismatch }, { nameMatch }, false, false, { PackageMatchField::Moniker } },
+        { "Resolved match stops later inclusions", {}, { nameMatch, monikerMismatch }, false, true, { PackageMatchField::Name } },
+        { "Resolve next inclusion after mismatch", {}, { monikerMismatch, nameMatch }, false, true, { PackageMatchField::Moniker, PackageMatchField::Name } },
+        { "Unknown filter cannot override failed inclusions", { unknown }, { monikerMismatch }, false, false, { PackageMatchField::Market, PackageMatchField::Moniker } },
+        { "Matching inclusion cannot prove unknown filter", { unknown }, { nameMatch }, false, std::nullopt, { PackageMatchField::Market, PackageMatchField::Name } },
+        { "Matching filter cannot prove unknown inclusion", { nameMatch }, { unknown }, false, std::nullopt, { PackageMatchField::Name, PackageMatchField::Market } },
+        { "Source-defined query", {}, {}, true, std::nullopt, {} },
+        { "Query makes inclusion lookup unnecessary", {}, { nameMatch }, true, std::nullopt, {} },
+        { "Query still requires filter resolution", { nameMatch }, { monikerMismatch }, true, std::nullopt, { PackageMatchField::Name } },
+        { "Query cannot override resolved filter failure", { monikerMismatch }, { nameMatch }, true, false, { PackageMatchField::Moniker } },
+        { "Known inclusion alongside query", {}, { nameMatch, idMatch }, true, true, {} },
+        { "Resolve only filter when selection is known", { unknown }, { nameMatch, idMatch }, false, std::nullopt, { PackageMatchField::Market } },
+    };
+
+    auto matchesField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        return field.Field == PackageMatchField::Id ? MatchesRequest(field, manifest.Id) : std::nullopt;
+    };
+    for (const auto& test : cases)
+    {
+        CAPTURE(test.Name);
+        SearchRequest request;
+        request.Filters = test.Filters;
+        request.Inclusions = test.Inclusions;
+        if (test.HasQuery)
+        {
+            request.Query.emplace(MatchType::Substring, "Source-defined query");
+        }
+
+        std::vector<PackageMatchField> resolvedFields;
+        auto resolveField = [&](const PackageMatchFilter& field)
+        {
+            resolvedFields.emplace_back(field.Field);
+            return MatchesRequest(field, manifest);
+        };
+        REQUIRE(MatchesRequest(request, matchesField, resolveField) == test.Expected);
+        REQUIRE(resolvedFields == test.ResolvedFields);
+    }
+}
+
+TEST_CASE("MatchCriteriaResolver_ResolutionReusesAvailableMetadata", "[MatchCriteriaResolver]")
+{
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Foo Bar");
+    request.Filters.emplace_back(PackageMatchField::Tag, MatchType::Exact, "utility");
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "foobar");
+
+    std::optional<Manifest::Manifest> manifest;
+    auto matchesField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        return manifest ? MatchesRequest(field, manifest.value()) : std::nullopt;
+    };
+    std::vector<PackageMatchField> resolvedFields;
+    auto resolveField = [&](const PackageMatchFilter& field)
+    {
+        resolvedFields.emplace_back(field.Field);
+        auto& data = manifest.emplace();
+        data.Id = "Foo.Bar";
+        data.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+        data.DefaultLocalization.Add<Manifest::Localization::Tags>({ "utility" });
+        data.Moniker = "foobar";
+        return MatchesRequest(field, data);
+    };
+
+    REQUIRE(MatchesRequest(request, matchesField, resolveField) == std::optional<bool>{ true });
+    REQUIRE(resolvedFields == std::vector<PackageMatchField>{ PackageMatchField::Name });
+}
+
+TEST_CASE("MatchCriteriaResolver_ResolutionRefreshesEarlierCriteria", "[MatchCriteriaResolver]")
+{
+    const PackageMatchFilter nameMatch{ PackageMatchField::Name, MatchType::Exact, "Foo Bar" };
+    const PackageMatchFilter nameMismatch{ PackageMatchField::Name, MatchType::Exact, "Other" };
+    const PackageMatchFilter monikerMatch{ PackageMatchField::Moniker, MatchType::Exact, "foobar" };
+    const PackageMatchFilter monikerMismatch{ PackageMatchField::Moniker, MatchType::Exact, "other" };
+    const PackageMatchFilter tagMatch{ PackageMatchField::Tag, MatchType::Exact, "utility" };
+    SearchRequest request;
+    request.Filters = { nameMismatch };
+    request.Inclusions = { monikerMatch };
+    std::optional<bool> expected = false;
+    std::vector<PackageMatchField> expectedResolvedFields{ PackageMatchField::Name, PackageMatchField::Moniker };
+    bool tagKnownOnlyToResolver = false;
+
+    SECTION("Inclusion resolution reveals a failed filter") {}
+    SECTION("Inclusion resolution confirms an earlier filter")
+    {
+        request.Filters = { nameMatch };
+        expected = true;
+    }
+    SECTION("Later filter resolution reveals an earlier failure")
+    {
+        request.Filters = { nameMismatch, tagMatch };
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "US");
+        expectedResolvedFields = { PackageMatchField::Name, PackageMatchField::Tag };
+    }
+    SECTION("Later inclusion resolution reveals an earlier match")
+    {
+        request.Filters.clear();
+        request.Inclusions = { nameMatch, monikerMismatch };
+        expected = true;
+    }
+    SECTION("Later inclusion resolution rules out all alternatives")
+    {
+        request.Filters.clear();
+        request.Inclusions = { nameMismatch, monikerMismatch };
+    }
+    SECTION("Refreshing unknowns preserves definitive resolver answers")
+    {
+        request.Filters = { tagMatch, nameMatch };
+        tagKnownOnlyToResolver = true;
+        expected = true;
+        expectedResolvedFields = { PackageMatchField::Tag, PackageMatchField::Name, PackageMatchField::Moniker };
+    }
+
+    std::optional<Manifest::Manifest> manifest;
+    auto matchesField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        if (tagKnownOnlyToResolver && field.Field == PackageMatchField::Tag)
+        {
+            return std::nullopt;
+        }
+        return manifest ? MatchesRequest(field, manifest.value()) : std::nullopt;
+    };
+    std::vector<PackageMatchField> resolvedFields;
+    auto resolveField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        resolvedFields.emplace_back(field.Field);
+        if (field.Field == PackageMatchField::Name)
+        {
+            return std::nullopt;
+        }
+        if (tagKnownOnlyToResolver && field.Field == PackageMatchField::Tag)
+        {
+            return true;
+        }
+        auto& data = manifest.emplace();
+        data.Id = "Foo.Bar";
+        data.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+        data.DefaultLocalization.Add<Manifest::Localization::Tags>({ "utility" });
+        data.Moniker = "foobar";
+        return MatchesRequest(field, data);
+    };
+
+    REQUIRE(MatchesRequest(request, matchesField, resolveField) == expected);
+    REQUIRE(resolvedFields == expectedResolvedFields);
+}
+
+TEST_CASE("MatchCriteriaResolver_ResolutionFailure", "[MatchCriteriaResolver]")
+{
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Foo Bar");
+    auto matchesField = [](const PackageMatchFilter&) -> std::optional<bool>
+    {
+        return std::nullopt;
+    };
+    auto resolveField = [](const PackageMatchFilter&) -> std::optional<bool>
+    {
+        THROW_HR(E_ACCESSDENIED);
+    };
+
+    REQUIRE_THROWS_HR(MatchesRequest(request, matchesField, resolveField), E_ACCESSDENIED);
+}
+
 TEST_CASE("MatchCriteriaResolver_MatchType", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;

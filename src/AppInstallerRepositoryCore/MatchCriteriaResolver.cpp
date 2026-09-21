@@ -240,42 +240,86 @@ namespace AppInstaller::Repository
     }
 
     std::optional<bool> MatchesRequest(const SearchRequest& request,
-        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesField)
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesField,
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& resolveField)
     {
-        std::optional<bool> filtersMatch = true;
-        for (const auto& filter : request.Filters)
+        std::vector<std::optional<bool>> filterMatches(request.Filters.size());
+        std::vector<std::optional<bool>> inclusionMatches(request.Inclusions.size());
+        auto evaluate = [&](const auto& fields, auto& matches, bool requireAll) -> std::optional<bool>
         {
-            auto match = matchesField(filter);
-            if (match && !match.value())
+            std::optional<bool> result = requireAll;
+            for (size_t i = 0; i < fields.size(); ++i)
+            {
+                auto& match = matches[i];
+                if (!match)
+                {
+                    match = matchesField(fields[i]);
+                }
+                // AND rejects on false; OR accepts on true.
+                if (match && match.value() != requireAll)
+                {
+                    return match;
+                }
+                if (!match)
+                {
+                    result = std::nullopt;
+                }
+            }
+            return result;
+        };
+        auto resolveNext = [&](const auto& fields, auto& matches, size_t& next)
+        {
+            while (next < fields.size())
+            {
+                const size_t i = next++;
+                if (!matches[i])
+                {
+                    matches[i] = resolveField(fields[i]);
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        size_t nextFilter = 0;
+        size_t nextInclusion = 0;
+        // Recheck unknowns after each resolution attempt; retain definitive results.
+        while (true)
+        {
+            auto filtersMatch = evaluate(request.Filters, filterMatches, true);
+            if (!filtersMatch.value_or(true))
             {
                 return false;
             }
-            if (!match)
-            {
-                filtersMatch = std::nullopt;
-            }
-        }
 
-        if (!request.Query && request.Inclusions.empty())
-        {
-            return filtersMatch;
-        }
-
-        std::optional<bool> selectionMatch = request.Query ? std::nullopt : std::optional<bool>{ false };
-        for (const auto& inclusion : request.Inclusions)
-        {
-            auto match = matchesField(inclusion);
-            if (match && match.value())
-            {
-                return filtersMatch;
-            }
-            if (!match)
+            auto selectionMatch = !request.Query && request.Inclusions.empty() ?
+                std::optional<bool>{ true } : evaluate(request.Inclusions, inclusionMatches, false);
+            if (request.Query && !selectionMatch.value_or(false))
             {
                 selectionMatch = std::nullopt;
             }
+            if (!selectionMatch.value_or(true))
+            {
+                return false;
+            }
+            if (filtersMatch && selectionMatch)
+            {
+                return true;
+            }
+            if (!resolveField)
+            {
+                return std::nullopt;
+            }
+            if (!filtersMatch && resolveNext(request.Filters, filterMatches, nextFilter))
+            {
+                continue;
+            }
+            if (!selectionMatch && !request.Query && resolveNext(request.Inclusions, inclusionMatches, nextInclusion))
+            {
+                continue;
+            }
+            return std::nullopt;
         }
-
-        return selectionMatch;
     }
 
     PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)
