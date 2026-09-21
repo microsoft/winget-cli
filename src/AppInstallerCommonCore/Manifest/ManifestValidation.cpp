@@ -97,6 +97,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InvalidPathCharacters, "The field value contains characters that are not allowed because the value is used to construct a file system path."sv },
                 { AppInstaller::Manifest::ManifestError::FieldExceedsMaxLength, "The field value exceeds the maximum allowed length."sv },
                 { AppInstaller::Manifest::ManifestError::FieldEscapesDirectory, "The field value must not point to a location outside of its base directory."sv },
+                { AppInstaller::Manifest::ManifestError::ReservedPathName, "The field value cannot be used to construct a file system path because it is a reserved name."sv },
             };
 
             return ErrorIdToMessageMap;
@@ -161,6 +162,18 @@ namespace AppInstaller::Manifest
             if (AppInstaller::Filesystem::PathEscapesBaseDirectory(value))
             {
                 resultErrors.emplace_back(ManifestError::FieldEscapesDirectory, fieldNameString, valueString);
+            }
+
+            // Finally, run the value through the same conversion that the consumers of these fields use so that
+            // values which cannot be turned into a usable path part, such as reserved device names, fail here
+            // rather than at the point of use.
+            try
+            {
+                std::ignore = Utility::MakeSuitablePathPart(value);
+            }
+            catch (...)
+            {
+                resultErrors.emplace_back(ManifestError::ReservedPathName, fieldNameString, valueString);
             }
 
             return resultErrors;

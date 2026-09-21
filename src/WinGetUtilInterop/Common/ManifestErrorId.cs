@@ -174,6 +174,9 @@ namespace Microsoft.WinGetUtil.Common
         /// <summary>Relative file path must not point to a location outside of archive directory.</summary>
         RelativeFilePathEscapesDirectory,
 
+        /// <summary>The field value cannot be used to construct a file system path because it is a reserved name.</summary>
+        ReservedPathName,
+
         /// <summary>Required field with empty value.</summary>
         RequiredFieldEmpty,
 

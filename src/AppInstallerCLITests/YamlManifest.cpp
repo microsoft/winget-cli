@@ -1446,6 +1446,17 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     // Values consisting solely of relative path specifiers.
     RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);
     REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
+
+    // Reserved names cannot be used to construct a path part, so they must fail here rather than at the point of use.
+    for (const auto& value : { "CON", "con", "NUL.txt", "COM1", "LPT9.1.0" })
+    {
+        RequireSingleError(ValidatePackageVersion(value), ManifestError::ReservedPathName);
+        RequireSingleError(ValidatePackageIdentifier(value), ManifestError::ReservedPathName);
+    }
+
+    // Values that merely contain a reserved name are fine.
+    REQUIRE(ValidatePackageIdentifier("Contoso.NULL").empty());
+    REQUIRE(ValidatePackageVersion("1.0-com1").empty());
 }
 
 TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")

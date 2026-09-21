@@ -73,6 +73,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableCommandAliasEscapesDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReservedPathName);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
