@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Manifest.h"
+#include "winget/Filesystem.h"
 #include "winget/Locale.h"
 #include "winget/UserSettings.h"
+#include <AppInstallerErrors.h>
 
 namespace AppInstaller::Manifest
 {
@@ -239,5 +241,36 @@ namespace AppInstaller::Manifest
             std::make_move_iterator(set.end()));
 
         return result;
+    }
+
+    std::filesystem::path GetPathPart(std::string_view value)
+    {
+        std::string result;
+
+        try
+        {
+            result = Utility::MakeSuitablePathPart(value);
+        }
+        catch (...)
+        {
+            // MakeSuitablePathPart throws for values that cannot be made into a usable path part,
+            // such as reserved device names. Surface that as a manifest problem rather than E_INVALIDARG.
+            THROW_HR_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, "Value cannot be used as a path part: %.*hs", static_cast<int>(value.length()), value.data());
+        }
+
+        // MakeSuitablePathPart removes all path separators, so this can only fire if it stops doing so.
+        // It is kept as a final check because the values that reach here originate outside of the client.
+        THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(result), "Path part points to a location outside of its base directory: %hs", result.c_str());
+
+        return { Utility::ConvertToUTF16(result) };
+    }
+
+    std::filesystem::path GetPathPart(const Manifest& manifest, char separator)
+    {
+        std::string value = manifest.Id;
+        value += separator;
+        value += manifest.Version;
+
+        return GetPathPart(value);
     }
 }

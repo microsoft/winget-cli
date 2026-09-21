@@ -35,11 +35,8 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-            std::string pathPart = manifest.Id + '.' + manifest.Version;
-            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(pathPart), "Path part points to a location outside of its base directory: %hs", pathPart.c_str());
-
             std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-            tempInstallerPath /= Utility::ConvertToUTF16(pathPart);
+            tempInstallerPath /= GetPathPart(manifest);
 
             std::filesystem::create_directories(tempInstallerPath);
 
@@ -752,15 +749,11 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id;
-            if (!Utility::Version{ manifest.Version }.IsUnknown())
-            {
-                packageDownloadFolderName += '_' + manifest.Version;
-            }
+            std::filesystem::path packageDownloadFolderName = Utility::Version{ manifest.Version }.IsUnknown() ?
+                GetPathPart(manifest.Id) :
+                GetPathPart(manifest, '_');
 
-            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, Filesystem::PathEscapesBaseDirectory(packageDownloadFolderName), "Path part points to a location outside of its base directory: %hs", packageDownloadFolderName.c_str());
-
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
         }
     }
 

@@ -7,6 +7,7 @@
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
+#include <filesystem>
 #include <vector>
 
 namespace AppInstaller::Manifest
@@ -72,4 +73,13 @@ namespace AppInstaller::Manifest
             std::function<const string_t& (const ManifestInstaller&)> extractStringFromInstaller = {},
             std::function<const string_t& (const AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {}) const;
     };
+
+    // Creates a file system path part from a value that originated in manifest data.
+    // Manifest validation rejects values that are not safe to use in a path, but the values can also come from
+    // sources that do not go through it (for instance, installed package data), so they are sanitized here as
+    // well. Throws if the result would point outside of the directory that it is used in.
+    std::filesystem::path GetPathPart(std::string_view value);
+
+    // Creates a file system path part for the manifest in the form `<PackageIdentifier><separator><PackageVersion>`.
+    std::filesystem::path GetPathPart(const Manifest& manifest, char separator = '.');
 }

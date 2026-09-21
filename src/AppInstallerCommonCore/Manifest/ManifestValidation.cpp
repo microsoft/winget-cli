@@ -143,8 +143,10 @@ namespace AppInstaller::Manifest
             {
                 auto rawCharacter = static_cast<unsigned char>(character);
 
-                // Control characters, characters that are not valid in a file system path, and (optionally) whitespace.
-                if ((rawCharacter >= 0x01 && rawCharacter <= 0x1f) ||
+                // Nulls, control characters, characters that are not valid in a file system path, and (optionally) whitespace.
+                // Note that a null is rejected even though the schema pattern does not exclude it; it cannot appear in a
+                // YAML manifest, but a REST source can produce one and it would truncate any path that it is used in.
+                if (rawCharacter <= 0x1f ||
                     rawCharacter == 0x7f ||
                     s_InvalidPathFieldCharacters.find(character) != std::string_view::npos ||
                     (disallowWhitespace && rawCharacter == ' '))

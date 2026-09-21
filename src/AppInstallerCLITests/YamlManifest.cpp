@@ -1436,6 +1436,10 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
         REQUIRE(ContainsError(ValidatePackageIdentifier(value), ManifestError::InvalidPathCharacters));
     }
 
+    // An embedded null would truncate any path that the value is used in.
+    RequireSingleError(ValidatePackageVersion("ab\0c"sv), ManifestError::InvalidPathCharacters);
+    RequireSingleError(ValidatePackageIdentifier("ab\0c"sv), ManifestError::InvalidPathCharacters);
+
     // Values that exceed the maximum length declared by the schema.
     RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
 
@@ -1469,6 +1473,29 @@ TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::FieldEscapesDirectory, "PackageVersion", manifest.Version);
+}
+
+TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
+{
+    Manifest manifest;
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "1.0.0";
+
+    // The common case must not alter the value, as the resulting paths are persisted.
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
+    REQUIRE(GetPathPart(manifest.Id) == std::filesystem::path{ L"Foo.Bar" });
+
+    // Values that validation would have rejected are sanitized rather than used as given.
+    REQUIRE(GetPathPart("a\\b") == std::filesystem::path{ L"a_b" });
+    REQUIRE(GetPathPart("a/b") == std::filesystem::path{ L"a_b" });
+    REQUIRE(GetPathPart("C:") == std::filesystem::path{ L"C_" });
+    REQUIRE(GetPathPart("\\\\server\\share") == std::filesystem::path{ L"__server_share" });
+
+    // Relative path specifiers can never produce a path part that escapes its base directory.
+    REQUIRE(GetPathPart("..") == std::filesystem::path{ L"._" });
+    REQUIRE_THROWS(GetPathPart("..\\.."));
+    REQUIRE_THROWS(GetPathPart("../../foo"));
 }
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
