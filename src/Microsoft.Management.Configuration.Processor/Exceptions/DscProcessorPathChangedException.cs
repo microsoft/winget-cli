@@ -17,7 +17,16 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Initializes a new instance of the <see cref="DscProcessorPathChangedException"/> class.
         /// </summary>
         public DscProcessorPathChangedException()
-            : base("The DSC processor path no longer refers to the file that was verified.")
+            : this("The DSC processor path no longer refers to the file that was verified.")
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DscProcessorPathChangedException"/> class.
+        /// </summary>
+        /// <param name="message">The message describing how the path differs from what was verified.</param>
+        public DscProcessorPathChangedException(string message)
+            : base(message)
         {
             this.HResult = ErrorCodes.WinGetConfigProcessorPathChanged;
         }

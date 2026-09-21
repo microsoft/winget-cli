@@ -70,7 +70,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
         /// <summary>
         /// Verifies that <see cref="ProcessorPathIntegrity.VerifyAndOpen"/> succeeds and returns a
-        /// valid handle when the correct hash is supplied.
+        /// valid pin when the correct hash is supplied.
         /// </summary>
         [Fact]
         public void VerifyAndOpen_CorrectHash_ReturnsValidHandle()
@@ -78,13 +78,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             using var tempFile = new TempFile(content: "test content");
 
             string hash = ProcessorPathIntegrity.ComputeHash(tempFile.FullFileName, out bool isAlias);
-            using var handle = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias);
+            using var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias);
 
-            Assert.False(handle.IsInvalid);
+            Assert.False(pinnedFile.NameHandle.IsInvalid);
+            Assert.False(pinnedFile.ContentHandle.IsInvalid);
         }
 
         /// <summary>
-        /// Verifies that the handle returned by <see cref="ProcessorPathIntegrity.VerifyAndOpen"/>
+        /// Verifies that the pin returned by <see cref="ProcessorPathIntegrity.VerifyAndOpen"/>
         /// pins the file: it cannot be written, renamed or deleted, but it can still be opened for
         /// read, which is what is required to execute it.
         /// </summary>
@@ -94,7 +95,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             using var tempFile = new TempFile(content: "test content");
 
             string hash = ProcessorPathIntegrity.ComputeHash(tempFile.FullFileName, out bool isAlias);
-            using var handle = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias);
+            using var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias);
 
             using (var readStream = File.OpenRead(tempFile.FullFileName))
             {
@@ -104,6 +105,104 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.ThrowsAny<IOException>(() => File.OpenWrite(tempFile.FullFileName));
             Assert.ThrowsAny<IOException>(() => File.Delete(tempFile.FullFileName));
             Assert.ThrowsAny<IOException>(() => File.Move(tempFile.FullFileName, tempFile.FullFileName + ".attacker"));
+        }
+
+        /// <summary>
+        /// Verifies that a regular file is rejected when it is claimed to be an app execution alias.
+        /// </summary>
+        [Fact]
+        public void VerifyAndOpen_RegularFileAsAlias_Throws()
+        {
+            using var tempFile = new TempFile(content: "test content");
+
+            string hash = ProcessorPathIntegrity.ComputeHash(tempFile.FullFileName, out _);
+
+            Exception? ex = Record.Exception(() =>
+            {
+                using var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(tempFile.FullFileName, hash, isAlias: true);
+            });
+
+            Assert.NotNull(ex);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED, ex.HResult);
+        }
+
+        /// <summary>
+        /// Verifies that a symbolic link is hashed through to its target and that pinning it holds
+        /// both ends of the link, so that neither the link nor the file it resolves to can be
+        /// changed while the processor path is in use.
+        /// </summary>
+        [Fact]
+        public void VerifyAndOpen_SymbolicLink_PinsLinkAndTarget()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string targetPath = Path.Combine(tempDirectory.FullDirectoryPath, "real-dsc.exe");
+            File.WriteAllText(targetPath, "test content");
+
+            string linkPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
+            if (!TryCreateSymbolicLink(linkPath, targetPath))
+            {
+                // Creating symbolic links requires developer mode or administrator rights.
+                return;
+            }
+
+            string hash = ProcessorPathIntegrity.ComputeHash(linkPath, out bool isAlias);
+
+            Assert.False(isAlias);
+            Assert.Equal(ProcessorPathIntegrity.ComputeHash(targetPath, out _), hash);
+
+            using (var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(linkPath, hash, isAlias))
+            {
+                // The link itself cannot be removed, replaced or repointed; repointing requires
+                // write access to the link, which the pin denies.
+                Assert.ThrowsAny<IOException>(() => File.Delete(linkPath));
+                Assert.ThrowsAny<IOException>(() => File.Move(linkPath, linkPath + ".attacker"));
+                Assert.ThrowsAny<IOException>(() => File.OpenWrite(linkPath));
+
+                // The target cannot be modified, removed or replaced either.
+                Assert.ThrowsAny<IOException>(() => File.OpenWrite(targetPath));
+                Assert.ThrowsAny<IOException>(() => File.Delete(targetPath));
+                Assert.ThrowsAny<IOException>(() => File.Move(targetPath, targetPath + ".attacker"));
+
+                // The link still resolves, which is what execution requires.
+                Assert.Equal("test content", File.ReadAllText(linkPath));
+            }
+
+            Exception? ex = Record.Exception(() =>
+            {
+                using var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(linkPath, hash, isAlias: true);
+            });
+
+            Assert.NotNull(ex);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED, ex.HResult);
+        }
+
+        /// <summary>
+        /// Verifies that the path used to launch the processor is the path of the file that was
+        /// verified, rather than the symbolic link that pointed at it.
+        /// </summary>
+        [Fact]
+        public void ProcessorSettings_SymbolicLink_LaunchesResolvedTarget()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string targetPath = Path.Combine(tempDirectory.FullDirectoryPath, "real-dsc.exe");
+            File.WriteAllText(targetPath, "test content");
+
+            string linkPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
+            if (!TryCreateSymbolicLink(linkPath, targetPath))
+            {
+                return;
+            }
+
+            string hash = ProcessorPathIntegrity.ComputeHash(linkPath, out bool isAlias);
+
+            using var settings = new ProcessorSettings();
+            settings.DscExecutablePath = linkPath;
+            settings.DscExecutablePathHash = hash;
+            settings.DscExecutablePathIsAlias = isAlias;
+
+            Assert.Equal(Path.GetFileName(targetPath), Path.GetFileName(settings.EffectiveDscExecutablePath));
         }
 
         /// <summary>
@@ -231,6 +330,41 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
+        /// Verifies that a symbolic link in a directory component of the path is resolved away, so
+        /// that the pinned directories are the real ones rather than the link.
+        /// </summary>
+        [Fact]
+        public void ProcessorSettings_DirectoryLinkInPath_PinsResolvedDirectories()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string realDirectory = Path.Combine(tempDirectory.FullDirectoryPath, "real");
+            Directory.CreateDirectory(realDirectory);
+
+            string processorPath = Path.Combine(realDirectory, "dsc.exe");
+            File.WriteAllText(processorPath, "test content");
+
+            string linkDirectory = Path.Combine(tempDirectory.FullDirectoryPath, "link");
+            if (!TryCreateDirectorySymbolicLink(linkDirectory, realDirectory))
+            {
+                return;
+            }
+
+            string pathThroughLink = Path.Combine(linkDirectory, "dsc.exe");
+            string hash = ProcessorPathIntegrity.ComputeHash(pathThroughLink, out bool isAlias);
+
+            using var settings = new ProcessorSettings();
+            settings.DscExecutablePath = pathThroughLink;
+            settings.DscExecutablePathHash = hash;
+            settings.DscExecutablePathIsAlias = isAlias;
+
+            Assert.Equal(processorPath, settings.EffectiveDscExecutablePath, ignoreCase: true);
+
+            // The real directory is the one that is pinned, not the link that was used to reach it.
+            Assert.ThrowsAny<IOException>(() => Directory.Move(realDirectory, realDirectory + "-attacker"));
+        }
+
+        /// <summary>
         /// Verifies that <see cref="ProcessorSettings.EffectiveDscExecutablePath"/> throws with the
         /// hash mismatch HRESULT when a wrong hash is set for a custom path.
         /// </summary>
@@ -248,6 +382,54 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.NotNull(ex);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH, ex.HResult);
+        }
+
+        /// <summary>
+        /// Creating symbolic links requires developer mode or administrator rights, so the tests
+        /// that use them are skipped when they cannot be created.
+        /// </summary>
+        /// <param name="path">The link to create.</param>
+        /// <param name="target">The target of the link.</param>
+        /// <returns>True if the link was created; false if links cannot be created.</returns>
+        private static bool TryCreateSymbolicLink(string path, string target)
+        {
+            try
+            {
+                File.CreateSymbolicLink(path, target);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Creating symbolic links requires developer mode or administrator rights, so the tests
+        /// that use them are skipped when they cannot be created.
+        /// </summary>
+        /// <param name="path">The link to create.</param>
+        /// <param name="target">The target of the link.</param>
+        /// <returns>True if the link was created; false if links cannot be created.</returns>
+        private static bool TryCreateDirectorySymbolicLink(string path, string target)
+        {
+            try
+            {
+                Directory.CreateSymbolicLink(path, target);
+                return true;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
         }
     }
 }

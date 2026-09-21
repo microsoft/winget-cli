@@ -20,9 +20,12 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </para>
     /// <list type="number">
     /// <item><description>
-    /// A handle to the file itself, opened sharing read only. Sharing read still allows the file to
-    /// be executed, but denies every other opener write and delete access. Since renaming a file
-    /// requires delete access, the verified bytes cannot be modified, replaced, renamed or deleted.
+    /// A handle to the file itself, opened sharing read only and without following reparse points.
+    /// Sharing read still allows the file to be executed, but denies every other opener write and
+    /// delete access. Since renaming a file requires delete access, the verified bytes cannot be
+    /// modified, replaced, renamed or deleted. If the path is a link, the link target is pinned the
+    /// same way; a link cannot be repointed without write access to it, so holding both ends means
+    /// the path cannot be made to resolve to a different file.
     /// </description></item>
     /// <item><description>
     /// Handles to each ancestor directory of the file's normalized path, opened sharing read and
@@ -33,9 +36,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// </list>
     /// <para>
     /// The path used to launch the processor is the normalized path obtained from the pinned handle,
-    /// which contains no symbolic links or junctions. Combined with the directory pins - and with the
-    /// fact that a reparse point cannot be set on a non-empty directory - no component of the launch
-    /// path can be re-pointed at another target.
+    /// which contains no symbolic links or junctions. No component of it can be re-pointed at another
+    /// target afterwards either: setting a reparse point on a directory requires it to be empty, and
+    /// every pinned directory permanently contains the pinned component below it. Each directory is
+    /// also opened without following reparse points and rejected if it is one, so a component that is
+    /// swapped for a link while the path is being pinned is detected rather than followed.
     /// </para>
     /// </summary>
     internal sealed class ProcessorPathBinding : IDisposable
@@ -46,7 +51,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private string? boundPath = null;
         private bool boundIsAlias = false;
-        private SafeFileHandle? fileHandle = null;
+        private PinnedProcessorFile? pinnedFile = null;
         private List<SafeFileHandle> directoryHandles = new ();
         private string? launchPath = null;
         private bool disposed = false;
@@ -102,8 +107,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 if (!this.disposed)
                 {
                     this.ReleaseDirectoryHandles();
-                    this.fileHandle?.Dispose();
-                    this.fileHandle = null;
+                    this.pinnedFile?.Dispose();
+                    this.pinnedFile = null;
                     this.launchPath = null;
                     this.disposed = true;
                 }
@@ -112,11 +117,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private void Pin(string path, string expectedHash, bool isAlias)
         {
-            SafeFileHandle handle = ProcessorPathIntegrity.VerifyAndOpen(path, expectedHash, isAlias);
+            PinnedProcessorFile file = ProcessorPathIntegrity.VerifyAndOpen(path, expectedHash, isAlias);
 
             try
             {
-                string finalPath = ProcessorPathIntegrity.GetFinalPath(handle);
+                string finalPath = ProcessorPathIntegrity.GetFinalPath(file.ContentHandle);
 
                 // Pinning the ancestors is itself done by path, so a rename that happens while the
                 // ancestors are being pinned could leave a directory pinned that is no longer part of
@@ -125,16 +130,26 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 // renamed or deleted any longer.
                 for (int attempt = 0; ; ++attempt)
                 {
-                    this.PinAncestors(finalPath);
-
-                    string currentPath = ProcessorPathIntegrity.GetFinalPath(handle);
-                    if (string.Equals(currentPath, finalPath, StringComparison.OrdinalIgnoreCase))
+                    try
                     {
-                        break;
+                        this.PinAncestors(finalPath);
+
+                        string currentPath = ProcessorPathIntegrity.GetFinalPath(file.ContentHandle);
+                        if (string.Equals(currentPath, finalPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            break;
+                        }
+
+                        finalPath = currentPath;
+                    }
+                    catch (DscProcessorPathChangedException) when (attempt + 1 < MaximumPinAttempts)
+                    {
+                        // A component of the path was replaced with a reparse point while the
+                        // ancestors were being pinned; start over from where the file is now.
+                        finalPath = ProcessorPathIntegrity.GetFinalPath(file.ContentHandle);
                     }
 
                     this.ReleaseDirectoryHandles();
-                    finalPath = currentPath;
 
                     if (attempt + 1 >= MaximumPinAttempts)
                     {
@@ -144,13 +159,13 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
                 this.boundPath = path;
                 this.boundIsAlias = isAlias;
-                this.fileHandle = handle;
+                this.pinnedFile = file;
                 this.launchPath = finalPath;
             }
             catch
             {
                 this.ReleaseDirectoryHandles();
-                handle.Dispose();
+                file.Dispose();
                 throw;
             }
         }
