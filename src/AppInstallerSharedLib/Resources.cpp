@@ -5,6 +5,8 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
+#include <winrt/Windows.Foundation.Collections.h>
 
 namespace AppInstaller
 {
@@ -63,7 +65,7 @@ namespace AppInstaller
         struct Loader
         {
             // Gets the singleton instance of the resource loader.
-            static const Loader& Instance()
+            static Loader& Instance()
             {
                 static Loader instance;
                 return instance;
@@ -72,6 +74,8 @@ namespace AppInstaller
             // Gets the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
+                auto lock = m_lock.lock_shared();
+
                 if (resKey.empty())
                 {
                     return {};
@@ -89,6 +93,8 @@ namespace AppInstaller
             // Gets the string resource value or nothing if not present.
             std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey) const
             {
+                auto lock = m_lock.lock_shared();
+
                 if (!resKey.empty() && m_wingetLoader)
                 {
                     try
@@ -106,20 +112,69 @@ namespace AppInstaller
                 return {};
             }
 
+            bool SetLanguageOverride(std::wstring_view localeTag)
+            {
+                auto lock = m_lock.lock_exclusive();
+
+                if (localeTag == m_localeOverride)
+                {
+                    return true;
+                }
+
+                try
+                {
+                    m_wingetLoader = CreateLoader(localeTag);
+                    m_localeOverride = localeTag;
+                    return true;
+                }
+                catch (const winrt::hresult_error& hre)
+                {
+                    AICLI_LOG(CLI, Error, << "Failure applying resource locale override (" << Utility::ConvertToUTF8(localeTag) << ") with error: " << hre.code());
+                }
+
+                return false;
+            }
+
         private:
             winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;
+            winrt::hstring m_localeOverride;
+            mutable wil::srwlock m_lock;
+
+            static winrt::Windows::ApplicationModel::Resources::ResourceLoader CreateLoader(std::wstring_view localeTag)
+            {
+                if (!localeTag.empty())
+                {
+                    winrt::Windows::ApplicationModel::Resources::Core::ResourceContext::SetGlobalQualifierValue(L"Language", localeTag);
+                }
+                else
+                {
+                    auto qualifierNames = winrt::single_threaded_vector<winrt::hstring>();
+                    qualifierNames.Append(L"Language");
+                    winrt::Windows::ApplicationModel::Resources::Core::ResourceContext::ResetGlobalQualifierValues(qualifierNames);
+                }
+
+                // The default constructor of ResourceLoader throws a winrt::hresult_error exception
+                // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
+                // a winrt::hresult_error but for reasons unknown it only gets caught when running on the
+                // debugger. Running without a debugger will result in a crash that not even adding a
+                // catch all will fix. To provide a good error message we call the default constructor
+                // before calling GetForViewIndependentUse.
+                [[maybe_unused]] auto defaultLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
+
+                return winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
+            }
 
             Loader() : m_wingetLoader(nullptr)
             {
                 try
                 {
-                    // The default constructor of ResourceLoader throws a winrt::hresult_error exception
-                    // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
-                    // a winrt::hresult_error but for reasons unknown it only gets caught when running on the
-                    // debugger. Running without a debugger will result in a crash that not even adding a
-                    // catch all will fix. To provide a good error message we call the default constructor
-                    // before calling GetForViewIndependentUse.
-                    m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
+                    // Do not call CreateLoader({}) here. CreateLoader calls ResetGlobalQualifierValues
+                    // before ResourceLoader(), which changes WinRT resource system state and breaks the
+                    // safety guard below. When running unpackaged (e.g. during the build's
+                    // WinGetGenerateDSCv3Manifests step), ResourceLoader() must throw its catchable
+                    // hresult_error first to prevent execution from reaching GetForViewIndependentUse,
+                    // which fast-fails with an uncatchable crash (0xC0000409) when not under a debugger.
+                    [[maybe_unused]] auto defaultLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
                     m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
                 }
                 catch (const winrt::hresult_error& hre)
@@ -130,6 +185,11 @@ namespace AppInstaller
                 }
             }
         };
+
+        bool SetLanguageOverride(std::string_view localeTag)
+        {
+            return Loader::Instance().SetLanguageOverride(Utility::ConvertToUTF16(localeTag));
+        }
     }
 
     namespace StringResource

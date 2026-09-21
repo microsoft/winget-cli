@@ -43,6 +43,7 @@ COMMONDATA
 comparand
 conemu
 contoso
+cooldown
 COSTDEFERRED
 cotaskmem
 cpprest
@@ -122,6 +123,7 @@ hcertstore
 HCRYPTMSG
 HGlobal
 HGLOBAL
+hardlinks
 HIDECANCEL
 hinternet
 HKCU
@@ -231,6 +233,7 @@ Params
 params
 parentidx
 pathpart
+pathing
 Pathto
 PBYTE
 pch

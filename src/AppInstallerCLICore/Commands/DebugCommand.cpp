@@ -9,8 +9,11 @@
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 #include "AppInstallerDownloader.h"
+#include <AppInstallerErrors.h>
 #include "Sixel.h"
 #include <winget/Certificates.h>
+#include <winget/HttpClientHelper.h>
+#include <winget/RepositorySource.h>
 
 using namespace AppInstaller::CLI::Execution;
 
@@ -68,6 +71,7 @@ namespace AppInstaller::CLI
             std::make_unique<GetSignerCommand>(FullName()),
             std::make_unique<LogViewerTestCommand>(FullName()),
             std::make_unique<DebugDscResourceCommand>(FullName()),
+            std::make_unique<ValidateStorePinningCommand>(FullName()),
         });
     }
 
@@ -706,6 +710,168 @@ namespace AppInstaller::CLI
             }
 
             context.Reporter.Info() << std::endl;
+        }
+    }
+
+// ── ValidateStorePinningCommand ──────────────────────────────────────────────
+
+    namespace
+    {
+        std::string PercentageToString(double value)
+        {
+            std::ostringstream stream;
+            stream << std::fixed << std::setprecision(1) << (value * 100.0) << '%';
+            return std::move(stream).str();
+        }
+
+        // The state shared with the certificate validation callback, which is invoked on another thread.
+        struct StorePinningValidationState
+        {
+            std::mutex Lock;
+            bool CertificateSeen = false;
+            std::string ChainDescription;
+            bool PinningAccepted = false;
+            HRESULT Error = S_OK;
+        };
+    }
+
+    std::vector<Argument> ValidateStorePinningCommand::GetArguments() const
+    {
+        return {
+            Argument{ "url", 'u', Args::Type::SourceArg, Resource::String::SourceListUpdatedNever, ArgumentType::Positional },
+        };
+    }
+
+    Resource::LocString ValidateStorePinningCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Validate the Store source certificate pinning"sv);
+    }
+
+    Resource::LocString ValidateStorePinningCommand::LongDescription() const
+    {
+        return Utility::LocIndString(
+            "Connects to the given URL (defaulting to the Microsoft Store source URL) and validates the "
+            "certificate that it presents against the current static pinning configuration for the Store source. "
+            "Use this to determine if a rotated certificate will be accepted before it is deployed."sv);
+    }
+
+    void ValidateStorePinningCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        Repository::SourceDetails storeDetails = Repository::GetWellKnownSourceDetails(Repository::WellKnownSource::MicrosoftStore);
+
+        std::string url{ storeDetails.Arg };
+        if (context.Args.Contains(Args::Type::SourceArg))
+        {
+            url = context.Args.GetArg(Args::Type::SourceArg);
+        }
+
+        if (url.find("://") == std::string::npos)
+        {
+            url = "https://" + url;
+        }
+
+        context.Reporter.Info() << "Validating the Microsoft Store source pinning configuration against: " << url << std::endl;
+
+        if (storeDetails.CertificatePinningConfiguration.IsEmpty())
+        {
+            context.Reporter.Warn() <<
+                "The Store source has no pinning configuration; it has likely been disabled by the "
+                "BypassCertificatePinningForMicrosoftStore admin setting. Every certificate will be accepted." << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << "Current pinning configuration:" << std::endl <<
+                storeDetails.CertificatePinningConfiguration.GetDescription() << std::endl;
+            context.Reporter.Info() << "Pinned certificate remaining lifetime: " <<
+                PercentageToString(storeDetails.CertificatePinningConfiguration.GetRemainingLifetimePercentage()) << std::endl;
+        }
+
+        auto state = std::make_shared<StorePinningValidationState>();
+
+        // Accept every certificate so that the pinning result can be reported independently of the connection result.
+        Certificates::PinningConfiguration captureConfiguration{ "Store Pinning Validation" };
+        captureConfiguration.AddChain(std::make_shared<Certificates::CallbackPinningChainValidation>(
+            [state, pinningConfiguration = storeDetails.CertificatePinningConfiguration](PCCERT_CONTEXT certContext)
+            {
+                std::lock_guard<std::mutex> lock{ state->Lock };
+                state->CertificateSeen = true;
+
+                try
+                {
+                    wil::unique_cert_chain_context chainContext;
+
+                    try
+                    {
+                        chainContext = Certificates::PinningConfiguration::BuildCertificateChain(certContext);
+                    }
+                    catch (...)
+                    {
+                        // Revocation information may not be reachable for all endpoints; try again without it.
+                        LOG_CAUGHT_EXCEPTION();
+                        chainContext = Certificates::PinningConfiguration::BuildCertificateChain(certContext, nullptr, nullptr, 0);
+                    }
+
+                    state->ChainDescription = Certificates::GetCertificateChainDescription(chainContext.get());
+                    state->PinningAccepted = pinningConfiguration.Validate(certContext, chainContext.get());
+                }
+                catch (...)
+                {
+                    state->Error = LOG_CAUGHT_EXCEPTION();
+                }
+
+                return true;
+            }));
+
+        Http::HttpClientHelper client;
+        client.SetPinningConfiguration(captureConfiguration, context.GetSharedThreadGlobals());
+
+        HRESULT connectionResult = S_OK;
+        std::optional<web::http::status_code> statusCode;
+
+        try
+        {
+            statusCode = client.Get(Utility::ConvertToUTF16(url)).get().status_code();
+        }
+        catch (...)
+        {
+            connectionResult = LOG_CAUGHT_EXCEPTION();
+        }
+
+        if (state->CertificateSeen)
+        {
+            context.Reporter.Info() << "Server certificate chain (root first):" << std::endl << state->ChainDescription << std::endl;
+        }
+
+        if (statusCode)
+        {
+            context.Reporter.Info() << "Connection completed with HTTP status: " << statusCode.value() << std::endl;
+        }
+        else
+        {
+            context.Reporter.Warn() << "Connection failed with: 0x" << Logging::SetHRFormat << connectionResult << std::endl;
+        }
+
+        if (!state->CertificateSeen)
+        {
+            context.Reporter.Error() << "No server certificate was received; the endpoint could not be reached." << std::endl;
+            AICLI_TERMINATE_CONTEXT(FAILED(connectionResult) ? connectionResult : E_UNEXPECTED);
+        }
+
+        if (FAILED(state->Error))
+        {
+            context.Reporter.Error() << "Failed to evaluate the certificate against the pinning configuration: 0x" <<
+                Logging::SetHRFormat << state->Error << std::endl;
+            AICLI_TERMINATE_CONTEXT(state->Error);
+        }
+
+        if (state->PinningAccepted)
+        {
+            context.Reporter.Info() << "Pinning validation: PASSED" << std::endl;
+        }
+        else
+        {
+            context.Reporter.Error() << "Pinning validation: FAILED" << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH);
         }
     }
 }
