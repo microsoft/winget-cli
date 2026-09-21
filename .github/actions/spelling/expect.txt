@@ -251,6 +251,7 @@ idl
 IDSC
 idx
 IFACEMETHODIMP
+IHDR
 iid
 img
 inet

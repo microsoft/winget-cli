@@ -171,10 +171,11 @@ namespace WinGetMCPServer
         /// </summary>
         private static string DescribePngSize(byte[] bytes, int requestedSize)
         {
-            // A PNG begins with an 8 byte signature followed by the IHDR chunk. The chunk length
-            // occupies the next 4 bytes and its type the 4 after that, placing the big endian width
-            // and height at offsets 16 and 20.
+            // A PNG begins with an 8 byte signature that includes the characters "PNG".
+            // The first chunk must be the image header with its designation "IHDR".
+            // The width and height immediately follow the header type.
             if (bytes.Length >= 24 &&
+                bytes[1] == (byte)'P' && bytes[2] == (byte)'N' && bytes[3] == (byte)'G' &&
                 bytes[12] == (byte)'I' && bytes[13] == (byte)'H' &&
                 bytes[14] == (byte)'D' && bytes[15] == (byte)'R')
             {
