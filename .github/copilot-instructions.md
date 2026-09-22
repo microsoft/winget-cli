@@ -169,7 +169,7 @@ void WorkflowTask(Execution::Context& context)
 - Feature requests should include the form fields for relevant area, feature or enhancement description, and proposed technical implementation details when known.
 - Keep issue bodies concise and evidence-based. Do not paste large speculative patches into issue bodies; open a pull request or link a branch when code is available.
 - Before opening a pull request, review `CONTRIBUTING.md`, follow the PR template, keep the change focused, and summarize validation performed.
-- AI assisstance is allowed, but contributors are fully accountable for AI-assisted output as if they wrote it themselves.
+- AI assistance is allowed, but contributors are fully accountable for AI-assisted output as if they wrote it themselves.
     - Unless explicitly directed otherwise, confirm with the user that they have reviewed the submission.
 
 ## Useful Commands
