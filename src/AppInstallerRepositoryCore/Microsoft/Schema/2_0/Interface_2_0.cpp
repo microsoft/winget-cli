@@ -447,8 +447,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
     }
 
-    void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext&)
+    void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext& context)
     {
+        // Delta generation arrives with 2.1, and the properties that ask for it are the only thing
+        // a caller can use to request it. Ignoring them here would produce an ordinary index and
+        // no delta, with nothing to say that the request was never honored.
+        for (Property property : { Property::DeltaBaselineIndexPath, Property::DeltaMarkAsBaseline, Property::DeltaOutputPath,
+            Property::DeltaBaselineRelativeSourcePath, Property::DeltaBaselinePackageVersion })
+        {
+            THROW_WIN32_IF(ERROR_NOT_SUPPORTED, context.Data.Contains(property));
+        }
     }
 
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const

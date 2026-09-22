@@ -39,6 +39,7 @@ namespace
         case WinGetSQLiteIndexProperty_DeltaOutputPath: return SQLiteIndex::Property::DeltaOutputPath;
         case WinGetSQLiteIndexProperty_DeltaBaselineRelativeSourcePath: return SQLiteIndex::Property::DeltaBaselineRelativeSourcePath;
         case WinGetSQLiteIndexProperty_DeltaBaselinePackageVersion: return SQLiteIndex::Property::DeltaBaselinePackageVersion;
+        case WinGetSQLiteIndexProperty_DeltaMarkAsBaseline: return SQLiteIndex::Property::DeltaMarkAsBaseline;
         }
 
         THROW_HR(E_INVALIDARG);
@@ -237,17 +238,6 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !index);
 
         reinterpret_cast<SQLiteIndex*>(index)->PrepareForPackaging();
-
-        return S_OK;
-    }
-    CATCH_RETURN()
-
-    WINGET_UTIL_API WinGetSQLiteIndexMarkAsBaseline(
-        WINGET_SQLITE_INDEX_HANDLE index) try
-    {
-        THROW_HR_IF(E_INVALIDARG, !index);
-
-        reinterpret_cast<SQLiteIndex*>(index)->MarkAsBaseline();
 
         return S_OK;
     }

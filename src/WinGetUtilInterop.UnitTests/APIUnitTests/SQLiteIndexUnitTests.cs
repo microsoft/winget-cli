@@ -326,7 +326,8 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
 
         /// <summary>
         /// Verifies that a delta index can be generated through the public API surface.
-        /// This covers every delta property and the baseline designation call.
+        /// This covers every delta property, including designating a baseline in the same prepare
+        /// that produces its empty delta.
         /// </summary>
         [Fact]
         [DisplayTestMethodName]
@@ -334,6 +335,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         {
             string workingPath = Path.Combine(this.indexTestOutputPath, "working.db");
             string baselinePath = Path.Combine(this.indexTestOutputPath, "baseline.db");
+            string baselineDeltaPath = Path.Combine(this.indexTestOutputPath, "baseline_delta.db");
             string deltaPath = Path.Combine(this.indexTestOutputPath, "delta.db");
 
             var factory = new WinGetFactory();
@@ -349,11 +351,18 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
 
             File.Copy(workingPath, baselinePath);
 
+            // Designating the baseline and producing the delta that describes it is a single
+            // prepare; the delta is empty because the index is its own baseline.
             using (var baseline = factory.SQLiteIndexOpen(baselinePath))
             {
+                baseline.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "true");
+                baseline.SetProperty(SQLiteIndexProperty.DeltaOutputPath, baselineDeltaPath);
+                baseline.SetProperty(SQLiteIndexProperty.DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+                baseline.SetProperty(SQLiteIndexProperty.DeltaBaselinePackageVersion, BaselinePackageVersion);
                 baseline.PrepareForPackaging();
-                baseline.MarkAsBaseline();
             }
+
+            Assert.True(File.Exists(baselineDeltaPath), "The baseline's own delta index was written.");
 
             using (var working = factory.SQLiteIndexOpen(workingPath))
             {
@@ -375,22 +384,54 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         }
 
         /// <summary>
-        /// Verifies that designating an index that has not been prepared for packaging fails.
+        /// Verifies that naming a baseline and designating one are mutually exclusive, and that the
+        /// contradiction is reported rather than resolved.
         /// </summary>
         [Fact]
         [DisplayTestMethodName]
-        public void MarkAsBaselineRequiresPreparedIndex()
+        public void DeltaBaselineSourcesAreExclusive()
         {
-            string workingPath = Path.Combine(this.indexTestOutputPath, "unprepared.db");
+            string workingPath = Path.Combine(this.indexTestOutputPath, "exclusive.db");
+            string baselinePath = Path.Combine(this.indexTestOutputPath, "exclusive_baseline.db");
+            string deltaPath = Path.Combine(this.indexTestOutputPath, "exclusive_delta.db");
 
             var factory = new WinGetFactory();
             using var log = factory.LoggingInit(this.indexTestLogFile);
             using var working = factory.SQLiteIndexCreate(workingPath, DeltaMajorVersion, DeltaMinorVersion);
 
+            working.SetProperty(SQLiteIndexProperty.PackageUpdateTrackingBaseTime, "0");
             working.AddManifest(Path.Combine(this.indexTestDataPath, PackageTest), PackageTestRelativePath);
 
-            var exception = Assert.Throws<WinGetSQLiteIndexException>(() => working.MarkAsBaseline());
+            working.SetProperty(SQLiteIndexProperty.DeltaBaselineIndexPath, baselinePath);
+            working.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "true");
+            working.SetProperty(SQLiteIndexProperty.DeltaOutputPath, deltaPath);
+            working.SetProperty(SQLiteIndexProperty.DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+            working.SetProperty(SQLiteIndexProperty.DeltaBaselinePackageVersion, BaselinePackageVersion);
+
+            var exception = Assert.Throws<WinGetSQLiteIndexException>(() => working.PrepareForPackaging());
             Assert.NotNull(exception.InnerException);
+
+            Assert.False(File.Exists(deltaPath), "Nothing was written for a contradictory request.");
+        }
+
+        /// <summary>
+        /// Verifies that the designation property only accepts true, since an index is either being
+        /// designated as a baseline or the property is simply not set.
+        /// </summary>
+        [Fact]
+        [DisplayTestMethodName]
+        public void DeltaMarkAsBaselineRejectsOtherValues()
+        {
+            string workingPath = Path.Combine(this.indexTestOutputPath, "mark_value.db");
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(this.indexTestLogFile);
+            using var working = factory.SQLiteIndexCreate(workingPath, DeltaMajorVersion, DeltaMinorVersion);
+
+            Assert.Throws<WinGetSQLiteIndexException>(() => working.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "false"));
+            Assert.Throws<WinGetSQLiteIndexException>(() => working.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, string.Empty));
+
+            working.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "TRUE");
         }
 
         private void CreateIndexHelperForIndexTest(Func<IWinGetSQLiteIndex, bool> lambda)

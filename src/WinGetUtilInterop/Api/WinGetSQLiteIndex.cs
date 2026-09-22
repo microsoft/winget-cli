@@ -139,20 +139,6 @@ namespace Microsoft.WinGetUtil.Api
         }
 
         /// <inheritdoc/>
-        public void MarkAsBaseline()
-        {
-            try
-            {
-                WinGetSQLiteIndexMarkAsBaseline(this.indexHandle);
-                return;
-            }
-            catch (Exception e)
-            {
-                throw new WinGetSQLiteIndexException(e);
-            }
-        }
-
-        /// <inheritdoc/>
         public bool IsIndexConsistent()
         {
             try
@@ -284,14 +270,6 @@ namespace Microsoft.WinGetUtil.Api
         /// <returns>HRESULT.</returns>
         [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexPrepareForPackaging(IntPtr index);
-
-        /// <summary>
-        /// Designates the index as a baseline that delta indexes may be generated against.
-        /// </summary>
-        /// <param name="index">Index handle.</param>
-        /// <returns>HRESULT.</returns>
-        [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        private static extern IntPtr WinGetSQLiteIndexMarkAsBaseline(IntPtr index);
 
         /// <summary>
         /// Checks the index for consistency, ensuring that at a minimum all referenced rows actually exist.

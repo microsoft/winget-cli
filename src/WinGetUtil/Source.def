@@ -24,4 +24,3 @@ EXPORTS
     WinGetMergeInstallerMetadata
     WinGetSQLiteIndexMigrate
     WinGetSQLiteIndexSetProperty
-    WinGetSQLiteIndexMarkAsBaseline

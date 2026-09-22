@@ -26,11 +26,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
         THROW_WIN32(ERROR_NOT_SUPPORTED);
     }
 
-    void ISQLiteIndex::MarkAsBaseline(SQLite::Connection&)
-    {
-        THROW_WIN32(ERROR_NOT_SUPPORTED);
-    }
-
     void ISQLiteIndex::SetupDeltaReadMode(SQLite::Connection&, const SQLite::DatabaseSpecifier&)
     {
         THROW_WIN32(ERROR_NOT_SUPPORTED);

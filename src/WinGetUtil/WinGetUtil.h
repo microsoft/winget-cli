@@ -147,6 +147,7 @@ extern "C"
         WinGetSQLiteIndexProperty_DeltaOutputPath = 3,
         WinGetSQLiteIndexProperty_DeltaBaselineRelativeSourcePath = 4,
         WinGetSQLiteIndexProperty_DeltaBaselinePackageVersion = 5,
+        WinGetSQLiteIndexProperty_DeltaMarkAsBaseline = 6,
     };
 
     // Sets the given property on the index.
@@ -187,11 +188,6 @@ extern "C"
 
     // Removes data that is no longer needed for an index that is to be published.
     WINGET_UTIL_API WinGetSQLiteIndexPrepareForPackaging(
-        WINGET_SQLITE_INDEX_HANDLE index);
-
-    // Designates the index as a baseline that delta indexes may be generated against.
-    // The index must already have been prepared for packaging, and must not itself be a delta.
-    WINGET_UTIL_API WinGetSQLiteIndexMarkAsBaseline(
         WINGET_SQLITE_INDEX_HANDLE index);
 
     // Checks the index for consistency, ensuring that at a minimum all referenced rows actually exist.

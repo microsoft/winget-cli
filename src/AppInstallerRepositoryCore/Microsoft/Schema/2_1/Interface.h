@@ -38,9 +38,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 
         // Version 2.1
 
-        // Designates this index as a baseline that deltas may be generated against.
-        void MarkAsBaseline(SQLite::Connection& connection) override;
-
         // Sets this index up to read the combination of a delta and the baseline it was generated
         // against. Attaches the baseline and defines the merged views, after which every inherited
         // read path operates on the combination. Must be called before any read.

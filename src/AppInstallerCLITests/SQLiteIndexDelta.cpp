@@ -147,6 +147,7 @@ namespace
     {
         TempFile WorkingFile{ "delta_working"s, ".db"s };
         TempFile BaselineFile{ "delta_baseline"s, ".db"s };
+        TempFile BaselineDeltaFile{ "delta_baseline_output"s, ".db"s };
         TempFile DeltaFile{ "delta_output"s, ".db"s };
 
         // How the client will be told to find the baseline package. These are opaque to the index;
@@ -175,19 +176,20 @@ namespace
             }
         }
 
-        // Copies the working index out, prepares it, and designates it as a baseline.
-        // Everything the working index does afterwards is what the delta will describe.
+        // Copies the working index out and prepares it, designating it as a baseline in the same
+        // prepare. Everything the working index does afterwards is what the delta will describe.
         void CaptureBaseline(bool markAsBaseline = true)
         {
             std::filesystem::copy_file(WorkingFile.GetPath(), BaselineFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
 
             SQLiteIndex prepared = SQLiteIndex::Open(BaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-            prepared.PrepareForPackaging();
 
             if (markAsBaseline)
             {
-                prepared.MarkAsBaseline();
+                SetBaselineDesignationProperties(prepared);
             }
+
+            prepared.PrepareForPackaging();
 
             m_baselineCaptured = true;
         }
@@ -244,6 +246,16 @@ namespace
         {
             index.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, BaselineFile.GetPath().u8string());
             index.SetProperty(SQLiteIndex::Property::DeltaOutputPath, DeltaFile.GetPath().u8string());
+            index.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+            index.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, BaselinePackageVersion);
+        }
+
+        // The same four, with the index designating itself rather than naming a baseline. The
+        // delta this produces is empty, since the index is its own baseline.
+        void SetBaselineDesignationProperties(SQLiteIndex& index)
+        {
+            index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "true");
+            index.SetProperty(SQLiteIndex::Property::DeltaOutputPath, BaselineDeltaFile.GetPath().u8string());
             index.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
             index.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, BaselinePackageVersion);
         }
@@ -1748,12 +1760,16 @@ TEST_CASE("SQLiteIndex_Delta_MismatchedBaselineRejected", "[sqliteindex][V2_1][d
     // which is the point: a delta is tied to the baseline it was computed from, not to data that
     // happens to look like it.
     TempFile otherBaselineFile{ "delta_baseline_other"s, ".db"s };
+    TempFile otherBaselineDeltaFile{ "delta_baseline_other_output"s, ".db"s };
     std::filesystem::copy_file(context.WorkingFile.GetPath(), otherBaselineFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
 
     {
         SQLiteIndex other = SQLiteIndex::Open(otherBaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        other.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "true");
+        other.SetProperty(SQLiteIndex::Property::DeltaOutputPath, otherBaselineDeltaFile.GetPath().u8string());
+        other.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, context.BaselineRelativeSourcePath);
+        other.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, context.BaselinePackageVersion);
         other.PrepareForPackaging();
-        other.MarkAsBaseline();
     }
 
     context.Add(MakePackage("Publisher2.Id", "Package 2"));
@@ -1766,24 +1782,9 @@ TEST_CASE("SQLiteIndex_Delta_MismatchedBaselineRejected", "[sqliteindex][V2_1][d
         APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
 }
 
-// G9. Designating an index a second time mints a new identity, which invalidates any delta made
-// against the first. Designation is deliberately not idempotent.
-TEST_CASE("SQLiteIndex_Delta_ReMarkingBaselineInvalidatesDelta", "[sqliteindex][V2_1][delta]")
-{
-    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
-
-    context.Add(MakePackage("Publisher2.Id", "Package 2"));
-    context.GenerateDelta();
-
-    REQUIRE_NOTHROW(context.OpenCombined());
-
-    {
-        SQLiteIndex baseline = SQLiteIndex::Open(context.BaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-        baseline.MarkAsBaseline();
-    }
-
-    REQUIRE_THROWS_HR(context.OpenCombined(), APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
-}
+// G9. Designation happens during preparation, and an index can only be prepared once, so an index
+// cannot be designated a second time at all. What remains observable is that designating produces
+// a fresh identity every time, which MismatchedBaselineRejected covers with two identical copies.
 
 // G5. The combined form is a set of views over a union, so there is nothing to write back to.
 TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_ReadWriteRejected", "[sqliteindex][V2_1][delta]")
@@ -1815,81 +1816,114 @@ TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_MissingBaseline", "[sqliteindex][V
 // doing something undefined.
 TEST_CASE("SQLiteIndex_Delta_NotSupportedBefore_2_1", "[sqliteindex][V2_0][delta]")
 {
-    TempFile indexFile{ "delta_unsupported"s, ".db"s };
-
     ManifestAndPath m1;
     CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
-    index.AddManifest(m1.Manifest, m1.Path);
-    index.PrepareForPackaging();
+    // G8. The delta properties are the only way a caller can ask for a delta, so a version that
+    // cannot produce one has to refuse rather than quietly return an ordinary index instead.
+    TempFile unsupportedFile{ "delta_unsupported_properties"s, ".db"s };
+    TempFile unsupportedDeltaFile{ "delta_unsupported_output"s, ".db"s };
 
-    REQUIRE_THROWS_HR(index.MarkAsBaseline(), HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(unsupportedFile, SQLiteVersion{ 2, 0 });
+        index.AddManifest(m1.Manifest, m1.Path);
+
+        index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "true");
+        index.SetProperty(SQLiteIndex::Property::DeltaOutputPath, unsupportedDeltaFile.GetPath().u8string());
+        index.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, "baselines/1.0/baseline.msix");
+        index.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, "1.0");
+
+        REQUIRE_THROWS_HR(index.PrepareForPackaging(), HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    }
+
+    REQUIRE(!std::filesystem::exists(unsupportedDeltaFile.GetPath()));
 
     // G7. A 2.0 file in the delta position is nonsense, and the interface is what says so. The
     // baseline is never touched, so it does not need to exist.
+    TempFile indexFile{ "delta_unsupported"s, ".db"s };
     TempFile baselineFile{ "delta_unsupported_baseline"s, ".db"s };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, SQLiteVersion{ 2, 0 });
+        index.AddManifest(m1.Manifest, m1.Path);
+        index.PrepareForPackaging();
+    }
 
     REQUIRE_THROWS_HR(
         SQLiteIndex::OpenWithBaseline(indexFile.GetPath().u8string(), baselineFile.GetPath().u8string()),
         HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
 }
 
-// M1. A baseline is what a delta is merged with, and the merged views are defined over the 2.x
-// tables. An index that has not been prepared still holds the 1.7 tables, so designating one would
-// mint an identity for something no delta could ever be built from or attached to.
-TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRequiresPreparedIndex", "[sqliteindex][V2_1][delta]")
+// M1. Naming a baseline and becoming one are alternatives, not options. A caller that supplies
+// both has contradicted itself, and resolving the contradiction either way would silently produce
+// a delta against something other than what was asked for.
+TEST_CASE("SQLiteIndex_Delta_BaselineSourcesAreExclusive", "[sqliteindex][V2_1][delta]")
 {
-    TempFile indexFile{ "delta_unprepared"s, ".db"s };
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
 
-    ManifestAndPath m1;
-    CreateFakeManifestAndPath(m1, "Publisher1", "1.0");
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
-    index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "0");
-    index.AddManifest(m1.Manifest, m1.Path);
+    SQLiteIndex index = SQLiteIndex::Open(context.WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+    context.SetDeltaProperties(index);
+    index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "true");
 
-    REQUIRE_THROWS_HR(index.MarkAsBaseline(), E_NOT_VALID_STATE);
+    REQUIRE_THROWS_HR(index.PrepareForPackaging(), E_INVALIDARG);
 
-    // Nothing was recorded, so the refusal is complete rather than partial.
-    {
-        Connection connection = Connection::Create(indexFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
-        REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, Schema::V2_1::s_MetadataValueName_BaselineIdentifier).has_value());
-    }
-
-    // Preparing it is the only thing that was missing.
-    index.PrepareForPackaging();
-    REQUIRE_NOTHROW(index.MarkAsBaseline());
+    REQUIRE(!std::filesystem::exists(context.DeltaFile.GetPath()));
 }
 
-// M2. A delta describes change rather than holding a whole index, so it cannot stand as the
-// baseline for another one. Opened on its own it is a perfectly valid 2.1 database that would
-// otherwise be designated without complaint. A prepared delta has no packages table, so the
-// delta check has to run before the prepared check for this to be refused for the right reason.
-TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineRejectsDelta", "[sqliteindex][V2_1][delta]")
+// M2. Designation is not a value a caller chooses between; an index is either becoming a baseline
+// or the property is simply absent. Accepting false would give the same request two spellings.
+TEST_CASE("SQLiteIndex_Delta_MarkAsBaselineOnlyAcceptsTrue", "[sqliteindex][V2_1][delta]")
 {
-    auto p1 = MakePackage("Publisher1.Id", "Package 1");
-    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+    TempFile indexFile{ "delta_mark_value"s, ".db"s };
 
-    DeltaTestContext context{ { p1 } };
-    context.Add(p2);
-    context.GenerateDelta();
+    SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
+
+    REQUIRE_THROWS_HR(index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "false"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, ""), E_INVALIDARG);
+    REQUIRE_THROWS_HR(index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "1"), E_INVALIDARG);
+
+    REQUIRE_NOTHROW(index.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "TRUE"));
+}
+
+// M3. The baseline's own delta is what a client acquires first, so it has to be a real delta:
+// it names the baseline it was generated from -- which is the index that produced it -- and it
+// describes no change, because there is none yet.
+TEST_CASE("SQLiteIndex_Delta_BaselineDesignationProducesEmptyDelta", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    REQUIRE(std::filesystem::exists(context.BaselineDeltaFile.GetPath()));
+
+    std::string baselineIdentifier;
 
     {
-        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-        REQUIRE_THROWS_HR(delta.MarkAsBaseline(), E_NOT_VALID_STATE);
+        Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+        auto value = MetadataTable::TryGetNamedValue<std::string>(baseline, Schema::V2_1::s_MetadataValueName_BaselineIdentifier);
+        REQUIRE(value.has_value());
+        REQUIRE(!value->empty());
+        baselineIdentifier = value.value();
     }
 
-    // The combined form is the same delta with its baseline attached, and its tables are views over
-    // a union rather than an index of its own.
-    SQLiteIndex combined = context.OpenCombined();
-    REQUIRE_THROWS_HR(combined.MarkAsBaseline(), E_NOT_VALID_STATE);
-
-    // The delta was left alone, so the baseline it names is still the only designation in play.
     {
-        Connection connection = context.OpenDeltaConnection();
-        REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, Schema::V2_1::s_MetadataValueName_BaselineIdentifier).has_value());
+        Connection delta = Connection::Create(context.BaselineDeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+
+        // The delta names the index it was generated from, which is the whole point of doing both
+        // in one prepare: the pair cannot disagree about which baseline is meant.
+        REQUIRE(MetadataTable::TryGetNamedValue<std::string>(delta, Schema::V2_1::s_MetadataValueName_DeltaBaselineIdentifier) == baselineIdentifier);
+        REQUIRE(MetadataTable::TryGetNamedValue<std::string>(delta, Schema::V2_1::s_MetadataValueName_DeltaBaselineRelativeSourcePath) == context.BaselineRelativeSourcePath);
+        REQUIRE(MetadataTable::TryGetNamedValue<std::string>(delta, Schema::V2_1::s_MetadataValueName_DeltaBaselinePackageVersion) == context.BaselinePackageVersion);
+
+        REQUIRE(GetStrings(delta, "SELECT [id] FROM [delta_packages]").empty());
     }
+
+    // The two are a usable pair, and the merged view is exactly the baseline.
+    SQLiteIndex combined = SQLiteIndex::OpenWithBaseline(
+        context.BaselineDeltaFile.GetPath().u8string(),
+        context.BaselineFile.GetPath().u8string());
+
+    REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ "Publisher1.Id" });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -2336,12 +2370,16 @@ TEST_CASE("SQLiteIndex_Delta_RejectedBaselineReleasesAttachment", "[sqliteindex]
 
     // A second baseline with its own identity, which this delta was not generated against.
     TempFile otherBaselineFile{ "delta_baseline_other"s, ".db"s };
+    TempFile otherBaselineDeltaFile{ "delta_baseline_other_output"s, ".db"s };
     std::filesystem::copy_file(context.WorkingFile.GetPath(), otherBaselineFile.GetPath(), std::filesystem::copy_options::overwrite_existing);
 
     {
         SQLiteIndex other = SQLiteIndex::Open(otherBaselineFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        other.SetProperty(SQLiteIndex::Property::DeltaMarkAsBaseline, "true");
+        other.SetProperty(SQLiteIndex::Property::DeltaOutputPath, otherBaselineDeltaFile.GetPath().u8string());
+        other.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, context.BaselineRelativeSourcePath);
+        other.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, context.BaselinePackageVersion);
         other.PrepareForPackaging();
-        other.MarkAsBaseline();
     }
 
     context.Add(MakePackage("Publisher2.Id", "Package 2"));
@@ -2381,17 +2419,23 @@ TEST_CASE("SQLiteIndex_Delta_RecordsBaselineLocation", "[sqliteindex][V2_1][delt
     REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(baseline, Schema::V2_1::s_MetadataValueName_DeltaBaselinePackageVersion));
 }
 
-// N2. The four delta properties describe one decision, so supplying some of them is a mistake
-// rather than a request to do less. Declining silently would produce a delta that no client can
-// pair with a baseline, discovered only at acquisition time.
+// N2. The delta properties describe one decision, so supplying some of them is a mistake rather
+// than a request to do less. Declining silently would produce a delta that no client can pair with
+// a baseline, discovered only at acquisition time.
 TEST_CASE("SQLiteIndex_Delta_PartialConfigurationIsRejected", "[sqliteindex][V2_1][delta]")
 {
     DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
 
     context.Add(MakePackage("Publisher2.Id", "Package 2"));
 
+    // Both ways of saying what the delta is computed against, since they are alternatives to each
+    // other and a configuration missing either one is incomplete in the same way.
+    bool designate = GENERATE(false, true);
+
     std::vector<std::pair<SQLiteIndex::Property, std::string>> properties{
-        { SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string() },
+        designate
+            ? std::make_pair(SQLiteIndex::Property::DeltaMarkAsBaseline, "true"s)
+            : std::make_pair(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string()),
         { SQLiteIndex::Property::DeltaOutputPath, context.DeltaFile.GetPath().u8string() },
         { SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, context.BaselineRelativeSourcePath },
         { SQLiteIndex::Property::DeltaBaselinePackageVersion, context.BaselinePackageVersion },

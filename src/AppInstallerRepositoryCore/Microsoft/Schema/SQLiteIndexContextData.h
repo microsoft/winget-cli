@@ -15,6 +15,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         IntermediateFileOutputPath,
         DatabaseFilePath,
         DeltaBaselineIndexPath,
+        DeltaMarkAsBaseline,
         DeltaOutputPath,
         DeltaBaselineRelativeSourcePath,
         DeltaBaselinePackageVersion,
@@ -54,6 +55,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
         struct PropertyMapping<Property::DeltaBaselineIndexPath>
         {
             using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        // Designates the index being prepared as a baseline, in place of naming an existing one.
+        // The only meaningful value is true; an index is either being designated or it is not.
+        template <>
+        struct PropertyMapping<Property::DeltaMarkAsBaseline>
+        {
+            using value_t = bool;
             static constexpr bool SetThroughInterface = false;
         };
 
