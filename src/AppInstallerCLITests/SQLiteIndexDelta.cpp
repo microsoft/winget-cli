@@ -2091,7 +2091,7 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonDetectsDivergence", "[sq
 
 // I8. A comparison only says something about a merged result, so asking for one anywhere else is a
 // caller mistake rather than something to answer.
-TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresADelta", "[sqliteindex][V2_1][delta]")
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresDelta", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
