@@ -86,15 +86,17 @@ the working index), the caller performs four additional steps:
   │ 2. Decide the baseline                                          │
   │                                                                 │
   │    Is it time to roll the baseline?                             │
-  │      YES → prepare this publish as a full index, then call      │
-  │            MarkAsBaseline on it → stamps a new baseline GUID    │
-  │      NO  → retrieve the current baseline index                  │
+  │      YES → this publish becomes the baseline: set               │
+  │            DeltaMarkAsBaseline below                            │
+  │      NO  → retrieve the current baseline index and name it      │
+  │            in DeltaBaselineIndexPath below                      │
   └────────────────────────────┬────────────────────────────────────┘
                                │
   ┌────────────────────────────▼────────────────────────────────────┐
   │ 3. Set the delta properties, then PrepareForPackaging:          │
-  │      - DeltaBaselineIndexPath (must be designated, and must     │
-  │          share this index's database identifier)                │
+  │      - exactly one baseline source:                             │
+  │          DeltaMarkAsBaseline ("true") to designate this index,  │
+  │          or DeltaBaselineIndexPath naming an existing one       │
   │      - DeltaOutputPath (must not already exist)                 │
   │      - DeltaBaselineRelativeSourcePath (the relative path       |
   |          to the baseline file in storage)                       │
@@ -130,22 +132,11 @@ update. A baseline that is too old is also expensive: the delta grows monotonica
 approaches the size of the full index. The optimum sits between those, and is discussed under
 [Baseline selection policy](#baseline-selection-policy).
 
-##### Designation is an explicit act
+##### Designation is an explicit act, made during preparation
 
-Being a baseline is **not** an implicit property of any prepared index. The service calls a
-dedicated function — `MarkAsBaseline` — on a prepared full index to confer the role. That
-function does exactly one thing: it generates a **baseline GUID** and stores it in the index
-metadata under `baselineIdentifier`.
-
-It refuses two kinds of index:
-
-1. **A delta.** A delta describes change rather than holding a whole index, so it cannot serve
-   as the baseline for another one. Both forms are refused — a delta opened on its own, which
-   carries the identifier of the baseline it was built against, and the merged form, whose
-   tables are views over a union of two databases.
-2. **An index that has not been prepared.** The merged views are defined over the V2 tables, and
-   an unprepared index still holds the V1.7 tables that `PrepareForPackaging` reads from. A
-   baseline in that state is one no delta could be generated from or attached to.
+Being a baseline is **not** an implicit property of any prepared index. The service confers the
+role by setting `DeltaMarkAsBaseline` before calling `PrepareForPackaging`, which generates a
+**baseline GUID** and stores it in the index metadata under `baselineIdentifier`.
 
 An index without a baseline GUID cannot be used as a baseline, and delta creation rejects it.
 
@@ -154,6 +145,24 @@ silently qualifies as a baseline, and nothing tying a delta to a baseline is str
 coincidence of ordering — which two independently produced indexes can satisfy while containing
 entirely different data. Explicit designation plus a GUID makes the pairing verifiable rather
 than presumed.
+
+##### Why a property rather than a dedicated function
+
+Designation occupies the same slot as `DeltaBaselineIndexPath`: both answer *what baseline does
+this delta describe*, and a run supplies exactly one of them. Supplying both is a contradiction
+and is refused; supplying neither leaves the delta with nothing to name.
+
+A dedicated `MarkAsBaseline` function could only act on an index that had already been prepared,
+which forced the service to prepare twice to roll a baseline — once to produce and designate the
+baseline, and again, *against that now-designated file*, to produce the delta describing it. The
+second prepare needs a source index of its own, so the service had to keep a second copy solely
+to consume. Doing both in one prepare removes that entirely.
+
+It also makes the empty case fall out rather than be special-cased. When the index is its own
+baseline, generation runs with the same connection on both sides and an empty change set, so the
+delta it produces is **structurally identical to every later one** — it names a baseline, carries
+a schema version, and is acquired the same way. A client never has to treat its first acquisition
+as a distinct state.
 
 ##### The change window is a sequence, not a timestamp
 
@@ -166,10 +175,10 @@ V2.1 index records the highest sequence issued at that point into its own metada
 the sequence recorded in the *baseline*. The window is therefore defined by two recorded
 integers rather than by comparing clocks.
 
-This is recorded during `PrepareForPackaging` for **every** V2.1 index, not only for ones that
-are later designated. The index does not know at prepare time whether it will become a baseline,
-and the value is a single metadata row, so recording it unconditionally costs nothing and avoids
-a designation that arrives too late to be accurate.
+Because designation happens *during* `PrepareForPackaging`, a baseline's sequence and its GUID
+are written by the same operation. A designated baseline therefore always carries the boundary a
+delta needs to read from it, and the role cannot be conferred after the fact onto a file whose
+boundary was never recorded.
 
 Sequences are used rather than the existing write timestamps for two reasons:
 
@@ -186,20 +195,24 @@ removals are recorded — that is, V2.1 and above.
 
 #### Step 3 — delta creation inputs
 
-Delta generation is engaged by setting two properties on the working index before
+Delta generation is engaged by setting four properties on the working index before
 `PrepareForPackaging`:
 
 | Property | Purpose |
 |---|---|
-| `DeltaBaselineIndexPath` | The baseline index file. Read-only source for the "before" state; every changed package is compared against it. Must carry a baseline GUID, and must belong to the same database lineage as the index being prepared. |
+| `DeltaBaselineIndexPath` **or** `DeltaMarkAsBaseline` | Where the "before" state comes from. The path names an existing baseline index, read-only, against which every changed package is compared; it must carry a baseline GUID and belong to the same database lineage as the index being prepared. `DeltaMarkAsBaseline` instead designates *this* index as the baseline, in which case there is no "before" state and the delta is empty. Exactly one of the two. |
 | `DeltaOutputPath` | Where to write the delta. Must not already exist. |
 | `DeltaBaselineRelativeSourcePath` | The source base path relative location of the baseline file. This allows versioned baselines to exist and be independently controlled by the service. |
 | `DeltaBaselinePackageVersion` | The baseline package version. Having this value isn't strictly necessary, but it will make some of the client checks more efficient. |
 
-Setting none of these properties leaves `PrepareForPackaging` behaving exactly as it does for a V2.0 index.
-All must be set for generation to run.
+Setting none of these properties leaves `PrepareForPackaging` behaving exactly as it does for a
+V2.0 index. Otherwise all four must be set, with exactly one baseline source among them;
+anything in between is a caller error and is reported as one.
 
 #### Step 3 — the baseline must be an ancestor, not merely a baseline
+
+These checks apply when an existing baseline is named. Designating the index being prepared
+satisfies both trivially, since the baseline and the index are the same file.
 
 Two checks establish that the baseline is a legitimate predecessor of the index being prepared,
 and both must pass before any processing begins:
@@ -222,27 +235,34 @@ Generation must run **inside** `PrepareForPackaging`, after the V2 tables have b
 moment where the finished V2 data and the change-tracking data coexist.
 
 ```
-  a. Record this index's own change sequence into its metadata
-  b. Open the baseline read-only; validate its GUID, lineage, and sequence
-  c. Create the delta at a temporary path, with its schema
-  d. Ask the update tracking table for everything after the baseline's
+  a. When designating, mint this index's baseline GUID and record it
+  b. Record this index's own change sequence into its metadata
+  c. Resolve the baseline — the named file, opened read-only and validated
+     for GUID, lineage and sequence; or this index itself when designating,
+     in which case the change set is necessarily empty
+  d. Create the delta at a temporary path, with its schema
+  e. Ask the update tracking table for everything after the baseline's
      sequence — changed packages and vacated rowids, reported separately
-  e. For each changed package:
+  f. For each changed package:
        - copy the current row, then for each 1:N and system-reference table,
          diff the current string set against the baseline's string set and
          record ONLY the differences: added values with is_removed = 0,
          values the baseline had but no longer apply with is_removed = 1.
          Unchanged associations are not written.
-  f. For each vacated rowid:
+  g. For each vacated rowid:
        - record a package tombstone (is_removed = 1), carrying the identifier
          the baseline holds at that rowid. No per-association tombstones are
          written; the views suppress the baseline's association rows by
          reference to this one.
-  g. Drop the generation-only indexes and vacuum
-  h. Rename the temporary file into place
+  h. Drop the generation-only indexes and vacuum
+  i. Rename the temporary file into place
 ```
 
-If the change set is empty, such as providing the baseline to itself, an empty delta database is produced (full schema with only metadata rows) and the publish proceeds as normal.
+The designation path needs no special case beyond step c. Reading the GUID that step a has just
+written works because it is visible uncommitted on the same connection, and an empty change set
+makes steps f and g no-ops — so the same code produces the empty delta that describes a new
+baseline. If the change set is empty for any other reason, the result is the same: a full schema
+with only metadata rows, and the publish proceeds as normal.
 
 Three properties of the schema make the merge cheap and are worth stating explicitly because
 they constrain generation:
@@ -293,8 +313,9 @@ would otherwise collide.
 > it would bake the ICU version into a published index file.
 
 This forces a V2.0 → V2.1 minor version bump. A delta can only be built against a baseline that
-was itself built with removal tracking, which `MarkAsBaseline` guarantees by existing only on the
-V2.1 interface — the base implementation throws `ERROR_NOT_SUPPORTED`.
+was itself built with removal tracking, which designation guarantees: the delta properties are
+honored only by the V2.1 interface, and V2.0 throws `ERROR_NOT_SUPPORTED` rather than preparing
+an index that carries a baseline GUID it could not support.
 
 #### Delta database schema
 
@@ -314,7 +335,7 @@ Two related values live in an ordinary index rather than in the delta:
 
 | Key | Written to | Description |
 |-----|-----|-------------|
-| `baselineIdentifier` | A designated baseline | GUID minted by `MarkAsBaseline`. Its presence is what makes an index usable as a baseline. |
+| `baselineIdentifier` | A designated baseline | GUID minted when the index is prepared with `DeltaMarkAsBaseline`. Its presence is what makes an index usable as a baseline. |
 | `deltaBaselineSequence` | Every prepared V2.1 index | The change sequence reached when the index was prepared. Read from the *baseline* to determine the delta's change window. |
 
 **Packages** — a row carries either the package's current state or the fact that it was removed,
@@ -574,8 +595,8 @@ safely:
 
 - **A delta-aware client must not misread a baseline as a full index, or vice versa.** They are
   structurally the same format; only the role differs. The baseline GUID stamped by
-  `MarkAsBaseline` serves as this positive marker — an index carrying one has been designated,
-  an index without one has not.
+  `DeltaMarkAsBaseline` serves as this positive marker — an index carrying one has been
+  designated, an index without one has not.
 - **A pre-delta client must never be handed a delta.** This is handled structurally by the
   fixed-name separation — such clients only ever ask for `source2.msix` — but the delta database
   should still be identifiable as non-standalone so that a mistaken direct open fails loudly
@@ -811,24 +832,29 @@ enum class Property
     DeltaOutputPath,                    // new
     DeltaBaselineRelativeSourcePath,    // new
     DeltaBaselinePackageVersion,        // new
+    DeltaMarkAsBaseline,                // new
 };
 ```
 
-**`ISQLiteIndex`** — two new virtuals, implemented only by V2.1, with base implementations that
-throw `ERROR_NOT_SUPPORTED`:
+`DeltaMarkAsBaseline` and `DeltaBaselineIndexPath` are mutually exclusive, and a delta is
+generated only when exactly one of them is set along with all three of the others. Setting none
+of them is the ordinary non-delta prepare; anything in between is `E_INVALIDARG` at the point the
+mistake was made.
+
+**`ISQLiteIndex`** — one new virtual, implemented only by V2.1, with a base implementation that
+throws `ERROR_NOT_SUPPORTED`:
 
 ```cpp
-virtual void MarkAsBaseline(SQLite::Connection& connection);
 virtual void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline);
 ```
 
-For the WinGetUtil C API:
-```c
-WINGET_UTIL_API WinGetSQLiteIndexMarkAsBaseline(
-    WINGET_SQLITE_INDEX_HANDLE index);
-```
-with matching additions to the `WinGetSQLiteIndexProperty` enum, and corresponding
-`IWinGetFactory` / `IWinGetSQLiteIndex` members in the C# interop layer.
+Designation needs no virtual of its own: it is a property, consumed inside the existing
+`PrepareForPackaging` path.
+
+For the WinGetUtil C API, the additions are entirely to the `WinGetSQLiteIndexProperty` enum,
+with corresponding `IWinGetFactory` / `IWinGetSQLiteIndex` members in the C# interop layer. The
+C and C# enumerator values must agree numerically, so new values are appended rather than
+inserted.
 
 ### Client integration
 
