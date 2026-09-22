@@ -1,3 +1,4 @@
+aca
 ACTIONDATA
 ACTIONSTART
 activatable
@@ -17,6 +18,7 @@ appxsdk
 APSTUDIO
 ARRAYSIZE
 artifactstagingdirectory
+asa
 Asn
 aspirational
 Authenticode
