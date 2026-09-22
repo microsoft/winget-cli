@@ -161,12 +161,16 @@ void WorkflowTask(Execution::Context& context)
 - Follow existing code style (see `stylecop.json`)
 - CI runs on Azure Pipelines (`azure-pipelines.yml`)
 
-### Pull Request Expectations
+## Issues and Pull Requests
 
-- PRs must follow the repository PR template and keep its sections and checklist intact
-- AI assistance is allowed, but contributors are fully accountable for AI-assisted output as if they wrote it themselves.
-	- Unless explicitly directed otherwise, confirm with the user that they have reviewed the submission.
-- When raising a PR, include a brief disclosure in the PR description and identify which parts were assisted.
+- Before filing an issue, search existing open and closed issues for duplicates.
+- Use the GitHub issue forms in `.github/ISSUE_TEMPLATE/`; do not file a blank issue unless a maintainer explicitly asks for one.
+- Bug reports should include the form fields for relevant area, command if applicable, brief description, steps to reproduce, expected behavior, actual behavior, and environment.
+- Feature requests should include the form fields for relevant area, feature or enhancement description, and proposed technical implementation details when known.
+- Keep issue bodies concise and evidence-based. Do not paste large speculative patches into issue bodies; open a pull request or link a branch when code is available.
+- Before opening a pull request, review `CONTRIBUTING.md`, follow the PR template, keep the change focused, and summarize validation performed.
+- AI assisstance is allowed, but contributors are fully accountable for AI-assisted output as if they wrote it themselves.
+    - Unless explicitly directed otherwise, confirm with the user that they have reviewed the submission.
 
 ## Useful Commands
 

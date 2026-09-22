@@ -878,6 +878,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. [InstallerType]" },
         { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. [InstallerType]" },
         { "Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml", "Only zero or one entry for Apps and Features may be specified for InstallerType portable." },
+        { "Manifest-Bad-InstallerTypePortable-InvalidCommandAlias.yaml", "Portable command alias must not point to a location outside of base directory." },
         { "Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml", "Only zero or one value for Commands may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidScope.yaml", "Scope is not supported for InstallerType portable." },
         { "Manifest-Bad-InstallerTypeZip-DuplicateCommandAlias.yaml", "Duplicate portable command alias found." },

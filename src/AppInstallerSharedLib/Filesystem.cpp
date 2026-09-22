@@ -372,9 +372,25 @@ namespace AppInstaller::Filesystem
 
     bool PathEscapesBaseDirectory(std::string_view relativePath)
     {
-        // Normalize the path, then check if the first part is ".."
-        auto resolvedPath = std::filesystem::path{ relativePath }.lexically_normal();
-        return !resolvedPath.empty() && *resolvedPath.begin() == "..";
+        std::filesystem::path path{ relativePath };
+
+        // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
+        // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").
+        if (path.has_root_path())
+        {
+            return true;
+        }
+
+        // Resolve any "." and ".." components lexically (i.e. without touching the filesystem).
+        auto resolvedPath = path.lexically_normal();
+
+        // If the normalized path still begins with "..", it points to a parent of the base directory.
+        if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
+        {
+            return true;
+        }
+
+        return false;
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.
@@ -437,6 +453,31 @@ namespace AppInstaller::Filesystem
         // Create a copy of the file; the installer will be left in the temp directory afterward
         // but it is better to succeed the operation and leave a file around than to fail.
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+    }
+
+    bool CreateHardlink(const std::filesystem::path& target, const std::filesystem::path& link)
+    {
+        try
+        {
+            std::filesystem::create_hard_link(target, link);
+            AICLI_LOG(Core, Info, << "Hardlink created successfully from " << target << " to " << link);
+            return true;
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink not supported or creation failed: " << e.what());
+            return false;
+        }
+        catch (const std::exception& e)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink creation failed: " << e.what());
+            return false;
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Info, << "Hardlink creation failed with unknown error");
+            return false;
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

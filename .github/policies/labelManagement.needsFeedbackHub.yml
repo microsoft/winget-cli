@@ -35,7 +35,7 @@ configuration:
         then:
           - addReply:
               reply: >-
-                Hello @${issueAuthor},
+                Hello ${issueAuthor},
 
 
                 Please send us feedback with the Feedback Hub [Windows]+[f] with this issue and paste the link here so we can more easily find your crash information on the back end.
@@ -46,7 +46,7 @@ configuration:
                 The link on the bottom of the feedback report will provide the URL to paste in this Issue to share with us.
 
 
-                Template: msftbot/feedbackHub
+                ###### Template: msftbot/feedbackHub
           - assignTo:
               author: True
           - addLabel:

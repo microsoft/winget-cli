@@ -42,8 +42,8 @@ We use [GitHub Projects](https://github.com/orgs/microsoft/projects/137) to broa
 | Milestone                                                                                                     | Description                                     | Status             |
 | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------ |
 | [v1.12-Client](https://github.com/microsoft/winget-cli/milestone/47)                                          | Work Targeted for v1.12                         | :white_check_mark: |
-| [v1.28-Client](https://github.com/microsoft/winget-cli/milestone/48)                                          | Work Targeted for v1.28                         | :construction:     |
-| [v1.29-Client](https://github.com/microsoft/winget-cli/milestone/49)                                          | Work Targeted for v1.29                         | :construction:     |
+| [v1.28-Client](https://github.com/microsoft/winget-cli/milestone/48)                                          | Work Targeted for v1.28                         | :white_check_mark: |
+| [v1.29-Client](https://github.com/microsoft/winget-cli/milestone/49)                                          | Work Targeted for v1.29                         | :white_check_mark: |
 | [v2.0-Client](https://github.com/microsoft/winget-cli/milestone/41)                                           | Work Targeted for breaking-change Release       | :rocket:           |
 | [Backlog-Client](https://github.com/microsoft/winget-cli/issues?q=is%3Aissue%20state%3Aopen%20no%3Amilestone) | Work not yet assigned to a milestone or release | N/A                |
 

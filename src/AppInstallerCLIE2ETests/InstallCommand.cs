@@ -36,6 +36,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Tear down.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            // Portable packages installed by tests in this class. Force-uninstalling them after every
+            // test guards against leftover state (e.g. stale Links directory PATH entries) affecting
+            // subsequent tests, even if a test fails before it can clean up after itself.
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExePackageId);
+            TestCommon.RunAICLICommand("uninstall", Constants.PortableExeWithCommandPackageId);
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestZipInstallerWithPortable");
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.ArchivePortableWithBinariesDependentOnPath");
+        }
+
+        /// <summary>
         /// Test package doesn't exist.
         /// </summary>
         [Test]
@@ -542,6 +557,103 @@ namespace AppInstallerCLIE2ETests
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(result.StdOut, Does.Contain("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, true);
+        }
+
+        /// <summary>
+        /// Test install portable with rename creates hardlink instead of renaming original.
+        /// </summary>
+        [Test]
+        public void InstallPortableWithRename_VerifyHardlink()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string renameArgValue = "customAlias.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId} --rename {renameArgValue}");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, renameArgValue);
+
+            // Verify original file exists with original name (not renamed)
+            Assert.That(originalFile, Does.Exist, $"Original file should exist at: {originalFile}");
+
+            // Verify hardlink exists
+            Assert.That(hardlinkFile, Does.Exist, $"Hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink and original point to same content (equivalence)
+            Assert.That(File.ReadAllBytes(hardlinkFile), Is.EqualTo(File.ReadAllBytes(originalFile)), "Hardlink should be equivalent to original file");
+
+            // Verify uninstall removes both original and hardlink
+            var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(originalFile, Does.Not.Exist, $"Original file should be removed after uninstall");
+            Assert.That(hardlinkFile, Does.Not.Exist, $"Hardlink should be removed after uninstall");
+        }
+
+        /// <summary>
+        /// Test install portable with Commands field creates hardlinks for all command aliases.
+        /// </summary>
+        [Test]
+        public void InstallPortableWithCommands_VerifyHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string commandAlias = "testCommand.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, "AppInstallerTestExeInstaller.exe");
+            string hardlinkFile = Path.Combine(installPath, commandAlias);
+
+            // Verify original file exists with original name
+            Assert.That(originalFile, Does.Exist, $"Original file should exist at: {originalFile}");
+
+            // Verify command alias hardlink exists
+            Assert.That(hardlinkFile, Does.Exist, $"Command alias hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink is equivalent to original
+            Assert.That(File.ReadAllBytes(hardlinkFile), Is.EqualTo(File.ReadAllBytes(originalFile)), "Command alias hardlink should be equivalent to original file");
+        }
+
+        /// <summary>
+        /// Test install zip portable with PortableCommandAlias creates hardlinks for nested files.
+        /// </summary>
+        [Test]
+        public void InstallZip_PortableWithCommandAlias_VerifyHardlinks()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestZipInstallerWithPortable";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            string originalFileName = "AppInstallerTestExeInstaller.exe";
+            string commandAlias = "TestPortable.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(result.StdOut, Does.Contain("Successfully installed"));
+
+            string installPath = Path.Combine(installDir, packageDirName);
+            string originalFile = Path.Combine(installPath, originalFileName);
+            string hardlinkFile = Path.Combine(installPath, commandAlias);
+
+            // Verify original extracted file exists with original name
+            Assert.That(originalFile, Does.Exist, $"Original extracted file should exist at: {originalFile}");
+
+            // Verify hardlink for command alias exists
+            Assert.That(hardlinkFile, Does.Exist, $"Command alias hardlink should exist at: {hardlinkFile}");
+
+            // Verify hardlink is equivalent to original
+            Assert.That(File.ReadAllBytes(hardlinkFile), Is.EqualTo(File.ReadAllBytes(originalFile)), "Archive portable hardlink should be equivalent to original file");
         }
 
         /// <summary>

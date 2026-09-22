@@ -58,6 +58,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden},
+            Argument::ForType(Args::Type::IgnoreUnavailable),
         };
     }
 

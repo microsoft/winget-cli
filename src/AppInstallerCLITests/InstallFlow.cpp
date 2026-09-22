@@ -18,7 +18,9 @@
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/MsiInstallFlow.h>
+#include <Workflows/PortableFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
+#include <PortableInstaller.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace TestCommon;
@@ -234,7 +236,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify unsupported arguments error message is shown 
+    // Verify unsupported arguments error message is shown
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
@@ -724,6 +726,52 @@ TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("PortableInstallFlow_RejectsEscapingPathsAtPointOfUse", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory targetDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempDirectory extractedDirectory("TestPortableExtractedRoot", true);
+    TestCommon::TempFile installerFile("TestPortableInstaller.exe");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    ManifestInstaller installer;
+    std::filesystem::path installerPath = installerFile.GetPath();
+
+    SECTION("Command alias")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Portable;
+        installer.Commands = { "C:\\escape" };
+    }
+
+    SECTION("Nested installer relative path")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Zip;
+        installer.NestedInstallerFiles = { { "C:\\escape", {} } };
+        installerPath = extractedDirectory.GetPath();
+    }
+
+    SECTION("Nested installer command alias")
+    {
+        installer.BaseInstallerType = InstallerTypeEnum::Zip;
+        installer.NestedInstallerFiles = { { "installer.exe", "C:\\escape" } };
+        installerPath = extractedDirectory.GetPath();
+    }
+
+    AppInstaller::CLI::Portable::PortableInstaller portableInstaller{
+        ScopeEnum::User, Architecture::X64, "TestProductCode" };
+    portableInstaller.TargetInstallLocation = targetDirectory.GetPath();
+
+    context.Add<Execution::Data::Installer>(installer);
+    context.Add<Execution::Data::InstallerPath>(installerPath);
+    context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
+
+    PortableInstallImpl(context);
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
 }
 
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
@@ -1341,6 +1389,29 @@ TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][M
     INFO(installOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}
+
+TEST_CASE("InstallFlow_InstallMultiple_IgnoreUnavailable", "[InstallFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+    context.Args.AddArg(Execution::Args::Type::IgnoreUnavailable);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify the available package was installed despite the missing one,
+    // and the unavailable package was reported as not found.
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound(LocIndString{ TSR::TestInstaller_Msix.Query })).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")

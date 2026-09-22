@@ -267,6 +267,8 @@ insufficientmemory
 Intelli
 INTRESOURCE
 invalidparameter
+iobj
+ipdb
 ishelp
 ISQ
 ISVs
@@ -422,6 +424,7 @@ OWC
 packageinuse
 packageinusebyapplication
 PACL
+packagefeedproxy
 PARAMETERMAP
 pathparts
 pathtree

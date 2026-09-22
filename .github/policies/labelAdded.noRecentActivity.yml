@@ -18,13 +18,13 @@ configuration:
         then:
           - addReply:
               reply: >-
-                Hello @${issueAuthor},
+                Hello ${issueAuthor},
 
 
                 This pull request has been automatically marked as stale because it has been marked as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 7 days of this comment**.
 
 
-                Template: msftbot/noRecentActivity
+                ###### Template: msftbot/noRecentActivity
         # The policy service should trigger even when the label was added by the policy service
         triggerOnOwnActions: true
       - description: >-
@@ -37,13 +37,13 @@ configuration:
         then:
           - addReply:
               reply: >-
-                Hello @${issueAuthor},
+                Hello ${issueAuthor},
 
 
                 This issue has been automatically marked as stale because it has been marked as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 7 days of this comment**.
 
 
-                Template: msftbot/noRecentActivity
+                ###### Template: msftbot/noRecentActivity
         # The policy service should trigger even when the label was added by the policy service
         triggerOnOwnActions: true
 onFailure:

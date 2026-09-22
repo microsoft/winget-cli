@@ -15,6 +15,23 @@ configuration:
               action: Opened
         then:
           - addCodeFlowLink
+      - description: Add Copilot-Instructions label to PRs modifying Copilot instruction files
+        if:
+          - payloadType: Pull_Request
+          - or:
+              - isAction:
+                  action: Opened
+              - isAction:
+                  action: Synchronize
+          - filesMatchPattern:
+              pattern: ^\.github/(copilot-instructions\.md|instructions/.+\.instructions\.md)$
+              matchAny: true
+          - not:
+              hasLabel:
+                label: Copilot-Instructions
+        then:
+          - addLabel:
+              label: Copilot-Instructions
       - description: Check for modifications of Localization files in new PRs
         if:
           - payloadType: Pull_Request
@@ -44,7 +61,7 @@ configuration:
                 Instead of this PR, it would be helpful if you could [open an issue](https://github.com/microsoft/winget-cli/issues/new?template=Localization_Issue.yml) and it will be forwarded to the internal localization team for review. For more information, please see the [Development Guide](https://github.com/microsoft/winget-cli/blob/master/doc/Developing.md#localization).
 
 
-                Template: msftbot/PullRequests/LocalizationFileChange
+                ###### Template: msftbot/PullRequests/LocalizationFileChange
       - description: Add Needs-Triage to new issues
         if:
           - payloadType: Issues

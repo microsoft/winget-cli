@@ -556,13 +556,13 @@ configuration:
                 then:
                   - addReply:
                       reply: >-
-                        Hello @${issueAuthor},
+                        Hello ${issueAuthor},
 
 
                         We've identified this as a duplicate of another issue or PR that already exists. This specific instance is being closed in favor of the linked issue. Please add your 👍 to the other issue to raise its priority. Thanks for your contribution!
 
 
-                        Template: msftbot/duplicate/closed
+                        ###### Template: msftbot/duplicate/closed
                   - closeIssue
                   - removeLabel:
                       label: Needs-Triage

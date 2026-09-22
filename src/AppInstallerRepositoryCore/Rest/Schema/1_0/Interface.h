@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params = {}) const override;
 
     protected:
-        bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;
+        bool MeetsOptimizedSearchCriteria(const SearchRequest& request, bool allowSubstringMatch = false) const;
         IRestClient::SearchResult OptimizedSearch(const SearchRequest& request) const;
         IRestClient::SearchResult SearchInternal(const SearchRequest& request) const;
 
