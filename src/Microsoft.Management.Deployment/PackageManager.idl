@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(29)] // For version 1.29
+    [contractversion(30)] // For version 1.30
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -1159,6 +1159,12 @@ namespace Microsoft.Management.Deployment
         {
             /// Authentication arguments used when downloading the package installer if authentication is required.
             AuthenticationArguments AuthenticationArguments;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 30)]
+        {
+            /// Installs the package dependencies without installing the requested package.
+            Boolean InstallDependenciesOnly;
         }
     }
 

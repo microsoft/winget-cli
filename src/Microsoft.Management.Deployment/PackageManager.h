@@ -58,7 +58,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     void SetComCallerName(std::string name);
-    void PopulateContextFromInstallOptions(AppInstaller::CLI::Execution::Context* context, winrt::Microsoft::Management::Deployment::InstallOptions options);
+    void PopulateContextFromInstallOptions(AppInstaller::CLI::Execution::Context* context, winrt::Microsoft::Management::Deployment::InstallOptions options, bool isUpgrade = false);
 #endif
 }
 
