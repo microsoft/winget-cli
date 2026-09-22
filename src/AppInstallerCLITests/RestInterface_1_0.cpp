@@ -3,10 +3,13 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
+#include <Rest/RestSource.h>
 #include <Rest/Schema/1_0/Interface.h>
+#include <Rest/Schema/1_4/Interface.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
 #include <winget/ManifestValidation.h>
 #include <AppInstallerSHA256.h>
 
@@ -138,6 +141,52 @@ namespace
         }
     })delimiter");
     }
+
+    struct SearchAndManifestResponses
+    {
+        web::json::value SearchResponse = web::json::value::parse(GetSearchResponse_PackageIds({ L"Foo.Bar" }));
+        web::json::value ManifestResponse = web::json::value::parse(GetGoodManifest_RequiredFields());
+        web::http::status_code ManifestStatus = web::http::status_codes::OK;
+        size_t SearchRequests = 0;
+        size_t ManifestRequests = 0;
+        web::http::http_request LastManifestRequest;
+
+        SearchAndManifestResponses()
+        {
+            ManifestResponse[L"Data"][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
+        }
+
+        void SetManifestNotFound()
+        {
+            ManifestStatus = web::http::status_codes::NotFound;
+            ManifestResponse = web::json::value::parse(LR"({"code":"DataNotFound","message":"Not found"})");
+        }
+
+        std::shared_ptr<TestRestRequestHandler> GetHandler()
+        {
+            return std::make_shared<TestRestRequestHandler>(
+                [this](web::http::http_request request) -> pplx::task<web::http::http_response>
+                {
+                    web::http::http_response response{ web::http::status_codes::BadRequest };
+                    response.headers().set_content_type(web::http::details::mime_types::application_json);
+                    response.headers().set_cache_control(L"no-store");
+                    if (request.method() == web::http::methods::POST)
+                    {
+                        ++SearchRequests;
+                        response.set_status_code(web::http::status_codes::OK);
+                        response.set_body(SearchResponse);
+                    }
+                    else if (request.method() == web::http::methods::GET)
+                    {
+                        ++ManifestRequests;
+                        LastManifestRequest = request;
+                        response.set_status_code(ManifestStatus);
+                        response.set_body(ManifestResponse);
+                    }
+                    return pplx::task_from_result(response);
+                });
+        }
+    };
 
     struct GoodManifest_AllFields
     {
@@ -511,13 +560,16 @@ TEST_CASE("Search_ExplicitIdFilters_UnicodePrefix", "[RestSource][Interface_1_0]
 
 TEST_CASE("Search_IdInclusions", "[RestSource][Interface_1_0]")
 {
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
-        GetSearchResponse_PackageIds({ L"Foo.Bar", L"Foo.Baz", L"Other.Package" })) };
+    SearchAndManifestResponses responses;
+    responses.SearchResponse = web::json::value::parse(GetSearchResponse_PackageIds({ L"Foo.Bar", L"Foo.Baz", L"Other.Package" }));
+    responses.SetManifestNotFound();
+    HttpClientHelper helper{ responses.GetHandler() };
     Interface v1{ TestRestUriString, helper };
     SearchRequest request;
     request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
     const std::vector<std::string> allIds{ "Foo.Bar", "Foo.Baz", "Other.Package" };
     std::vector<std::string> expected{ "Foo.Bar" };
+    size_t expectedManifestRequests = 0;
 
     SECTION("Matching inclusion") {}
     SECTION("Any inclusion may match")
@@ -545,10 +597,12 @@ TEST_CASE("Search_IdInclusions", "[RestSource][Interface_1_0]")
     {
         request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Exact, "Localized name");
         expected = allIds;
+        expectedManifestRequests = 2;
     }
     SECTION("Unknown filter does not disable inclusion matching")
     {
         request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Localized name");
+        expectedManifestRequests = 1;
     }
     SECTION("A query may select independently of inclusions")
     {
@@ -562,6 +616,8 @@ TEST_CASE("Search_IdInclusions", "[RestSource][Interface_1_0]")
     }
 
     auto result = v1.Search(request);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == expectedManifestRequests);
     REQUIRE(result.Matches.size() == expected.size());
     REQUIRE_FALSE(result.Truncated);
     for (size_t i = 0; i < expected.size(); ++i)
@@ -577,22 +633,9 @@ TEST_CASE("Search_CachedManifestMetadata", "[RestSource][Interface_1_0]")
         PackageMatchField::UpgradeCode);
     bool useInclusions = GENERATE(false, true);
     CAPTURE(ToString(field), useInclusions);
-    size_t requestCount = 0;
-    auto handler = std::make_shared<TestRestRequestHandler>(
-        [&](web::http::http_request httpRequest) -> pplx::task<web::http::http_response>
-        {
-            ++requestCount;
-            web::http::http_response response{ web::http::status_codes::BadRequest };
-            response.headers().set_content_type(web::http::details::mime_types::application_json);
-            response.headers().set_cache_control(L"no-store");
-            if (httpRequest.method() == web::http::methods::POST)
-            {
-                response.set_status_code(web::http::status_codes::OK);
-                response.set_body(web::json::value::parse(GetSearchResponse_PackageIds({ L"Foo.Bar" })));
-            }
-            return pplx::task_from_result(response);
-        });
-    HttpClientHelper helper{ handler };
+    SearchAndManifestResponses responses;
+    responses.SetManifestNotFound();
+    HttpClientHelper helper{ responses.GetHandler() };
     CachedMetadataInterface v1{ TestRestUriString, helper };
     auto createManifest = [](std::string_view version, const NormalizedString& value)
     {
@@ -616,6 +659,7 @@ TEST_CASE("Search_CachedManifestMetadata", "[RestSource][Interface_1_0]")
     auto& criteria = useInclusions ? request.Inclusions : request.Filters;
     criteria.emplace_back(field, MatchType::Exact, "Match");
     size_t expectedCount = 0;
+    size_t expectedManifestRequests = 0;
 
     SECTION("All cached versions mismatch") {}
     SECTION("An earlier cached version matches")
@@ -632,6 +676,7 @@ TEST_CASE("Search_CachedManifestMetadata", "[RestSource][Interface_1_0]")
     {
         v1.Versions[0].Manifest.reset();
         expectedCount = 1;
+        expectedManifestRequests = 1;
     }
     SECTION("A match alongside an uncached version is retained")
     {
@@ -644,6 +689,7 @@ TEST_CASE("Search_CachedManifestMetadata", "[RestSource][Interface_1_0]")
         v1.Versions[0].Manifest.reset();
         v1.Versions[1].Manifest.reset();
         expectedCount = 1;
+        expectedManifestRequests = 1;
     }
     SECTION("Unsupported comparisons remain unknown")
     {
@@ -663,7 +709,8 @@ TEST_CASE("Search_CachedManifestMetadata", "[RestSource][Interface_1_0]")
 
     auto result = v1.Search(request);
     REQUIRE(result.Matches.size() == expectedCount);
-    REQUIRE(requestCount == 1);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == expectedManifestRequests);
     REQUIRE_FALSE(result.Truncated);
 }
 
@@ -673,23 +720,9 @@ TEST_CASE("Search_ReturnedMetadata", "[RestSource][Interface_1_0]")
         PackageMatchField::ProductCode, PackageMatchField::UpgradeCode);
     auto type = GENERATE(MatchType::Exact, MatchType::CaseInsensitive);
     CAPTURE(ToString(field), ToString(type));
-    auto responseBody = web::json::value::parse(GetSearchResponse_PackageIds({ L"Foo.Bar" }));
-    size_t requestCount = 0;
-    auto handler = std::make_shared<TestRestRequestHandler>(
-        [&](web::http::http_request httpRequest) -> pplx::task<web::http::http_response>
-        {
-            ++requestCount;
-            web::http::http_response response{ web::http::status_codes::BadRequest };
-            response.headers().set_content_type(web::http::details::mime_types::application_json);
-            response.headers().set_cache_control(L"no-store");
-            if (httpRequest.method() == web::http::methods::POST)
-            {
-                response.set_status_code(web::http::status_codes::OK);
-                response.set_body(responseBody);
-            }
-            return pplx::task_from_result(response);
-        });
-    HttpClientHelper helper{ handler };
+    SearchAndManifestResponses responses;
+    responses.SetManifestNotFound();
+    HttpClientHelper helper{ responses.GetHandler() };
     CachedMetadataInterface v1{ TestRestUriString, helper };
     Manifest manifest;
     manifest.Id = "Foo.Bar";
@@ -701,7 +734,7 @@ TEST_CASE("Search_ReturnedMetadata", "[RestSource][Interface_1_0]")
         switch (field)
         {
         case PackageMatchField::Name:
-            responseBody[L"Data"][0][L"PackageName"] = web::json::value::string(ConvertToUTF16(value));
+            responses.SearchResponse[L"Data"][0][L"PackageName"] = web::json::value::string(ConvertToUTF16(value));
             break;
         case PackageMatchField::PackageFamilyName:
             v1.Versions[0].PackageFamilyNames = { std::string{ value } };
@@ -718,6 +751,7 @@ TEST_CASE("Search_ReturnedMetadata", "[RestSource][Interface_1_0]")
     SearchRequest request;
     request.Filters.emplace_back(field, type, "Match");
     size_t expectedCount = 1;
+    size_t expectedManifestRequests = 0;
 
     SECTION("Returned metadata confirms a match despite cached metadata") {}
     SECTION("Case differences follow field-specific rules")
@@ -732,12 +766,460 @@ TEST_CASE("Search_ReturnedMetadata", "[RestSource][Interface_1_0]")
     {
         setReturnedValue("Other");
         v1.Versions[0].Manifest.reset();
+        expectedManifestRequests = 1;
     }
 
     auto result = v1.Search(request);
     REQUIRE(result.Matches.size() == expectedCount);
-    REQUIRE(requestCount == 1);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == expectedManifestRequests);
     REQUIRE_FALSE(result.Truncated);
+}
+
+TEST_CASE("Search_ManifestResolution_Fields", "[RestSource][Interface_1_4]")
+{
+    auto field = GENERATE(PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag,
+        PackageMatchField::Command, PackageMatchField::PackageFamilyName, PackageMatchField::ProductCode,
+        PackageMatchField::UpgradeCode);
+    bool useInclusions = GENERATE(false, true);
+    CAPTURE(ToString(field), useInclusions);
+    SearchAndManifestResponses responses;
+    auto& version = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    std::string value = "Wanted";
+    switch (field)
+    {
+    case PackageMatchField::Name:
+        version[L"Locales"][0][L"PackageLocale"] = web::json::value::string(L"fr-FR");
+        version[L"Locales"][0][L"PackageName"] = web::json::value::string(L"Wanted");
+        break;
+    case PackageMatchField::Moniker:
+        version[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"Wanted");
+        break;
+    case PackageMatchField::Tag:
+        version[L"DefaultLocale"][L"Tags"][0] = web::json::value::string(L"Wanted");
+        break;
+    case PackageMatchField::Command:
+        version[L"Installers"][0][L"Commands"][0] = web::json::value::string(L"Wanted");
+        break;
+    case PackageMatchField::PackageFamilyName:
+        value = "Test.Package_8wekyb3d8bbwe";
+        version[L"Installers"][0][L"InstallerType"] = web::json::value::string(L"msix");
+        version[L"Installers"][0][L"PackageFamilyName"] = web::json::value::string(ConvertToUTF16(value));
+        break;
+    case PackageMatchField::ProductCode:
+        value = "{A0000000-0000-0000-0000-000000000001}";
+        version[L"Installers"][0][L"ProductCode"] = web::json::value::string(ConvertToUTF16(value));
+        break;
+    case PackageMatchField::UpgradeCode:
+        value = "{A0000000-0000-0000-0000-000000000002}";
+        version[L"Installers"][0][L"AppsAndFeaturesEntries"][0][L"UpgradeCode"] = web::json::value::string(ConvertToUTF16(value));
+        break;
+    }
+    size_t expectedCount = 1;
+    bool hasManifest = true;
+    SECTION("Retrieved metadata matches") {}
+    SECTION("Retrieved metadata rejects the candidate")
+    {
+        value = "Missing";
+        expectedCount = 0;
+    }
+    SECTION("Missing manifests preserve unknown")
+    {
+        responses.SetManifestNotFound();
+        hasManifest = false;
+    }
+
+    HttpClientHelper helper{ responses.GetHandler() };
+    V1_4::Interface rest{ TestRestUriString, helper, {} };
+    SearchRequest request;
+    auto& criteria = useInclusions ? request.Inclusions : request.Filters;
+    criteria.emplace_back(field, MatchType::Exact, value);
+    auto result = rest.Search(request);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+    REQUIRE(responses.LastManifestRequest.absolute_uri().path() == L"/api/packageManifests/Foo.Bar");
+    REQUIRE(result.Matches.size() == expectedCount);
+    REQUIRE_FALSE(result.Truncated);
+    if (expectedCount)
+    {
+        REQUIRE(result.Matches[0].PackageInformation.PackageName ==
+            ConvertToUTF8(responses.SearchResponse[L"Data"][0][L"PackageName"].as_string()));
+        REQUIRE(result.Matches[0].Versions[0].Manifest.has_value() == hasManifest);
+        REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "1.0.0");
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_PositionalQuery", "[RestSource][Interface_1_0]")
+{
+    std::string query = GENERATE("browser", ".");
+    bool matches = GENERATE(false, true);
+    bool unknownVersion = GENERATE(false, true);
+    CAPTURE(query, matches, unknownVersion);
+    SearchAndManifestResponses responses;
+    responses.SearchResponse[L"Data"][0][L"PackageName"] = web::json::value::string(L"Unrelated application");
+    if (unknownVersion)
+    {
+        responses.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"Unknown");
+    }
+    if (matches)
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"PackageName"] =
+            web::json::value::string(ConvertToUTF16(query));
+    }
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::PackageFamilyName, MatchType::Exact, query);
+    request.Inclusions.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, query);
+    request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, query);
+    request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, query);
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::CaseInsensitive, query);
+
+    auto result = rest.Search(request);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+    REQUIRE(result.Matches.size() == (matches ? size_t{ 1 } : size_t{ 0 }));
+    if (matches)
+    {
+        REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+        REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "1.0.0");
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_SkipsUnnecessaryLookups", "[RestSource][Interface_1_0]")
+{
+    SearchAndManifestResponses responses;
+    responses.ManifestStatus = web::http::status_codes::ServiceUnavailable;
+    SearchRequest request;
+    size_t expectedCount = 1;
+    SECTION("No selectors") {}
+    SECTION("Generic query")
+    {
+        request.Query.emplace(MatchType::Substring, "browser");
+    }
+    SECTION("Generic query can select independently")
+    {
+        request.Query.emplace(MatchType::Substring, "browser");
+        request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "browser");
+    }
+    SECTION("Known inclusion matches after unknown inclusion")
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "browser");
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
+    }
+    SECTION("Known filter fails after unknown filter")
+    {
+        request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "browser");
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Other.Package");
+        expectedCount = 0;
+    }
+    SECTION("Known inclusions fail despite unknown filter")
+    {
+        request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "browser");
+        request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, "Other.Package");
+        expectedCount = 0;
+    }
+    SECTION("Unsupported comparison")
+    {
+        auto type = GENERATE(MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Wildcard);
+        request.Filters.emplace_back(PackageMatchField::Name, type, "browser");
+    }
+    SECTION("Unverifiable field")
+    {
+        auto field = GENERATE(PackageMatchField::Market, PackageMatchField::NormalizedNameAndPublisher);
+        request.Filters.emplace_back(field, MatchType::Exact, "value");
+    }
+    SECTION("Installed-package correlation")
+    {
+        request.Purpose = GENERATE(SearchPurpose::CorrelationToInstalled, SearchPurpose::CorrelationToAvailable);
+        request.Inclusions.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, "Missing.Code");
+    }
+    SECTION("Returned name proves the filter")
+    {
+        request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact,
+            ConvertToUTF8(responses.SearchResponse[L"Data"][0][L"PackageName"].as_string()));
+    }
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    auto result = rest.Search(request);
+    REQUIRE(result.Matches.size() == expectedCount);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 0);
+}
+
+TEST_CASE("Search_ManifestResolution_Errors", "[RestSource][Interface_1_1]")
+{
+    SearchAndManifestResponses responses;
+    HRESULT expectedError = APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA;
+    SECTION("Mismatching package identifier")
+    {
+        responses.ManifestResponse[L"Data"][L"PackageIdentifier"] = web::json::value::string(L"Other.Package");
+    }
+    SECTION("Malformed manifest data")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array();
+    }
+    SECTION("Invalid installer")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"][0][L"Installers"][0].as_object().erase(L"InstallerUrl");
+    }
+    SECTION("Access denied")
+    {
+        responses.ManifestStatus = web::http::status_codes::Unauthorized;
+        expectedError = HTTP_E_STATUS_DENIED;
+    }
+    SECTION("Service unavailable")
+    {
+        responses.ManifestStatus = web::http::status_codes::ServiceUnavailable;
+        expectedError = APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE;
+    }
+    SECTION("Unsupported request reported by the server")
+    {
+        responses.ManifestResponse = web::json::value::parse(LR"({"Data":null,"RequiredQueryParameters":["Version"]})");
+        expectedError = APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST;
+    }
+    HttpClientHelper helper{ responses.GetHandler() };
+    V1_1::Interface rest{ TestRestUriString, helper, {} };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    REQUIRE_THROWS_HR(rest.Search(request), expectedError);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+}
+
+TEST_CASE("Search_ManifestResolution_Versions", "[RestSource][Interface_1_0]")
+{
+    SearchAndManifestResponses responses;
+    auto firstManifest = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    firstManifest[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"other");
+    auto secondManifest = firstManifest;
+    secondManifest[L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    secondManifest[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"target");
+    responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstManifest, secondManifest });
+    responses.SearchResponse[L"Data"][0][L"Versions"][1][L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    size_t expectedCount = 1;
+    bool secondManifestCached = true;
+    std::string expectedChannel;
+
+    SECTION("A different version can match") {}
+    SECTION("Identifier casing is not a different package")
+    {
+        responses.ManifestResponse[L"Data"][L"PackageIdentifier"] = web::json::value::string(L"foo.bar");
+    }
+    SECTION("Canonically equivalent identifiers are the same package")
+    {
+        responses.SearchResponse[L"Data"][0][L"PackageIdentifier"] = web::json::value::string(L"Foo.Cafe\u0301");
+        responses.ManifestResponse[L"Data"][L"PackageIdentifier"] = web::json::value::string(L"Foo.Caf\u00E9");
+    }
+    SECTION("An omitted version keeps the result unknown")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstManifest });
+        secondManifestCached = false;
+    }
+    SECTION("A manifest from another channel cannot fill the missing version")
+    {
+        responses.SearchResponse[L"Data"][0][L"Versions"][1][L"Channel"] = web::json::value::string(L"beta");
+        expectedChannel = "beta";
+        secondManifestCached = false;
+    }
+    SECTION("All versions reject the request")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"][1][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"other");
+        expectedCount = 0;
+    }
+    SECTION("A version outside the search result cannot satisfy the request")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"][1][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"other");
+        secondManifest[L"PackageVersion"] = web::json::value::string(L"3.0.0");
+        responses.ManifestResponse[L"Data"][L"Versions"][2] = secondManifest;
+        expectedCount = 0;
+    }
+
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "target");
+    auto result = rest.Search(request);
+    REQUIRE(responses.ManifestRequests == 1);
+    REQUIRE(result.Matches.size() == expectedCount);
+    if (expectedCount)
+    {
+        const auto& versions = result.Matches[0].Versions;
+        REQUIRE(versions.size() == 2);
+        REQUIRE(versions[0].Manifest.has_value());
+        REQUIRE(versions[1].Manifest.has_value() == secondManifestCached);
+        REQUIRE(versions[1].VersionAndChannel.GetVersion().ToString() == "2.0.0");
+        REQUIRE(versions[1].VersionAndChannel.GetChannel().ToString() == expectedChannel);
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
+{
+    bool unknownVersion = GENERATE(false, true);
+    CAPTURE(unknownVersion);
+    SearchAndManifestResponses responses;
+    if (unknownVersion)
+    {
+        responses.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"Unknown");
+    }
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageFamilyNames"][0] = web::json::value::string(L"Search.Reference_123");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"ProductCodes"][0] = web::json::value::string(L"Search.Product");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"UpgradeCodes"][0] = web::json::value::string(L"Search.Upgrade");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"AppsAndFeaturesEntryVersions"][0] = web::json::value::string(L"0.5.0");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"AppsAndFeaturesEntryVersions"][1] = web::json::value::string(L"0.6.0");
+    responses.ManifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"bar");
+    HttpClientHelper helper{ responses.GetHandler() };
+    IRestClient::Information information{ "TestSource", { "1.4.0" } };
+    SourceDetails details;
+    details.Identifier = "TestSource";
+    auto source = std::make_shared<RestSource>(details, SourceInformation{},
+        RestClient::Create(TestRestUriString, {}, {}, helper, information));
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
+
+    auto result = source->Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package->GetAvailable().at(0);
+    auto keys = package->GetVersionKeys();
+    REQUIRE(keys.size() == 1);
+    REQUIRE(keys[0].Version == "1.0.0");
+    REQUIRE(package->GetVersion(keys[0])->GetManifest().Moniker == "bar");
+    REQUIRE(package->GetLatestVersion()->GetManifest().Version == "1.0.0");
+    auto references = package->GetMultiProperty(PackageMultiProperty::PackageFamilyName);
+    REQUIRE(std::any_of(references.begin(), references.end(), [](const auto& value) { return value.get() == "Search.Reference_123"; }));
+    REQUIRE(package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::ProductCode).at(0).get() == "Search.Product");
+    REQUIRE(package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode).at(0).get() == "Search.Upgrade");
+    REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMinVersion).get() == (unknownVersion ? "" : "0.5.0"));
+    REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMaxVersion).get() == (unknownVersion ? "" : "0.6.0"));
+    auto pairs = package->GetNameAndPublisherPairs();
+    auto containsPair = [&](const auto& name, const auto& publisher)
+    {
+        return std::any_of(pairs.begin(), pairs.end(), [&](const auto& pair)
+            {
+                return ICUCaseInsensitiveEquals(pair.first.get(), ConvertToUTF8(name.as_string())) &&
+                    ICUCaseInsensitiveEquals(pair.second.get(), ConvertToUTF8(publisher.as_string()));
+            });
+    };
+    const auto& searchPackage = responses.SearchResponse.at(L"Data")[0];
+    const auto& locale = responses.ManifestResponse.at(L"Data").at(L"Versions")[0].at(L"DefaultLocale");
+    REQUIRE(containsPair(searchPackage.at(L"PackageName"), searchPackage.at(L"Publisher")));
+    REQUIRE(containsPair(locale.at(L"PackageName"), locale.at(L"Publisher")));
+    REQUIRE_FALSE(containsPair(searchPackage.at(L"PackageName"), locale.at(L"Publisher")));
+    REQUIRE_FALSE(containsPair(locale.at(L"PackageName"), searchPackage.at(L"Publisher")));
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+}
+
+TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interface_1_1]")
+{
+    SearchAndManifestResponses responses;
+    IRestClient::Information information;
+    information.RequiredPackageMatchFields = { "Market" };
+    information.RequiredQueryParameters = { "Market" };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    std::string expectedMarket = AppInstaller::Runtime::GetOSRegion();
+    size_t expectedManifestRequests = 1;
+    SECTION("Use the required market") {}
+    SECTION("Preserve an explicit market")
+    {
+        expectedMarket = "FR";
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, expectedMarket);
+    }
+    SECTION("Conflicting markets cannot be represented")
+    {
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "FR");
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "DE");
+        expectedManifestRequests = 0;
+    }
+    SECTION("A market prefix cannot be represented")
+    {
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::StartsWith, "F");
+        expectedManifestRequests = 0;
+    }
+    SECTION("Required version prevents an all-manifests lookup")
+    {
+        information.RequiredQueryParameters.emplace_back("Version");
+        expectedManifestRequests = 0;
+    }
+    SECTION("An unsupported market prevents lookup")
+    {
+        information.UnsupportedQueryParameters.emplace_back("Market");
+        expectedManifestRequests = 0;
+    }
+    SECTION("Unsupported version and channel parameters are not sent")
+    {
+        information.UnsupportedQueryParameters = { "Version", "Channel" };
+    }
+    HttpClientHelper helper{ responses.GetHandler() };
+    V1_1::Interface rest{ TestRestUriString, helper, information, { { L"Windows-Package-Manager", L"TestHeader" } } };
+    auto result = rest.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == expectedManifestRequests);
+    REQUIRE(result.Matches[0].Versions[0].Manifest.has_value() == (expectedManifestRequests != 0));
+    if (expectedManifestRequests)
+    {
+        auto query = web::uri::split_query(responses.LastManifestRequest.absolute_uri().query());
+        REQUIRE(query.at(L"Market") == ConvertToUTF16(expectedMarket));
+        REQUIRE(query.count(L"Version") == 0);
+        REQUIRE(query.count(L"Channel") == 0);
+        REQUIRE(responses.LastManifestRequest.headers()[L"Windows-Package-Manager"] == L"TestHeader");
+        REQUIRE(responses.LastManifestRequest.headers()[L"Version"] == L"1.1.0");
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]")
+{
+    size_t searches = 0;
+    size_t lookups = 0;
+    std::vector<utility::string_t> tokens;
+    bool manifestReceivedContinuation = false;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::OK };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (request.method() == web::http::methods::POST)
+            {
+                tokens.emplace_back(request.headers()[L"ContinuationToken"]);
+                ++searches;
+                response.set_body(web::json::value::parse(searches == 1 ?
+                    GetSearchResponse_PackageIds({ L"Other.Package" }, L"next") : GetSearchResponse_PackageIds({ L"Foo.Bar" })));
+            }
+            else if (request.method() == web::http::methods::GET)
+            {
+                ++lookups;
+                manifestReceivedContinuation |= request.headers().has(L"ContinuationToken");
+                auto manifest = web::json::value::parse(GetGoodManifest_RequiredFields());
+                manifest[L"Data"][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
+                if (request.absolute_uri().path() == L"/api/packageManifests/Other.Package")
+                {
+                    manifest[L"Data"][L"PackageIdentifier"] = web::json::value::string(L"Other.Package");
+                }
+                else
+                {
+                    manifest[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"bar");
+                }
+                response.set_body(manifest);
+            }
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
+    request.MaximumResults = 1;
+    auto result = rest.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+    REQUIRE_FALSE(result.Truncated);
+    REQUIRE(searches == 2);
+    REQUIRE(lookups == 2);
+    REQUIRE(tokens == std::vector<utility::string_t>{ L"", L"next" });
+    REQUIRE_FALSE(manifestReceivedContinuation);
 }
 
 TEST_CASE("Search_ExplicitIdFilters_UnsupportedMatchType", "[RestSource][Interface_1_0]")
@@ -756,8 +1238,9 @@ TEST_CASE("Search_ExplicitIdFilters_UnsupportedMatchType", "[RestSource][Interfa
 
 TEST_CASE("Search_ExplicitIdFilters_UnavailableMetadata", "[RestSource][Interface_1_0]")
 {
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
-        GetSearchResponse_PackageIds({ L"Foo.Bar" })) };
+    SearchAndManifestResponses responses;
+    responses.SetManifestNotFound();
+    HttpClientHelper helper{ responses.GetHandler() };
     Interface v1{ TestRestUriString, helper };
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
@@ -767,6 +1250,9 @@ TEST_CASE("Search_ExplicitIdFilters_UnavailableMetadata", "[RestSource][Interfac
     request.Filters.emplace_back(field, MatchType::Exact, "Not in the response");
 
     auto result = v1.Search(request);
+    size_t expectedManifestRequests = (field == PackageMatchField::NormalizedNameAndPublisher || field == PackageMatchField::Market) ? 0 : 1;
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == expectedManifestRequests);
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
 }

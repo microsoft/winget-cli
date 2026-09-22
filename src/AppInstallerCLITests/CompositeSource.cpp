@@ -4,10 +4,12 @@
 #include "TestCommon.h"
 #include "TestSource.h"
 #include "TestHooks.h"
+#include "TestRestRequestHandler.h"
 #include <CompositeSource.h>
 #include <Microsoft/SQLiteIndexSource.h>
 #include <Microsoft/PinningIndex.h>
 #include <PackageTrackingCatalogSourceFactory.h>
+#include <Rest/RestSource.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
 #include <winget/PackageVersionSelection.h>
@@ -2036,4 +2038,169 @@ TEST_CASE("CompositeSource_MappedVersions_ProperSorting", "[CompositeSource]")
     REQUIRE(installedVersions.size() == 2);
     REQUIRE(installedVersions[0].Version == versionMapped2);
     REQUIRE(installedVersions[1].Version == versionMapped1);
+}
+
+struct RestCorrelationTestSetup : CompositeWithTrackingTestSetup
+{
+    web::json::value SearchResponse = web::json::value::parse(LR"({
+        "Data": [{
+            "PackageIdentifier": "Foo.Bar", "PackageName": "Legacy App", "Publisher": "Legacy Publisher",
+            "Versions": [{ "PackageVersion": "Unknown" }]
+        }]
+    })");
+    web::json::value ManifestResponse = web::json::value::parse(LR"({
+        "Data": {
+            "PackageIdentifier": "Foo.Bar",
+            "Versions": [{
+                "PackageVersion": "1.0.0",
+                "DefaultLocale": {
+                    "PackageLocale": "en-US", "PackageName": "New App", "Publisher": "New Publisher", "Moniker": "tool",
+                    "License": "MIT", "ShortDescription": "Example application"
+                },
+                "Installers": [{
+                    "Architecture": "x64", "InstallerType": "exe", "InstallerUrl": "https://example.com/installer.exe",
+                    "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"
+                }]
+            }]
+        }
+    })");
+    size_t ManifestRequests = 0;
+
+    RestCorrelationTestSetup(CompositeSearchBehavior behavior)
+    {
+        namespace RepositoryRest = AppInstaller::Repository::Rest;
+        auto handler = std::make_shared<TestRestRequestHandler>(
+            [this](web::http::http_request request) -> pplx::task<web::http::http_response>
+            {
+                web::http::http_response response{ web::http::status_codes::BadRequest };
+                response.headers().set_content_type(web::http::details::mime_types::application_json);
+                response.headers().set_cache_control(L"no-store");
+                if (request.method() == web::http::methods::POST)
+                {
+                    response.set_status_code(web::http::status_codes::OK);
+                    response.set_body(SearchResponse);
+                }
+                else if (request.method() == web::http::methods::GET)
+                {
+                    ++ManifestRequests;
+                    response.set_status_code(web::http::status_codes::OK);
+                    response.set_body(ManifestResponse);
+                }
+                return pplx::task_from_result(response);
+            });
+        Http::HttpClientHelper helper{ handler };
+        SourceDetails details;
+        details.Identifier = "RestCorrelationTestSource";
+        auto source = std::make_shared<RepositoryRest::RestSource>(details, SourceInformation{},
+            RepositoryRest::RestClient::Create("https://restsource.com/api", {}, {}, helper,
+                RepositoryRest::Schema::IRestClient::Information{ details.Identifier, { "1.4.0" } }));
+        Composite = CompositeSource{ "*RestTests" };
+        Composite.SetInstalledSource(Source{ Installed }, behavior);
+        Composite.AddAvailableSource(Source{ source });
+    }
+};
+
+TEST_CASE("CompositeSource_RestRetrieval_InstalledVersion", "[RestSource][CompositeSource][RestRetrievalRegression]")
+{
+    auto [manifestHasArpRanges, onlyLatestVersion] = GENERATE(
+        std::make_pair(false, false), std::make_pair(false, true), std::make_pair(true, false));
+    CAPTURE(manifestHasArpRanges, onlyLatestVersion);
+    RestCorrelationTestSetup setup{ CompositeSearchBehavior::AvailablePackages };
+    auto& searchVersion = setup.SearchResponse[L"Data"][0][L"Versions"][0];
+    searchVersion[L"ProductCodes"][0] = web::json::value::string(L"search.code");
+    searchVersion[L"AppsAndFeaturesEntryVersions"] = web::json::value::array(
+        { web::json::value::string(L"1.0.0"), web::json::value::string(L"2.0.0") });
+    auto first = setup.ManifestResponse[L"Data"][L"Versions"][0];
+    auto second = first;
+    first[L"PackageVersion"] = web::json::value::string(manifestHasArpRanges ? L"10.0.0" : L"1.0.0");
+    second[L"PackageVersion"] = web::json::value::string(manifestHasArpRanges ? L"20.0.0" : L"2.0.0");
+    if (manifestHasArpRanges)
+    {
+        first[L"Installers"][0][L"AppsAndFeaturesEntries"][0][L"DisplayVersion"] = web::json::value::string(L"1.0.0");
+        second[L"Installers"][0][L"AppsAndFeaturesEntries"][0][L"DisplayVersion"] = web::json::value::string(L"2.0.0");
+    }
+    setup.ManifestResponse[L"Data"][L"Versions"] = onlyLatestVersion ?
+        web::json::value::array({ second }) : web::json::value::array({ first, second });
+    auto installed = setup.MakeInstalled().WithVersion("1.0.0").WithPC("search.code")
+        .WithMetadata(PackageVersionMetadata::InstalledType, "exe").ToPackage();
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        SearchResult result;
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled &&
+            SearchRequestIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, "search.code"))
+        {
+            result.Matches.emplace_back(installed, PackageMatchFilter{ PackageMatchField::ProductCode, MatchType::Exact, "search.code" });
+        }
+        return result;
+    };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "tool");
+    auto result = setup.Composite.Search(request);
+    REQUIRE(result.Failures.empty());
+    REQUIRE(result.Matches.size() == 1);
+    auto installedVersion = GetInstalledVersion(result.Matches[0].Package);
+    REQUIRE(installedVersion);
+    CHECK(installedVersion->GetProperty(PackageVersionProperty::Version).get() == (manifestHasArpRanges ? "10.0.0" : "1.0.0"));
+    auto latestAvailable = GetAvailableVersionsForInstalledVersion(result.Matches[0].Package)->GetLatestVersion();
+    REQUIRE(latestAvailable);
+    REQUIRE(latestAvailable->GetProperty(PackageVersionProperty::Version).get() == (manifestHasArpRanges ? "20.0.0" : "2.0.0"));
+    PinningData::PinStateEvaluator evaluator{ PinBehavior::IgnorePins, {}, installedVersion };
+    CHECK(evaluator.IsUpdate(latestAvailable));
+    REQUIRE(setup.ManifestRequests == 1);
+}
+
+TEST_CASE("CompositeSource_RestRetrieval_NamePublisher", "[RestSource][CompositeSource][RestRetrievalRegression]")
+{
+    auto behavior = GENERATE(CompositeSearchBehavior::Installed, CompositeSearchBehavior::AvailablePackages);
+    auto versionState = GENERATE("Known"sv, "Unknown"sv, "PartiallyCached"sv);
+    bool legacyName = GENERATE(false, true);
+    bool legacyPublisher = GENERATE(false, true);
+    CAPTURE(behavior, versionState, legacyName, legacyPublisher);
+    RestCorrelationTestSetup setup{ behavior };
+    if (versionState != "Unknown")
+    {
+        setup.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
+    }
+    if (versionState == "PartiallyCached")
+    {
+        setup.SearchResponse[L"Data"][0][L"Versions"][1][L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    }
+    const std::string name = legacyName ? "Legacy App" : "New App";
+    const std::string publisher = legacyPublisher ? "Legacy Publisher" : "New Publisher";
+    auto installedManifest = MakeDefaultManifest("1.0.0");
+    installedManifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(name);
+    installedManifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher);
+    auto installed = TestCompositePackage::Make(installedManifest, TestCompositePackage::MetadataMap{},
+        std::vector<Manifest::Manifest>{}, setup.Installed);
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        SearchResult result;
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::NormalizedNameAndPublisher && inclusion.Additional &&
+                    ICUCaseInsensitiveEquals(inclusion.Value, name) &&
+                    ICUCaseInsensitiveEquals(inclusion.Additional.value(), publisher))
+                {
+                    result.Matches.emplace_back(installed, inclusion);
+                    break;
+                }
+            }
+        }
+        return result;
+    };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "tool");
+    auto result = setup.Composite.Search(request);
+    REQUIRE(result.Failures.empty());
+    bool shouldCorrelate = legacyName == legacyPublisher;
+    size_t expectedCount = behavior == CompositeSearchBehavior::Installed && !shouldCorrelate ? 0 : 1;
+    REQUIRE(result.Matches.size() == expectedCount);
+    if (expectedCount)
+    {
+        REQUIRE(static_cast<bool>(GetInstalledVersion(result.Matches[0].Package)) == shouldCorrelate);
+        REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);
+    }
+    REQUIRE(setup.ManifestRequests == (versionState == "PartiallyCached" ? size_t{ 2 } : size_t{ 1 }));
 }

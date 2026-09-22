@@ -43,6 +43,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         Http::HttpClientHelper::HttpRequestHeaders m_requiredRestApiHeaders;
 
     private:
+        void FilterSearchResult(const SearchRequest& request, SearchResult& result) const;
+
         std::string m_restApiUri;
         utility::string_t m_searchEndpoint;
         Http::HttpClientHelper m_httpClientHelper;

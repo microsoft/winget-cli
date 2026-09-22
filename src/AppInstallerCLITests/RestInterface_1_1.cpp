@@ -416,7 +416,7 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
     HttpClientHelper helper{ handler };
     Interface v1_1{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {} };
     AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
+    PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "package" };
     request.Filters.emplace_back(std::move(filter));
     size_t expectedCount = 1;
 
@@ -440,7 +440,7 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
     const auto& filters = searchBody.at(L"Filters").as_array();
     REQUIRE(filters.size() == request.Filters.size() + 1);
     REQUIRE(filters.at(0).at(L"PackageMatchField").as_string() == L"PackageName");
-    REQUIRE(filters.at(0).at(L"RequestMatch").at(L"KeyWord").as_string() == L"Foo");
+    REQUIRE(filters.at(0).at(L"RequestMatch").at(L"KeyWord").as_string() == L"package");
     REQUIRE(filters.at(request.Filters.size()).at(L"PackageMatchField").as_string() == L"Market");
     if (!request.Inclusions.empty())
     {

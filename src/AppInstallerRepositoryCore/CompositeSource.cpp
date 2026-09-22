@@ -996,21 +996,12 @@ namespace AppInstaller::Repository
                 void GetNameAndPublisher(
                     IPackage* package)
                 {
-                    // Unfortunately the names and publishers are unique and not tied to each other strictly, so we need
-                    // to go broad on the matches. Future work can hopefully make name and publisher operate more as a unit,
-                    // but for now we have to search for the cartesian of these...
-                    auto names = package->GetMultiProperty(PackageMultiProperty::NormalizedName);
-                    auto publishers = package->GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
-
-                    for (const auto& name : names)
+                    for (auto&& [name, publisher] : package->GetNameAndPublisherPairs())
                     {
-                        for (const auto& publisher : publishers)
-                        {
-                            AddIfNotPresent(SystemReferenceString{
-                                PackageMatchField::NormalizedNameAndPublisher,
-                                name,
-                                publisher });
-                        }
+                        AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            std::move(name),
+                            std::move(publisher) });
                     }
                 }
             };

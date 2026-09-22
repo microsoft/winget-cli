@@ -123,6 +123,21 @@ namespace AppInstaller::Repository
         }
     }
 
+    std::vector<IPackage::NameAndPublisher> IPackage::GetNameAndPublisherPairs() const
+    {
+        auto names = GetMultiProperty(PackageMultiProperty::NormalizedName);
+        auto publishers = GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
+        std::vector<NameAndPublisher> result;
+        for (const auto& name : names)
+        {
+            for (const auto& publisher : publishers)
+            {
+                result.emplace_back(name, publisher);
+            }
+        }
+        return result;
+    }
+
     const char* UnsupportedRequestException::what() const noexcept
     {
         if (m_whatMessage.empty())

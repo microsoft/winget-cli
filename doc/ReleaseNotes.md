@@ -18,7 +18,7 @@ Added a new `--ignore-unavailable` flag to the `install` command. When installin
 
 ## Bug Fixes
 
-* Fixed REST search results bypassing locally verifiable package filters and selectors.
+* Fixed REST search results bypassing package filters and selectors, retrieving missing manifest metadata only when needed to evaluate a match.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
 * Fixed Unicode case-insensitive prefix matching when case folding changes character lengths.
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.

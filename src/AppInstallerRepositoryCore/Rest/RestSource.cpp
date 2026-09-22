@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
 
+            std::vector<NameAndPublisher> GetNameAndPublisherPairs() const override;
+
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
@@ -288,6 +290,30 @@ namespace AppInstaller::Repository::Rest
                     });
             }
 
+            return result;
+        }
+
+        std::vector<IPackage::NameAndPublisher> RestPackage::GetNameAndPublisherPairs() const
+        {
+            std::scoped_lock versionsLock{ m_packageVersionsLock };
+            std::vector<NameAndPublisher> result;
+            result.emplace_back(Utility::LocIndString{ m_package.PackageInformation.PackageName },
+                Utility::LocIndString{ m_package.PackageInformation.Publisher });
+            for (const auto& version : m_package.Versions)
+            {
+                if (version.Manifest)
+                {
+                    auto names = version.Manifest->GetPackageNames();
+                    auto publishers = version.Manifest->GetPublishers();
+                    for (const auto& name : names)
+                    {
+                        for (const auto& publisher : publishers)
+                        {
+                            result.emplace_back(Utility::LocIndString{ name }, Utility::LocIndString{ publisher });
+                        }
+                    }
+                }
+            }
             return result;
         }
 
