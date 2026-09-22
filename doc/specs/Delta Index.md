@@ -202,7 +202,7 @@ All must be set for generation to run.
 #### Step 3 — the baseline must be an ancestor, not merely a baseline
 
 Two checks establish that the baseline is a legitimate predecessor of the index being prepared,
-and both must pass before any diffing begins:
+and both must pass before any processing begins:
 
 - **Same database lineage.** The standard `databaseIdentifier` metadata value, which every index
   carries and which survives across prepares, must be identical in both. This rejects a baseline
@@ -692,7 +692,7 @@ CREATE TEMP VIEW tags2 AS
   SELECT rowid, tag FROM baseline.tags2;
 ```
 
-Nothing is suppressed here, including values nothing refers to any more. The map table governs
+Nothing is suppressed here, including values no longer being referenced. The map table governs
 what is visible, so an unreferenced value simply never appears.
 
 **Map and system-reference tables** — the delta holds **only the diff**: rows added since the

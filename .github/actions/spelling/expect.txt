@@ -399,6 +399,7 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
+nullability
 nsis
 NTFS
 objbase
@@ -643,6 +644,7 @@ vcredist
 vcx
 versioned
 VERSIONINFO
+virtuals
 VIWEC
 vns
 vscodeignore
