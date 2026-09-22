@@ -13,6 +13,8 @@
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/2_0/PackageUpdateTrackingTable.h>
+#include <Microsoft/Schema/2_0/PackagesTable.h>
+#include <Microsoft/Schema/2_0/ProductCodeTable.h>
 #include <Microsoft/Schema/2_1/DeltaTables.h>
 #include <Microsoft/Schema/2_1/DeltaViews.h>
 #include <Microsoft/Schema/2_1/Interface.h>
@@ -1982,6 +1984,158 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_OnCombinedIndex", "[sqliteindex][V
 
     SQLiteIndex combined = context.OpenCombined();
     REQUIRE(combined.CheckConsistency(true));
+}
+
+// I4. A delta on its own can still be checked, but only for what it says about itself. Without
+// this, opening a standalone delta and checking it reached the 1.7 internal interface and threw
+// against tables that do not exist.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_OnStandaloneDelta", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "t3" }, p1.Commands, p1.PackageFamilyNames, p1.ProductCodes);
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Update(p1Updated);
+    context.Remove(p2);
+    context.GenerateDelta();
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    REQUIRE(delta.CheckConsistency(true));
+}
+
+// I5. The invariant that a delta alone can actually be held to: a removal is recorded once, in the
+// packages table, so nothing may associate a value with a package that the same delta removes.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_StandaloneDetectsAssociationOnRemovedPackage", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Remove(p2);
+    context.GenerateDelta();
+
+    std::string packagesTable = context.DeltaTable(Schema::V2_0::PackagesTable::TableName());
+    std::string productCodesTable = context.DeltaTable(Schema::V2_0::ProductCodeTable::TableName());
+
+    {
+        Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+
+        SQLite::rowid_t removedRowId = GetScalar(connection, "SELECT [rowid] FROM [" + packagesTable + "] WHERE [is_removed] = 1");
+
+        Statement::Create(connection,
+            "INSERT INTO [" + productCodesTable + "] ([value], [package], [is_removed]) VALUES ('PC-Ghost', " +
+            std::to_string(removedRowId) + ", 0)").Execute();
+    }
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    REQUIRE(!delta.CheckConsistency(true));
+}
+
+// I6. The service holds only the delta, so the combined form has to be reachable by naming the
+// baseline rather than by having opened the two together.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_BaselinePropertyChecksCombinedForm", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+    auto p3 = MakePackage("Publisher3.Id", "Package 3", { "t3" }, { "c3" }, {}, { "PC-3" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "t4" }, p1.Commands, p1.PackageFamilyNames, p1.ProductCodes);
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Update(p1Updated);
+    context.Remove(p2);
+    context.Add(p3);
+    context.GenerateDelta();
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    delta.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
+
+    REQUIRE(delta.CheckConsistency(true));
+
+    // And the merged result is the index that the same data would have produced directly.
+    delta.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.WorkingFile.GetPath().u8string());
+
+    REQUIRE(delta.CheckConsistency(true));
+}
+
+// I7. The comparison is what makes the check meaningful, so it has to be able to fail. Renaming a
+// package in the delta leaves both databases internally consistent and no longer equivalent.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonDetectsDivergence", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "t3" }, p1.Commands, p1.PackageFamilyNames, p1.ProductCodes);
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Update(p1Updated);
+    context.GenerateDelta();
+
+    std::string packagesTable = context.DeltaTable(Schema::V2_0::PackagesTable::TableName());
+
+    {
+        Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+        Statement::Create(connection,
+            "UPDATE [" + packagesTable + "] SET [name] = 'Not The Same' WHERE [is_removed] = 0").Execute();
+    }
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    delta.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
+    delta.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.WorkingFile.GetPath().u8string());
+
+    REQUIRE(!delta.CheckConsistency(true));
+}
+
+// I8. A comparison only says something about a merged result, so asking for one anywhere else is a
+// caller mistake rather than something to answer.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresADelta", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Remove(p2);
+    context.GenerateDelta();
+
+    SECTION("Delta without its baseline")
+    {
+        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        delta.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.WorkingFile.GetPath().u8string());
+
+        REQUIRE_THROWS_HR(delta.CheckConsistency(true), E_INVALIDARG);
+    }
+
+    SECTION("An index that is not a delta at all")
+    {
+        SQLiteIndex full = context.OpenFullIndex();
+        full.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.BaselineFile.GetPath().u8string());
+
+        REQUIRE_THROWS_HR(full.CheckConsistency(true), E_INVALIDARG);
+    }
+}
+
+// I9. The working index that *generates* a delta carries the same baseline property, and it is an
+// ordinary index. Routing on the property rather than on what the database is would send it down
+// the delta path and check the wrong thing.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_GeneratingIndexIsCheckedNormally", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Remove(p2);
+
+    SQLiteIndex index = SQLiteIndex::Open(context.WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+    context.SetDeltaProperties(index);
+    index.PrepareForPackaging();
+
+    // The properties are still set on this handle, which is how the service would reach it.
+    REQUIRE(index.CheckConsistency(true));
 }
 
 // ---------------------------------------------------------------------------------------------

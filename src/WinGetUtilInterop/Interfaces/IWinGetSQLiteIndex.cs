@@ -60,6 +60,14 @@ namespace Microsoft.WinGetUtil.Interfaces
         /// The only valid value is "true"; mutually exclusive with <see cref="DeltaBaselineIndexPath"/>.
         /// </summary>
         DeltaMarkAsBaseline = 6,
+
+        /// <summary>
+        /// The full path to the standard index built from the same data as a delta.
+        /// Only meaningful when checking the consistency of a delta that has also been given
+        /// <see cref="DeltaBaselineIndexPath"/>; the merged result of the delta and its baseline
+        /// must present the same data as this index.
+        /// </summary>
+        DeltaComparisonIndexPath = 7,
     }
 
     /// <summary>

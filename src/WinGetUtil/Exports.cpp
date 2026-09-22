@@ -40,6 +40,7 @@ namespace
         case WinGetSQLiteIndexProperty_DeltaBaselineRelativeSourcePath: return SQLiteIndex::Property::DeltaBaselineRelativeSourcePath;
         case WinGetSQLiteIndexProperty_DeltaBaselinePackageVersion: return SQLiteIndex::Property::DeltaBaselinePackageVersion;
         case WinGetSQLiteIndexProperty_DeltaMarkAsBaseline: return SQLiteIndex::Property::DeltaMarkAsBaseline;
+        case WinGetSQLiteIndexProperty_DeltaComparisonIndexPath: return SQLiteIndex::Property::DeltaComparisonIndexPath;
         }
 
         THROW_HR(E_INVALIDARG);

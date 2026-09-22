@@ -434,6 +434,80 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             working.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "TRUE");
         }
 
+        /// <summary>
+        /// Verifies that a delta can be checked for consistency through the public API surface, both
+        /// on its own and as the merged result of the delta, its baseline, and the standard index
+        /// built from the same data. This is the only place the new property value is exercised as a
+        /// caller would reach it.
+        /// </summary>
+        [Fact]
+        [DisplayTestMethodName]
+        public void CheckDeltaIndexConsistency()
+        {
+            string workingPath = Path.Combine(this.indexTestOutputPath, "consistency_working.db");
+            string baselinePath = Path.Combine(this.indexTestOutputPath, "consistency_baseline.db");
+            string baselineDeltaPath = Path.Combine(this.indexTestOutputPath, "consistency_baseline_delta.db");
+            string deltaPath = Path.Combine(this.indexTestOutputPath, "consistency_delta.db");
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(this.indexTestLogFile);
+
+            using (var working = factory.SQLiteIndexCreate(workingPath, DeltaMajorVersion, DeltaMinorVersion))
+            {
+                working.SetProperty(SQLiteIndexProperty.PackageUpdateTrackingBaseTime, "0");
+                working.AddManifest(Path.Combine(this.indexTestDataPath, PackageTest), PackageTestRelativePath);
+            }
+
+            File.Copy(workingPath, baselinePath);
+
+            using (var baseline = factory.SQLiteIndexOpen(baselinePath))
+            {
+                baseline.SetProperty(SQLiteIndexProperty.DeltaMarkAsBaseline, "true");
+                baseline.SetProperty(SQLiteIndexProperty.DeltaOutputPath, baselineDeltaPath);
+                baseline.SetProperty(SQLiteIndexProperty.DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+                baseline.SetProperty(SQLiteIndexProperty.DeltaBaselinePackageVersion, BaselinePackageVersion);
+                baseline.PrepareForPackaging();
+            }
+
+            using (var working = factory.SQLiteIndexOpen(workingPath))
+            {
+                working.SetProperty(SQLiteIndexProperty.PackageUpdateTrackingBaseTime, string.Empty);
+                Assert.True(working.UpdateManifest(Path.Combine(this.indexTestDataPath, PackageTestNewName), PackageTestRelativePath));
+            }
+
+            using (var working = factory.SQLiteIndexOpen(workingPath))
+            {
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselineIndexPath, baselinePath);
+                working.SetProperty(SQLiteIndexProperty.DeltaOutputPath, deltaPath);
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselinePackageVersion, BaselinePackageVersion);
+                working.PrepareForPackaging();
+
+                // The working index is an ordinary one, even though it produced a delta.
+                Assert.True(working.IsIndexConsistent(), "The index that generated the delta is consistent.");
+            }
+
+            using (var delta = factory.SQLiteIndexOpen(deltaPath))
+            {
+                Assert.True(delta.IsIndexConsistent(), "The delta alone is consistent.");
+            }
+
+            using (var delta = factory.SQLiteIndexOpen(deltaPath))
+            {
+                delta.SetProperty(SQLiteIndexProperty.DeltaBaselineIndexPath, baselinePath);
+
+                Assert.True(delta.IsIndexConsistent(), "The merged view is consistent.");
+            }
+
+            using (var delta = factory.SQLiteIndexOpen(deltaPath))
+            {
+                delta.SetProperty(SQLiteIndexProperty.DeltaBaselineIndexPath, baselinePath);
+                delta.SetProperty(SQLiteIndexProperty.DeltaComparisonIndexPath, workingPath);
+
+                Assert.True(delta.IsIndexConsistent(), "The merged delta matches the standard index.");
+            }
+        }
+
         private void CreateIndexHelperForIndexTest(Func<IWinGetSQLiteIndex, bool> lambda)
         {
             if (File.Exists(this.indexTestLogFile))

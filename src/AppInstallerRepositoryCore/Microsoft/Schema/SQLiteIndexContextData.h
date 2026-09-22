@@ -19,6 +19,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         DeltaOutputPath,
         DeltaBaselineRelativeSourcePath,
         DeltaBaselinePackageVersion,
+        DeltaComparisonIndexPath,
         Max
     };
 
@@ -87,6 +88,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
         struct PropertyMapping<Property::DeltaBaselinePackageVersion>
         {
             using value_t = std::string;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaComparisonIndexPath>
+        {
+            using value_t = std::filesystem::path;
             static constexpr bool SetThroughInterface = false;
         };
     }
