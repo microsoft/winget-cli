@@ -1019,6 +1019,193 @@ Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
     }
 }
 
+Describe 'Add|Get|Remove|Reset-WinGetPin' {
+
+    BeforeAll {
+        AddTestSource
+    }
+
+    AfterAll {
+        Reset-WinGetPin -Force | Out-Null
+        RemoveTestSource
+    }
+
+    Context 'Add-WinGetPin' {
+
+        AfterEach {
+            Reset-WinGetPin -Force | Out-Null
+        }
+
+        It 'Add pinning pin by Id' {
+            $result = Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.PackageId | Should -Be 'AppInstallerTest.TestExeInstaller'
+            $pin.Type | Should -Be 'Pinning'
+        }
+
+        It 'Add blocking pin by Id' {
+            $result = Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -Blocking
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.Type | Should -Be 'Blocking'
+        }
+
+        It 'Add gating pin with GatedVersion' {
+            $result = Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -GatedVersion '<2.0.0.0'
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.Type | Should -Be 'Gating'
+            $pin.GatedVersion | Should -Be '<2.0.0.0'
+        }
+
+        It 'Add pin with Note' {
+            $result = Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -Note 'test note'
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.Note | Should -Be 'test note'
+        }
+
+        It 'Add with -Blocking and -GatedVersion throws' {
+            { Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -Blocking -GatedVersion '<2.0.0.0' } | Should -Throw
+        }
+
+        It 'Add with -WhatIf does not create pin' {
+            Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -WhatIf
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'Get-WinGetPin' {
+
+        BeforeAll {
+            Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' | Out-Null
+        }
+
+        AfterAll {
+            Reset-WinGetPin -Force | Out-Null
+        }
+
+        It 'Get all pins returns non-empty list' {
+            $pins = Get-WinGetPin
+            $pins | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Get pin by Id' {
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.PackageId | Should -Be 'AppInstallerTest.TestExeInstaller'
+        }
+
+        It 'Get pin scoped to Source' {
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.PackageId | Should -Be 'AppInstallerTest.TestExeInstaller'
+            $pin.SourceId | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Get pin via pipeline from Find-WinGetPackage' {
+            $pin = Find-WinGetPackage -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -MatchOption Equals | Get-WinGetPin
+
+            $pin | Should -Not -BeNullOrEmpty
+            $pin.PackageId | Should -Be 'AppInstallerTest.TestExeInstaller'
+        }
+    }
+
+    Context 'Remove-WinGetPin' {
+
+        BeforeEach {
+            Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' | Out-Null
+        }
+
+        AfterEach {
+            Reset-WinGetPin -Force | Out-Null
+        }
+
+        It 'Remove pin by Id' {
+            $result = Remove-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -BeNullOrEmpty
+        }
+
+        It 'Remove pin via pipeline from Get-WinGetPin' {
+            Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' | Remove-WinGetPin
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -BeNullOrEmpty
+        }
+
+        It 'Remove with -WhatIf does not remove pin' {
+            Remove-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' -WhatIf
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context 'Reset-WinGetPin' {
+
+        BeforeEach {
+            Add-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource' | Out-Null
+        }
+
+        It 'Reset all pins with -Force' {
+            $result = Reset-WinGetPin -Force
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pins = Get-WinGetPin
+            $pins | Should -BeNullOrEmpty
+        }
+
+        It 'Reset with -Source scopes to that source' {
+            $result = Reset-WinGetPin -Source 'TestSource' -Force
+
+            $result | Should -Not -BeNullOrEmpty
+            $result.Status | Should -Be 'Ok'
+
+            $pin = Get-WinGetPin -Id 'AppInstallerTest.TestExeInstaller' -Source 'TestSource'
+            $pin | Should -BeNullOrEmpty
+        }
+
+        It 'Reset with -WhatIf does not remove pins' {
+            Reset-WinGetPin -WhatIf
+
+            $pins = Get-WinGetPin
+            $pins | Should -Not -BeNullOrEmpty
+        }
+
+        AfterEach {
+            Reset-WinGetPin -Force | Out-Null
+        }
+    }
+}
+
 AfterAll {
     RestoreWinGetSettings
     RemoveTestSource

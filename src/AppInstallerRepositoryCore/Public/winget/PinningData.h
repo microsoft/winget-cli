@@ -58,6 +58,8 @@ namespace AppInstaller::Pinning
         // Pass through functions to the index itself
         void AddOrUpdatePin(const Pin& pin);
         void RemovePin(const PinKey& pinKey);
+        // Removes the pin if it exists. Returns true if a pin was removed, false if none was found.
+        bool TryRemovePin(const PinKey& pinKey);
         std::optional<Pin> GetPin(const PinKey& pinKey);
         std::vector<Pin> GetAllPins();
         bool ResetAllPins(std::string_view sourceId = {});

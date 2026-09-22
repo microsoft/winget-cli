@@ -151,6 +151,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Converts PSPackagePinType string value to PackagePinType.
+        /// </summary>
+        /// <param name="value">PSPackagePinType string value.</param>
+        /// <returns>PackagePinType.</returns>
+        public static PackagePinType ToPackagePinType(string value)
+        {
+            return value switch
+            {
+                "Pinning" => PackagePinType.Pinning,
+                "Blocking" => PackagePinType.Blocking,
+                "Gating" => PackagePinType.Gating,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
         /// Converts PSWindowsPlatform string value to WindowsPlatform.
         /// </summary>
         /// <param name="value">PSWindowsPlatform string value.</param>

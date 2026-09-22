@@ -51,6 +51,9 @@ namespace AppInstaller::Repository::Microsoft
         // Removes a pin from the index.
         void RemovePin(const Pinning::PinKey& pinKey);
 
+        // Attempts to remove a pin from the index and returns whether it existed.
+        bool TryRemovePin(const Pinning::PinKey& pinKey);
+
         // Returns the current pin for a given package if it exists.
         std::optional<Pinning::Pin> GetPin(const Pinning::PinKey& pinKey);
 
@@ -67,8 +70,8 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to create a new index.
         PinningIndex(const std::string& target, SQLite::Version version);
 
-        // Creates the IPinningIndex interface object for this version.
-        std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndex() const;
+        // Creates an IPinningIndex interface object for a specific version.
+        static std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndex(const SQLite::Version& version);
 
         std::unique_ptr<Schema::IPinningIndex> m_interface;
     };

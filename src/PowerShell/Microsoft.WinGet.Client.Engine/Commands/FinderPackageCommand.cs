@@ -82,6 +82,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 () => this.FindPackages(
                     CompositeSearchBehavior.LocalCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
+
             for (var i = 0; i < results.Count; i++)
             {
                 this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage));

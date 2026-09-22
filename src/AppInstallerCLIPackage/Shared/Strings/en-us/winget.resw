@@ -1648,6 +1648,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinInstalledArgumentDescription" xml:space="preserve">
     <value>Pin a specific installed version</value>
   </data>
+  <data name="PinNoteArgumentDescription" xml:space="preserve">
+    <value>Optional note to store with the pin</value>
+    <comment>Description for the --note argument used with `winget pin add`</comment>
+  </data>
   <data name="PinInstalledSource" xml:space="preserve">
     <value>Installed</value>
     <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
@@ -1912,6 +1916,18 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinVersion" xml:space="preserve">
     <value>Pinned version</value>
     <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
+  <data name="PinDateAdded" xml:space="preserve">
+    <value>Time Pinned</value>
+    <comment>Table header shown with `winget pin list --details` for when the pin was added or last updated.</comment>
+  </data>
+  <data name="PinNote" xml:space="preserve">
+    <value>Note</value>
+    <comment>Table header shown with `winget pin list --details` for the user-provided note stored with the pin.</comment>
+  </data>
+  <data name="PinShowNoMatchFound" xml:space="preserve">
+    <value>No pin found matching the specified criteria.</value>
+    <comment>Shown when a filtered `winget pin list` command finds no matching pin.</comment>
   </data>
   <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
     <value>&lt;See the log file for additional details&gt;</value>
