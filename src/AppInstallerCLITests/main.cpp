@@ -33,12 +33,22 @@ struct LoggingBreakListener : public Catch::EventListenerBase
         if (!testCaseStats.totals.delta(lastTotals).testCases.allOk())
         {
             TestCommon::TempFile::SetTestFailed(true);
+            if (testCaseStats.testInfo)
+            {
+                GetFailedTests().push_back(testCaseStats.testInfo->name);
+            }
         }
         lastTotals = testCaseStats.totals;
         Catch::EventListenerBase::testCaseEnded(testCaseStats);
     }
 
     Catch::Totals lastTotals{};
+
+    static std::vector<std::string>& GetFailedTests()
+    {
+        static std::vector<std::string> failedTests;
+        return failedTests;
+    }
 };
 CATCH_REGISTER_LISTENER(LoggingBreakListener);
 
@@ -78,6 +88,7 @@ int main(int argc, char** argv)
     bool hasSetTestDataBasePath = false;
     bool waitBeforeReturn = false;
     bool keepSQLLogging = false;
+    bool printSummary = false;
 
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)
@@ -132,6 +143,10 @@ int main(int argc, char** argv)
                 Debugging::EnableSelfInitiatedMinidump(std::filesystem::path{ argv[i] });
             }
         }
+        else if ("-summary"s == argv[i])
+        {
+            printSummary = true;
+        }
         else
         {
             args.push_back(argv[i]);
@@ -174,6 +189,15 @@ int main(int argc, char** argv)
     TestCommon::UserSettingsFileGuard settingsGuard;
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
+
+    if (printSummary)
+    {
+        std::cout << "\nFailed tests:\n";
+        for (const auto& test : LoggingBreakListener::GetFailedTests())
+        {
+            std::cout << "  " << test << "\n";
+        }
+    }
 
     if (waitBeforeReturn)
     {

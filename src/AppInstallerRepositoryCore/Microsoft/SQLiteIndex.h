@@ -55,6 +55,12 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a copy of the given index.
         static SQLiteIndex CopyFrom(const std::string& filePath, SQLiteIndex& source);
 
+        // Opens a delta index combined with its baseline for reading.
+        // The delta is the main connection; the baseline is attached and temp views are created
+        // so that existing search code operates transparently across both.
+        // The disposition applies to both files, because the pair is only meaningful as a unit.
+        static SQLiteIndex OpenWithBaseline(const std::string& deltaFilePath, const std::string& baselineFilePath, OpenDisposition disposition = OpenDisposition::Read);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
@@ -121,6 +127,11 @@ namespace AppInstaller::Repository::Microsoft
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
 
+        // Designates this index as a baseline that delta indexes may be generated against.
+        // Should be called on an index that has been prepared for packaging, as that is the form
+        // that will be published and that a delta will later be paired with.
+        void MarkAsBaseline();
+
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
         bool CheckConsistency(bool log = false) const;
@@ -167,6 +178,8 @@ namespace AppInstaller::Repository::Microsoft
         {
             PackageUpdateTrackingBaseTime,
             IntermediateFileOutputPath,
+            DeltaBaselineIndexPath,
+            DeltaOutputPath,
         };
 
         // Sets the given property.
@@ -179,6 +192,8 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
 
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);
