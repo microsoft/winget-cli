@@ -1,7 +1,7 @@
 ---
 author: JohnMcPMS, GitHub Copilot <Copilot>
 created on: 2026-09-01
-last updated: 2026-09-01
+last updated: 2026-09-22
 ---
 
 # Delta Index
@@ -37,6 +37,12 @@ transparent merged reads via SQLite views — and a measurement tool walking the
 community repository was used to characterize how delta size grows relative to the full index
 over time. Those measurements inform the baseline refresh cadence discussed under
 [Baseline selection policy](#baseline-selection-policy).
+
+> [!NOTE]
+> **Implementation status.** The index-side work described here — the V2.1 schema, delta
+> generation inside `PrepareForPackaging`, and the merged read path — is implemented. The
+> service-side and client-side flows are not yet: there is no `delta.msix` acquisition, no
+> baseline download, no telemetry event, and no feature toggle.
 
 ## Solution Design
 
@@ -86,11 +92,16 @@ the working index), the caller performs four additional steps:
   └────────────────────────────┬────────────────────────────────────┘
                                │
   ┌────────────────────────────▼────────────────────────────────────┐
-  │ 3. Call delta creation, supplying:                              │
-  │      - the baseline index file (must be designated)             │
-  │      - the relative path the baseline will be published at      │
-  │      - the MSIX package version of the baseline                 │
-  │    → emits delta.db, recording the baseline's GUID              │
+  │ 3. Set the delta properties, then PrepareForPackaging:          │
+  │      - DeltaBaselineIndexPath (must be designated, and must     │
+  │          share this index's database identifier)                │
+  │      - DeltaOutputPath (must not already exist)                 │
+  │      - DeltaBaselineRelativeSourcePath (the relative path       |
+  |          to the baseline file in storage)                       │
+  │      - DeltaBaselinePackageVersion (the package version of      |
+  |          the baseline to make some client checks more efficient)│
+  │    → emits the prepared index AND the delta, the latter         │
+  │      recording the baseline's GUID                              │
   └────────────────────────────┬────────────────────────────────────┘
                                │
   ┌────────────────────────────▼────────────────────────────────────┐
@@ -101,7 +112,8 @@ the working index), the caller performs four additional steps:
   ┌────────────────────────────▼────────────────────────────────────┐
   │ 5. Publish                                                      │
   │      delta   → fixed location:   <root>/delta.msix              │
-  │      baseline→ versioned location (the relative path from #3)   │
+  │      baseline→ versioned location,                              |
+  |                consistent with DeltaBaselineRelativeSourcePath  │
   │                ONLY when the baseline was rolled; an existing   │
   │                baseline is already published                    │
   │      full    → fixed location:   <root>/source2.msix (unchanged)│
@@ -122,37 +134,86 @@ approaches the size of the full index. The optimum sits between those, and is di
 
 Being a baseline is **not** an implicit property of any prepared index. The service calls a
 dedicated function — `MarkAsBaseline` — on a prepared full index to confer the role. That
-function:
+function does exactly one thing: it generates a **baseline GUID** and stores it in the index
+metadata under `baselineIdentifier`.
 
-1. Validates the index is a legitimate baseline candidate: post-`PrepareForPackaging`, schema
-   V2.1 or higher, and not itself a delta.
-2. Generates and stores a **baseline GUID** in the index metadata.
-3. Records the designation timestamp used as the change-window origin for deltas built against
-   it.
+It refuses two kinds of index:
+
+1. **A delta.** A delta describes change rather than holding a whole index, so it cannot serve
+   as the baseline for another one. Both forms are refused — a delta opened on its own, which
+   carries the identifier of the baseline it was built against, and the merged form, whose
+   tables are views over a union of two databases.
+2. **An index that has not been prepared.** The merged views are defined over the V2 tables, and
+   an unprepared index still holds the V1.7 tables that `PrepareForPackaging` reads from. A
+   baseline in that state is one no delta could be generated from or attached to.
 
 An index without a baseline GUID cannot be used as a baseline, and delta creation rejects it.
 
 This matters for correctness, not just tidiness. Without designation, any prepared index
-silently qualifies as a baseline, and the only thing tying a delta to a baseline is a timestamp
-comparison — which two independently produced indexes can satisfy by coincidence while
-containing entirely different data. Explicit designation plus a GUID makes the pairing
-verifiable rather than presumed.
+silently qualifies as a baseline, and nothing tying a delta to a baseline is stronger than a
+coincidence of ordering — which two independently produced indexes can satisfy while containing
+entirely different data. Explicit designation plus a GUID makes the pairing verifiable rather
+than presumed.
 
-Recording the change-window origin at designation time also resolves a race: using "now" at
-generation time would miss package updates that land between the moment the baseline was
-prepared and the moment it was published.
+##### The change window is a sequence, not a timestamp
+
+Deltas need to know which packages changed after the baseline was produced. That boundary is a
+**monotonic change sequence** rather than a time.
+
+Every write to the package update tracking table takes the next sequence number. Preparing a
+V2.1 index records the highest sequence issued at that point into its own metadata, under
+`deltaBaselineSequence`, and generation asks the tracking table for everything strictly after
+the sequence recorded in the *baseline*. The window is therefore defined by two recorded
+integers rather than by comparing clocks.
+
+This is recorded during `PrepareForPackaging` for **every** V2.1 index, not only for ones that
+are later designated. The index does not know at prepare time whether it will become a baseline,
+and the value is a single metadata row, so recording it unconditionally costs nothing and avoids
+a designation that arrives too late to be accurate.
+
+Sequences are used rather than the existing write timestamps for two reasons:
+
+- **A timestamp is not a boundary.** Multiple packages written in the same clock tick cannot be
+  ordered against a cutoff that falls among them, so a time-based window either repeats work or
+  silently drops it. A sequence has no ties by construction.
+- **Clocks are not guaranteed to advance.** A system clock that steps backwards between publish
+  cycles makes a later index appear earlier, which a comparison cannot detect. A sequence is
+  derived from the table's own contents.
+
+The write timestamp column is unchanged and still drives the existing intermediate-file output
+path, which has its own base-time property. Sequences are additive, and exist only where
+removals are recorded — that is, V2.1 and above.
 
 #### Step 3 — delta creation inputs
 
-Delta creation takes three inputs beyond the working index:
+Delta generation is engaged by setting two properties on the working index before
+`PrepareForPackaging`:
 
-| Input | Purpose |
+| Property | Purpose |
 |---|---|
-| **Baseline index file** | Read-only source for the "before" state. Every changed package is compared against this. Must carry a baseline GUID; generation fails if it does not. The GUID is copied into the delta. |
-| **Baseline relative path** | Where the baseline package will live, relative to the source root. Recorded in the delta so the client can locate the baseline. Deliberately **independent** of the version so that the service retains freedom in how it lays out storage. |
-| **Baseline MSIX package version** | The identity version of the baseline package. Recorded in the delta so the client can determine whether the baseline it already has is the one this delta needs, without a network round trip. |
+| `DeltaBaselineIndexPath` | The baseline index file. Read-only source for the "before" state; every changed package is compared against it. Must carry a baseline GUID, and must belong to the same database lineage as the index being prepared. |
+| `DeltaOutputPath` | Where to write the delta. Must not already exist. |
+| `DeltaBaselineRelativeSourcePath` | The source base path relative location of the baseline file. This allows versioned baselines to exist and be independently controlled by the service. |
+| `DeltaBaselinePackageVersion` | The baseline package version. Having this value isn't strictly necessary, but it will make some of the client checks more efficient. |
 
-The path and version are independent inputs. The path is not derived from the version.
+Setting none of these properties leaves `PrepareForPackaging` behaving exactly as it does for a V2.0 index.
+All must be set for generation to run.
+
+#### Step 3 — the baseline must be an ancestor, not merely a baseline
+
+Two checks establish that the baseline is a legitimate predecessor of the index being prepared,
+and both must pass before any diffing begins:
+
+- **Same database lineage.** The standard `databaseIdentifier` metadata value, which every index
+  carries and which survives across prepares, must be identical in both. This rejects a baseline
+  produced from an entirely different source, which a GUID check alone would not catch — the
+  baseline GUID proves the file *is* a designated baseline, not that it is *this* index's
+  ancestor.
+- **The sequence does not go backwards.** The baseline's recorded `deltaBaselineSequence` must
+  not exceed the index's current sequence. A baseline from the future describes changes that
+  this index has not made.
+
+Both failures raise `APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED`.
 
 #### Step 3 — what delta creation does
 
@@ -161,23 +222,24 @@ Generation must run **inside** `PrepareForPackaging`, after the V2 tables have b
 moment where the finished V2 data and the change-tracking data coexist.
 
 ```
-  a. Open the baseline read-only; read and validate its baseline GUID
-  b. Create delta.db and its schema
-  c. Ask the update tracking table for everything that changed since the
-     baseline's designation timestamp — adds, updates, AND removes
-  d. For each changed package:
-       - removed  → record a package tombstone (is_removed = 1). No per-
-                    association tombstones are written; the views suppress the
-                    baseline's association rows by reference to this one.
-       - added or
-         updated → copy the current row, then for each 1:N and system-reference
-                   table, diff the current string set against the baseline's
-                   string set and record ONLY the differences: added values with
-                   is_removed = 0, values the baseline had but no longer apply
-                   with is_removed = 1. Unchanged associations are not written.
-  e. Write metadata: baseline GUID, baseline relative path, baseline MSIX
-     version, minimum baseline schema version, timestamps
-  f. Vacuum
+  a. Record this index's own change sequence into its metadata
+  b. Open the baseline read-only; validate its GUID, lineage, and sequence
+  c. Create the delta at a temporary path, with its schema
+  d. Ask the update tracking table for everything after the baseline's
+     sequence — changed packages and vacated rowids, reported separately
+  e. For each changed package:
+       - copy the current row, then for each 1:N and system-reference table,
+         diff the current string set against the baseline's string set and
+         record ONLY the differences: added values with is_removed = 0,
+         values the baseline had but no longer apply with is_removed = 1.
+         Unchanged associations are not written.
+  f. For each vacated rowid:
+       - record a package tombstone (is_removed = 1), carrying the identifier
+         the baseline holds at that rowid. No per-association tombstones are
+         written; the views suppress the baseline's association rows by
+         reference to this one.
+  g. Drop the generation-only indexes and vacuum
+  h. Rename the temporary file into place
 ```
 
 If the change set is empty, such as providing the baseline to itself, an empty delta database is produced (full schema with only metadata rows) and the publish proceeds as normal.
@@ -205,33 +267,58 @@ they constrain generation:
 
 Removals require a change to the package update tracking table. Previously a removed package's
 tracking row was deleted, which made the removal invisible to anything reading the tracking
-table afterwards. It now sets `is_removed = 1` instead, so the delta builder sees the complete
+table afterwards. It now records the removal instead, so the delta builder sees the complete
 change set.
 
+Three columns are added, and they are present **only** when the interface records removals — a
+V2.0 index creates the table in exactly its original shape:
+
 ```sql
-ALTER TABLE package_update_tracking ADD COLUMN is_removed INTEGER NOT NULL DEFAULT 0;
+is_removed    INTEGER NOT NULL DEFAULT 0,   -- the row is a tombstone
+package_rowid INTEGER NOT NULL,             -- the rowid the package occupies, or vacated
+change_seq    INTEGER NOT NULL              -- monotonic; the delta's change window boundary
 ```
 
+Two indexes come with them. One over `change_seq`, which serves both the range scan that reports
+changes and the maximum that allocates the next sequence. One partial unique index over
+`package_rowid WHERE is_removed = 0`, enforcing that a rowid has at most one live row; tombstones
+are excluded from it, because a rowid vacated by one package can be taken by another and the two
+would otherwise collide.
+
+> [!NOTE]
+> The live-row constraint is deliberately on the **rowid** rather than the identifier. A unique
+> index cannot use `LIKE`, and no available collation matches it: `NOCASE` is ASCII-only, while
+> `LIKE` here is the ICU implementation registered at connection open, so `NOCASE` would disagree
+> with every other accessor on non-ASCII identifiers. An ICU collation cannot be used either, as
+> it would bake the ICU version into a published index file.
+
 This forces a V2.0 → V2.1 minor version bump. A delta can only be built against a baseline that
-was itself built with removal tracking, so `MarkAsBaseline` enforces V2.1 or higher.
+was itself built with removal tracking, which `MarkAsBaseline` guarantees by existing only on the
+V2.1 interface — the base implementation throws `ERROR_NOT_SUPPORTED`.
 
 #### Delta database schema
 
-The delta carries a `metadata` table using the existing named-value mechanism, plus one table
-per V2 table role.
+The delta is an ordinary SQLite database created through the same storage base as any index, so
+it carries the standard `metadata` table, schema version, and database identifier. On top of that
+it has one table per V2 table role, each named with a `delta_` prefix.
 
 **Metadata values:**
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `BaselineGuid` | TEXT | GUID of the baseline this delta was built against |
-| `BaselineRelativePath` | TEXT | Publish location of the baseline, relative to the source root |
-| `BaselinePackageVersion` | TEXT | MSIX package version of the baseline package |
-| `MinimumBaselineSchemaVersion` | TEXT | Lowest baseline schema version this delta can be applied to |
-| `DeltaTimestamp` | INTEGER | Unix epoch when this delta was generated |
+| `deltaBaselineIdentifier` | TEXT | GUID of the baseline this delta was built against. Written into the delta; checked against the baseline's `baselineIdentifier` when the two are opened together. |
+| `deltaBaselineRelativeSourcePath` | TEXT | Source base relative path to find the baseline package at. |
+| `deltaBaselinePackageVersion` | TEXT | The version of the baseline package to make some client side checks more efficient. |
 
-**Packages** — tombstones carry only `rowid`, `id`, and `is_removed`, so the data columns are
-nullable:
+Two related values live in an ordinary index rather than in the delta:
+
+| Key | Written to | Description |
+|-----|-----|-------------|
+| `baselineIdentifier` | A designated baseline | GUID minted by `MarkAsBaseline`. Its presence is what makes an index usable as a baseline. |
+| `deltaBaselineSequence` | Every prepared V2.1 index | The change sequence reached when the index was prepared. Read from the *baseline* to determine the delta's change window. |
+
+**Packages** — a row carries either the package's current state or the fact that it was removed,
+so every column but the identifier is nullable:
 
 ```sql
 CREATE TABLE delta_packages (
@@ -243,10 +330,12 @@ CREATE TABLE delta_packages (
     arp_min_version TEXT,
     arp_max_version TEXT,
     hash            BLOB,
-    is_removed      INTEGER NOT NULL DEFAULT 0
+    is_removed      INTEGER NOT NULL
 );
-CREATE UNIQUE INDEX delta_packages_id ON delta_packages(id);
 ```
+
+There is deliberately no index on `id`. Nothing looks a delta package up by identifier: the
+merge is keyed entirely on `rowid`, and so is generation.
 
 **Value tables** — new strings only, rowids allocated above the baseline's maximum:
 
@@ -255,9 +344,18 @@ CREATE TABLE delta_tags2 (
     rowid INTEGER PRIMARY KEY,
     tag   TEXT NOT NULL
 );
-CREATE UNIQUE INDEX delta_tags2_value ON delta_tags2(tag);
+CREATE UNIQUE INDEX delta_tags2_pkindex ON delta_tags2(tag);
 -- identical shape for delta_commands2 (command TEXT NOT NULL)
 ```
+
+The unique index exists **only during generation**, which looks a value up by string to reuse a
+rowid it has already allocated for it. It is dropped before the delta is vacuumed, because the
+merged view never searches this table by value — it is reached only through the map table, by
+rowid. Carrying the index into the published file would be paying bytes for a lookup no client
+performs.
+
+There is no removal flag on a value table. A value becomes unreferenced only when every map entry
+naming it is removed, which the map table already records.
 
 **Map tables** — the diff of `(value rowid, package rowid)` pairs:
 
@@ -265,7 +363,7 @@ CREATE UNIQUE INDEX delta_tags2_value ON delta_tags2(tag);
 CREATE TABLE delta_tags2_map (
     tag        INTEGER NOT NULL,   -- rowid into the merged tags2 (baseline or delta)
     package    INTEGER NOT NULL,   -- stable packages.rowid
-    is_removed INTEGER NOT NULL DEFAULT 0,
+    is_removed INTEGER NOT NULL,
     PRIMARY KEY (tag, package)
 ) WITHOUT ROWID;
 -- identical shape for delta_commands2_map
@@ -277,7 +375,7 @@ CREATE TABLE delta_tags2_map (
 CREATE TABLE delta_pfns2 (
     pfn        TEXT NOT NULL,
     package    INTEGER NOT NULL,
-    is_removed INTEGER NOT NULL DEFAULT 0,
+    is_removed INTEGER NOT NULL,
     PRIMARY KEY (pfn, package)
 ) WITHOUT ROWID;
 -- identical shape for delta_productcodes2, delta_norm_names2,
@@ -286,6 +384,9 @@ CREATE TABLE delta_pfns2 (
 
 The `WITHOUT ROWID` primary keys are load-bearing for merge performance — see
 [Performance of the row-level anti-join](#performance-of-the-row-level-anti-join).
+
+`is_removed` carries no `DEFAULT`. Generation always states it explicitly, and a default would
+only serve to make a row that omitted it look deliberate.
 
 #### Step 4 — packaging identity
 
@@ -479,12 +580,6 @@ safely:
   fixed-name separation — such clients only ever ask for `source2.msix` — but the delta database
   should still be identifiable as non-standalone so that a mistaken direct open fails loudly
   rather than producing an index that appears valid but is missing most of its rows.
-- **Schema floor.** Deltas require a V2.1+ baseline. The delta records
-  `MinimumBaselineSchemaVersion` so a client can reject an unusable combination cleanly.
-
-> [!NOTE]
-> The exact placement of the role and standalone markers — SQLite metadata table, MSIX manifest
-> extension, or both — is not yet settled and should be resolved during implementation.
 
 #### Fallback behavior
 
@@ -497,7 +592,7 @@ optimization, never a correctness dependency.
 | Delta downloaded but metadata unreadable or incomplete | Full index |
 | Baseline named by the delta cannot be retrieved | Full index |
 | Baseline GUID does not match the delta's | Re-acquire baseline once; then full index |
-| Baseline schema version below the delta's floor | Full index |
+| Baseline schema version differs from the delta's | Full index |
 | Merged open fails for any reason | Full index |
 | Source is not a pre-indexed package source (REST, Store) | Not applicable — no change |
 
@@ -569,14 +664,22 @@ CREATE TEMP VIEW packages AS
   SELECT rowid, id, name, moniker, latest_version, arp_min_version, arp_max_version, hash
   FROM delta_packages WHERE is_removed = 0
   UNION ALL
-  SELECT p.rowid, p.id, p.name, p.moniker, p.latest_version, p.arp_min_version, p.arp_max_version, p.hash
-  FROM baseline.packages p
-  WHERE p.id NOT IN (SELECT id FROM delta_packages);
+  SELECT b.rowid, b.id, b.name, b.moniker, b.latest_version, b.arp_min_version, b.arp_max_version, b.hash
+  FROM baseline.packages b
+  WHERE NOT EXISTS (SELECT rowid FROM delta_packages d WHERE d.rowid = b.rowid);
 ```
 
-The `NOT IN` is what makes an updated package resolve to its delta row rather than appearing
-twice, and what makes a removed package disappear entirely — a tombstone is present in
-`delta_packages`, so it suppresses the baseline row, but is itself filtered by `is_removed = 0`.
+A baseline package is superseded whenever the delta mentions its **rowid** at all: the delta row
+replaces it when the package changed, and stands for its absence when it was removed — the
+tombstone suppresses the baseline row here while being filtered out of the first branch by
+`is_removed = 0`.
+
+> [!IMPORTANT]
+> Suppression is keyed on `rowid`, not on `id`. Identifiers are matched by `LIKE` elsewhere in
+> the index, and the `ids` table collapses identifiers differing only by case onto a single row,
+> overwriting the stored string with the most recent casing. A baseline and a delta can therefore
+> hold different spellings of the same package. The rowid is the identity that is actually
+> stable, and matching on it is also a primary-key seek rather than a string comparison.
 
 **Value tables** (`tags2`, `commands2`) — unconditional union, no filtering, because generation
 guarantees the delta only ever contains strings the baseline does not have, at rowids above the
@@ -589,10 +692,13 @@ CREATE TEMP VIEW tags2 AS
   SELECT rowid, tag FROM baseline.tags2;
 ```
 
+Nothing is suppressed here, including values nothing refers to any more. The map table governs
+what is visible, so an unreferenced value simply never appears.
+
 **Map and system-reference tables** — the delta holds **only the diff**: rows added since the
 baseline (`is_removed = 0`) and tombstones for rows the baseline had that are now gone
 (`is_removed = 1`). Associations that did not change are not represented at all. The baseline
-row therefore passes through unless a tombstone specifically cancels it.
+row therefore passes through unless the delta specifically claims that pair.
 
 ```sql
 CREATE TEMP VIEW tags2_map AS
@@ -600,10 +706,10 @@ CREATE TEMP VIEW tags2_map AS
   UNION ALL
   SELECT b.tag, b.package FROM baseline.tags2_map b
   WHERE NOT EXISTS (
-      SELECT 1 FROM delta_tags2_map d
-      WHERE d.tag = b.tag AND d.package = b.package AND d.is_removed = 1)
+      SELECT package FROM delta_tags2_map d
+      WHERE d.tag = b.tag AND d.package = b.package)
     AND NOT EXISTS (
-      SELECT 1 FROM delta_packages p
+      SELECT rowid FROM delta_packages p
       WHERE p.rowid = b.package AND p.is_removed = 1);
 ```
 
@@ -614,6 +720,12 @@ CREATE TEMP VIEW tags2_map AS
 > unchanged association of every updated package, degrading package correlation by
 > PFN and product code.
 
+The first `NOT EXISTS` deliberately does **not** test `is_removed`. The delta owns any pair it
+names: if it holds the pair as added, the first branch already emits it, and letting the baseline
+copy through as well would emit it twice. Testing `d.is_removed = 1` here would duplicate every
+association that appears on both sides, which is every
+unchanged association of a package that changed for some other reason.
+
 The second `NOT EXISTS` drops associations belonging to deleted packages. Removing a package
 does **not** write a tombstone per association — that would be pure waste — so the association
 rows are instead suppressed by reference to the package tombstone. Without this, a value-first
@@ -622,7 +734,9 @@ no longer exists in the `packages` view.
 
 The same shape applies to `commands2_map`, and to the system-reference tables (`pfns2`,
 `productcodes2`, `norm_names2`, `norm_publishers2`, `upgradecodes2`), which carry
-`(value, package)` directly with no separate value table.
+`(value, package)` directly with no separate value table. The two are identical as far as merging
+is concerned — one holds the value inline, the other a reference to it — so a single
+implementation covers both.
 
 #### Performance of the row-level anti-join
 
@@ -651,18 +765,24 @@ The net effect is a substantially smaller delta for an unmeasurable difference i
 #### Open sequence
 
 ```
-  1. Open delta.db read-only as the main connection
+  1. Open delta.db as the main connection
   2. ATTACH baseline.db AS baseline
-  3. Validate the baseline's GUID matches the one recorded in the delta metadata
+  3. Validate the pair:
+       - the baseline's baselineIdentifier equals the delta's
+         deltaBaselineIdentifier
+       - the two schema versions are equal
+     On failure, DETACH and throw
   4. Create the TEMP VIEWs, shadowing every real table name
   5. Construct the normal V2 interface
-     → its state detection finds `packages`, concludes the index is in
-       post-PrepareForPackaging state, and all reads proceed unchanged
+     → its state detection is told that the index is already in
+       post-PrepareForPackaging form, and all reads proceed unchanged
 ```
 
 This is exposed as an additional construction entry point on the existing index type
 (`OpenWithBaseline`) rather than a new type. The resulting object is an ordinary index as far
-as every consumer is concerned.
+as every consumer is concerned. Underneath, it is a single virtual call — `SetupDeltaReadMode` —
+that only the V2.1 interface implements; every other version inherits a base that throws
+`ERROR_NOT_SUPPORTED`.
 
 #### Constraints this imposes
 
@@ -680,7 +800,7 @@ as every consumer is concerned.
 ### API surface changes
 
 **`SQLiteIndex` properties** — new values used to engage the delta path during
-`PrepareForPackaging`:
+`PrepareForPackaging`.
 
 ```cpp
 enum class Property
@@ -688,22 +808,27 @@ enum class Property
     PackageUpdateTrackingBaseTime,
     IntermediateFileOutputPath,
     DeltaBaselineIndexPath,             // new
-    DeltaBaselineRelativeStoragePath,   // new
-    DeltaBaselinePackageVersion,        // new
     DeltaOutputPath,                    // new
+    DeltaBaselineRelativeSourcePath,    // new
+    DeltaBaselinePackageVersion,        // new
 };
 ```
 
-**WinGetUtil C API** — the index creation tooling is C#, so the properties and the new entry
-points are projected through `WinGetUtil.dll`:
+**`ISQLiteIndex`** — two new virtuals, implemented only by V2.1, with base implementations that
+throw `ERROR_NOT_SUPPORTED`:
 
+```cpp
+virtual void MarkAsBaseline(SQLite::Connection& connection);
+virtual void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline);
+```
+
+For the WinGetUtil C API:
 ```c
 WINGET_UTIL_API WinGetSQLiteIndexMarkAsBaseline(
     WINGET_SQLITE_INDEX_HANDLE index);
 ```
-
-with matching additions to the `WinGetSQLiteIndexProperty` enum, and corresponding `IWinGetFactory`
-/ `IWinGetSQLiteIndex` members in the C# interop layer.
+with matching additions to the `WinGetSQLiteIndexProperty` enum, and corresponding
+`IWinGetFactory` / `IWinGetSQLiteIndex` members in the C# interop layer.
 
 ### Client integration
 
@@ -711,7 +836,8 @@ The pre-indexed package source factory gains delta awareness:
 
 - A `delta.msix` location alongside the existing `source2.msix` / `source.msix` candidates.
 - Baseline acquisition driven by the delta's metadata, reusing the existing download and trust
-  validation helpers.
+  validation helpers. This is what requires the baseline's publish path and package version to be
+  recorded in the delta.
 - Merged open via `OpenWithBaseline` when a valid pair is available, and the fallback table
   above otherwise.
 
@@ -817,14 +943,19 @@ Specific considerations:
 - **Package substitution.** The baseline GUID check ensures a delta is only ever applied to the
   baseline it was built against. A correctly signed but mismatched baseline is rejected rather
   than silently producing an incomplete catalog. This is the principal new integrity property
-  and the reason affinity is checked explicitly rather than inferred.
+  and the reason affinity is checked explicitly rather than inferred. Generation adds a second
+  check on the same theme in the other direction: the baseline must share the index's
+  `databaseIdentifier`, so a delta cannot be built against a designated baseline belonging to an
+  unrelated source.
 - **Baseline location is service-controlled data.** The baseline relative path travels inside
   the delta, which means a compromised delta could name an arbitrary path. The path is resolved
   strictly relative to the source root already configured for that source, and the resulting
   package is subject to the same signature and trust validation as any other. It cannot be used
   to reach a different origin.
 - **Attack surface.** Two packages are acquired instead of one, but both through the same
-  validated path. The delta database itself is only ever opened read-only.
+  validated path. The delta database itself is only ever opened read-only, and the baseline is
+  attached with its read-only disposition carried in the URI rather than inherited from the
+  connection.
 - **Downgrade.** A client that cannot validate the pair falls back to the full index, which is
   the current behavior, so failure never results in a less-trusted outcome.
 
@@ -849,13 +980,19 @@ index fails silently rather than loudly. They are covered under [Potential Issue
 - **Existing clients** continue to download `source2.msix` from its fixed location, which
   continues to be published in full indefinitely. A client with no knowledge of `delta.msix`
   observes no change whatsoever.
-- **The V2.0 → V2.1 bump is additive.** It adds an `is_removed` column with a default to an
-  internal tracking table that is dropped before packaging, so it is not visible in a published
-  index. Published V2.1 indexes remain readable by V2.0-aware clients.
+- **The V2.0 → V2.1 bump is additive.** It adds columns to an internal tracking table that is
+  dropped before packaging, so it is not visible in a published index. Published V2.1 indexes
+  remain readable by V2.0-aware clients. Creating a V2.0 index still produces exactly the V2.0
+  schema; the added columns and the nullability relaxation they require appear only on migration
+  to V2.1.
 - **Delta-aware clients against a non-delta source** find no `delta.msix` and fall back
   immediately, so a source that has not adopted delta publishing works unchanged.
-- **A V2.1 client against an older baseline** is prevented by the `MinimumBaselineSchemaVersion`
-  floor recorded in the delta.
+- **The default index version is unchanged.** Creating an index without naming a version still
+  produces V1.7, because the unqualified "latest" resolution is still the V1 map. Only an
+  explicit request for the latest V2 now resolves to V2.1 rather than V2.0, and the index
+  publishing tooling names its version explicitly.
+- **A V2.1 client against an older baseline** is prevented by the schema version equality check
+  performed when the two are opened together.
 - **Third-party sources** using the pre-indexed format are unaffected unless they choose to
   publish deltas. Nothing requires them to.
 
@@ -919,7 +1056,27 @@ cost.
 **Rowid stability is a hidden invariant.** The merge is only this simple because package rowids
 are pinned to the `ids` table rowid. Anything that changes rowid assignment during
 `PrepareForPackaging` breaks the merge in a way that is not locally obvious from the code being
-changed. This deserves an explicit comment at the assignment site and a test that fails loudly.
+changed.
+
+Pinning is **not** conditional on delta generation — every V2 prepare does it, because a delta
+may be built against any prepared index and the decision is not known at that point. Two
+consequences follow for indexes that have nothing to do with deltas:
+
+- **Published index bytes change.** A package now occupies the rowid its identifier was first
+  assigned, rather than one handed out in the order packages happened to be written.
+- **Search results that tie now order differently.** Match results are ordered by match quality
+  alone, and equally good matches previously emerged in alphabetical order as a side effect of
+  how rowids were assigned. They now emerge in the order packages were first added. Nothing
+  documented or depended upon changes — the index defines no order among equal matches, and
+  deliberately does not — but `winget search` preserves index order for a free-text query, so the
+  output is visibly reshuffled. Ordering equally good matches is a presentation decision and
+  belongs to the caller; the results table does not even lead with the identifier, so name would
+  likely be the better key.
+
+**Rowid reuse complicates removal.** Rowids are recycled, so a rowid vacated by one package can
+be taken by another within the same delta window. Generation writes changed packages before
+tombstones and skips any rowid already written, and skips tombstones for rowids the baseline
+never held. Neither case is rare enough to leave to chance in a repository with steady churn.
 
 **Two-package acquisition has more failure states.** A baseline roll makes source update a
 two-download operation, which is more exposed to interruption. The fallback path bounds the
