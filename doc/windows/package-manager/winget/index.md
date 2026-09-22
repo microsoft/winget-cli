@@ -77,6 +77,7 @@ The current version of the **winget** tool supports the following options.
 | **--logs,--open-logs** | Open the default logs location |
 | **--verbose,--verbose-logs** | Enables verbose logging for winget |
 | **--disable-interactivity** | Disable interactive prompts |
+| **--output-locale** | Language to use for the output of this command (BCP47 format). Overrides the `output.locale` setting and does not affect `--locale`. |
 
 ## Supported installer formats
 

@@ -121,6 +121,17 @@ namespace AppInstaller
                     return true;
                 }
 
+                // When no resource loader is available (unpackaged execution without a resources.pri next to
+                // the binary), strings already fall back to their resource keys and an override cannot work.
+                // Return before mutating any global qualifier state; CreateLoader changes the WinRT resource
+                // system state before the guard call to ResourceLoader(), which can turn the subsequent
+                // GetForViewIndependentUse failure into an uncatchable fast fail when not under a debugger.
+                if (!m_wingetLoader)
+                {
+                    AICLI_LOG(CLI, Warning, << "Ignoring resource locale override (" << Utility::ConvertToUTF8(localeTag) << "); no resource loader is available.");
+                    return false;
+                }
+
                 try
                 {
                     m_wingetLoader = CreateLoader(localeTag);
@@ -131,6 +142,14 @@ namespace AppInstaller
                 {
                     AICLI_LOG(CLI, Error, << "Failure applying resource locale override (" << Utility::ConvertToUTF8(localeTag) << ") with error: " << hre.code());
                 }
+
+                // Restore the previously working loader and qualifier value so that a failed override does not
+                // leave the process unable to resolve strings.
+                try
+                {
+                    m_wingetLoader = CreateLoader(m_localeOverride);
+                }
+                CATCH_LOG();
 
                 return false;
             }

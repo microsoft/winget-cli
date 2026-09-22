@@ -859,6 +859,10 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>File where the result is to be written</value>
   </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>Language to use for the output of this command (BCP47 format)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the language used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>File describing the packages to install</value>
   </data>
