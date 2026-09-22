@@ -24,26 +24,6 @@ Configure your editor to apply these settings on save, or run a check before com
 
 ---
 
-## File Headers
-
-Every C++ source and header file must begin with:
-
-```cpp
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-```
-
-Every C# source file must begin with:
-
-```csharp
-// -----------------------------------------------------------------------------
-// <copyright file="FileName.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
-// </copyright>
-// -----------------------------------------------------------------------------
-```
-
----
 
 ## Brace Style
 
