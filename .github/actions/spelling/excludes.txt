@@ -96,6 +96,7 @@
 \.zip$
 ^\.github/actions/spelling/
 ^\.github/policies/
+^\.github/workflows/.*\.lock\.yml$
 ^\.github/workflows/spelling\d*\.yml$
 ^cgmanifest\.json$
 ^Localization/
