@@ -205,11 +205,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
         SearchResult results;
         utility::string_t continuationToken;
+        std::set<utility::string_t> usedContinuationTokens;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
         do
         {
             if (!continuationToken.empty())
             {
+                if (!usedContinuationTokens.emplace(continuationToken).second)
+                {
+                    AICLI_LOG(Repo, Error, << "REST source returned a repeated continuation token.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+
                 AICLI_LOG(Repo, Verbose, << "Received continuation token. Retrieving more results.");
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }

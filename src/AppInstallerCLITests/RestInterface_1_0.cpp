@@ -1345,37 +1345,121 @@ TEST_CASE("Search_ExplicitIdFilters_Continuation", "[RestSource][Interface_1_0]"
 
 TEST_CASE("Search_ContinuationToken", "[RestSource][Interface_1_0]")
 {
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : [
-               {
-              "PackageIdentifier": "git.package",
-              "PackageName": "package",
-              "Publisher": "git",
-              "Versions": [
-                {   "PackageVersion": "1.0.0" }]
-            },
+    size_t requestCount = 0;
+    std::vector<utility::string_t> sentTokens;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::BadRequest };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (request.method() == web::http::methods::POST)
             {
-              "PackageIdentifier": "foo.package",
-              "PackageName": "package",
-              "Publisher": "foo",
-              "Versions": [
-                {   "PackageVersion": "1.0.0" }]
-            }],
-           "ContinuationToken" : "abcd-ct="
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+                sentTokens.emplace_back(request.headers()[L"ContinuationToken"]);
+                ++requestCount;
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(web::json::value::parse(
+                    GetSearchResponse_PackageIds({ L"git.package", L"foo.package" }, std::to_wstring(requestCount))));
+            }
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
     Interface v1{ TestRestUriString, std::move(helper) };
-    SearchRequest request{};
-    request.MaximumResults = 9;
-    Schema::IRestClient::SearchResult results = v1.Search(request);
-    REQUIRE(results.Matches.size() == request.MaximumResults);
+    for (size_t maximumResults : { size_t{ 9 }, size_t{ 1 }, size_t{ 9 } })
+    {
+        CAPTURE(maximumResults);
+        requestCount = 0;
+        sentTokens.clear();
+        SearchRequest request;
+        request.MaximumResults = maximumResults;
+        auto result = v1.Search(request);
+        REQUIRE(result.Matches.size() == maximumResults);
+        REQUIRE(result.Truncated);
+        REQUIRE(requestCount == (maximumResults + 1) / 2);
+        REQUIRE(sentTokens[0].empty());
+        for (size_t i = 1; i < sentTokens.size(); ++i)
+        {
+            REQUIRE(sentTokens[i] == std::to_wstring(i));
+        }
+    }
+}
 
-    SearchRequest requestWithSize1{};
-    requestWithSize1.MaximumResults = 1;
-    Schema::IRestClient::SearchResult resultsWithSize1 = v1.Search(requestWithSize1);
-    REQUIRE(resultsWithSize1.Matches.size() == requestWithSize1.MaximumResults);
+TEST_CASE("Search_ContinuationToken_Cycle", "[RestSource][Interface_1_0]")
+{
+    bool longerCycle = GENERATE(false, true);
+    CAPTURE(longerCycle);
+    std::vector<utility::string_t> returnedTokens{ L"next", L"next" };
+    if (longerCycle)
+    {
+        returnedTokens.insert(returnedTokens.begin() + 1, L"NEXT");
+    }
+    bool keepFirstResult = false;
+    bool reachResultLimit = false;
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Match.");
+    request.MaximumResults = 1;
+
+    SECTION("All pages are rejected") {}
+    SECTION("Partial results do not hide the invalid response")
+    {
+        keepFirstResult = true;
+        request.MaximumResults = 2;
+    }
+    SECTION("Unlimited results still detect cycles")
+    {
+        request.MaximumResults = 0;
+    }
+    SECTION("A satisfied result limit does not follow the repeated token")
+    {
+        reachResultLimit = true;
+    }
+
+    size_t requestCount = 0;
+    std::vector<utility::string_t> sentTokens;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request httpRequest) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::BadRequest };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (httpRequest.method() == web::http::methods::POST)
+            {
+                sentTokens.emplace_back(httpRequest.headers()[L"ContinuationToken"]);
+                size_t page = requestCount++;
+                response.set_status_code(web::http::status_codes::OK);
+                if (page < returnedTokens.size())
+                {
+                    bool matches = (keepFirstResult && page == 0) || (reachResultLimit && page + 1 == returnedTokens.size());
+                    response.set_body(web::json::value::parse(
+                        GetSearchResponse_PackageIds({ matches ? L"Match.One" : L"Other.App" }, returnedTokens[page])));
+                }
+                else
+                {
+                    // End the fake chain if the client fails to detect the cycle.
+                    response.set_body(web::json::value::parse(GetSearchResponse_PackageIds({})));
+                }
+            }
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
+    Interface v1{ TestRestUriString, helper };
+    if (reachResultLimit)
+    {
+        auto result = v1.Search(request);
+        REQUIRE(result.Matches.size() == 1);
+        REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Match.One");
+        REQUIRE(result.Truncated);
+    }
+    else
+    {
+        REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    }
+    REQUIRE(requestCount == returnedTokens.size());
+    REQUIRE(sentTokens[0].empty());
+    for (size_t i = 1; i < sentTokens.size(); ++i)
+    {
+        REQUIRE(sentTokens[i] == returnedTokens[i - 1]);
+    }
 }
 
 TEST_CASE("Search_BadResponse_NoVersions", "[RestSource][Interface_1_0]")
