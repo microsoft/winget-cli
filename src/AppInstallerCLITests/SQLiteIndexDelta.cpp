@@ -2023,10 +2023,10 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_StandaloneDetectsAssociationOnRemo
     {
         Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
 
-        SQLite::rowid_t removedRowId = GetScalar(connection, "SELECT [rowid] FROM [" + packagesTable + "] WHERE [is_removed] = 1");
+        auto removedRowId = GetScalar(connection, "SELECT [rowid] FROM [" + packagesTable + "] WHERE [is_removed] = 1");
 
         Statement::Create(connection,
-            "INSERT INTO [" + productCodesTable + "] ([value], [package], [is_removed]) VALUES ('PC-Ghost', " +
+            "INSERT INTO [" + productCodesTable + "] ([productcode], [package], [is_removed]) VALUES ('PC-Ghost', " +
             std::to_string(removedRowId) + ", 0)").Execute();
     }
 
