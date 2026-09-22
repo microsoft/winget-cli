@@ -180,6 +180,8 @@ namespace AppInstaller::Repository::Microsoft
             IntermediateFileOutputPath,
             DeltaBaselineIndexPath,
             DeltaOutputPath,
+            DeltaBaselineRelativeSourcePath,
+            DeltaBaselinePackageVersion,
         };
 
         // Sets the given property.

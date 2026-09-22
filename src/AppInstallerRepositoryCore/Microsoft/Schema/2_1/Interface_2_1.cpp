@@ -95,14 +95,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         int64_t currentSequence = V2_0::PackageUpdateTrackingTable::GetCurrentChangeSequence(connection, m_trackingRemovalBehavior);
         SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_DeltaBaselineSequence, std::to_string(currentSequence));
 
-        if (!context.Data.Contains(Property::DeltaBaselineIndexPath) ||
-            !context.Data.Contains(Property::DeltaOutputPath))
+        bool hasBaselineIndexPath = context.Data.Contains(Property::DeltaBaselineIndexPath);
+        bool hasOutputPath = context.Data.Contains(Property::DeltaOutputPath);
+        bool hasRelativeSourcePath = context.Data.Contains(Property::DeltaBaselineRelativeSourcePath);
+        bool hasPackageVersion = context.Data.Contains(Property::DeltaBaselinePackageVersion);
+
+        if (!hasBaselineIndexPath && !hasOutputPath && !hasRelativeSourcePath && !hasPackageVersion)
         {
             return;
         }
 
+        // Generation is all or nothing. A partially configured caller has made a mistake, and
+        // silently declining would only surface later as a delta that no client can pair with a
+        // baseline, or as a baseline that nothing was ever written against.
+        THROW_HR_IF(E_INVALIDARG, !(hasBaselineIndexPath && hasOutputPath && hasRelativeSourcePath && hasPackageVersion));
+
         std::filesystem::path baselinePath = context.Data.Get<Property::DeltaBaselineIndexPath>();
         std::filesystem::path deltaOutputPath = context.Data.Get<Property::DeltaOutputPath>();
+
+        Delta::BaselineReference baselineReference
+        {
+            context.Data.Get<Property::DeltaBaselineRelativeSourcePath>(),
+            context.Data.Get<Property::DeltaBaselinePackageVersion>(),
+        };
 
         AICLI_LOG(Repo, Info, << "Generating a delta index against baseline [" << baselinePath << "]");
 
@@ -130,6 +145,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         Delta::Generate(
             connection,
             baselineConnection,
+            baselineReference,
             deltaOutputPath,
             GetVersion(),
             changedPackages,

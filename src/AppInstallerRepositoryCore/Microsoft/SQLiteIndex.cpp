@@ -426,6 +426,14 @@ namespace AppInstaller::Repository::Microsoft
             m_contextData.Add<Schema::Property::DeltaOutputPath>(std::move(pathValue));
         }
             break;
+        case Property::DeltaBaselineRelativeSourcePath:
+            THROW_HR_IF(E_INVALIDARG, value.empty());
+            m_contextData.Add<Schema::Property::DeltaBaselineRelativeSourcePath>(value);
+            break;
+        case Property::DeltaBaselinePackageVersion:
+            THROW_HR_IF(E_INVALIDARG, value.empty());
+            m_contextData.Add<Schema::Property::DeltaBaselinePackageVersion>(value);
+            break;
         }
     }
 }

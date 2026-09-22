@@ -30,6 +30,14 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         private const string PackageTestNewVersion = "PackageTestNewVersion.yaml";
         private const string PackageTestRelativePath = @"manifests\t\Test\Test\1.0\Test.Test.yaml";
 
+        // The first schema version that can produce a delta index.
+        private const uint DeltaMajorVersion = 2;
+        private const uint DeltaMinorVersion = 1;
+
+        // Opaque to the index; only the publishing service knows how its baselines are laid out.
+        private const string BaselineRelativeSourcePath = "baselines/1.2.3.4/baseline.msix";
+        private const string BaselinePackageVersion = "1.2.3.4";
+
         private readonly string indexTestFilePath;
         private readonly string indexTestLogFile;
         private readonly string indexTestOutputPath;
@@ -314,6 +322,75 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
 
                 return true;
             });
+        }
+
+        /// <summary>
+        /// Verifies that a delta index can be generated through the public API surface.
+        /// This covers every delta property and the baseline designation call.
+        /// </summary>
+        [Fact]
+        [DisplayTestMethodName]
+        public void GenerateDeltaIndex()
+        {
+            string workingPath = Path.Combine(this.indexTestOutputPath, "working.db");
+            string baselinePath = Path.Combine(this.indexTestOutputPath, "baseline.db");
+            string deltaPath = Path.Combine(this.indexTestOutputPath, "delta.db");
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(this.indexTestLogFile);
+
+            // The working index accumulates changes; a copy of it becomes the baseline, so that the
+            // two share the database lineage that generation requires.
+            using (var working = factory.SQLiteIndexCreate(workingPath, DeltaMajorVersion, DeltaMinorVersion))
+            {
+                working.SetProperty(SQLiteIndexProperty.PackageUpdateTrackingBaseTime, "0");
+                working.AddManifest(Path.Combine(this.indexTestDataPath, PackageTest), PackageTestRelativePath);
+            }
+
+            File.Copy(workingPath, baselinePath);
+
+            using (var baseline = factory.SQLiteIndexOpen(baselinePath))
+            {
+                baseline.PrepareForPackaging();
+                baseline.MarkAsBaseline();
+            }
+
+            using (var working = factory.SQLiteIndexOpen(workingPath))
+            {
+                working.SetProperty(SQLiteIndexProperty.PackageUpdateTrackingBaseTime, string.Empty);
+                Assert.True(working.UpdateManifest(Path.Combine(this.indexTestDataPath, PackageTestNewName), PackageTestRelativePath));
+            }
+
+            using (var working = factory.SQLiteIndexOpen(workingPath))
+            {
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselineIndexPath, baselinePath);
+                working.SetProperty(SQLiteIndexProperty.DeltaOutputPath, deltaPath);
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+                working.SetProperty(SQLiteIndexProperty.DeltaBaselinePackageVersion, BaselinePackageVersion);
+                working.PrepareForPackaging();
+            }
+
+            Assert.True(File.Exists(deltaPath), "The delta index was written.");
+            Assert.True(new FileInfo(deltaPath).Length > 0, "The delta index is not empty.");
+        }
+
+        /// <summary>
+        /// Verifies that designating an index that has not been prepared for packaging fails.
+        /// </summary>
+        [Fact]
+        [DisplayTestMethodName]
+        public void MarkAsBaselineRequiresPreparedIndex()
+        {
+            string workingPath = Path.Combine(this.indexTestOutputPath, "unprepared.db");
+
+            var factory = new WinGetFactory();
+            using var log = factory.LoggingInit(this.indexTestLogFile);
+            using var working = factory.SQLiteIndexCreate(workingPath, DeltaMajorVersion, DeltaMinorVersion);
+
+            working.AddManifest(Path.Combine(this.indexTestDataPath, PackageTest), PackageTestRelativePath);
+
+            var exception = Assert.Throws<WinGetSQLiteIndexException>(() => working.MarkAsBaseline());
+            Assert.NotNull(exception.InnerException);
         }
 
         private void CreateIndexHelperForIndexTest(Func<IWinGetSQLiteIndex, bool> lambda)

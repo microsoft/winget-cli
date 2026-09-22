@@ -12,6 +12,18 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 {
+    // Identifies the baseline package to a client that holds only the delta, so that it can acquire
+    // the baseline the delta was generated against. Both values are supplied by the publishing
+    // service, which is the only party that knows how its baselines are laid out and versioned.
+    struct BaselineReference
+    {
+        // The location of the baseline package, relative to the source's base location.
+        std::string RelativeSourcePath;
+
+        // The version of the baseline package.
+        std::string PackageVersion;
+    };
+
     // Writes a delta database describing the difference between a baseline index and the index
     // that is currently being packaged.
     //
@@ -31,6 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     void Generate(
         const SQLite::Connection& sourceConnection,
         const SQLite::Connection& baselineConnection,
+        const BaselineReference& baselineReference,
         const std::filesystem::path& deltaOutputPath,
         const SQLite::Version& version,
         const std::vector<V2_0::PackageUpdateTrackingTable::PackageData>& changedPackages,

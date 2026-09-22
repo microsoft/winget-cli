@@ -149,6 +149,11 @@ namespace
         TempFile BaselineFile{ "delta_baseline"s, ".db"s };
         TempFile DeltaFile{ "delta_output"s, ".db"s };
 
+        // How the client will be told to find the baseline package. These are opaque to the index;
+        // only the publishing service knows how its baselines are laid out.
+        std::string BaselineRelativeSourcePath = "baselines/1.2.3.4/baseline.msix";
+        std::string BaselinePackageVersion = "1.2.3.4";
+
         DeltaTestContext() = default;
 
         // Creates the working index and fills it with the data the baseline will hold.
@@ -228,11 +233,19 @@ namespace
             REQUIRE(m_baselineCaptured);
 
             SQLiteIndex index = SQLiteIndex::Open(WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-            index.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, BaselineFile.GetPath().u8string());
-            index.SetProperty(SQLiteIndex::Property::DeltaOutputPath, DeltaFile.GetPath().u8string());
+            SetDeltaProperties(index);
             index.PrepareForPackaging();
 
             m_deltaGenerated = true;
+        }
+
+        // The four properties that generation requires, which must always be supplied together.
+        void SetDeltaProperties(SQLiteIndex& index)
+        {
+            index.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, BaselineFile.GetPath().u8string());
+            index.SetProperty(SQLiteIndex::Property::DeltaOutputPath, DeltaFile.GetPath().u8string());
+            index.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, BaselineRelativeSourcePath);
+            index.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, BaselinePackageVersion);
         }
 
         // Opens the delta on its own, to inspect what generation actually wrote.
@@ -2285,6 +2298,8 @@ TEST_CASE("SQLiteIndex_Delta_SequenceBelowBaselineIsRejected", "[sqliteindex][V2
     SQLiteIndex rebuilt = SQLiteIndex::Open(rebuiltFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
     rebuilt.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
     rebuilt.SetProperty(SQLiteIndex::Property::DeltaOutputPath, rebuiltDeltaFile.GetPath().u8string());
+    rebuilt.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, context.BaselineRelativeSourcePath);
+    rebuilt.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, context.BaselinePackageVersion);
 
     REQUIRE_THROWS_HR(rebuilt.PrepareForPackaging(), APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
 }
@@ -2343,4 +2358,90 @@ TEST_CASE("SQLiteIndex_Delta_RejectedBaselineReleasesAttachment", "[sqliteindex]
     REQUIRE_NOTHROW(Delta::SetupReadMode(connection, DatabaseSpecifier{ context.BaselineFile.GetPath().u8string(), DatabaseDisposition::Read }));
 
     REQUIRE(GetStrings(connection, "SELECT [id] FROM [packages]") == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+}
+
+// N1. The delta is delivered on its own, so it has to carry enough to find the baseline it was
+// generated against. Without these values a client holding the delta has nothing to acquire.
+TEST_CASE("SQLiteIndex_Delta_RecordsBaselineLocation", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+    context.GenerateDelta();
+
+    Connection delta = context.OpenDeltaConnection();
+
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(delta, Schema::V2_1::s_MetadataValueName_DeltaBaselineRelativeSourcePath) == context.BaselineRelativeSourcePath);
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(delta, Schema::V2_1::s_MetadataValueName_DeltaBaselinePackageVersion) == context.BaselinePackageVersion);
+
+    // The baseline itself is not a delta, so it must not claim to locate one.
+    Connection baseline = Connection::Create(context.BaselineFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(baseline, Schema::V2_1::s_MetadataValueName_DeltaBaselineRelativeSourcePath));
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(baseline, Schema::V2_1::s_MetadataValueName_DeltaBaselinePackageVersion));
+}
+
+// N2. The four delta properties describe one decision, so supplying some of them is a mistake
+// rather than a request to do less. Declining silently would produce a delta that no client can
+// pair with a baseline, discovered only at acquisition time.
+TEST_CASE("SQLiteIndex_Delta_PartialConfigurationIsRejected", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+
+    std::vector<std::pair<SQLiteIndex::Property, std::string>> properties{
+        { SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string() },
+        { SQLiteIndex::Property::DeltaOutputPath, context.DeltaFile.GetPath().u8string() },
+        { SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, context.BaselineRelativeSourcePath },
+        { SQLiteIndex::Property::DeltaBaselinePackageVersion, context.BaselinePackageVersion },
+    };
+
+    // Each of the four on its own is a partial configuration, and so is any three of them.
+    int omitted = GENERATE(0, 1, 2, 3);
+    bool onlyOne = GENERATE(false, true);
+
+    SQLiteIndex index = SQLiteIndex::Open(context.WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+
+    for (int i = 0; i < static_cast<int>(properties.size()); ++i)
+    {
+        if (onlyOne ? (i == omitted) : (i != omitted))
+        {
+            index.SetProperty(properties[i].first, properties[i].second);
+        }
+    }
+
+    REQUIRE_THROWS_HR(index.PrepareForPackaging(), E_INVALIDARG);
+
+    REQUIRE(!std::filesystem::exists(context.DeltaFile.GetPath()));
+}
+
+// N3. Setting none of them is the ordinary case for every index that is not producing a delta, and
+// it has to leave preparing exactly as it was before any of this existed.
+TEST_CASE("SQLiteIndex_Delta_NoPropertiesPreparesNormally", "[sqliteindex][V2_1][delta]")
+{
+    DeltaTestContext context{ { MakePackage("Publisher1.Id", "Package 1") } };
+
+    context.Add(MakePackage("Publisher2.Id", "Package 2"));
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(context.WorkingFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        REQUIRE_NOTHROW(index.PrepareForPackaging());
+    }
+
+    REQUIRE(!std::filesystem::exists(context.DeltaFile.GetPath()));
+
+    SQLiteIndex prepared = SQLiteIndex::Open(context.WorkingFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    REQUIRE(GetSearchedIds(prepared) == std::set<std::string>{ "Publisher1.Id", "Publisher2.Id" });
+}
+
+// N4. An empty value cannot locate anything, and it is what a caller that failed to compute one
+// will pass. Rejecting it where it is set names the mistake at the point it was made.
+TEST_CASE("SQLiteIndex_Delta_EmptyBaselineLocationIsRejected", "[sqliteindex][V2_1][delta]")
+{
+    TempFile indexFile{ "delta_empty_property"s, ".db"s };
+    SQLiteIndex index = SQLiteIndex::CreateNew(indexFile, s_DeltaVersion);
+
+    REQUIRE_THROWS_HR(index.SetProperty(SQLiteIndex::Property::DeltaBaselineRelativeSourcePath, ""), E_INVALIDARG);
+    REQUIRE_THROWS_HR(index.SetProperty(SQLiteIndex::Property::DeltaBaselinePackageVersion, ""), E_INVALIDARG);
 }
