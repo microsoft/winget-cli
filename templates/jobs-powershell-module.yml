@@ -130,4 +130,5 @@ jobs:
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifact: 'PowerShell.$(System.JobAttempt)'
     condition: succeededOrFailed()
