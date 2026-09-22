@@ -129,6 +129,12 @@ namespace AppInstaller::Repository::Microsoft
 
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
+        //
+        // What that means depends on what the database is and on the properties that have been
+        // set. A delta is not an index in its own right: on its own only what it says about itself
+        // can be checked, DeltaBaselineIndexPath additionally checks the merged form, and
+        // DeltaComparisonIndexPath additionally requires the merged form to be equivalent to the
+        // standard index built from the same data.
         bool CheckConsistency(bool log = false) const;
 
         // Performs a search based on the given criteria.
@@ -178,6 +184,7 @@ namespace AppInstaller::Repository::Microsoft
             DeltaBaselineRelativeSourcePath,
             DeltaBaselinePackageVersion,
             DeltaMarkAsBaseline,
+            DeltaComparisonIndexPath,
         };
 
         // Sets the given property.

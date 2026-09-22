@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Interface.h"
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
+#include "Microsoft/Schema/2_1/DeltaConsistency.h"
 #include "Microsoft/Schema/2_1/DeltaGeneration.h"
 #include "Microsoft/Schema/2_1/DeltaViews.h"
 
@@ -82,6 +83,84 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // question is already settled: a delta is only ever read, and only in its packaged form.
         m_isDeltaReadMode = true;
         m_internalInterfaceChecked = true;
+    }
+
+    bool Interface::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
+    {
+        bool hasBaseline = context.Data.Contains(Property::DeltaBaselineIndexPath);
+        bool hasComparison = context.Data.Contains(Property::DeltaComparisonIndexPath);
+
+        // The properties cannot decide what this database is: the working index that *generates* a
+        // delta carries the very same baseline path, and it is an ordinary index.
+        bool isDelta = IsDeltaIndex(context.Connection);
+
+        // Comparing against a standard index only says something about a merged result.
+        THROW_HR_IF(E_INVALIDARG, hasComparison && !isDelta);
+
+        const SQLite::Connection* targetConnection = &context.Connection;
+        std::optional<SQLite::Connection> mergedConnection;
+        const ISQLiteIndex* targetInterface = this;
+        std::unique_ptr<ISQLiteIndex> combinedInterface;
+
+        bool result = true;
+
+        if (isDelta)
+        {
+            result = Delta::CheckConsistency(context.Connection, log) && result;
+
+            if (!m_isDeltaReadMode)
+            {
+                if (!hasBaseline)
+                {
+                    // There is nothing to compare a delta against until it has been merged.
+                    THROW_HR_IF(E_INVALIDARG, hasComparison);
+
+                    // We can only check the consistency of the delta itself without a baseline.
+                    return result;
+                }
+
+                if (result || log)
+                {
+                    // The combination is opened rather than attached to the caller's connection, which is
+                    // const and would be permanently changed by the attach.
+                    THROW_HR_IF(E_NOT_VALID_STATE, !context.Data.Contains(Property::DatabaseFilePath));
+
+                    mergedConnection = SQLite::Connection::Create(SQLite::DatabaseSpecifier{
+                        context.Data.Get<Property::DatabaseFilePath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+                    combinedInterface = CreateISQLiteIndex(GetVersion());
+                    combinedInterface->SetupDeltaReadMode(mergedConnection.value(), SQLite::DatabaseSpecifier{
+                        context.Data.Get<Property::DeltaBaselineIndexPath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+                    targetConnection = &mergedConnection.value();
+                    targetInterface = combinedInterface.get();
+                }
+            }
+        }
+
+        // Perform the standard consistency check against the merged interface
+        if (result || log)
+        {
+            result = targetInterface->CheckConsistency(*targetConnection, log) && result;
+        }
+
+        if (hasComparison && (result || log))
+        {
+            SQLite::Connection comparison = SQLite::Connection::Create(SQLite::DatabaseSpecifier{
+                context.Data.Get<Property::DeltaComparisonIndexPath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+            // The standard index need not be this exact version, so its own interface reads it.
+            std::unique_ptr<ISQLiteIndex> comparisonInterface = CreateISQLiteIndex(SQLite::Version::GetSchemaVersion(comparison));
+
+            result = Delta::CheckEquivalence(*targetInterface, *targetConnection, *comparisonInterface, comparison, log) && result;
+        }
+
+        return result;
+    }
+
+    bool Interface::IsDeltaIndex(const SQLite::Connection& connection) const
+    {
+        return !SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier).value_or(std::string{}).empty();
     }
 
     void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext& context)

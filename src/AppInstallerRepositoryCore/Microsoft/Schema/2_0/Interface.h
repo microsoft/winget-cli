@@ -31,6 +31,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         void PrepareForPackaging(SQLite::Connection& connection) override;
         void PrepareForPackaging(const SQLiteIndexContext& context) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
+        using ISQLiteIndex::CheckConsistency;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
         std::optional<std::string> GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionProperty property) const override;
         std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;

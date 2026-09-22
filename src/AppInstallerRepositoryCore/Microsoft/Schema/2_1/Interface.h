@@ -33,6 +33,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // Version 1.0
         SQLite::Version GetVersion() const override;
 
+        // Checks the consistency of the index, routing on whether the database is a delta and on
+        // the delta properties that the caller has set.
+        bool CheckConsistency(const SQLiteIndexConstContext& context, bool log) const override;
+        using V2_0::Interface::CheckConsistency;
+
         // Version 2.0
         bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) override;
 
@@ -47,5 +52,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // Records the baseline sequence for this index, and generates a delta index against a previous
         // baseline when the caller has supplied the paths to do so.
         void CreateAdditionalPackagingOutput(const SQLiteIndexContext& context) override;
+
+        // Determines whether the database is a delta rather than an index in its own right.
+        bool IsDeltaIndex(const SQLite::Connection& connection) const;
     };
 }

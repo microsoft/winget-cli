@@ -286,7 +286,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Checking index consistency...");
 
-        bool result = m_interface->CheckConsistency(m_dbconn, log);
+        bool result = m_interface->CheckConsistency(Schema::SQLiteIndexConstContext{ m_dbconn, m_contextData }, log);
 
         AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
 
@@ -425,6 +425,13 @@ namespace AppInstaller::Repository::Microsoft
             // meaningful false: a caller that does not want one simply does not set this.
             THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(value, "true"));
             m_contextData.Add<Schema::Property::DeltaMarkAsBaseline>(true);
+            break;
+        case Property::DeltaComparisonIndexPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::DeltaComparisonIndexPath>(std::move(pathValue));
+        }
             break;
         }
     }

@@ -21,6 +21,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
         PrepareForPackaging(context.Connection);
     }
 
+    bool ISQLiteIndex::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
+    {
+        return CheckConsistency(context.Connection, log);
+    }
+
     void ISQLiteIndex::SetProperty(SQLite::Connection&, Property, const std::string&)
     {
         THROW_WIN32(ERROR_NOT_SUPPORTED);
