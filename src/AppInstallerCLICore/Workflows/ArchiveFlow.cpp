@@ -90,7 +90,8 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
         {
-            const std::filesystem::path& nestedInstallerPath = targetInstallerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            std::filesystem::path nestedInstallerPath = targetInstallerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            nestedInstallerPath.make_preferred();
             
             if (Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.RelativeFilePath))
             {
