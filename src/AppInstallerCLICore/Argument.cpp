@@ -86,7 +86,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::IgnoreLocalArchiveMalwareScan:
             return { type, "ignore-local-archive-malware-scan"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::AcceptPackageAgreements:
-            return { type, "accept-package-agreements"_liv, ArgTypeCategory::InstallerBehavior };
+            return { type, "accept-package-agreements"_liv, "apa"_liv, ArgTypeCategory::InstallerBehavior };
         case Execution::Args::Type::Rename:
             return { type, "rename"_liv, 'r' };
         case Execution::Args::Type::NoUpgrade:
@@ -224,7 +224,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationFile:
             return { type, "file"_liv, 'f', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationAcceptWarning:
-            return { type, "accept-configuration-agreements"_liv };
+            return { type, "accept-configuration-agreements"_liv, "aca"_liv };
         case Execution::Args::Type::ConfigurationSuppressPrologue:
             return { type, "suppress-initial-details"_liv };
         case Execution::Args::Type::ExtendedFeaturesEnable:
@@ -317,7 +317,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::CustomHeader:
             return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::AcceptSourceAgreements:
-            return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
+            return { type, "accept-source-agreements"_liv, "asa"_liv, ArgTypeCategory::ExtendedSource };
 
         case Execution::Args::Type::Proxy:
             return { type, "proxy"_liv, ArgTypeCategory::CopyValueToSubContext, ArgTypeExclusiveSet::Proxy };
