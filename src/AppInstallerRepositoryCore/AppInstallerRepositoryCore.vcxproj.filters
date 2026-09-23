@@ -127,6 +127,9 @@
     <Filter Include="Rest\Schema\1_28\Json">
       <UniqueIdentifier>{b4c8d9e2-f3a5-6b7c-0d1e-2f3a4b5c6d7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\2_1">
+      <UniqueIdentifier>{b4b0b84d-5dea-42bb-817b-7cf269008f52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -519,6 +522,18 @@
     <ClInclude Include="MatchCriteriaResolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaGeneration.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaTables.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaViews.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\Interface.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -811,6 +826,18 @@
     </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaGeneration.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaTables.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaViews.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\Interface_2_1.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

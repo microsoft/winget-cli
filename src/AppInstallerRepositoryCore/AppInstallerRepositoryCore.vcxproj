@@ -331,6 +331,10 @@
     <ClInclude Include="Microsoft\Schema\2_0\SystemReferenceStringTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\UpgradeCodeTable.h" />
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaGeneration.h" />
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaTables.h" />
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaViews.h" />
+    <ClInclude Include="Microsoft\Schema\2_1\Interface.h" />
     <ClInclude Include="Microsoft\Schema\IPinningIndex.h" />
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
     <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h" />
@@ -443,6 +447,10 @@
     <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp" />
     <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\Interface_2_0.cpp" />
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaGeneration.cpp" />
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaTables.cpp" />
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaViews.cpp" />
+    <ClCompile Include="Microsoft\Schema\2_1\Interface_2_1.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\PackagesTable.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\OneToManyTableWithMap.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.cpp" />

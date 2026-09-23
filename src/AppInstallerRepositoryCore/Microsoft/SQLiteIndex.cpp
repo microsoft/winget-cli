@@ -45,6 +45,25 @@ namespace AppInstaller::Repository::Microsoft
         return { filePath, source };
     }
 
+    SQLiteIndex SQLiteIndex::OpenWithBaseline(const std::string& deltaFilePath, const std::string& baselineFilePath, OpenDisposition disposition)
+    {
+        AICLI_LOG(Repo, Info, << "Opening delta index [" << deltaFilePath << "] with baseline [" << baselineFilePath << "]");
+
+        // The combined form is presented through views over a union of two databases, so there is
+        // nothing here that could be written back to.
+        THROW_HR_IF(E_INVALIDARG, disposition == OpenDisposition::ReadWrite);
+
+        std::filesystem::path baselinePath{ Utility::ConvertToUTF16(baselineFilePath) };
+        THROW_HR_IF(E_INVALIDARG, baselinePath.empty() || baselinePath.is_relative());
+
+        SQLiteIndex result{ SQLite::DatabaseSpecifier{ deltaFilePath, disposition }, {} };
+
+        // The interface for the delta's schema version establishes the combined view.
+        result.m_interface->SetupDeltaReadMode(result.m_dbconn, SQLite::DatabaseSpecifier{ baselineFilePath, disposition });
+
+        return result;
+    }
+
     SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version, CreateOptions options) : SQLiteStorageBase(target, version, GetPageSizeFromOptions(options))
     {
         m_dbconn.EnableICU();
@@ -54,13 +73,18 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(target, disposition, std::move(indexFile))
+        SQLiteIndex(SQLite::DatabaseSpecifier{ target, disposition }, std::move(indexFile))
+    {
+    }
+
+    SQLiteIndex::SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile) :
+        SQLiteStorageBase(specifier, std::move(indexFile))
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = Schema::CreateISQLiteIndex(m_version);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
-        SetDatabaseFilePath(target);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, specifier.Disposition() == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+        SetDatabaseFilePath(specifier.Path());
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteIndex& source) :
@@ -257,6 +281,20 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(Schema::SQLiteIndexContext{ m_dbconn, m_contextData });
     }
 
+    void SQLiteIndex::MarkAsBaseline()
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Info, << "Marking index as a delta baseline");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_mark_as_baseline");
+
+        m_interface->MarkAsBaseline(m_dbconn);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+    }
+
     bool SQLiteIndex::CheckConsistency(bool log) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -372,6 +410,20 @@ namespace AppInstaller::Repository::Microsoft
             std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
             THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
             m_contextData.Add<Schema::Property::IntermediateFileOutputPath>(std::move(pathValue));
+        }
+            break;
+        case Property::DeltaBaselineIndexPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::DeltaBaselineIndexPath>(std::move(pathValue));
+        }
+            break;
+        case Property::DeltaOutputPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::DeltaOutputPath>(std::move(pathValue));
         }
             break;
         }

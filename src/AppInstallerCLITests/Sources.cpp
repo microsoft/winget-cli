@@ -1032,6 +1032,15 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
                 source.Arg = "arg" + suffix[i];
                 source.Data = "data" + suffix[i];
                 source.Identifier = "id" + suffix[i];
+                source.TrustLevel = { "Trusted" };
+                source.Explicit = (i % 2 == 0);
+
+                // Leave the first source without a priority to verify the default value.
+                if (i != 0)
+                {
+                    source.Priority = static_cast<int32_t>(i);
+                }
+
                 policySources.emplace_back(std::move(source));
             }
 
@@ -1046,12 +1055,59 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 
             for (size_t i = 0; i < policySources.size(); ++i)
             {
+                INFO("Source #" << i);
                 REQUIRE(sources[i].Name == policySources[i].Name);
                 REQUIRE(sources[i].Type == policySources[i].Type);
                 REQUIRE(sources[i].Arg == policySources[i].Arg);
                 REQUIRE(sources[i].Data == policySources[i].Data);
                 REQUIRE(sources[i].Identifier == policySources[i].Identifier);
                 REQUIRE(sources[i].Origin == SourceOrigin::GroupPolicy);
+                REQUIRE(sources[i].Explicit == policySources[i].Explicit);
+                REQUIRE(WI_IsFlagSet(sources[i].TrustLevel, SourceTrustLevel::Trusted));
+                REQUIRE(sources[i].Priority == policySources[i].Priority.value_or(0));
+            }
+        }
+        SECTION("Priority sorts additional sources")
+        {
+            TestHook::SetSingleExperimentalFeature_Override prioritySortEnabled{ ExperimentalFeature::Feature::SourcePriority };
+
+            // The sources are given in increasing priority order; the result should be the reverse.
+            std::vector<SourceFromPolicy> policySources;
+            const std::string suffix[3] = { "", "2", "3" };
+            for (size_t i = 0; i < 3; ++i)
+            {
+                SourceFromPolicy source;
+                source.Name = "name" + suffix[i];
+                source.Type = "type" + suffix[i];
+                source.Arg = "arg" + suffix[i];
+                source.Data = "data" + suffix[i];
+                source.Identifier = "id" + suffix[i];
+                source.Priority = static_cast<int32_t>(i) + 1;
+                policySources.emplace_back(std::move(source));
+            }
+
+            policies.SetValue<ValuePolicy::AdditionalSources>(policySources);
+            SetSetting(Stream::UserSources, s_EmptySources);
+
+            auto sources = GetSources();
+
+            REQUIRE(sources.size() == policySources.size() + c_DefaultSourceCount);
+
+            for (size_t i = 0; i < policySources.size(); ++i)
+            {
+                size_t policyIndex = policySources.size() - 1 - i;
+                INFO("Source #" << i << " [" << policyIndex << "]");
+                REQUIRE(sources[i].Name == policySources[policyIndex].Name);
+                REQUIRE(sources[i].Origin == SourceOrigin::GroupPolicy);
+                REQUIRE(sources[i].Priority == policySources[policyIndex].Priority.value());
+            }
+
+            // The default sources have a priority of 0, so they come after all of the policy sources.
+            for (size_t i = policySources.size(); i < sources.size(); ++i)
+            {
+                INFO("Source #" << i);
+                REQUIRE(sources[i].Origin == SourceOrigin::Default);
+                REQUIRE(sources[i].Priority == 0);
             }
         }
         SECTION("Same-name user source is overridden")

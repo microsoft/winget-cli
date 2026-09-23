@@ -13,6 +13,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
         PackageUpdateTrackingBaseTime,
         IntermediateFileOutputPath,
         DatabaseFilePath,
+        DeltaBaselineIndexPath,
+        DeltaOutputPath,
         Max
     };
 
@@ -40,6 +42,20 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         template <>
         struct PropertyMapping<Property::DatabaseFilePath>
+        {
+            using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaBaselineIndexPath>
+        {
+            using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaOutputPath>
         {
             using value_t = std::filesystem::path;
             static constexpr bool SetThroughInterface = false;
