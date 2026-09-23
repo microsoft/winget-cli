@@ -712,6 +712,47 @@ namespace
     }
 }
 
+TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
+{
+    bool hasDefaultName = GENERATE(false, true);
+    bool hasDefaultPublisher = GENERATE(false, true);
+    CAPTURE(hasDefaultName, hasDefaultPublisher);
+    Manifest manifest;
+    const std::string defaultPublisher = hasDefaultPublisher ? "Default Publisher" : "";
+    if (hasDefaultName)
+    {
+        manifest.DefaultLocalization.Add<Localization::PackageName>("Default Name");
+    }
+    if (hasDefaultPublisher)
+    {
+        manifest.DefaultLocalization.Add<Localization::Publisher>(defaultPublisher);
+    }
+    auto& localization = manifest.Localizations.emplace_back();
+    localization.Add<Localization::PackageName>("Localized Name");
+    localization.Add<Localization::Publisher>("Localized Publisher");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Name Only");
+    manifest.Localizations.emplace_back().Add<Localization::Publisher>("Publisher Only");
+    manifest.Localizations.emplace_back();
+    auto& installer = manifest.Installers.emplace_back();
+    auto& entry = installer.AppsAndFeaturesEntries.emplace_back();
+    entry.DisplayName = "Installed Name";
+    entry.Publisher = "Installed Publisher";
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Fallback Name";
+    installer.AppsAndFeaturesEntries.emplace_back().Publisher = "Unused Publisher";
+
+    std::vector<std::pair<Manifest::string_t, Manifest::string_t>> expected;
+    if (hasDefaultName)
+    {
+        expected.emplace_back("Default Name", defaultPublisher);
+        expected.emplace_back("Localized Name", "Localized Publisher");
+        expected.emplace_back("Name Only", defaultPublisher);
+        expected.emplace_back("Default Name", "Publisher Only");
+    }
+    expected.emplace_back("Installed Name", "Installed Publisher");
+    expected.emplace_back("Fallback Name", defaultPublisher);
+    REQUIRE(manifest.GetNameAndPublisherPairs() == expected);
+}
+
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     auto manifestFile = TestDataFile("Manifest-Good.yaml");

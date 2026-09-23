@@ -969,15 +969,12 @@ namespace AppInstaller::Repository
                     {
                         AddIfNotPresent(SystemReferenceString{ PackageMatchField::UpgradeCode, Utility::LocIndString{ upgradeCode } });
                     }
-                    for (const auto& name : manifest.GetPackageNames())
+                    for (auto&& [name, publisher] : manifest.GetNameAndPublisherPairs())
                     {
-                        for (const auto& publisher : manifest.GetPublishers())
-                        {
-                            AddIfNotPresent(SystemReferenceString{
-                                PackageMatchField::NormalizedNameAndPublisher,
-                                Utility::LocIndString{ name },
-                                Utility::LocIndString{ publisher } });
-                        }
+                        AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            Utility::LocIndString{ std::move(name) },
+                            Utility::LocIndString{ std::move(publisher) } });
                     }
                 }
 

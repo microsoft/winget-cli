@@ -303,14 +303,9 @@ namespace AppInstaller::Repository::Rest
             {
                 if (version.Manifest)
                 {
-                    auto names = version.Manifest->GetPackageNames();
-                    auto publishers = version.Manifest->GetPublishers();
-                    for (const auto& name : names)
+                    for (auto&& [name, publisher] : version.Manifest->GetNameAndPublisherPairs())
                     {
-                        for (const auto& publisher : publishers)
-                        {
-                            result.emplace_back(Utility::LocIndString{ name }, Utility::LocIndString{ publisher });
-                        }
+                        result.emplace_back(Utility::LocIndString{ std::move(name) }, Utility::LocIndString{ std::move(publisher) });
                     }
                 }
             }

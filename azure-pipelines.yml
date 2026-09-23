@@ -135,6 +135,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
+                    /p:PreferredToolArchitecture=x64
                     /p:WingetCleanIntermediateFiles=true
                     /p:WingetDisableIncrementalLinkTimeCodeGeneration=true'
       maximumCpuCount: true

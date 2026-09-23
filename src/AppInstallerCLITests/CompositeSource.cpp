@@ -2204,3 +2204,62 @@ TEST_CASE("CompositeSource_RestRetrieval_NamePublisher", "[RestSource][Composite
     }
     REQUIRE(setup.ManifestRequests == (versionState == "PartiallyCached" ? size_t{ 2 } : size_t{ 1 }));
 }
+
+TEST_CASE("CompositeSource_RestRetrieval_ManifestNamePublisherPairs", "[RestSource][CompositeSource][RestRetrievalRegression]")
+{
+    auto behavior = GENERATE(CompositeSearchBehavior::Installed, CompositeSearchBehavior::AvailablePackages);
+    bool cacheManifest = GENERATE(false, true);
+    size_t nameIndex = GENERATE(0, 1, 2);
+    size_t publisherIndex = GENERATE(0, 1, 2);
+    const std::vector<std::string> names{ "New App", "Localized App", "Installed App" };
+    const std::vector<std::string> publishers{ "New Publisher", "Localized Publisher", "Installed Publisher" };
+    const auto& name = names[nameIndex];
+    const auto& publisher = publishers[publisherIndex];
+    CAPTURE(behavior, cacheManifest, name, publisher);
+    RestCorrelationTestSetup setup{ behavior };
+    setup.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
+    auto& manifestVersion = setup.ManifestResponse[L"Data"][L"Versions"][0];
+    manifestVersion[L"Locales"] = web::json::value::parse(LR"([
+        { "PackageLocale": "fr-FR", "PackageName": "Localized App", "Publisher": "Localized Publisher" }
+    ])");
+    manifestVersion[L"Installers"][0][L"AppsAndFeaturesEntries"] = web::json::value::parse(LR"([
+        { "DisplayName": "Installed App", "Publisher": "Installed Publisher" }
+    ])");
+    auto installedManifest = MakeDefaultManifest("1.0.0");
+    installedManifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(name);
+    installedManifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher);
+    auto installed = TestCompositePackage::Make(installedManifest, TestCompositePackage::MetadataMap{},
+        std::vector<Manifest::Manifest>{}, setup.Installed);
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        SearchResult result;
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::NormalizedNameAndPublisher && inclusion.Additional &&
+                    ICUCaseInsensitiveEquals(inclusion.Value, name) &&
+                    ICUCaseInsensitiveEquals(inclusion.Additional.value(), publisher))
+                {
+                    result.Matches.emplace_back(installed, inclusion);
+                    break;
+                }
+            }
+        }
+        return result;
+    };
+    SearchRequest request;
+    request.Filters.emplace_back(cacheManifest ? PackageMatchField::Moniker : PackageMatchField::Name,
+        MatchType::Exact, cacheManifest ? "tool"sv : "Legacy App"sv);
+    auto result = setup.Composite.Search(request);
+    REQUIRE(result.Failures.empty());
+    bool shouldCorrelate = nameIndex == publisherIndex;
+    size_t expectedCount = behavior == CompositeSearchBehavior::Installed && !shouldCorrelate ? 0 : 1;
+    REQUIRE(result.Matches.size() == expectedCount);
+    if (expectedCount)
+    {
+        REQUIRE(static_cast<bool>(GetInstalledVersion(result.Matches[0].Package)) == shouldCorrelate);
+        REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);
+    }
+    REQUIRE(setup.ManifestRequests == 1);
+}

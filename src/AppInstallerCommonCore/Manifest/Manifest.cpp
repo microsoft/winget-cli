@@ -210,6 +210,38 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<std::pair<string_t, string_t>> Manifest::GetNameAndPublisherPairs() const
+    {
+        std::vector<std::pair<string_t, string_t>> result;
+        const auto defaultPublisher = DefaultLocalization.Get<Localization::Publisher>();
+        if (DefaultLocalization.Contains(Localization::PackageName))
+        {
+            const auto defaultName = DefaultLocalization.Get<Localization::PackageName>();
+            result.emplace_back(defaultName, defaultPublisher);
+            for (const auto& localization : Localizations)
+            {
+                if (localization.Contains(Localization::PackageName) || localization.Contains(Localization::Publisher))
+                {
+                    result.emplace_back(
+                        localization.Contains(Localization::PackageName) ? localization.Get<Localization::PackageName>() : defaultName,
+                        localization.Contains(Localization::Publisher) ? localization.Get<Localization::Publisher>() : defaultPublisher);
+                }
+            }
+        }
+
+        for (const auto& installer : Installers)
+        {
+            for (const auto& entry : installer.AppsAndFeaturesEntries)
+            {
+                if (!entry.DisplayName.empty())
+                {
+                    result.emplace_back(entry.DisplayName, entry.Publisher.empty() ? defaultPublisher : entry.Publisher);
+                }
+            }
+        }
+        return result;
+    }
+
     std::vector<string_t> Manifest::GetSystemReferenceStrings(
         std::function<const string_t& (const ManifestInstaller&)> extractStringFromInstaller,
         std::function<const string_t& (const AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry) const
