@@ -12,6 +12,7 @@
 #include "Microsoft/Schema/1_6/Interface.h"
 #include "Microsoft/Schema/1_7/Interface.h"
 #include "Microsoft/Schema/2_0/Interface.h"
+#include "Microsoft/Schema/2_1/Interface.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
@@ -21,6 +22,16 @@ namespace AppInstaller::Repository::Microsoft::Schema
     }
 
     void ISQLiteIndex::SetProperty(SQLite::Connection&, Property, const std::string&)
+    {
+        THROW_WIN32(ERROR_NOT_SUPPORTED);
+    }
+
+    void ISQLiteIndex::MarkAsBaseline(SQLite::Connection&)
+    {
+        THROW_WIN32(ERROR_NOT_SUPPORTED);
+    }
+
+    void ISQLiteIndex::SetupDeltaReadMode(SQLite::Connection&, const SQLite::DatabaseSpecifier&)
     {
         THROW_WIN32(ERROR_NOT_SUPPORTED);
     }
@@ -45,13 +56,14 @@ namespace AppInstaller::Repository::Microsoft::Schema
             return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();
         }
 
-        // Version 2.0 is designed solely for minimizing the size of the index for transport.
+        // Version 2.* is designed solely for minimizing the size of the index for transport.
         // Unless it is prepared for packaging, it will be identical to a 1.N index.
         if (version.MajorVersion == 2)
         {
-            constexpr std::array<std::unique_ptr<ISQLiteIndex>(*)(), 1> versionCreatorMap =
+            constexpr std::array<std::unique_ptr<ISQLiteIndex>(*)(), 2> versionCreatorMap =
             {
                 []() { return std::unique_ptr<ISQLiteIndex>(std::make_unique<V2_0::Interface>()); },
+                []() { return std::unique_ptr<ISQLiteIndex>(std::make_unique<V2_1::Interface>()); },
             };
 
             return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();

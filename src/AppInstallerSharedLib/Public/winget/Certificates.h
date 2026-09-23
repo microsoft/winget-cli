@@ -22,6 +22,9 @@ namespace AppInstaller::Certificates
     // Returns an empty string if the file is unsigned, untrusted, or on any error.
     std::string GetAuthenticodeSubject(const std::filesystem::path& filePath);
 
+    // Gets a human readable, indented description of the certificates in the given chain, from root to leaf.
+    std::string GetCertificateChainDescription(PCCERT_CHAIN_CONTEXT chainContext);
+
     // Defines the types of certificate pinning to perform.
     enum class PinningVerificationType : uint32_t
     {
@@ -253,6 +256,9 @@ namespace AppInstaller::Certificates
 
         // Loads the pinning configuration from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
+        // Gets a description of the configuration, including all of its chains.
+        std::string GetDescription() const;
 
         // Determines how far the configuration is through its lifespan (the maximum of all of its chains).
         double GetRemainingLifetimePercentage() const;
