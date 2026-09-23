@@ -1253,6 +1253,44 @@ TEST_CASE("SQLBuilder_NotEqualsLiteral", "[sqlbuilder]")
     REQUIRE(readView(removedView) == std::vector<int>{ 2, 3 });
 }
 
+TEST_CASE("SQLBuilder_SchemaTableExists", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view tableName = "present";
+    constexpr std::string_view indexName = "index_only";
+    constexpr std::string_view viewName = "view_only";
+
+    REQUIRE(!Builder::Schema::TableExists(connection, tableName));
+
+    {
+        Builder::StatementBuilder builder;
+        builder.CreateTable(tableName).Columns({ Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int) });
+        builder.Execute(connection);
+    }
+
+    REQUIRE(Builder::Schema::TableExists(connection, tableName));
+
+    {
+        Builder::StatementBuilder builder;
+        builder.CreateIndex(indexName).On(tableName).Columns(s_firstColumn);
+        builder.Execute(connection);
+    }
+
+    {
+        Builder::StatementBuilder builder;
+        builder.CreateTempView(viewName).Select(s_firstColumn).From(tableName);
+        builder.Execute(connection);
+    }
+
+    INFO("An index lives in the same schema table as its table, so only the type filter keeps it out");
+    REQUIRE(!Builder::Schema::TableExists(connection, indexName));
+
+    INFO("A temp view is not in the main schema at all. The delta read form gives its merged views "
+        "the names of real 2.0 tables, so this is why PackagesTable::Exists reports false there");
+    REQUIRE(!Builder::Schema::TableExists(connection, viewName));
+}
+
 TEST_CASE("SQLiteWrapperTransactionRollback", "[sqlitewrapper]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);

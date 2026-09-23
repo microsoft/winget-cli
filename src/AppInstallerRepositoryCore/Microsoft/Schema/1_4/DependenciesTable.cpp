@@ -164,15 +164,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
     bool DependenciesTable::Exists(const SQLite::Connection& connection)
     {
-        using namespace SQLite;
-
-        Builder::StatementBuilder builder;
-        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
-            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_DependenciesTable_Table_Name);
-
-        Statement statement = builder.Prepare(connection);
-        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
-        return statement.GetColumn<int64_t>(0) != 0;
+        return SQLite::Builder::Schema::TableExists(connection, s_DependenciesTable_Table_Name);
     }
 
     std::string_view DependenciesTable::TableName()

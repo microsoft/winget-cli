@@ -90,6 +90,9 @@ namespace AppInstaller::SQLite::Builder
 
         // The sqlite_schema column name for the name of the object.
         constexpr std::string_view NameColumn = "name"sv;
+
+        // Whether a table with the given name exists in the main database.
+        bool TableExists(const Connection& connection, std::string_view tableName);
     }
 
     // A qualified column reference.

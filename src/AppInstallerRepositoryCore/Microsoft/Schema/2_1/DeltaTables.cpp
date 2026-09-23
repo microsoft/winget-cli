@@ -71,6 +71,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         return s_Delta_IsRemovedColumn;
     }
 
+    bool IsDeltaDatabase(const SQLite::Connection& connection)
+    {
+        return SQLite::Builder::Schema::TableExists(connection, GetTableName(V2_0::PackagesTable::TableName()));
+    }
+
     void CreateTables(SQLite::Connection& connection)
     {
         using namespace SQLite::Builder;

@@ -77,18 +77,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             return result;
         }
 
-        bool TableExists(const SQLite::Connection& connection, std::string_view tableName)
-        {
-            StatementBuilder builder;
-            builder.Select(RowCount).From(SQLite::Builder::Schema::MainTable).
-                Where(SQLite::Builder::Schema::TypeColumn).Equals(SQLite::Builder::Schema::Type_Table).
-                And(SQLite::Builder::Schema::NameColumn).Equals(tableName);
-
-            SQLite::Statement statement = builder.Prepare(connection);
-            THROW_HR_IF(E_UNEXPECTED, !statement.Step());
-            return statement.GetColumn<int64_t>(0) != 0;
-        }
-
         // Every table that generation creates. A delta missing one of them cannot be read at all,
         // so this is established before anything tries to query them.
         std::vector<std::string> AllTableNames()
@@ -117,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
             for (const auto& tableName : AllTableNames())
             {
-                if (!TableExists(connection, tableName))
+                if (!SQLite::Builder::Schema::TableExists(connection, tableName))
                 {
                     result = false;
 

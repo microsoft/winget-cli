@@ -5,6 +5,7 @@
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
 #include "Microsoft/Schema/2_1/DeltaConsistency.h"
 #include "Microsoft/Schema/2_1/DeltaGeneration.h"
+#include "Microsoft/Schema/2_1/DeltaTables.h"
 #include "Microsoft/Schema/2_1/DeltaViews.h"
 
 #include <winget/SQLiteMetadataTable.h>
@@ -20,11 +21,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // decision: a baseline that nothing was ever written against is of no use to a client.
         void MarkAsBaseline(SQLite::Connection& connection)
         {
-            // A delta is a description of change rather than a whole index, so it cannot stand as
-            // the baseline for another one. What identifies one is the baseline it names, which it
-            // carries whether it is being read on its own or with that baseline attached.
-            THROW_HR_IF(E_NOT_VALID_STATE,
-                !SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier).value_or(std::string{}).empty());
+            THROW_HR_IF(E_NOT_VALID_STATE, Delta::IsDeltaDatabase(connection));
 
             GUID baselineIdentifier;
             THROW_IF_FAILED(CoCreateGuid(&baselineIdentifier));
@@ -160,7 +157,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 
     bool Interface::IsDeltaIndex(const SQLite::Connection& connection) const
     {
-        return !SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier).value_or(std::string{}).empty();
+        return Delta::IsDeltaDatabase(connection);
     }
 
     void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext& context)

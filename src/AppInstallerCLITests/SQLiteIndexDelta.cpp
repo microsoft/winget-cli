@@ -2064,6 +2064,35 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_OnStandaloneDelta", "[sqliteindex]
     REQUIRE(delta.CheckConsistency(true));
 }
 
+// I4b. A delta is identified by its schema, not by the baseline that it names. Were the identifier
+// the discriminator, a delta that had lost it would stop being recognized as one and be handed to
+// the ordinary index check -- which, finding no packages table, would build the 1.7 internal
+// interface and throw against tables that a delta has never had. The value is still required, but
+// by the delta check, where its absence is reported as the finding it is.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_DeltaWithoutBaselineIdentifierIsStillDelta", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Remove(p2);
+    context.GenerateDelta();
+
+    {
+        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(delta.CheckConsistency(true));
+    }
+
+    {
+        Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+        Statement::Create(connection, "DELETE FROM [metadata] WHERE [name] = 'deltaBaselineIdentifier'").Execute();
+    }
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    REQUIRE(!delta.CheckConsistency(true));
+}
+
 // I5. The invariant that a delta alone can actually be held to: a removal is recorded once, in the
 // packages table, so nothing may associate a value with a package that the same delta removes.
 TEST_CASE("SQLiteIndex_Delta_CheckConsistency_StandaloneDetectsAssociationOnRemovedPackage", "[sqliteindex][V2_1][delta]")
