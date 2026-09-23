@@ -2227,6 +2227,67 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonDetectsDivergence", "[sq
     REQUIRE(!delta.CheckConsistency(true));
 }
 
+// I7b. Equivalence asserts that the two indexes agree about package rowids, and a rowid is pinned
+// from the ids table in insertion order. Two indexes built from the same manifests in a different
+// order therefore hold identical data under different rowids, so the comparison is only meaningful
+// between indexes of one lineage. An unrelated one is refused rather than reported as unequal,
+// which would name a fault that does not exist.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresSharedLineage", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "t3" }, p1.Commands, p1.PackageFamilyNames, p1.ProductCodes);
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Update(p1Updated);
+    context.GenerateDelta();
+
+    // The delta takes the lineage of the index it was computed from rather than the fresh identity
+    // it was created with. That is what lets a merged form answer for its lineage at all, so the
+    // ordinary comparison further down would throw without it.
+    {
+        Connection working = Connection::Create(context.WorkingFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+        Connection deltaConnection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadOnly);
+
+        REQUIRE(
+            MetadataTable::GetNamedValue<std::string>(deltaConnection, s_MetadataValueName_DatabaseIdentifier) ==
+            MetadataTable::GetNamedValue<std::string>(working, s_MetadataValueName_DatabaseIdentifier));
+    }
+
+    // A separately created index holding the very same packages. Only its identity differs, so
+    // nothing but the lineage check can object to it.
+    DeltaTestContext unrelated{ { p1, p2 } };
+
+    unrelated.Update(p1Updated);
+    unrelated.GenerateDelta();
+
+    {
+        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        delta.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
+        delta.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, unrelated.WorkingFile.GetPath().u8string());
+
+        REQUIRE_THROWS_HR(delta.CheckConsistency(true), E_INVALIDARG);
+    }
+
+    // The same comparison within one lineage is the case this must not have broken.
+    {
+        SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        delta.SetProperty(SQLiteIndex::Property::DeltaBaselineIndexPath, context.BaselineFile.GetPath().u8string());
+        delta.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.WorkingFile.GetPath().u8string());
+
+        REQUIRE(delta.CheckConsistency(true));
+    }
+
+    // An ordinary index is subject to the same requirement, since the comparison it makes is.
+    {
+        SQLiteIndex full = SQLiteIndex::Open(context.WorkingFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        full.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, unrelated.WorkingFile.GetPath().u8string());
+
+        REQUIRE_THROWS_HR(full.CheckConsistency(true), E_INVALIDARG);
+    }
+}
+
 // I8. A delta that has not been merged has nothing to compare against: the diff alone is not the
 // index it describes. That restriction belongs to that state specifically -- an ordinary index is
 // a complete thing, and is compared against whatever it is given.

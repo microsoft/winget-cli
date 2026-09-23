@@ -355,6 +355,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(deltaConnection, "delta_generate_v2_1");
 
+            // The delta belongs to the lineage it was computed from, so it takes that lineage's
+            // identity rather than the fresh one it was created with. Every index in a lineage is a
+            // prepared copy of one working index and so carries its identifier; the check above has
+            // already required the baseline to agree. Without this the merged form would report a
+            // different source identifier than the standard index built from the same data, and a
+            // new one with every delta published.
+            SQLite::MetadataTable::SetNamedValue(deltaConnection, SQLite::s_MetadataValueName_DatabaseIdentifier,
+                SQLite::MetadataTable::GetNamedValue<std::string>(sourceConnection, SQLite::s_MetadataValueName_DatabaseIdentifier));
+
             SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineIdentifier, baselineIdentifier.value());
             SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineRelativeSourcePath, baselineReference.RelativeSourcePath);
             SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselinePackageVersion, baselineReference.PackageVersion);

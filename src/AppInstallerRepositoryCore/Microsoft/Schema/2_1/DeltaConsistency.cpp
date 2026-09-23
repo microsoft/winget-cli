@@ -56,6 +56,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             PackageVersionMultiProperty::Command,
         };
 
+        // The database identifier that establishes what lineage an index belongs to.
+        std::string GetLineageIdentifier(const SQLite::Connection& connection)
+        {
+            return SQLite::MetadataTable::GetNamedValue<std::string>(connection, SQLite::s_MetadataValueName_DatabaseIdentifier);
+        }
+
+        // Equivalence asserts that the two indexes agree about package rowids, which is a claim
+        // about shared lineage rather than about contents. A rowid is pinned from the ids table and
+        // follows insertion order, so two indexes built from the same manifests in a different
+        // order hold identical data under different rowids and would be reported as unequal.
+        void RequireSharedLineage(const SQLite::Connection& first, const SQLite::Connection& second)
+        {
+            std::string firstLineage = GetLineageIdentifier(first);
+            std::string secondLineage = GetLineageIdentifier(second);
+
+            if (firstLineage != secondLineage)
+            {
+                AICLI_LOG(Repo, Error, << "The indexes to compare are not of the same lineage: [" <<
+                    firstLineage << "] and [" << secondLineage << "]");
+                THROW_HR(E_INVALIDARG);
+            }
+        }
+
         // Enumerates the whole of an index, keyed by package identifier.
         std::map<std::string, SQLite::rowid_t> GetAllPackages(const ISQLiteIndex& index, const SQLite::Connection& connection)
         {
@@ -358,6 +381,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
         bool log)
     {
         AICLI_LOG(Repo, Info, << "Checking index equivalence...");
+
+        RequireSharedLineage(firstConnection, secondConnection);
 
         std::map<std::string, SQLite::rowid_t> firstPackages = GetAllPackages(first, firstConnection);
         std::map<std::string, SQLite::rowid_t> secondPackages = GetAllPackages(second, secondConnection);
