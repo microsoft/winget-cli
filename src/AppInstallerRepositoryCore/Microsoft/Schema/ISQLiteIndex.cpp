@@ -23,6 +23,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     bool ISQLiteIndex::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
     {
+        // Only 2.1+ can compare a database against another one.
+        THROW_WIN32_IF(ERROR_NOT_SUPPORTED, context.Data.Contains(Property::DeltaComparisonIndexPath));
+
         return CheckConsistency(context.Connection, log);
     }
 

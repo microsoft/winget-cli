@@ -1913,6 +1913,19 @@ TEST_CASE("SQLiteIndex_Delta_NotSupportedBefore_2_1", "[sqliteindex][V2_0][delta
     REQUIRE_THROWS_HR(
         SQLiteIndex::OpenWithBaseline(indexFile.GetPath().u8string(), baselineFile.GetPath().u8string()),
         HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+
+    // G7b. Only 2.1 can compare one database against another. The property is not set through the
+    // interface, so nothing stops a caller setting it on an older index; answering "consistent"
+    // without ever making the comparison would report success for a question never asked.
+    {
+        SQLiteIndex index = SQLiteIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+
+        REQUIRE(index.CheckConsistency(true));
+
+        index.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, indexFile.GetPath().u8string());
+
+        REQUIRE_THROWS_HR(index.CheckConsistency(true), HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    }
 }
 
 // M1. Naming a baseline and becoming one are alternatives, not options. A caller that supplies
@@ -2214,9 +2227,10 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonDetectsDivergence", "[sq
     REQUIRE(!delta.CheckConsistency(true));
 }
 
-// I8. A comparison only says something about a merged result, so asking for one anywhere else is a
-// caller mistake rather than something to answer.
-TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresDelta", "[sqliteindex][V2_1][delta]")
+// I8. A delta that has not been merged has nothing to compare against: the diff alone is not the
+// index it describes. That restriction belongs to that state specifically -- an ordinary index is
+// a complete thing, and is compared against whatever it is given.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresSomethingToCompare", "[sqliteindex][V2_1][delta]")
 {
     auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, {}, { "PC-1" });
     auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, {}, { "PC-2" });
@@ -2234,12 +2248,26 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_ComparisonRequiresDelta", "[sqlite
         REQUIRE_THROWS_HR(delta.CheckConsistency(true), E_INVALIDARG);
     }
 
-    SECTION("An index that is not a delta at all")
+    SECTION("An index that is not a delta is compared against what it is given")
     {
-        SQLiteIndex full = context.OpenFullIndex();
-        full.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.BaselineFile.GetPath().u8string());
+        // Against itself. A file necessarily agrees with itself, so this is the one comparison that
+        // holds however equivalence is defined -- including its claim about package rowids.
+        {
+            SQLiteIndex full = context.OpenFullIndex();
+            full.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.WorkingFile.GetPath().u8string());
 
-        REQUIRE_THROWS_HR(full.CheckConsistency(true), E_INVALIDARG);
+            REQUIRE(full.CheckConsistency(true));
+        }
+
+        // Against the baseline, which still holds the package that was removed. Both databases are
+        // internally consistent, so only the comparison can object. It has to, or the property is
+        // being silently ignored and the case above would be passing for the wrong reason.
+        {
+            SQLiteIndex full = context.OpenFullIndex();
+            full.SetProperty(SQLiteIndex::Property::DeltaComparisonIndexPath, context.BaselineFile.GetPath().u8string());
+
+            REQUIRE(!full.CheckConsistency(true));
+        }
     }
 }
 

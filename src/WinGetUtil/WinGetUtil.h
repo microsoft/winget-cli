@@ -148,9 +148,10 @@ extern "C"
         WinGetSQLiteIndexProperty_DeltaBaselineRelativeSourcePath = 4,
         WinGetSQLiteIndexProperty_DeltaBaselinePackageVersion = 5,
         WinGetSQLiteIndexProperty_DeltaMarkAsBaseline = 6,
-        // Only meaningful when checking the consistency of a delta that has also been given
-        // DeltaBaselineIndexPath. Names the standard index built from the same data, which the
-        // merged result of the delta and its baseline must be equivalent to.
+        // Names an index that the database being checked must present the same data as. For a
+        // delta that has also been given DeltaBaselineIndexPath, the merged result of the pair is
+        // what must match; for any other index, the index itself is.
+        // Note that equivalence includes package identity, so the two must share lineage.
         WinGetSQLiteIndexProperty_DeltaComparisonIndexPath = 7,
     };
 

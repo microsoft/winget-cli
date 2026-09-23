@@ -63,10 +63,10 @@ namespace Microsoft.WinGetUtil.Interfaces
         DeltaMarkAsBaseline = 6,
 
         /// <summary>
-        /// The full path to the standard index built from the same data as a delta.
-        /// Only meaningful when checking the consistency of a delta that has also been given
-        /// <see cref="DeltaBaselineIndexPath"/>; the merged result of the delta and its baseline
-        /// must present the same data as this index.
+        /// The full path to an index that the database being checked must present the same data as.
+        /// For a delta that has also been given <see cref="DeltaBaselineIndexPath"/>, the merged
+        /// result of that pair is what must match; for any other index, the index itself is.
+        /// Note that equivalence includes package identity, so the two must share lineage.
         /// </summary>
         DeltaComparisonIndexPath = 7,
     }

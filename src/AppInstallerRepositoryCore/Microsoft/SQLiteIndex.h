@@ -132,9 +132,10 @@ namespace AppInstaller::Repository::Microsoft
         //
         // What that means depends on what the database is and on the properties that have been
         // set. A delta is not an index in its own right: on its own only what it says about itself
-        // can be checked, DeltaBaselineIndexPath additionally checks the merged form, and
-        // DeltaComparisonIndexPath additionally requires the merged form to be equivalent to the
-        // standard index built from the same data.
+        // can be checked, and DeltaBaselineIndexPath additionally checks the merged form.
+        // DeltaComparisonIndexPath requires the result -- the merged form for such a delta, or the
+        // database itself for any other index -- to present the same data as the index it names.
+        // Equivalence includes package identity, so the two must share lineage.
         bool CheckConsistency(bool log = false) const;
 
         // Performs a search based on the given criteria.
