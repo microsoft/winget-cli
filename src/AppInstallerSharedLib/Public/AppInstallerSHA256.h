@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "AppInstallerHash.h"
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -10,24 +10,16 @@
 
 namespace AppInstaller::Utility {
 
-    // Forward declaration of type defined within PAL
-    struct SHA256Context;
-
     // Class used to compute SHA256 hashes over various sets of data.
     // Create one and Add data to it if the data is not all available,
     // or simply call ComputeHash if the data is all in memory.
     class SHA256
     {
     public:
-        using HashBuffer = std::vector<uint8_t>;
+        using HashBuffer = Hash::HashBuffer;
+        using HashDetails = Hash::HashDetails;
         constexpr static size_t HashBufferSizeInBytes = 32;
         constexpr static size_t HashStringSizeInChars = 64;
-
-        struct HashDetails
-        {
-            HashBuffer Hash;
-            uint64_t SizeInBytes = 0;
-        };
 
         SHA256();
 
@@ -83,13 +75,6 @@ namespace AppInstaller::Utility {
         static bool AreEqual(const HashBuffer& first, const HashBuffer& second);
 
     private:
-        void EnsureNotFinished() const;
-
-        struct SHA256ContextDeleter
-        {
-            void operator()(SHA256Context* context);
-        };
-
-        std::unique_ptr<SHA256Context, SHA256ContextDeleter> context;
+        Hash m_hash;
     };
 }
