@@ -91,9 +91,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // delta carries the very same baseline path, and it is an ordinary index.
         bool isDelta = IsDeltaIndex(context.Connection);
 
-        // Comparing against a standard index only says something about a merged result.
-        THROW_HR_IF(E_INVALIDARG, hasComparison && !isDelta);
-
         const SQLite::Connection* targetConnection = &context.Connection;
         std::optional<SQLite::Connection> mergedConnection;
         const ISQLiteIndex* targetInterface = this;
