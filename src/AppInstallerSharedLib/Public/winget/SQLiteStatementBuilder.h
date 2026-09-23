@@ -296,6 +296,7 @@ namespace AppInstaller::SQLite::Builder
         // rather than bound to it. A view definition cannot contain bound parameters, so a
         // comparison within one has to be expressed this way.
         StatementBuilder& EqualsLiteral(int64_t value);
+        StatementBuilder& NotEqualsLiteral(int64_t value);
 
         template <typename ValueType>
         StatementBuilder& IsGreaterThan(const ValueType& value)

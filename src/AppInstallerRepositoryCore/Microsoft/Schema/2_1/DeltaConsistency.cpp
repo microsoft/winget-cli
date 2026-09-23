@@ -205,7 +205,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
             {
                 StatementBuilder builder;
                 builder.Select(V2_0::PackagesTable::IdColumn::Name).From(tableName).
-                    Where(IsRemovedColumnName()).EqualsLiteral(1).
+                    Where(IsRemovedColumnName()).NotEqualsLiteral(0).
                     And(columnName).IsNotNull();
 
                 SQLite::Statement select = builder.Prepare(connection);
@@ -247,7 +247,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
                     From(GetTableName(V2_0::PackagesTable::TableName())).As(s_Delta_PackagesAlias).
                     Where(QualifiedColumn{ s_Delta_PackagesAlias, SQLite::RowIDName }).
                         Equals(QualifiedColumn{ s_Delta_RowAlias, packageColumn }).
-                    And(QualifiedColumn{ s_Delta_PackagesAlias, IsRemovedColumnName() }).EqualsLiteral(1).
+                    And(QualifiedColumn{ s_Delta_PackagesAlias, IsRemovedColumnName() }).NotEqualsLiteral(0).
                     EndParenthetical();
 
             SQLite::Statement select = builder.Prepare(connection);

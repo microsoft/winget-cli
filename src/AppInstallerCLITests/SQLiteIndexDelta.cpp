@@ -1533,6 +1533,65 @@ TEST_CASE("SQLiteIndex_Delta_SystemReference_RemovedPackageValuesAreInvisible", 
     REQUIRE(combined.Search(request).Matches.empty());
 }
 
+// F6. Nothing constrains is_removed to 0 and 1, and a delta arrives over the network. The
+// predicates that read it are therefore total -- 0 is present, anything else is removed -- so that
+// every row falls into exactly one of the two classes whatever it holds.
+//
+// A complementary pair of equality tests would instead leave a third class. A package row holding
+// some other value would be emitted by neither branch of the packages view, since the baseline
+// branch is suppressed by the delta naming the rowid at all, while failing the `= 1` probe that
+// suppresses the baseline's associations. The package would vanish and everything referring to it
+// would remain, which is exactly the dangling reference that a consistency check exists to find.
+TEST_CASE("SQLiteIndex_Delta_MergedViews_UnexpectedRemovalValueIsRemoval", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" }, { "Family1_8wekyb3d8bbwe" }, { "PC-1" });
+    auto p2 = MakePackage("Publisher2.Id", "Package 2", { "t2" }, { "c2" }, { "Family2_8wekyb3d8bbwe" }, { "PC-2" });
+
+    DeltaTestContext context{ { p1, p2 } };
+
+    context.Remove(p2);
+    context.GenerateDelta();
+
+    std::string packagesTable = context.DeltaTable("packages");
+    rowid_t removedRowId = 0;
+
+    {
+        Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+
+        removedRowId = static_cast<rowid_t>(GetScalar(connection, "SELECT [rowid] FROM [" + packagesTable + "] WHERE [is_removed] = 1"));
+
+        Statement::Create(connection,
+            "UPDATE [" + packagesTable + "] SET [is_removed] = 2 WHERE [is_removed] = 1").Execute();
+    }
+
+    {
+        Connection merged = context.OpenMergedConnection();
+
+        // Counted against the rowid directly rather than through a join to the packages view,
+        // which would report an absent package as having no associations no matter what survived.
+        for (const auto& table : Delta::SystemReferenceTables())
+        {
+            INFO(table.TableName);
+            REQUIRE(GetScalar(merged,
+                "SELECT COUNT(*) FROM [" + std::string{ table.TableName } + "] WHERE [package] = " + std::to_string(removedRowId)) == 0);
+        }
+    }
+
+    SQLiteIndex combined = context.OpenCombined();
+
+    // The referential check is what a surviving association would fail.
+    REQUIRE(combined.CheckConsistency(true));
+
+    SearchRequest removedRequest;
+    removedRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, p2.ProductCodes[0]));
+    REQUIRE(combined.Search(removedRequest).Matches.empty());
+
+    INFO("The package the delta does not mention is untouched");
+    SearchRequest keptRequest;
+    keptRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, p1.ProductCodes[0]));
+    REQUIRE(combined.Search(keptRequest).Matches.size() == 1);
+}
+
 // ---------------------------------------------------------------------------------------------
 // Group E - generation of the one to many tables
 // ---------------------------------------------------------------------------------------------

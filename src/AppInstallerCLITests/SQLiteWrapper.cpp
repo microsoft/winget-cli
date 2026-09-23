@@ -1179,6 +1179,80 @@ TEST_CASE("SQLBuilder_ViewWithTombstoneSuppression", "[sqlbuilder]")
     REQUIRE(!statement.Step());
 }
 
+TEST_CASE("SQLBuilder_NotEqualsLiteral", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view flagTableName = "flagged";
+    constexpr std::string_view removedColumn = "is_removed";
+    constexpr std::string_view liveView = "live";
+    constexpr std::string_view removedView = "removed";
+
+    {
+        Builder::StatementBuilder createTable;
+        createTable.CreateTable(flagTableName).Columns({
+            Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int),
+            Builder::ColumnBuilder(removedColumn, Builder::Type::Int),
+            });
+        createTable.Execute(connection);
+    }
+
+    auto insert = [&](int value, int removed)
+        {
+            Builder::StatementBuilder builder;
+            builder.InsertInto(flagTableName).Columns({ s_firstColumn, removedColumn }).Values(value, removed);
+            builder.Execute(connection);
+        };
+
+    insert(1, 0);
+    insert(2, 1);
+
+    // Nothing constrains the column to 0 and 1. This is the value that a complementary pair of
+    // equality tests would place in neither class, which is the state the negated form removes.
+    insert(3, 2);
+
+    auto createView = [&](std::string_view viewName, bool live)
+        {
+            INFO("A view cannot contain bound parameters, so its comparisons have to be literals");
+            Builder::StatementBuilder builder;
+            builder.CreateTempView(viewName).Select(s_firstColumn).From(flagTableName).Where(removedColumn);
+
+            if (live)
+            {
+                builder.EqualsLiteral(0);
+            }
+            else
+            {
+                builder.NotEqualsLiteral(0);
+            }
+
+            builder.Execute(connection);
+        };
+
+    createView(liveView, true);
+    createView(removedView, false);
+
+    auto readView = [&](std::string_view viewName)
+        {
+            Builder::StatementBuilder builder;
+            builder.Select(s_firstColumn).From(viewName).OrderBy(s_firstColumn);
+
+            Statement statement = builder.Prepare(connection);
+
+            std::vector<int> result;
+            while (statement.Step())
+            {
+                result.emplace_back(statement.GetColumn<int>(0));
+            }
+
+            return result;
+        };
+
+    INFO("The two predicates partition the table, leaving no row in neither");
+    REQUIRE(readView(liveView) == std::vector<int>{ 1 });
+    REQUIRE(readView(removedView) == std::vector<int>{ 2, 3 });
+}
+
 TEST_CASE("SQLiteWrapperTransactionRollback", "[sqlitewrapper]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);

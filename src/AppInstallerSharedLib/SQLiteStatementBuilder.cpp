@@ -371,6 +371,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::NotEqualsLiteral(int64_t value)
+    {
+        m_stream << " != " << value;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Equals()
     {
         m_stream << " =";
