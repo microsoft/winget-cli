@@ -212,6 +212,7 @@
   <ItemGroup>
     <ClInclude Include="DependenciesTestSource.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SQLiteIndexTestCommon.h" />
     <ClInclude Include="TestCommon.h" />
     <ClInclude Include="TestCertificates.h" />
     <ClInclude Include="TestConfiguration.h" />
@@ -329,6 +330,8 @@
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Sources.cpp" />
     <ClCompile Include="SQLiteIndex.cpp" />
+    <ClCompile Include="SQLiteIndexDelta.cpp" />
+    <ClCompile Include="SQLiteIndexTestCommon.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="TableOutput.cpp" />

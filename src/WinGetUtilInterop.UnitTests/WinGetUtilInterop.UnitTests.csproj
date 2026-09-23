@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\WinGetUtilInterop.UnitTests\</OutDir>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 
