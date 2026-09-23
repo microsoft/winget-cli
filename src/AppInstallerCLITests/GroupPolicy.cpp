@@ -13,10 +13,14 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier, std::wstring_view trustLevel, std::wstring_view isExplicit, std::wstring_view pinningConfig = {})
+    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier, std::wstring_view trustLevel, std::wstring_view isExplicit, std::wstring_view pinningConfig = {}, std::wstring_view priority = {})
     {
         std::wstringstream json;
         json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\", \"TrustLevel\":" << trustLevel << L", \"Explicit\":" << isExplicit;
+        if (!priority.empty())
+        {
+            json << L", \"Priority\":" << priority;
+        }
         if (!pinningConfig.empty())
         {
             json << L", \"CertificatePinning\":" << pinningConfig;
@@ -139,6 +143,44 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         REQUIRE(policy.value()[0].TrustLevel[0] == "Trusted");
         REQUIRE(policy.value()[0].TrustLevel[1] == "StoreOrigin");
         REQUIRE(policy.value()[0].Explicit == true);
+        REQUIRE_FALSE(policy.value()[0].Priority.has_value());
+    }
+    SECTION("Source with priority")
+    {
+        // Priority is an optional field that is read when present.
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", L"[\"Trusted\"]", L"true", {}, L"7"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"1", GetSourceJson(L"source-name2", L"source-arg2", L"source-type2", L"source-data2", L"source-identifier2", L"[\"None\"]", L"false", {}, L"-3"), REG_SZ);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 2);
+
+        auto sourceWithName = [&](std::string_view name) -> const SourceFromPolicy&
+            {
+                auto itr = std::find_if(policy->begin(), policy->end(), [&](const SourceFromPolicy& source) { return source.Name == name; });
+                REQUIRE(itr != policy->end());
+                return *itr;
+            };
+
+        REQUIRE(sourceWithName("source-name").Priority.has_value());
+        REQUIRE(sourceWithName("source-name").Priority.value() == 7);
+        REQUIRE(sourceWithName("source-name2").Priority.has_value());
+        REQUIRE(sourceWithName("source-name2").Priority.value() == -3);
+    }
+    SECTION("Source with invalid priority")
+    {
+        // An invalid priority is ignored; the rest of the source is still read.
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", L"[\"Trusted\"]", L"true", {}, L"\"not a number\""), REG_SZ);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 1);
+        REQUIRE(policy.value()[0].Name == "source-name");
+        REQUIRE_FALSE(policy.value()[0].Priority.has_value());
     }
     SECTION("Missing field")
     {
@@ -201,9 +243,9 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         // We should be able to read multiple values.
         // No specific order is required, but it will likely be the same.
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
-        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier", L"[\"None\"]", L"true"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier", L"[\"None\"]", L"true", {}, L"10"), REG_SZ);
         SetRegistryValue(additionalSourcesKey.get(), L"1", GetSourceJson(L"s1-name", L"s1-arg", L"s1-type", L"s1-data", L"s1-identifier", L"[\"Trusted\", \"StoreOrigin\"]", L"false"), REG_SZ);
-        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier", L"[\"StoreOrigin\", \"Trusted\"]", L"true"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier", L"[\"StoreOrigin\", \"Trusted\"]", L"true", {}, L"20"), REG_SZ);
         GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
@@ -217,6 +259,8 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         REQUIRE(policy.value()[0].Identifier == "s0-identifier");
         REQUIRE(policy.value()[0].TrustLevel[0] == "None");
         REQUIRE(policy.value()[0].Explicit == true);
+        REQUIRE(policy.value()[0].Priority.has_value());
+        REQUIRE(policy.value()[0].Priority.value() == 10);
 
         REQUIRE(policy.value()[1].Name == "s1-name");
         REQUIRE(policy.value()[1].Arg == "s1-arg");
@@ -226,6 +270,7 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         REQUIRE(policy.value()[1].TrustLevel[0] == "Trusted");
         REQUIRE(policy.value()[1].TrustLevel[1] == "StoreOrigin");
         REQUIRE(policy.value()[1].Explicit == false);
+        REQUIRE_FALSE(policy.value()[1].Priority.has_value());
 
         REQUIRE(policy.value()[2].Name == "s2-name");
         REQUIRE(policy.value()[2].Arg == "s2-arg");
@@ -235,6 +280,8 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         REQUIRE(policy.value()[2].TrustLevel[0] == "StoreOrigin");
         REQUIRE(policy.value()[2].TrustLevel[1] == "Trusted");
         REQUIRE(policy.value()[2].Explicit == true);
+        REQUIRE(policy.value()[2].Priority.has_value());
+        REQUIRE(policy.value()[2].Priority.value() == 20);
     }
     SECTION("Invalid source in list")
     {
@@ -278,6 +325,7 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         source.Identifier = "json-id";
         source.TrustLevel = {"Trusted", "StoreOrigin"};
         source.Explicit = false;
+        source.Priority = 42;
 
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AllowedSourcesPolicyKeyName);
         SetRegistryValue(additionalSourcesKey.get(), L"0", AppInstaller::Utility::ConvertToUTF16(source.ToJsonString()));
@@ -294,6 +342,7 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy][uses-test-certificates]")
         REQUIRE(policy.value()[0].TrustLevel[0] == source.TrustLevel[0]); // Trusted
         REQUIRE(policy.value()[0].TrustLevel[1] == source.TrustLevel[1]); // StoreOrigin
         REQUIRE(policy.value()[0].Explicit == source.Explicit);
+        REQUIRE(policy.value()[0].Priority == source.Priority);
     }
     SECTION("Source with PinningConfiguration")
     {
