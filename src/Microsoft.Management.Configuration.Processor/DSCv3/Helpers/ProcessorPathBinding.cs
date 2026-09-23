@@ -24,7 +24,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// Sharing read still allows the file to be executed, but denies every other opener write and
     /// delete access. Since renaming a file requires delete access, the verified bytes cannot be
     /// modified, replaced, renamed or deleted. If the path is a link, the link target is pinned the
-    /// same way; a link cannot be repointed without write access to it, so holding both ends means
+    /// same way; a link cannot be retargeted without write access to it, so holding both ends means
     /// the path cannot be made to resolve to a different file.
     /// </description></item>
     /// <item><description>

@@ -153,7 +153,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             using (var pinnedFile = ProcessorPathIntegrity.VerifyAndOpen(linkPath, hash, isAlias))
             {
-                // The link itself cannot be removed, replaced or repointed; repointing requires
+                // The link itself cannot be removed, replaced or retargeted; retargeting requires
                 // write access to the link, which the pin denies.
                 Assert.ThrowsAny<IOException>(() => File.Delete(linkPath));
                 Assert.ThrowsAny<IOException>(() => File.Move(linkPath, linkPath + ".attacker"));

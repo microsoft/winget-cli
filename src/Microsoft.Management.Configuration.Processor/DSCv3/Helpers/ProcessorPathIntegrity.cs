@@ -45,7 +45,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <para>
         /// The path is opened without following reparse points, so the returned pin covers the
         /// object at the path itself. If that object is a link, the link target is pinned as well;
-        /// holding both means the link cannot be repointed (that requires write access) and the
+        /// holding both means the link cannot be retargeted (that requires write access) and the
         /// target cannot be replaced, so the path cannot be made to resolve to anything else.
         /// </para>
         /// </summary>
@@ -262,7 +262,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 throw new InvalidOperationException($"Failed to read reparse data for '{path}': Win32 error {Marshal.GetLastWin32Error()}");
             }
 
-            return reparseBuffer[..(int)bytesReturned];
+            return reparseBuffer[.. (int)bytesReturned];
         }
 
         private static string RemoveExtendedLengthPrefix(string path)
@@ -317,6 +317,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             IntPtr hTemplateFile);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "Marking the array as nullable.")]
         private static extern uint GetFinalPathNameByHandle(
             SafeFileHandle hFile,
             char[]? lpszFilePath,
