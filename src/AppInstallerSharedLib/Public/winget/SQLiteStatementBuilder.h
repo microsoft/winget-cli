@@ -253,6 +253,9 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& Where(std::string_view column);
         StatementBuilder& Where(const QualifiedColumn& column);
 
+        // Begin a filter clause that is not rooted at a column, such as one using `exists`.
+        StatementBuilder& Where();
+
         // A full filter clause looking for an embedded null character.
         // Is extremely specific to consistency checks, and so a more detailed construct is not required.
         StatementBuilder& WhereValueContainsEmbeddedNullCharacter(std::string_view column);
@@ -284,6 +287,16 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& Equals();
         StatementBuilder& Equals(const QualifiedColumn& column);
 
+        // Assigns NULL to the current column in the `set` portion of an update statement.
+        // Only valid in an update; `Equals(nullptr)` is intentionally blocked because
+        // `value = NULL` is always false when used as a filter. Use IsNull for filtering.
+        StatementBuilder& AssignValue(std::nullptr_t);
+
+        // Compares the current column against the value written directly into the statement
+        // rather than bound to it. A view definition cannot contain bound parameters, so a
+        // comparison within one has to be expressed this way.
+        StatementBuilder& EqualsLiteral(int64_t value);
+
         template <typename ValueType>
         StatementBuilder& IsGreaterThan(const ValueType& value)
         {
@@ -311,6 +324,12 @@ namespace AppInstaller::SQLite::Builder
         // Appends a set of value binders for the In clause.
         StatementBuilder& In(size_t count);
 
+        // Begins an `exists` subquery clause; follow with a parenthetical select.
+        StatementBuilder& Exists();
+
+        // Begins a `not exists` subquery clause; follow with a parenthetical select.
+        StatementBuilder& NotExists();
+
         // IsNull(true) means the value is null; IsNull(false) means the value is not null.
         StatementBuilder& IsNull(bool isNull = true);
         StatementBuilder& IsNotNull() { return IsNull(false); }
@@ -319,6 +338,10 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& And(std::string_view column);
         StatementBuilder& And(const QualifiedColumn& column);
         StatementBuilder& Or(const QualifiedColumn& column);
+
+        // Continues a filter clause with a condition that is not introduced by a column,
+        // such as a further `not exists` subquery.
+        StatementBuilder& And();
 
         // Begin a join clause.
         // The initializer_list form enables the table name to be constructed from multiple parts.
@@ -423,7 +446,10 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& AlterTable(std::initializer_list<std::string_view> table);
 
         // Complete an alter table statement by adding a column.
+        // The SubBuilder form allows for constraints such as `not null` and a default value;
+        // SQLite requires a non-null default when adding a column declared as not null.
         StatementBuilder& Add(std::string_view column, Type type);
+        StatementBuilder& Add(const details::SubBuilder& column);
 
         // Begin a table deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
@@ -436,6 +462,16 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& DropTableIfExists(std::string_view table);
         StatementBuilder& DropTableIfExists(QualifiedTable table);
         StatementBuilder& DropTableIfExists(std::initializer_list<std::string_view> table);
+
+        // Begin a temporary view creation statement, terminated by the `as` keyword.
+        // Temporary views live only for the duration of the connection, and are the only
+        // form of view that can reference tables in an attached database.
+        // The initializer_list form enables the view name to be constructed from multiple parts.
+        StatementBuilder& CreateTempView(std::string_view view);
+        StatementBuilder& CreateTempView(std::initializer_list<std::string_view> view);
+
+        // Combine the preceding select statement with the one that follows, retaining duplicate rows.
+        StatementBuilder& UnionAll();
 
         // Begin an index creation statement.
         // The initializer_list form enables the index name to be constructed from multiple parts.
@@ -482,6 +518,15 @@ namespace AppInstaller::SQLite::Builder
 
         // Output the set portion of an update statement.
         StatementBuilder& Vacuum();
+
+        // Attaches another database to the connection under the given alias.
+        // The target is bound as a parameter rather than embedded in the statement text.
+        // The alias remains valid only for the connection that executes the statement, and
+        // the attachment is released when that connection is closed.
+        StatementBuilder& Attach(const DatabaseSpecifier& specifier, std::string_view alias);
+
+        // Releases a database previously attached under the given alias.
+        StatementBuilder& Detach(std::string_view alias);
 
         // General purpose functions to begin and end a parenthetical expression.
         StatementBuilder& BeginParenthetical();

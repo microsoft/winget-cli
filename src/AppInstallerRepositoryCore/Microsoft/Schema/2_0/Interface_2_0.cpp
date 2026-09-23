@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <winget/SQLiteMetadataTable.h>
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/2_0/Interface.h"
 
 #include "Microsoft/Schema/2_0/PackagesTable.h"
@@ -16,6 +17,7 @@
 
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
+#include "Microsoft/Schema/1_0/IdTable.h"
 
 #include <winget/PackageVersionDataManifest.h>
 
@@ -130,7 +132,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         EnsureInternalInterface(connection, true);
         SQLite::rowid_t manifestId = m_internalInterface->AddManifest(connection, manifest, relativePath);
-        PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, PackageVersionProperty::Id).value());
+        PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, PackageVersionProperty::Id).value(), m_trackingRemovalBehavior);
         return manifestId;
     }
 
@@ -140,7 +142,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         std::pair<bool, SQLite::rowid_t> result = m_internalInterface->UpdateManifest(connection, manifest, relativePath);
         if (result.first)
         {
-            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, result.second, PackageVersionProperty::Id).value());
+            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, result.second, PackageVersionProperty::Id).value(), m_trackingRemovalBehavior);
         }
         return result;
     }
@@ -163,10 +165,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         EnsureInternalInterface(connection, true);
         std::optional<std::string> identifier = m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, PackageVersionProperty::Id);
+
+        // Resolve the rowid the package occupies while it is still present. If this removes its
+        // last version the ids row goes with it, and the value becomes unrecoverable; the tracking
+        // table needs it in order to record which rowid was vacated.
+        std::optional<SQLite::rowid_t> packageRowId;
+
+        if (identifier && m_trackingRemovalBehavior == PackageUpdateTrackingTable::RemovalBehavior::Record)
+        {
+            packageRowId = V1_0::IdTable::SelectIdByValue(connection, identifier.value(), true);
+        }
+
         m_internalInterface->RemoveManifestById(connection, manifestId);
         if (identifier)
         {
-            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), identifier.value());
+            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), identifier.value(), m_trackingRemovalBehavior, true, packageRowId);
         }
     }
 
@@ -197,7 +210,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         if (m_internalInterface)
         {
             AICLI_CHECK_CONSISTENCY(m_internalInterface->CheckConsistency(connection, log));
-            AICLI_CHECK_CONSISTENCY(PackageUpdateTrackingTable::CheckConsistency(connection, m_internalInterface.get(), log));
+            AICLI_CHECK_CONSISTENCY(PackageUpdateTrackingTable::CheckConsistency(connection, m_internalInterface.get(), m_trackingRemovalBehavior, log));
 
             return result;
         }
@@ -421,14 +434,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migrate_from_v2_0");
 
         // We only need to insert all of the existing packages into the update tracking table.
-        PackageUpdateTrackingTable::EnsureExists(connection);
+        PackageUpdateTrackingTable::EnsureExists(connection, m_trackingRemovalBehavior);
         SearchResult allPackages = current->Search(connection, {});
 
         for (const auto& packageMatch : allPackages.Matches)
         {
             std::vector<ISQLiteIndex::VersionKey> versionKeys = current->GetVersionKeysById(connection, packageMatch.first);
             ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
-            PackageUpdateTrackingTable::Update(connection, current, current->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value(), false);
+            PackageUpdateTrackingTable::Update(connection, current, current->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value(), m_trackingRemovalBehavior, false);
         }
 
         savepoint.Commit();
@@ -457,6 +470,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         default:
             THROW_WIN32(ERROR_NOT_SUPPORTED);
         }
+    }
+
+    void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext&)
+    {
     }
 
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
@@ -677,7 +694,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         THROW_WIN32_IF(ERROR_INVALID_STATE, baseOutputDirectory.empty() || baseOutputDirectory.is_relative());
 
         // Output all of the changed package version manifests since the base time to the target location
-        for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
+        for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime, m_trackingRemovalBehavior))
         {
             std::filesystem::path packageDirectory = baseOutputDirectory /
                 Manifest::PackageVersionDataManifest::GetRelativeDirectoryPath(packageData.PackageIdentifier, Utility::SHA256::ConvertToString(packageData.Hash));
@@ -745,9 +762,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             addIfPresent(PackagesTable::ARPMinVersionColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value());
             addIfPresent(PackagesTable::ARPMaxVersionColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value());
 
-            SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData);
+            auto idRowId = V1_0::IdTable::SelectIdByValue(connection, packageIdentifier);
+            THROW_HR_IF(E_NOT_VALID_STATE, !idRowId);
 
-            PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, PackageUpdateTrackingTable::GetDataHash(connection, packageIdentifier));
+            SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData, idRowId);
+
+            PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, PackageUpdateTrackingTable::GetDataHash(connection, packageIdentifier, m_trackingRemovalBehavior));
 
             for (const auto& versionKey : versionKeys)
             {
@@ -761,6 +781,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 UpgradeCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::UpgradeCode), packageId);
             }
         }
+
+        CreateAdditionalPackagingOutput(context);
 
         PackagesTable::PrepareForPackaging<
             PackagesTable::IdColumn,
@@ -803,7 +825,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         if (!m_internalInterfaceChecked)
         {
-            if (!PackagesTable::Exists(connection))
+            // In delta read mode the TEMP VIEWs are already set up; no internal interface needed.
+            if (!m_isDeltaReadMode && !PackagesTable::Exists(connection))
             {
                 m_internalInterface = CreateInternalInterface();
             }

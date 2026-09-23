@@ -22,19 +22,21 @@ namespace AppInstaller::SQLite
         static void Create(Connection& connection);
 
         // Gets the named value from the metadata table, interpreting it as the given type.
+        // The database names the schema to read from, which is the alias an attached database was
+        // given; leaving it empty reads the primary database.
         template <typename Value>
-        static Value GetNamedValue(const Connection& connection, std::string_view name)
+        static Value GetNamedValue(const Connection& connection, std::string_view name, std::string_view database = {})
         {
-            Statement statement = GetNamedValueStatement(connection, name);
+            Statement statement = GetNamedValueStatement(connection, name, database);
             return statement.GetColumn<Value>(0);
         }
 
         // Gets the named value from the metadata table, interpreting it as the given type.
         // Returns nullopt if the value is not present.
         template <typename Value>
-        static std::optional<Value> TryGetNamedValue(const Connection& connection, std::string_view name)
+        static std::optional<Value> TryGetNamedValue(const Connection& connection, std::string_view name, std::string_view database = {})
         {
-            std::optional<Statement> statement = TryGetNamedValueStatement(connection, name);
+            std::optional<Statement> statement = TryGetNamedValueStatement(connection, name, database);
             if (statement)
             {
                 return statement->GetColumn<Value>(0);
@@ -56,10 +58,10 @@ namespace AppInstaller::SQLite
 
     private:
         // Internal function that gets the named value.
-        static Statement GetNamedValueStatement(const Connection& connection, std::string_view name);
+        static Statement GetNamedValueStatement(const Connection& connection, std::string_view name, std::string_view database);
 
         // Internal function that gets the named value, or nullopt if it is not present.
-        static std::optional<Statement> TryGetNamedValueStatement(const Connection& connection, std::string_view name);
+        static std::optional<Statement> TryGetNamedValueStatement(const Connection& connection, std::string_view name, std::string_view database);
 
         // Internal function that sets the named value.
         static Statement SetNamedValueStatement(const Connection& connection, std::string_view name);
