@@ -38,7 +38,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
             }
 
             // Use the environment variable if present, which is how ADO pipelines will find it.
-            string? gitSearchPath = Environment.GetEnvironmentVariable("BUILD_SOURCESDIRECTORY");
+            // This is the winget-cli source root rather than the repository root, so that it is
+            // still correct when winget-cli is built as a subtree of another repository.
+            string? gitSearchPath = Environment.GetEnvironmentVariable("WINGET_SOURCE_ROOT");
 
             if (string.IsNullOrWhiteSpace(gitSearchPath))
             {
