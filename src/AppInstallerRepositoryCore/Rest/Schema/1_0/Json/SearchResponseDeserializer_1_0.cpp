@@ -4,6 +4,7 @@
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
+#include <AppInstallerStrings.h>
 #include <winget/JsonUtil.h>
 #include <winget/ManifestValidation.h>
 #include <winget/Rest.h>
@@ -81,6 +82,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                     return {};
                 }
 
+                // The YAML parser trims these values, so do the same here before validating; the schema excludes
+                // whitespace from the identifier, but surrounding whitespace should be tolerated identically.
+                Utility::Trim(packageId.value());
+
                 if (!IsValidPathFieldValue(PackageIdentifier, AppInstaller::Manifest::ValidatePackageIdentifier(packageId.value())))
                 {
                     return {};
@@ -138,6 +143,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             AICLI_LOG(Repo, Error, << "Received incomplete package version");
             return {};
         }
+
+        // The schema allows surrounding whitespace in the version, but the value is used to construct file system
+        // paths and version comparison trims, so trim it here as the YAML parser does. Trim before validating so
+        // that a value which is only path unsafe because of its surrounding whitespace is still accepted.
+        Utility::Trim(version.value());
 
         if (!IsValidPathFieldValue(PackageVersion, AppInstaller::Manifest::ValidatePackageVersion(version.value())))
         {

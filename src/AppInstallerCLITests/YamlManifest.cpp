@@ -1457,6 +1457,13 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     // Values that merely contain a reserved name are fine.
     REQUIRE(ValidatePackageIdentifier("Contoso.NULL").empty());
     REQUIRE(ValidatePackageVersion("1.0-com1").empty());
+
+    // The schema permits whitespace anywhere in PackageVersion, so it is not an error here; parsing trims the
+    // surrounding whitespace instead. PackageIdentifier excludes whitespace entirely.
+    REQUIRE(ValidatePackageVersion("1.0.0 ").empty());
+    REQUIRE(ValidatePackageVersion(" 1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0.0 beta").empty());
+    REQUIRE(ContainsError(ValidatePackageIdentifier("1.0.0 "), ManifestError::InvalidPathCharacters));
 }
 
 TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
