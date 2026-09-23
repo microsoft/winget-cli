@@ -161,6 +161,7 @@ langutil
 lastwritetime
 LCIDTo
 lnk
+localizedtag
 LOGONLYONERROR
 LOGPATH
 LOGPERFORMANCE
@@ -365,6 +366,7 @@ TEXTFORMAT
 TEXTINCLUDE
 threadpool
 TOCTOU
+toolcmd
 toolsets
 tpl
 TRACELOGGING
