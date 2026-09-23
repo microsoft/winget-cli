@@ -23,6 +23,7 @@ This change resolves alias failures in non-symlinked scenarios, including cases 
 Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
 
 ### Minor Bug Fixes
+* Fixed package name matching when a query omits symbols such as `®` from the package name. [#6031](https://github.com/microsoft/winget-cli/issues/6031)
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.
