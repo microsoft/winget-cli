@@ -5,9 +5,12 @@
 #include <AppInstallerErrors.h>
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteStatementBuilder.h>
+#include <winget/SQLiteMetadataTable.h>
+#include <winget/SQLiteVersion.h>
 
 using namespace AppInstaller::SQLite;
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 static const char* s_firstColumn = "first";
 static const char* s_secondColumn = "second";
@@ -730,6 +733,452 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
     }
 }
 
+TEST_CASE("SQLBuilder_AssignValueNull", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "value");
+
+    {
+        INFO("Equals(nullptr) remains blocked as a filter");
+        Builder::StatementBuilder builder;
+        REQUIRE_THROWS_HR(builder.Select(s_firstColumn).From(s_tableName).Where(s_secondColumn).Equals(nullptr), E_NOTIMPL);
+    }
+
+    {
+        INFO("AssignValue(nullptr) assigns NULL in an update");
+        Builder::StatementBuilder update;
+        update.Update(s_tableName).Set().Column(s_secondColumn).AssignValue(nullptr).Where(s_firstColumn).Equals(1);
+        update.Execute(connection);
+    }
+
+    {
+        INFO("The value is now NULL");
+        Builder::StatementBuilder select;
+        select.Select({ s_firstColumn, s_secondColumn }).From(s_tableName);
+
+        Statement statement = select.Prepare(connection);
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 1);
+        REQUIRE(statement.GetColumnIsNull(1));
+        REQUIRE(!statement.Step());
+    }
+}
+
+TEST_CASE("SQLBuilder_AddColumnWithConstraints", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "one");
+
+    constexpr std::string_view addedColumn = "added";
+
+    {
+        // SQLite requires a non-null default when adding a column declared as not null,
+        // so the plain Add(column, type) form cannot express this.
+        INFO("Add a not null column with a default");
+        Builder::StatementBuilder alter;
+        alter.AlterTable(s_tableName).Add(Builder::ColumnBuilder(addedColumn, Builder::Type::Int64).NotNull().Default(0));
+        alter.Execute(connection);
+    }
+
+    {
+        INFO("The existing row receives the default rather than null");
+        Builder::StatementBuilder select;
+        select.Select(addedColumn).From(s_tableName);
+
+        Statement statement = select.Prepare(connection);
+        REQUIRE(statement.Step());
+        REQUIRE(!statement.GetColumnIsNull(0));
+        REQUIRE(statement.GetColumn<int64_t>(0) == 0);
+        REQUIRE(!statement.Step());
+    }
+}
+
+TEST_CASE("SQLBuilder_CreateTempView", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "one");
+    InsertIntoSimpleTestTable(connection, 2, "two");
+
+    constexpr std::string_view viewName = "simple_view";
+
+    {
+        // Note that SQLite prohibits bound parameters in a view definition, so the
+        // statement that defines a view must be structural only.
+        INFO("Create a view over the table");
+        Builder::StatementBuilder createView;
+        createView.CreateTempView(viewName).Select({ s_firstColumn, s_secondColumn }).From(s_tableName).OrderBy(s_firstColumn);
+        createView.Execute(connection);
+    }
+
+    {
+        INFO("The view returns the underlying rows");
+        Builder::StatementBuilder select;
+        select.Select({ s_firstColumn, s_secondColumn }).From(viewName);
+
+        Statement statement = select.Prepare(connection);
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 1);
+        REQUIRE(statement.GetColumn<std::string>(1) == "one");
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 2);
+        REQUIRE(statement.GetColumn<std::string>(1) == "two");
+        REQUIRE(!statement.Step());
+    }
+
+    {
+        INFO("A filter can still be applied when reading the view");
+        Builder::StatementBuilder select;
+        select.Select(s_secondColumn).From(viewName).Where(s_firstColumn).Equals(2);
+
+        Statement statement = select.Prepare(connection);
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<std::string>(0) == "two");
+        REQUIRE(!statement.Step());
+    }
+}
+
+TEST_CASE("SQLBuilder_UnionAll", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "one");
+    InsertIntoSimpleTestTable(connection, 2, "two");
+
+    Builder::StatementBuilder select;
+    select.Select(s_firstColumn).From(s_tableName).Where(s_firstColumn).Equals(1).
+        UnionAll().
+        Select(s_firstColumn).From(s_tableName).Where(s_firstColumn).Equals(2);
+
+    Statement statement = select.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 1);
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 2);
+    REQUIRE(!statement.Step());
+}
+
+TEST_CASE("SQLBuilder_NotExists", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view otherTable = "other_test";
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "one");
+    InsertIntoSimpleTestTable(connection, 2, "two");
+
+    {
+        Builder::StatementBuilder createTable;
+        createTable.CreateTable(otherTable).Columns({ Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int) });
+        createTable.Execute(connection);
+
+        Builder::StatementBuilder insert;
+        insert.InsertInto(otherTable).Columns(s_firstColumn).Values(2);
+        insert.Execute(connection);
+    }
+
+    // Select rows from the simple table that have no matching row in the other table.
+    Builder::StatementBuilder select;
+    select.Select(Builder::QualifiedColumn{ s_tableName, s_firstColumn }).From(s_tableName).
+        Where().NotExists().BeginParenthetical().
+            Select(Builder::QualifiedColumn{ otherTable, s_firstColumn }).From(otherTable).
+            Where(Builder::QualifiedColumn{ otherTable, s_firstColumn }).Equals(Builder::QualifiedColumn{ s_tableName, s_firstColumn }).
+        EndParenthetical();
+
+    Statement statement = select.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 1);
+    REQUIRE(!statement.Step());
+}
+
+TEST_CASE("SQLBuilder_AttachAndTempView", "[sqlbuilder]")
+{
+    TestCommon::TempFile baselineFile{ "repolibtest_baseline"s, ".db"s };
+    INFO("Using temporary file named: " << baselineFile.GetPath());
+
+    {
+        INFO("Create the database that will be attached");
+        Connection baseline = Connection::Create(baselineFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(baseline);
+        InsertIntoSimpleTestTable(baseline, 1, "baseline");
+    }
+
+    // The host is created rather than named through a specifier, which is the case that proves URI
+    // handling is a property of the connection: SQLite decides whether names are URIs when the
+    // connection is opened and applies that to every later ATTACH, so a host that did not ask for
+    // it would take the attached database's URI as a literal filename.
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view baselineAlias = "baseline";
+    constexpr std::string_view deltaTable = "delta_test";
+
+    {
+        INFO("Create a local table with a distinct row");
+        Builder::StatementBuilder createTable;
+        createTable.CreateTable(deltaTable).Columns({
+            Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int),
+            Builder::ColumnBuilder(s_secondColumn, Builder::Type::Text),
+            });
+        createTable.Execute(connection);
+
+        Builder::StatementBuilder insert;
+        insert.InsertInto(deltaTable).Columns({ s_firstColumn, s_secondColumn }).Values(2, "delta"sv);
+        insert.Execute(connection);
+    }
+
+    {
+        INFO("Attach the baseline database");
+        Builder::StatementBuilder attach;
+        attach.Attach(DatabaseSpecifier{ baselineFile.GetPath().u8string(), DatabaseDisposition::Read }, baselineAlias);
+        attach.Execute(connection);
+    }
+
+    {
+        INFO("A temp view can span the local and attached databases");
+        Builder::StatementBuilder createView;
+        createView.CreateTempView(s_tableName).
+            Select({ s_firstColumn, s_secondColumn }).From(deltaTable).
+            UnionAll().
+            Select({ s_firstColumn, s_secondColumn }).From(Builder::QualifiedTable{ baselineAlias, s_tableName });
+        createView.Execute(connection);
+    }
+
+    {
+        INFO("Reading the view returns the merged rows");
+        Builder::StatementBuilder select;
+        select.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).OrderBy(s_firstColumn);
+
+        Statement statement = select.Prepare(connection);
+
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 1);
+        REQUIRE(statement.GetColumn<std::string>(1) == "baseline");
+
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 2);
+        REQUIRE(statement.GetColumn<std::string>(1) == "delta");
+
+        REQUIRE(!statement.Step());
+    }
+}
+
+// ATTACH takes no flags of its own: it starts from the ones the connection was opened with. A
+// database named by a plain path would therefore be attached read/write whenever its host is, so
+// the disposition has to travel in the name.
+TEST_CASE("SQLBuilder_AttachHonorsDisposition", "[sqlbuilder]")
+{
+    TestCommon::TempFile mainFile{ "repolibtest_attach_main"s, ".db"s };
+    TestCommon::TempFile attachedFile{ "repolibtest_attach_readonly"s, ".db"s };
+
+    {
+        Connection main = Connection::Create(mainFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(main);
+    }
+
+    {
+        Connection attached = Connection::Create(attachedFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(attached);
+        InsertIntoSimpleTestTable(attached, 1, "attached");
+    }
+
+    constexpr std::string_view alias = "other";
+
+    // The host connection can write, which is what makes the attachment worth asserting.
+    Connection connection = Connection::Create(DatabaseSpecifier{ mainFile.GetPath().u8string(), DatabaseDisposition::ReadWrite });
+
+    {
+        Builder::StatementBuilder attach;
+        attach.Attach(DatabaseSpecifier{ attachedFile.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+        attach.Execute(connection);
+    }
+
+    {
+        INFO("The primary database is writable");
+        Builder::StatementBuilder insert;
+        insert.InsertInto(s_tableName).Columns({ s_firstColumn, s_secondColumn }).Values(2, "main"sv);
+        REQUIRE_NOTHROW(insert.Execute(connection));
+    }
+
+    {
+        INFO("The attached database is not");
+        Builder::StatementBuilder insert;
+        insert.InsertInto(Builder::QualifiedTable{ alias, s_tableName }).Columns({ s_firstColumn, s_secondColumn }).Values(3, "attached"sv);
+        REQUIRE_THROWS(insert.Execute(connection));
+    }
+}
+
+// Reading metadata from an attached database is what lets a caller validate the database it is
+// actually going to read, rather than a separate connection's view of the same path.
+TEST_CASE("SQLiteMetadata_AttachedDatabase", "[sqlitewrapper]")
+{
+    TestCommon::TempFile attachedFile{ "repolibtest_metadata_attached"s, ".db"s };
+    INFO("Using temporary file named: " << attachedFile.GetPath());
+
+    {
+        Connection attached = Connection::Create(attachedFile, Connection::OpenDisposition::Create);
+        MetadataTable::Create(attached);
+        MetadataTable::SetNamedValue(attached, s_MetadataValueName_MajorVersion, 2);
+        MetadataTable::SetNamedValue(attached, s_MetadataValueName_MinorVersion, 1);
+        MetadataTable::SetNamedValue(attached, "shared"sv, "attachedValue"s);
+        MetadataTable::SetNamedValue(attached, "onlyAttached"sv, "present"s);
+    }
+
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+    MetadataTable::Create(connection);
+    MetadataTable::SetNamedValue(connection, s_MetadataValueName_MajorVersion, 3);
+    MetadataTable::SetNamedValue(connection, s_MetadataValueName_MinorVersion, 4);
+    MetadataTable::SetNamedValue(connection, "shared"sv, "mainValue"s);
+
+    constexpr std::string_view alias = "other";
+
+    {
+        Builder::StatementBuilder attach;
+        attach.Attach(DatabaseSpecifier{ attachedFile.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+        attach.Execute(connection);
+    }
+
+    // Both databases have a metadata table holding the same name, so an unqualified read would
+    // silently answer from the wrong one.
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "shared"sv) == "mainValue");
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "shared"sv, alias) == "attachedValue");
+
+    // A value only the attachment has is unreachable without targeting it.
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, "onlyAttached"sv).has_value());
+    REQUIRE(MetadataTable::TryGetNamedValue<std::string>(connection, "onlyAttached"sv, alias) == "present"s);
+
+    // Absence is still reported as absence rather than falling back to the primary database.
+    REQUIRE(!MetadataTable::TryGetNamedValue<std::string>(connection, "onlyMain"sv, alias).has_value());
+
+    REQUIRE(Version::GetSchemaVersion(connection) == Version{ 3, 4 });
+    REQUIRE(Version::GetSchemaVersion(connection, alias) == Version{ 2, 1 });
+}
+
+// Detaching has to actually release the alias, or a caller that rejects one database cannot try
+// another on the same connection.
+TEST_CASE("SQLBuilder_Detach", "[sqlbuilder]")
+{
+    TestCommon::TempFile firstFile{ "repolibtest_detach_first"s, ".db"s };
+    TestCommon::TempFile secondFile{ "repolibtest_detach_second"s, ".db"s };
+
+    constexpr std::string_view firstMarker = "first";
+    constexpr std::string_view secondMarker = "second";
+
+    auto seed = [](const TestCommon::TempFile& file, std::string_view marker)
+        {
+            Connection attached = Connection::Create(file, Connection::OpenDisposition::Create);
+            MetadataTable::Create(attached);
+            MetadataTable::SetNamedValue(attached, "which"sv, std::string{ marker });
+        };
+
+    seed(firstFile, firstMarker);
+    seed(secondFile, secondMarker);
+
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view alias = "attached";
+
+    auto attach = [&](const TestCommon::TempFile& file)
+        {
+            Builder::StatementBuilder builder;
+            builder.Attach(DatabaseSpecifier{ file.GetPath().u8string(), DatabaseDisposition::Read }, alias);
+            builder.Execute(connection);
+        };
+
+    attach(firstFile);
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "which"sv, alias) == firstMarker);
+
+    // Reusing an alias that is still in use is an error, which is what makes releasing it matter.
+    REQUIRE_THROWS(attach(secondFile));
+
+    {
+        Builder::StatementBuilder detach;
+        detach.Detach(alias);
+        detach.Execute(connection);
+    }
+
+    attach(secondFile);
+    REQUIRE(MetadataTable::GetNamedValue<std::string>(connection, "which"sv, alias) == secondMarker);
+}
+
+TEST_CASE("SQLBuilder_ViewWithTombstoneSuppression", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    constexpr std::string_view valueTombstoneTable = "value_tombstone";
+    constexpr std::string_view ownerTombstoneTable = "owner_tombstone";
+    constexpr std::string_view removedColumn = "is_removed";
+    constexpr std::string_view valueAlias = "v";
+    constexpr std::string_view ownerAlias = "o";
+    constexpr std::string_view viewName = "survivors";
+
+    CreateSimpleTestTable(connection);
+    InsertIntoSimpleTestTable(connection, 1, "kept");
+    InsertIntoSimpleTestTable(connection, 2, "value removed");
+    InsertIntoSimpleTestTable(connection, 3, "owner removed");
+
+    auto createTombstoneTable = [&](std::string_view tableName, int suppressedValue)
+        {
+            Builder::StatementBuilder createTable;
+            createTable.CreateTable(tableName).Columns({
+                Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int),
+                Builder::ColumnBuilder(removedColumn, Builder::Type::Int),
+                });
+            createTable.Execute(connection);
+
+            Builder::StatementBuilder insertSuppressed;
+            insertSuppressed.InsertInto(tableName).Columns({ s_firstColumn, removedColumn }).Values(suppressedValue, 1);
+            insertSuppressed.Execute(connection);
+
+            // Row 1 is named by both tables without being removed by either, which is what
+            // distinguishes a test of the removal flag from a test of mere presence.
+            Builder::StatementBuilder insertMentioned;
+            insertMentioned.InsertInto(tableName).Columns({ s_firstColumn, removedColumn }).Values(1, 0);
+            insertMentioned.Execute(connection);
+        };
+
+    createTombstoneTable(valueTombstoneTable, 2);
+    createTombstoneTable(ownerTombstoneTable, 3);
+
+    {
+        INFO("A view cannot contain bound parameters, so its comparisons have to be literals");
+        Builder::StatementBuilder createView;
+        createView.CreateTempView(viewName).
+            Select({ s_firstColumn, s_secondColumn }).From(s_tableName).
+            Where().NotExists().BeginParenthetical().
+                Select(s_firstColumn).From(valueTombstoneTable).As(valueAlias).
+                Where(Builder::QualifiedColumn{ valueAlias, s_firstColumn }).Equals(Builder::QualifiedColumn{ s_tableName, s_firstColumn }).
+                And(Builder::QualifiedColumn{ valueAlias, removedColumn }).EqualsLiteral(1).
+            EndParenthetical().
+            And().NotExists().BeginParenthetical().
+                Select(s_firstColumn).From(ownerTombstoneTable).As(ownerAlias).
+                Where(Builder::QualifiedColumn{ ownerAlias, s_firstColumn }).Equals(Builder::QualifiedColumn{ s_tableName, s_firstColumn }).
+                And(Builder::QualifiedColumn{ ownerAlias, removedColumn }).EqualsLiteral(1).
+            EndParenthetical();
+        createView.Execute(connection);
+    }
+
+    INFO("Only the row that neither tombstone removes survives");
+    Builder::StatementBuilder select;
+    select.Select({ s_firstColumn, s_secondColumn }).From(viewName).OrderBy(s_firstColumn);
+
+    Statement statement = select.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 1);
+    REQUIRE(statement.GetColumn<std::string>(1) == "kept");
+
+    REQUIRE(!statement.Step());
+}
+
 TEST_CASE("SQLiteWrapperTransactionRollback", "[sqlitewrapper]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
@@ -851,6 +1300,128 @@ TEST_CASE("SQLiteWrapperTransactionWriteConflict", "[sqlitewrapper]")
         Transaction transaction2 = Transaction::Create(connection2, "test_transaction2", true);
         InsertIntoSimpleTestTable(connection2, firstVal, secondVal);
     }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+TEST_CASE("SQLiteDatabaseSpecifierTargets", "[sqlitewrapper]")
+{
+    // Every disposition is carried as a URI query parameter, because ATTACH takes no flags of its
+    // own and would otherwise give the attached database whatever access its host connection has.
+    DatabaseSpecifier read{ "D:\\test\\index.db"s, DatabaseDisposition::Read };
+    REQUIRE(read.Target() == "file:/D:/test/index.db?mode=ro");
+    REQUIRE(read.ConnectionDisposition() == Connection::OpenDisposition::ReadOnly);
+
+    DatabaseSpecifier readWrite{ "D:\\test\\index.db"s, DatabaseDisposition::ReadWrite };
+    REQUIRE(readWrite.Target() == "file:/D:/test/index.db?mode=rw");
+    REQUIRE(readWrite.ConnectionDisposition() == Connection::OpenDisposition::ReadWrite);
+
+    // Immutability is not something that the mode parameter can express.
+    DatabaseSpecifier immutable{ "D:\\test\\index.db"s, DatabaseDisposition::Immutable };
+    REQUIRE(immutable.Target() == "file:/D:/test/index.db?immutable=1");
+    REQUIRE(immutable.ConnectionDisposition() == Connection::OpenDisposition::ReadOnly);
+
+    // Characters that would otherwise start the query or fragment are escaped, and repeated
+    // separators collapse, per the conversion the URI documentation prescribes.
+    DatabaseSpecifier escaped{ "D:\\a#b\\\\c?d\\index.db"s, DatabaseDisposition::Immutable };
+    REQUIRE(escaped.Target() == "file:/D:/a%23b/c%3fd/index.db?immutable=1");
+
+    // A UNC path is the one case where the leading separators must not collapse: the pair has to
+    // survive, which takes an empty authority ahead of it. Anything else names the server as the
+    // authority, which SQLite rejects.
+    DatabaseSpecifier unc{ "\\\\server\\share\\index.db"s, DatabaseDisposition::Read };
+    REQUIRE(unc.Target() == "file:////server/share/index.db?mode=ro");
+
+    // A percent is a legal filename character, but SQLite decodes %HH escapes out of the path. Left
+    // alone, this name would be read as index#.db -- a different file, if it exists at all.
+    DatabaseSpecifier percent{ "D:\\test\\index%23.db"s, DatabaseDisposition::Read };
+    REQUIRE(percent.Target() == "file:/D:/test/index%2523.db?mode=ro");
+}
+
+// The escaping is only worth anything if a file so named can actually be opened, which is the part
+// no amount of string comparison can establish.
+TEST_CASE("SQLiteDatabaseSpecifierEscapedPathOpen", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_temp%23db"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(connection);
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    DatabaseSpecifier specifier{ tempFile.GetPath().u8string(), DatabaseDisposition::Read };
+    Connection connection = Connection::Create(specifier);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+// The administrative share is used rather than creating one, so this reaches the same local file by
+// a UNC name without changing the machine. It is not reachable without elevation, so the test
+// yields instead of failing when it is absent.
+TEST_CASE("SQLiteDatabaseSpecifierUncOpen", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::wstring localPath = tempFile.GetPath().wstring();
+
+    if (localPath.size() < 3 || localPath[1] != L':' || localPath[2] != L'\\')
+    {
+        WARN("Temporary file is not named by a drive letter; skipping UNC coverage");
+        return;
+    }
+
+    // C:\dir\file.db -> \\localhost\C$\dir\file.db
+    std::filesystem::path uncPath{ L"\\\\localhost\\" + localPath.substr(0, 1) + L"$" + localPath.substr(2) };
+    INFO("Using UNC name: " << uncPath);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+        CreateSimpleTestTable(connection);
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    if (!std::filesystem::exists(uncPath))
+    {
+        WARN("Administrative share is not reachable; skipping UNC coverage");
+        return;
+    }
+
+    DatabaseSpecifier specifier{ uncPath.u8string(), DatabaseDisposition::Read };
+
+    std::string expectedPrefix = "file:////localhost/" + std::string{ static_cast<char>(localPath[0]) } + "$/";
+    REQUIRE(specifier.Target().substr(0, expectedPrefix.size()) == expectedPrefix);
+
+    Connection connection = Connection::Create(specifier);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+TEST_CASE("SQLiteDatabaseSpecifierImmutableOpen", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+
+        CreateSimpleTestTable(connection);
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    Connection connection = Connection::Create(DatabaseSpecifier{ tempFile.GetPath().u8string(), DatabaseDisposition::Immutable });
 
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }

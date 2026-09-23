@@ -213,6 +213,7 @@ normalizedpackagenameandpublisher
 notcontains
 NTAPI
 NTSTATUS
+nullability
 nullsoft
 nunit
 nupkg
