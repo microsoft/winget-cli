@@ -2093,6 +2093,43 @@ TEST_CASE("SQLiteIndex_Delta_CheckConsistency_StandaloneDetectsAssociationOnRemo
     REQUIRE(!delta.CheckConsistency(true));
 }
 
+// I5b. A value row exists in the delta only because a map entry was about to add it. A removal
+// names a value that the package held in the baseline, so the baseline necessarily has that value
+// and it resolves to a baseline rowid -- a removing entry can never be why a *delta* value row
+// exists. Referenced only by a removal is therefore the same as unreferenced, and a check that
+// accepted any map entry at all would let such a value pass while contributing nothing.
+TEST_CASE("SQLiteIndex_Delta_CheckConsistency_StandaloneDetectsValueReferencedOnlyByRemoval", "[sqliteindex][V2_1][delta]")
+{
+    auto p1 = MakePackage("Publisher1.Id", "Package 1", { "t1" }, { "c1" });
+    auto p1Updated = MakePackage(p1.Id, p1.Name, { "t1", "brand_new" }, p1.Commands);
+
+    DeltaTestContext context{ { p1 } };
+
+    context.Update(p1Updated);
+    context.GenerateDelta();
+
+    std::string valueTable = context.DeltaTable("tags2");
+    std::string mapTable = context.DeltaMapTable("tags2");
+
+    {
+        Connection connection = Connection::Create(context.DeltaFile.GetPath().u8string(), Connection::OpenDisposition::ReadWrite);
+
+        // The tag is in the delta because the baseline did not have it, so it was added and has
+        // exactly one map entry, which is live.
+        auto valueRowId = GetScalar(connection, "SELECT [rowid] FROM [" + valueTable + "] WHERE [tag] = '" + p1Updated.Tags[1] + "'");
+        REQUIRE(GetScalar(connection,
+            "SELECT COUNT(*) FROM [" + mapTable + "] WHERE [tag] = " + std::to_string(valueRowId) + " AND [is_removed] = 0") == 1);
+
+        // Leaving the value referenced, but only by an entry that removes it. The package itself is
+        // not removed, so nothing else has anything to object to.
+        Statement::Create(connection,
+            "UPDATE [" + mapTable + "] SET [is_removed] = 1 WHERE [tag] = " + std::to_string(valueRowId)).Execute();
+    }
+
+    SQLiteIndex delta = SQLiteIndex::Open(context.DeltaFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
+    REQUIRE(!delta.CheckConsistency(true));
+}
+
 // I6. The service holds only the delta, so the combined form has to be reachable by naming the
 // baseline rather than by having opened the two together.
 TEST_CASE("SQLiteIndex_Delta_CheckConsistency_BaselinePropertyChecksCombinedForm", "[sqliteindex][V2_1][delta]")

@@ -284,6 +284,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
                     From(GetMapTableName(table.TableName)).As(s_Delta_MapAlias).
                     Where(QualifiedColumn{ s_Delta_MapAlias, table.ValueName }).
                         Equals(QualifiedColumn{ s_Delta_RowAlias, SQLite::RowIDName }).
+                    And(QualifiedColumn{ s_Delta_MapAlias, IsRemovedColumnName() }).EqualsLiteral(0).
                     EndParenthetical();
 
             SQLite::Statement select = builder.Prepare(connection);
@@ -298,7 +299,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
                 }
 
                 AICLI_LOG(Repo, Info, << "  [INVALID] value [" << select.GetColumn<std::string>(1) << "] in table [" <<
-                    valueTableName << "] is not referenced by any map entry");
+                    valueTableName << "] is not referenced by any map entry that adds it");
             }
 
             return result;
