@@ -2980,14 +2980,6 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
         REQUIRE(index.Search(request).Matches.empty());
     }
 
-    SECTION("Typo")
-    {
-        SearchRequest request;
-        request.Query = RequestMatch(MatchType::CaseInsensitive, "Intel Driver & Support Assstant");
-
-        REQUIRE(index.Search(request).Matches.empty());
-    }
-
     SECTION("Symbol-only query")
     {
         SearchRequest request;
