@@ -394,7 +394,6 @@
     </ClCompile>
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="Security.cpp" />
-    <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteStorageBase.cpp" />
