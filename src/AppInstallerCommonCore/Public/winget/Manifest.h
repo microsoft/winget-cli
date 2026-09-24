@@ -75,7 +75,7 @@ namespace AppInstaller::Manifest
     };
 
     // Creates a file system path part for the manifest in the form `<PackageIdentifier><separator><PackageVersion>`,
-    // or just `<PackageIdentifier>` when the version is unknown.
+    // or just `<PackageIdentifier>` when the version is unknown and the drop is requested.
     // Manifest validation rejects values that are not safe to use in a path, but the values can also come from
     // sources that do not go through it (for instance, installed package data), so they are sanitized here as
     // well. Throws if the result would point outside of the directory that it is used in.

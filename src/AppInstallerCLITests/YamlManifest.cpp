@@ -1504,10 +1504,16 @@ TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
     REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
     REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
 
-    // An unknown version carries no information, so it is left out entirely.
+    // An unknown version is only dropped when the caller asks for it.
     manifest.Version = "Unknown";
-    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar" });
-    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.Unknown" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_Unknown" });
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_', true) == std::filesystem::path{ L"Foo.Bar" });
+
+    // A known version is kept regardless of the drop request.
+    manifest.Version = "1.0.0";
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
 
     // Values that validation would have rejected are sanitized rather than used as given.
     manifest.Id = "a\\b";
