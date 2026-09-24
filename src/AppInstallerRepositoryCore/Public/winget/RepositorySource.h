@@ -165,6 +165,10 @@ namespace AppInstaller::Repository
     // Check if a source matches a well known source
     std::optional<WellKnownSource> CheckForWellKnownSource(const SourceDetails& sourceDetails);
 
+    // Gets the details for a well known source, including its certificate pinning configuration.
+    // The details are not populated with any locally stored metadata.
+    SourceDetails GetWellKnownSourceDetails(WellKnownSource source);
+
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {
