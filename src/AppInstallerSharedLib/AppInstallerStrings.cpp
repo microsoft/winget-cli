@@ -763,9 +763,13 @@ namespace AppInstaller::Utility
 
         // Second, look for any newly formed illegal names.
         // For now just error on these cases; they should not happen often.
+        // The COM/LPT names using the superscript digits (U+00B9, U+00B2, U+00B3) are reserved as well; they are
+        // written here as explicit UTF-8 byte sequences so that the encoding of this file cannot alter them.
         for (const auto& illegalName : {
             "."sv, "CON"sv, "PRN"sv, "AUX"sv, "NUL"sv, "COM1"sv, "COM2"sv, "COM3"sv, "COM4"sv, "COM5"sv, "COM6"sv, "COM7"sv, "COM8"sv, "COM9"sv,
-            "LPT1"sv, "LPT2"sv, "LPT3"sv, "LPT4"sv, "LPT5"sv, "LPT6"sv, "LPT7"sv, "LPT8"sv, "LPT9"sv })
+            "COM\xC2\xB9"sv, "COM\xC2\xB2"sv, "COM\xC2\xB3"sv,
+            "LPT1"sv, "LPT2"sv, "LPT3"sv, "LPT4"sv, "LPT5"sv, "LPT6"sv, "LPT7"sv, "LPT8"sv, "LPT9"sv,
+            "LPT\xC2\xB9"sv, "LPT\xC2\xB2"sv, "LPT\xC2\xB3"sv })
         {
             // Either equals the illegal name (starts with and same length) or starts with and the first character after is a .
             if (CaseInsensitiveStartsWith(result, illegalName) && (result.size() == illegalName.size() || result[illegalName.size()] == '.'))

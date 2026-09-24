@@ -194,6 +194,19 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     REQUIRE(MakeSuitablePathPart(std::string(300, ' ')) == SHA256::ConvertToString(SHA256::ComputeHash(std::string(300, ' '))));
     REQUIRE_THROWS_HR(MakeSuitablePathPart("COM1"), E_INVALIDARG);
     REQUIRE_THROWS_HR(MakeSuitablePathPart("NUL.txt"), E_INVALIDARG);
+
+    // The superscript digit forms of COM and LPT are reserved as well.
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("COM\xC2\xB9"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("COM\xC2\xB2"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("COM\xC2\xB3"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("LPT\xC2\xB9"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("LPT\xC2\xB2"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("LPT\xC2\xB3"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("lpt\xC2\xB3.txt"), E_INVALIDARG);
+
+    // Only the exact superscript digits are reserved; other trailing values are not.
+    REQUIRE(MakeSuitablePathPart("COM\xC2\xB4") == "COM\xC2\xB4");
+    REQUIRE(MakeSuitablePathPart("COM\xC2\xB9" "0") == "COM\xC2\xB9" "0");
 }
 
 TEST_CASE("GetFileNameFromURI", "[strings]")

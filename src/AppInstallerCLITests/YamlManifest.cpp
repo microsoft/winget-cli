@@ -1449,7 +1449,7 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
 
     // Reserved names cannot be used to construct a path part, so they must fail here rather than at the point of use.
-    for (const auto& value : { "CON", "con", "NUL.txt", "COM1", "LPT9.1.0" })
+    for (const auto& value : { "CON", "con", "NUL.txt", "COM1", "LPT9.1.0", "COM\xC2\xB9", "com\xC2\xB2", "LPT\xC2\xB3.txt" })
     {
         RequireSingleError(ValidatePackageVersion(value), ManifestError::ReservedPathName);
         RequireSingleError(ValidatePackageIdentifier(value), ManifestError::ReservedPathName);
