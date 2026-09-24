@@ -29,6 +29,52 @@ namespace AppInstaller::Logging
             return std::move(strstr).str();
         }
 
+        // Formats a log line in CCM (CMTrace-compatible) format.
+        std::string ToCCMLogLine(Channel channel, Level level, std::string_view message)
+        {
+            auto now = std::chrono::system_clock::now();
+            auto tt = std::chrono::system_clock::to_time_t(now);
+            tm localTime{};
+            _localtime64_s(&localTime, &tt);
+
+            auto sinceEpoch = now.time_since_epoch();
+            auto leftoverMillis = std::chrono::duration_cast<std::chrono::milliseconds>(sinceEpoch) - std::chrono::duration_cast<std::chrono::seconds>(sinceEpoch);
+
+            // Get UTC bias in minutes (positive means west of UTC, CMTrace uses positive for west)
+            long timezoneBiasSeconds = 0;
+            _get_timezone(&timezoneBiasSeconds);
+            long biasMins = timezoneBiasSeconds / 60;
+
+            // CCM type: 1=Info/Verbose, 2=Warning, 3=Error/Critical
+            int type;
+            switch (level)
+            {
+            case Level::Warning: type = 2; break;
+            case Level::Error:
+            case Level::Crit:   type = 3; break;
+            default:            type = 1; break;
+            }
+
+            std::stringstream strstr;
+            strstr << "<![LOG[" << message << "]LOG]!>"
+                << "<time=\""
+                << std::setw(2) << std::setfill('0') << localTime.tm_hour << ":"
+                << std::setw(2) << std::setfill('0') << localTime.tm_min << ":"
+                << std::setw(2) << std::setfill('0') << localTime.tm_sec << "."
+                << std::setw(3) << std::setfill('0') << leftoverMillis.count()
+                << "+" << biasMins << "\""
+                << " date=\""
+                << std::setw(2) << std::setfill('0') << (1 + localTime.tm_mon) << "-"
+                << std::setw(2) << std::setfill('0') << localTime.tm_mday << "-"
+                << (1900 + localTime.tm_year) << "\""
+                << " component=\"" << GetChannelName(channel) << "\""
+                << " context=\"\""
+                << " type=\"" << type << "\""
+                << " thread=\"" << GetCurrentThreadId() << "\""
+                << " file=\"\">";
+            return std::move(strstr).str();
+        }
+
         // Determines the difference between the given position and the maximum as an offset.
         std::ofstream::off_type CalculateDiff(const std::ofstream::pos_type& position, std::ofstream::off_type maximum)
         {
@@ -94,7 +140,15 @@ namespace AppInstaller::Logging
 
     void FileLogger::Write(Channel channel, Level level, std::string_view message) noexcept try
     {
-        std::string log = ToLogLine(channel, level, message);
+        std::string log;
+        if (Settings::User().Get<Settings::Setting::LoggingFormat>() == LogFileFormat::CCM)
+        {
+            log = ToCCMLogLine(channel, level, message);
+        }
+        else
+        {
+            log = ToLogLine(channel, level, message);
+        }
         WriteDirect(channel, level, log);
     }
     catch (...) {}
