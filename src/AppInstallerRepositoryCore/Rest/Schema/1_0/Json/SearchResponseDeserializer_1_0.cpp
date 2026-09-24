@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         // The package identifier and version flow into file system paths, so the manifest schema restrictions
         // on them are enforced here as well; the schema itself is not applied to REST responses.
-        bool IsValidPathFieldValue(std::string_view fieldName, const std::vector<AppInstaller::Manifest::ValidationError>& validationErrors)
+        bool CheckPathFieldValueValidation(std::string_view fieldName, const std::vector<AppInstaller::Manifest::ValidationError>& validationErrors)
         {
             bool result = true;
 
@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 // whitespace from the identifier, but surrounding whitespace should be tolerated identically.
                 Utility::Trim(packageId.value());
 
-                if (!IsValidPathFieldValue(PackageIdentifier, AppInstaller::Manifest::ValidatePackageIdentifier(packageId.value())))
+                if (!CheckPathFieldValueValidation(PackageIdentifier, AppInstaller::Manifest::ValidatePackageIdentifier(packageId.value())))
                 {
                     return {};
                 }
@@ -149,7 +149,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // that a value which is only path unsafe because of its surrounding whitespace is still accepted.
         Utility::Trim(version.value());
 
-        if (!IsValidPathFieldValue(PackageVersion, AppInstaller::Manifest::ValidatePackageVersion(version.value())))
+        if (!CheckPathFieldValueValidation(PackageVersion, AppInstaller::Manifest::ValidatePackageVersion(version.value())))
         {
             return {};
         }

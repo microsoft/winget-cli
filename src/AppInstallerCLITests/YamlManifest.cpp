@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <AppInstallerSHA256.h>
+#include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
@@ -1502,18 +1503,34 @@ TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
     // The common case must not alter the value, as the resulting paths are persisted.
     REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
     REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
-    REQUIRE(GetPathPart(manifest.Id) == std::filesystem::path{ L"Foo.Bar" });
+
+    // An unknown version carries no information, so it is left out entirely.
+    manifest.Version = "Unknown";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar" });
 
     // Values that validation would have rejected are sanitized rather than used as given.
-    REQUIRE(GetPathPart("a\\b") == std::filesystem::path{ L"a_b" });
-    REQUIRE(GetPathPart("a/b") == std::filesystem::path{ L"a_b" });
-    REQUIRE(GetPathPart("C:") == std::filesystem::path{ L"C_" });
-    REQUIRE(GetPathPart("\\\\server\\share") == std::filesystem::path{ L"__server_share" });
+    manifest.Id = "a\\b";
+    manifest.Version = "c/d";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"a_b.c_d" });
 
-    // Relative path specifiers can never produce a path part that escapes its base directory.
-    REQUIRE(GetPathPart("..") == std::filesystem::path{ L"._" });
-    REQUIRE_THROWS(GetPathPart("..\\.."));
-    REQUIRE_THROWS(GetPathPart("../../foo"));
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "C:";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.C_" });
+
+    // A trailing dot is not allowed at the end of a path part.
+    manifest.Version = "1.0.";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0_" });
+
+    // Values that cannot be made into a usable path part are reported as a manifest problem rather than
+    // surfacing the raw E_INVALIDARG from the conversion.
+    manifest.Version = "1.0.0";
+
+    for (const std::string_view id : { "..", "..\\..", "../../foo", "CON", "NUL" })
+    {
+        manifest.Id = id;
+        REQUIRE_THROWS_HR(GetPathPart(manifest), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+    }
 }
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")

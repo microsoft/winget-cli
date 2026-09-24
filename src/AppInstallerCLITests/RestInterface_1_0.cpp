@@ -652,8 +652,8 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
 
 TEST_CASE("GetManifests_GoodResponse_PathFieldWhitespaceTrimmed", "[RestSource][Interface_1_0]")
 {
-    // The schema permits surrounding whitespace in these values, so this is a valid response. Trimming at parse
-    // time keeps the stored value consistent with version comparison and with the file system path built from it.
+    // The schema permits surrounding whitespace in the PackageIdentifier and PackageVersion values, so this is a valid response.
+    // Trimming at parse time keeps the stored value consistent with version comparison and with the file system path built from it.
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
         "Data": {

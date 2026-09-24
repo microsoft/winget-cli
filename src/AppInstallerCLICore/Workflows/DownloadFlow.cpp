@@ -749,11 +749,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::filesystem::path packageDownloadFolderName = Utility::Version{ manifest.Version }.IsUnknown() ?
-                GetPathPart(manifest.Id) :
-                GetPathPart(manifest, '_');
-
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', true));
         }
     }
 

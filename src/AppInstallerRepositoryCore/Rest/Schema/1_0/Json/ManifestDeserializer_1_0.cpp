@@ -151,7 +151,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
         }
 
-        // The schema allows surrounding whitespace in these values, but they are used to construct file system
+        // The schema allows surrounding whitespace in the id and version values, but they are used to construct file system
         // paths and version comparison trims, so trim them here as the YAML parser does.
         Utility::Trim(id.value());
 

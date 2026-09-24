@@ -232,7 +232,7 @@ namespace AppInstaller::Manifest
     // The manifest schemas restrict these fields to values that are safe to use as a path part, but the
     // schema is not applied at runtime for all manifest sources (for example, REST sources), so the
     // restrictions are enforced here as well.
-    std::vector<ValidationError> ValidatePathFields(const Manifest& manifest);
+    std::vector<ValidationError> ValidateFieldsUsedInPathConstruction(const Manifest& manifest);
 
     // Validates an individual PackageIdentifier value, for sources that do not produce a full manifest.
     std::vector<ValidationError> ValidatePackageIdentifier(std::string_view value);

@@ -56,7 +56,7 @@ namespace AppInstaller::Fonts
         {
             if (context.PackageId.empty() || context.PackageVersion.empty())
             {
-                // This is a programming error if we reach this point where the package identifer cannot be created or derived.
+                // This is a programming error if we reach this point where the package identifier cannot be created or derived.
                 THROW_HR_MSG(E_UNEXPECTED, "Package Id and Version must be provided and non-empty.");
             }
 

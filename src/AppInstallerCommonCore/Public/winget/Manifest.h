@@ -74,12 +74,10 @@ namespace AppInstaller::Manifest
             std::function<const string_t& (const AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {}) const;
     };
 
-    // Creates a file system path part from a value that originated in manifest data.
+    // Creates a file system path part for the manifest in the form `<PackageIdentifier><separator><PackageVersion>`,
+    // or just `<PackageIdentifier>` when the version is unknown.
     // Manifest validation rejects values that are not safe to use in a path, but the values can also come from
     // sources that do not go through it (for instance, installed package data), so they are sanitized here as
     // well. Throws if the result would point outside of the directory that it is used in.
-    std::filesystem::path GetPathPart(std::string_view value);
-
-    // Creates a file system path part for the manifest in the form `<PackageIdentifier><separator><PackageVersion>`.
-    std::filesystem::path GetPathPart(const Manifest& manifest, char separator = '.');
+    std::filesystem::path GetPathPart(const Manifest& manifest, char separator = '.', bool dropUnknownVersion = false);
 }

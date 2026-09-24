@@ -123,7 +123,7 @@ namespace AppInstaller::Manifest
 
         // Validates a manifest field value that is used to construct file system paths.
         // disallowWhitespace: set for fields whose schema definition excludes whitespace (for example, PackageIdentifier).
-        std::vector<ValidationError> ValidatePathFieldValue(std::string_view fieldName, std::string_view value, bool disallowWhitespace)
+        std::vector<ValidationError> ValidateFieldValueUsedInPathConstruction(std::string_view fieldName, std::string_view value, bool disallowWhitespace)
         {
             std::vector<ValidationError> resultErrors;
 
@@ -182,15 +182,15 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> ValidatePackageIdentifier(std::string_view value)
     {
-        return ValidatePathFieldValue("PackageIdentifier", value, /* disallowWhitespace */ true);
+        return ValidateFieldValueUsedInPathConstruction("PackageIdentifier", value, /* disallowWhitespace */ true);
     }
 
     std::vector<ValidationError> ValidatePackageVersion(std::string_view value)
     {
-        return ValidatePathFieldValue("PackageVersion", value, /* disallowWhitespace */ false);
+        return ValidateFieldValueUsedInPathConstruction("PackageVersion", value, /* disallowWhitespace */ false);
     }
 
-    std::vector<ValidationError> ValidatePathFields(const Manifest& manifest)
+    std::vector<ValidationError> ValidateFieldsUsedInPathConstruction(const Manifest& manifest)
     {
         std::vector<ValidationError> resultErrors = ValidatePackageIdentifier(manifest.Id);
 
@@ -206,7 +206,7 @@ namespace AppInstaller::Manifest
 
         // PackageIdentifier and PackageVersion are used to construct file system paths, so the schema
         // restrictions on them must be enforced at runtime for all manifest sources.
-        auto pathFieldErrors = ValidatePathFields(manifest);
+        auto pathFieldErrors = ValidateFieldsUsedInPathConstruction(manifest);
         std::move(pathFieldErrors.begin(), pathFieldErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Channel is not supported currently
