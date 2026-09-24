@@ -513,6 +513,7 @@ RRF
 rrr
 rswgs
 RTTI
+runbooks
 runspace
 runtimeclass
 runtimes
@@ -524,6 +525,7 @@ sancov
 SARL
 savepoint
 sawgc
+SCCM
 schematab
 Scm
 sddl
