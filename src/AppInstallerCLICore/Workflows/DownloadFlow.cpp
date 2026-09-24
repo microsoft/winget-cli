@@ -19,6 +19,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Repository;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Settings;
+    using namespace std::string_literals;
     using namespace std::string_view_literals;
 
     namespace
@@ -44,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Get the file extension to be used for the installer file.
-        std::wstring_view GetInstallerFileExtension(Execution::Context& context)
+        std::wstring GetInstallerFileExtension(Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
             switch (installer->BaseInstallerType)
@@ -54,21 +55,21 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Inno:
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable:
-                return L".exe"sv;
+                return L".exe"s;
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
-                return L".msi"sv;
+                return L".msi"s;
             case InstallerTypeEnum::Msix:
                 // Note: We may need to distinguish between .msix and .msixbundle in the future.
-                return L".msix"sv;
+                return L".msix"s;
             case InstallerTypeEnum::Zip:
-                return L".zip"sv;
+                return L".zip"s;
             case InstallerTypeEnum::Font:
                 {
-                    const auto& fileName = GetFileNameFromURI(installer->Url);
+                    std::filesystem::path fileName = GetFileNameFromURI(installer->Url);
                     if (fileName.has_extension())
                     {
-                        return fileName.extension().c_str();
+                        return fileName.extension().wstring();
                     }
                     else
                     {
@@ -91,7 +92,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Get file name from download URI
             std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
-            std::wstring_view installerExtension = GetInstallerFileExtension(context);
+            std::wstring installerExtension = GetInstallerFileExtension(context);
 
             // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.

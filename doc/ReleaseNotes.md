@@ -18,6 +18,15 @@ Added a new `--ignore-unavailable` flag to the `install` command. When installin
 
 ## Bug Fixes
 
+### Portable installer alias handling
+
+Portable installs now preserve the original executable filename instead of renaming it when an alias is needed.
+For aliases requested through `--rename`, `Commands`, or `PortableCommandAlias`, WinGet creates a hardlink alias and keeps the original file as the source executable.
+
+This change resolves alias failures in non-symlinked scenarios, including cases where WinGet adds the install directory to `PATH` instead of creating links.
+Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
+
+### Minor Bug Fixes
 * Fixed REST search results bypassing package filters and selectors, retrieving missing manifest metadata only when needed to evaluate a match.
 * Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
