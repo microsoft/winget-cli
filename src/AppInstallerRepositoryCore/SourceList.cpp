@@ -887,6 +887,7 @@ namespace AppInstaller::Repository
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
                         details.Explicit = additionalSource.Explicit;
+                        details.Priority = additionalSource.Priority.value_or(0);
 #ifndef AICLI_DISABLE_TEST_HOOKS
                         details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
 #endif

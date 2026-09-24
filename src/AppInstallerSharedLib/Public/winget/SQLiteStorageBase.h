@@ -14,15 +14,7 @@ namespace AppInstaller::SQLite
     struct SQLiteStorageBase
     {
         // The disposition for opening the database.
-        enum class OpenDisposition
-        {
-            // Open for read only.
-            Read,
-            // Open for read and write.
-            ReadWrite,
-            // The database will not change while in use; open for immutable read.
-            Immutable,
-        };
+        using OpenDisposition = DatabaseDisposition;
 
         // Gets the last write time for the database.
         std::chrono::system_clock::time_point GetLastWriteTime() const;
@@ -42,6 +34,8 @@ namespace AppInstaller::SQLite
         SQLiteStorageBase(const std::string& target, const Version& version, size_t pageSize = 0);
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        SQLiteStorageBase(const DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
 
         SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source);
 

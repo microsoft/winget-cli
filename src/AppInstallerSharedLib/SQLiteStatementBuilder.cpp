@@ -324,6 +324,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Where()
+    {
+        m_stream << " WHERE";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::WhereValueContainsEmbeddedNullCharacter(std::string_view column)
     {
         OutputColumns(m_stream, " WHERE instr(", column);
@@ -348,8 +354,21 @@ namespace AppInstaller::SQLite::Builder
     {
         // This is almost certainly not what you want.
         // In SQL, value = NULL is always false.
-        // Use StatementBuilder::IsNull instead.
+        // Use StatementBuilder::IsNull instead, or StatementBuilder::AssignValue
+        // to assign NULL in the set portion of an update statement.
         THROW_HR(E_NOTIMPL);
+    }
+
+    StatementBuilder& StatementBuilder::AssignValue(std::nullptr_t)
+    {
+        m_stream << " = NULL";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::EqualsLiteral(int64_t value)
+    {
+        m_stream << " = " << value;
+        return *this;
     }
 
     StatementBuilder& StatementBuilder::Equals()
@@ -420,6 +439,18 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Exists()
+    {
+        m_stream << " EXISTS";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::NotExists()
+    {
+        m_stream << " NOT EXISTS";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::IsNull(bool isNull)
     {
         m_stream << " IS " << (isNull ? "" : "NOT ") << "NULL";
@@ -441,6 +472,12 @@ namespace AppInstaller::SQLite::Builder
     StatementBuilder& StatementBuilder::Or(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " OR ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::And()
+    {
+        m_stream << " AND";
         return *this;
     }
 
@@ -740,6 +777,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Add(const details::SubBuilder& column)
+    {
+        m_stream << " ADD " << column;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DropTable(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "DROP TABLE", table);
@@ -773,6 +816,26 @@ namespace AppInstaller::SQLite::Builder
     StatementBuilder& StatementBuilder::DropTableIfExists(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "DROP TABLE IF EXISTS", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateTempView(std::string_view view)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TEMP VIEW", view);
+        m_stream << " AS ";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateTempView(std::initializer_list<std::string_view> view)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TEMP VIEW", view);
+        m_stream << " AS ";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::UnionAll()
+    {
+        m_stream << " UNION ALL ";
         return *this;
     }
 
@@ -906,6 +969,21 @@ namespace AppInstaller::SQLite::Builder
     StatementBuilder& StatementBuilder::Vacuum()
     {
         m_stream << "VACUUM";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Attach(const DatabaseSpecifier& specifier, std::string_view alias)
+    {
+        m_stream << "ATTACH DATABASE ?";
+        AddBindFunctor(m_bindIndex++, specifier.Target());
+        OutputOperationAndTable(m_stream, " AS", alias);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Detach(std::string_view alias)
+    {
+        m_stream << "DETACH DATABASE";
+        OutputOperationAndTable(m_stream, "", alias);
         return *this;
     }
 
