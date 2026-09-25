@@ -190,6 +190,13 @@ namespace AppInstaller::Manifest
         return ValidateFieldValueUsedInPathConstruction("PackageVersion", value, /* disallowWhitespace */ false);
     }
 
+    bool IsValueSafeForPathConstruction(std::string_view value)
+    {
+        // Whitespace is excluded here because it is not a path safety concern; it is only excluded from
+        // the fields whose schema definition happens to exclude it.
+        return ValidateFieldValueUsedInPathConstruction({}, value, /* disallowWhitespace */ false).empty();
+    }
+
     std::vector<ValidationError> ValidateFieldsUsedInPathConstruction(const Manifest& manifest)
     {
         std::vector<ValidationError> resultErrors = ValidatePackageIdentifier(manifest.Id);

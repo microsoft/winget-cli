@@ -239,4 +239,13 @@ namespace AppInstaller::Manifest
 
     // Validates an individual PackageVersion value, for sources that do not produce a full manifest.
     std::vector<ValidationError> ValidatePackageVersion(std::string_view value);
+
+    // Determines whether a value can be used to construct a file system or registry path.
+    // This applies the same restrictions that manifest validation applies to the fields used in path
+    // construction, except for whitespace, which only some of those fields exclude. It is intended for
+    // values at their point of use, including values that did not come directly from a manifest; for
+    // example, values read back from existing install information that a manifest originally produced.
+    // An empty value is not considered a failure here, as emptiness is reported by the required field
+    // validation and is not meaningful to callers that only need to know whether a value is path safe.
+    bool IsValueSafeForPathConstruction(std::string_view value);
 }
