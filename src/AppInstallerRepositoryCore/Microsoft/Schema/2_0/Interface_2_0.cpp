@@ -78,6 +78,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return normalizedNameFieldsFound;
         }
+
+        void AddNormalizedNameMatch(RequestMatch& match, const Utility::NameNormalizer& normalizer)
+        {
+            match.Additional.reset();
+
+            if (match.Type != MatchType::Exact && !match.Value.empty())
+            {
+                std::string normalizedName = normalizer.NormalizeName(Utility::FoldCase(match.Value)).GetNormalizedName(Utility::NormalizationField::None);
+                if (!normalizedName.empty())
+                {
+                    match.Additional = std::move(normalizedName);
+                }
+            }
+        }
+
+        void AddNormalizedNameMatches(std::vector<PackageMatchFilter>& filters, const Utility::NameNormalizer& normalizer)
+        {
+            for (auto& filter : filters)
+            {
+                if (filter.Field == PackageMatchField::Name)
+                {
+                    AddNormalizedNameMatch(filter, normalizer);
+                }
+            }
+        }
     }
 
     Interface::Interface(Utility::NormalizationVersion normVersion) : m_normalizer(normVersion)
@@ -470,6 +495,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Now search on the unfolded value
         filter.Value = query.Value;
+        filter.Additional = query.Additional;
 
         for (MatchType match : GetDefaultMatchTypeOrder(query.Type))
         {
@@ -542,6 +568,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         {
             anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
             anon::UpdatePackageMatchFilters(request.Filters, m_normalizer);
+
+            if (request.Query)
+            {
+                anon::AddNormalizedNameMatch(request.Query.value(), m_normalizer);
+            }
+            anon::AddNormalizedNameMatches(request.Inclusions, m_normalizer);
+            anon::AddNormalizedNameMatches(request.Filters, m_normalizer);
 
             return BasicSearchInternal(connection, request);
         }

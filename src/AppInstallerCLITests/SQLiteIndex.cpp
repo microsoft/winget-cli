@@ -2719,6 +2719,73 @@ TEST_CASE("SQLiteIndex_NormNameAndPublisher_Exact", "[sqliteindex]")
     }
 }
 
+TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    const std::string packageName = "Intel\xC2\xAE" " Driver & Support Assistant";
+    const std::string normalizedQuery = "Intel Driver & Support Assistant";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Intel.DriverAndSupportAssistant", packageName, "Intel", "intel-driver-support", "1.0", "", {}, {}, "Path1", {}, {} },
+        { "Other.Package", "Other Package", "Other", "other", "1.0", "", {}, {}, "Path2", {}, {} },
+        }, SQLiteVersion{ 2, 0 });
+
+    TestPrepareForRead(index);
+
+    SECTION("Generic query")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::CaseInsensitive, normalizedQuery);
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+        REQUIRE(results.Matches[0].second.Field == PackageMatchField::Name);
+    }
+
+    SECTION("Name inclusion")
+    {
+        SearchRequest request;
+        request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, normalizedQuery);
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "Intel.DriverAndSupportAssistant");
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+    }
+
+    SECTION("Name filter")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Substring, "Intel");
+        request.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, normalizedQuery);
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+    }
+
+    SECTION("Exact name")
+    {
+        SearchRequest request;
+        request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Exact, normalizedQuery);
+
+        REQUIRE(index.Search(request).Matches.empty());
+    }
+
+    SECTION("Symbol-only query")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Substring, "\xC2\xAE");
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+    }
+}
+
 TEST_CASE("SQLiteIndex_NormNameAndPublisher_Simple", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
