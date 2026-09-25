@@ -274,6 +274,7 @@ QCol
 Qspectre
 rclsid
 REBOOTPROMPT
+redist
 Redistributable
 REFCLSID
 removemanifest

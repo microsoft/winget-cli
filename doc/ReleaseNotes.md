@@ -27,3 +27,4 @@ Because the alias is now created as an executable hardlink in the install locati
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.
 * Fixed relative path handling for rooted paths.
+* Fixed nested installer paths using forward slashes.
