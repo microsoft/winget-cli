@@ -41,6 +41,8 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(ExceededNestedInstallerFilesLimit);
         WINGET_DEFINE_RESOURCE_STRINGID(ExeInstallerMissingSilentSwitches);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldDuplicate);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldEscapesDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldExceedsMaxLength);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldFailedToProcess);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldIsNotPascalCase);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldNotSupported);
@@ -60,6 +62,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidBcp47Value);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidMsiSwitches);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathCharacters);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidWindowsFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
@@ -70,6 +73,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableCommandAliasEscapesDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReservedPathName);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
@@ -223,4 +227,25 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, const ManifestValidateOption& options);
     std::vector<ValidationError> ValidateManifestLocalization(const ManifestLocalization& localization, bool treatErrorAsWarning = false);
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning = false);
+
+    // Validates the manifest fields that are used to construct file system paths.
+    // The manifest schemas restrict these fields to values that are safe to use as a path part, but the
+    // schema is not applied at runtime for all manifest sources (for example, REST sources), so the
+    // restrictions are enforced here as well.
+    std::vector<ValidationError> ValidateFieldsUsedInPathConstruction(const Manifest& manifest);
+
+    // Validates an individual PackageIdentifier value, for sources that do not produce a full manifest.
+    std::vector<ValidationError> ValidatePackageIdentifier(std::string_view value);
+
+    // Validates an individual PackageVersion value, for sources that do not produce a full manifest.
+    std::vector<ValidationError> ValidatePackageVersion(std::string_view value);
+
+    // Determines whether a value can be used to construct a file system or registry path.
+    // This applies the same restrictions that manifest validation applies to the fields used in path
+    // construction, except for whitespace, which only some of those fields exclude. It is intended for
+    // values at their point of use, including values that did not come directly from a manifest; for
+    // example, values read back from existing install information that a manifest originally produced.
+    // An empty value is not considered a failure here, as emptiness is reported by the required field
+    // validation and is not meaningful to callers that only need to know whether a value is path safe.
+    bool IsValueSafeForPathConstruction(std::string_view value);
 }

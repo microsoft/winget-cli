@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include <AppInstallerSHA256.h>
+#include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
@@ -1396,6 +1397,173 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
+{
+    auto RequireSingleError = [](const std::vector<ValidationError>& errors, AppInstaller::StringResource::StringId message)
+    {
+        REQUIRE(errors.size() == 1);
+        REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+        REQUIRE(message == errors[0].Message);
+    };
+
+    auto ContainsError = [](const std::vector<ValidationError>& errors, AppInstaller::StringResource::StringId message)
+    {
+        return std::any_of(errors.begin(), errors.end(), [&](const ValidationError& error)
+            {
+                return error.Message == message && error.ErrorLevel == ValidationError::Level::Error;
+            });
+    };
+
+    // Valid values produce no errors.
+    REQUIRE(ValidatePackageVersion("1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0 beta").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar.Baz.Qux").empty());
+
+    // Whitespace is only excluded for the fields that require it.
+    auto errors = ValidatePackageIdentifier("Foo Bar");
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
+
+    // Empty values are covered by the required field validation.
+    REQUIRE(ValidatePackageVersion("").empty());
+
+    // Characters excluded by the schema because the values are used to construct paths.
+    for (const auto& value : { "ab\\c", "ab/c", "ab:c", "ab*c", "ab?c", "ab\"c", "ab<c", "ab>c", "ab|c", "ab\tc" })
+    {
+        REQUIRE(ContainsError(ValidatePackageVersion(value), ManifestError::InvalidPathCharacters));
+        REQUIRE(ContainsError(ValidatePackageIdentifier(value), ManifestError::InvalidPathCharacters));
+    }
+
+    // An embedded null would truncate any path that the value is used in.
+    RequireSingleError(ValidatePackageVersion("ab\0c"sv), ManifestError::InvalidPathCharacters);
+    RequireSingleError(ValidatePackageIdentifier("ab\0c"sv), ManifestError::InvalidPathCharacters);
+
+    // Values that exceed the maximum length declared by the schema.
+    REQUIRE(ValidatePackageVersion(std::string(128, '1')).empty());
+    RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
+
+    // The schema limit is expressed in characters, so the length is measured in grapheme clusters rather than
+    // in UTF-8 code units. Each of these characters encodes to more than one byte.
+    {
+        // U+00E9, two bytes each.
+        std::string twoByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            twoByteCharacters += "\xC3\xA9";
+        }
+
+        REQUIRE(twoByteCharacters.size() == 256);
+        REQUIRE(ValidatePackageVersion(twoByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(twoByteCharacters + "\xC3\xA9"), ManifestError::FieldExceedsMaxLength);
+
+        // U+1F600, four bytes each.
+        std::string fourByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            fourByteCharacters += "\xF0\x9F\x98\x80";
+        }
+
+        REQUIRE(fourByteCharacters.size() == 512);
+        REQUIRE(ValidatePackageVersion(fourByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(fourByteCharacters + "\xF0\x9F\x98\x80"), ManifestError::FieldExceedsMaxLength);
+    }
+
+    // Values consisting solely of relative path specifiers.
+    RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);
+    REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
+
+    // Reserved names cannot be used to construct a path part, so they must fail here rather than at the point of use.
+    for (const auto& value : { "CON", "con", "NUL.txt", "COM1", "LPT9.1.0", "COM\xC2\xB9", "com\xC2\xB2", "LPT\xC2\xB3.txt" })
+    {
+        RequireSingleError(ValidatePackageVersion(value), ManifestError::ReservedPathName);
+        RequireSingleError(ValidatePackageIdentifier(value), ManifestError::ReservedPathName);
+    }
+
+    // Values that merely contain a reserved name are fine.
+    REQUIRE(ValidatePackageIdentifier("Contoso.NULL").empty());
+    REQUIRE(ValidatePackageVersion("1.0-com1").empty());
+
+    // The schema permits whitespace anywhere in PackageVersion, so it is not an error here; parsing trims the
+    // surrounding whitespace instead. PackageIdentifier excludes whitespace entirely.
+    REQUIRE(ValidatePackageVersion("1.0.0 ").empty());
+    REQUIRE(ValidatePackageVersion(" 1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0.0 beta").empty());
+    REQUIRE(ContainsError(ValidatePackageIdentifier("1.0.0 "), ManifestError::InvalidPathCharacters));
+}
+
+TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+
+    // A valid manifest has no path related errors.
+    REQUIRE(ValidateManifest(manifest, false).size() == 0);
+
+    // These are enforced regardless of the full validation option, as manifests that are not validated
+    // against the schema (for example, those from a REST source) are only checked here.
+    manifest.Id = "Foo\\Bar";
+    auto errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageIdentifier", manifest.Id);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "1.0:0";
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidPathCharacters, "PackageVersion", manifest.Version);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "..";
+    errors = ValidateManifest(manifest, false);
+    REQUIRE(errors.size() == 1);
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::FieldEscapesDirectory, "PackageVersion", manifest.Version);
+}
+
+TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
+{
+    Manifest manifest;
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "1.0.0";
+
+    // The common case must not alter the value, as the resulting paths are persisted.
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
+
+    // An unknown version is only dropped when the caller asks for it.
+    manifest.Version = "Unknown";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.Unknown" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_Unknown" });
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_', true) == std::filesystem::path{ L"Foo.Bar" });
+
+    // A known version is kept regardless of the drop request.
+    manifest.Version = "1.0.0";
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+
+    // Values that validation would have rejected are sanitized rather than used as given.
+    manifest.Id = "a\\b";
+    manifest.Version = "c/d";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"a_b.c_d" });
+
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "C:";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.C_" });
+
+    // A trailing dot is not allowed at the end of a path part.
+    manifest.Version = "1.0.";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0_" });
+
+    // Values that cannot be made into a usable path part are reported as a manifest problem rather than
+    // surfacing the raw E_INVALIDARG from the conversion.
+    manifest.Version = "1.0.0";
+
+    for (const std::string_view id : { "..", "..\\..", "../../foo", "CON", "NUL" })
+    {
+        manifest.Id = id;
+        REQUIRE_THROWS_HR(GetPathPart(manifest), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+    }
 }
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")

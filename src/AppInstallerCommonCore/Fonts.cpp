@@ -10,6 +10,7 @@
 #include <winget/Locale.h>
 #include <winget/Manifest.h>
 #include <winget/ManifestCommon.h>
+#include <winget/ManifestValidation.h>
 #include <winget/Registry.h>
 #include <ShObjIdl_core.h>
 #include <propkey.h>
@@ -54,13 +55,25 @@ namespace AppInstaller::Fonts
 
         void AssertPackageInformation(const FontContext& context)
         {
-            if (!context.PackageId.empty() && !context.PackageVersion.empty())
+            if (context.PackageId.empty() || context.PackageVersion.empty())
             {
-                return;
+                // This is a programming error if we reach this point where the package identifier cannot be created or derived.
+                THROW_HR_MSG(E_UNEXPECTED, "Package Id and Version must be provided and non-empty.");
             }
 
-            // This is a programming error if we reach this point where the package identifer cannot be created or derived.
-            THROW_HR_MSG(E_UNEXPECTED, "Package Id and Version must be provided and non-empty.");
+            // Defense in depth; the package id and version are used to construct both file system and
+            // registry paths. These values do not always originate from a manifest that has been validated:
+            // an uninstall without a manifest uses the moniker and version of the installed package, and
+            // those are read back from the font registry keys by GetInstalledFontPackages. For a per-user
+            // scope those keys are writable by the user, so the values are checked here with the same
+            // restrictions that manifest validation applies rather than only checking for directory escapes.
+            // These values are only ever checked and never altered, as they must continue to match the paths
+            // and registry keys that were persisted at install time.
+            std::string packageId = ConvertToUTF8(context.PackageId);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, !Manifest::IsValueSafeForPathConstruction(packageId), "Package id cannot be used to construct a path: %hs", packageId.c_str());
+
+            std::string packageVersion = ConvertToUTF8(context.PackageVersion);
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, !Manifest::IsValueSafeForPathConstruction(packageVersion), "Package version cannot be used to construct a path: %hs", packageVersion.c_str());
         }
 
         std::wstring GetFontRegistryPath(const FontContext& context)
@@ -76,6 +89,7 @@ namespace AppInstaller::Fonts
                 break;
             case InstallerSource::WinGet:
                 // WinGet path adds the WinGet prefix + package id + version.
+                AssertPackageInformation(context);
                 path << s_Separator << s_FontsWinGetPrefix << s_Separator << context.PackageId <<
                     s_Separator << context.PackageVersion;
                 break;

@@ -37,7 +37,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& manifest = context.Get<Execution::Data::Manifest>();
 
             std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-            tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+            tempInstallerPath /= GetPathPart(manifest);
 
             std::filesystem::create_directories(tempInstallerPath);
 
@@ -750,12 +750,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id;
-            if (!Utility::Version{ manifest.Version }.IsUnknown())
-            {
-                packageDownloadFolderName += '_' + manifest.Version;
-            }
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', true));
         }
     }
 

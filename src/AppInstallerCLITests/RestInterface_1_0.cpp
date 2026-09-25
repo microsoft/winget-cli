@@ -450,6 +450,34 @@ TEST_CASE("Search_BadResponse_NoVersions", "[RestSource][Interface_1_0]")
     REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
+TEST_CASE("Search_GoodResponse_PathFieldWhitespaceTrimmed", "[RestSource][Interface_1_0]")
+{
+    // The schema allows surrounding whitespace in PackageVersion, so the response is not an error. The value is
+    // used to construct file system paths, where Windows strips trailing spaces, and version comparison trims;
+    // trimming at parse time keeps those in agreement so that "1.0.0 " cannot conflict with "1.0.0".
+    std::string version = GENERATE("1.0.0 ", " 1.0.0", "  1.0.0  ");
+
+    utility::string_t sample = ConvertToUTF16(
+        R"delimiter({
+            "Data" : [
+               {
+              "PackageIdentifier": " git.package ",
+              "PackageName": "package",
+              "Publisher": "git",
+              "Versions": [
+                {   "PackageVersion": ")delimiter" + version + R"delimiter(" }]
+            }]
+        })delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    Schema::IRestClient::SearchResult searchResponse = v1.Search({});
+    REQUIRE(searchResponse.Matches.size() == 1);
+    REQUIRE(searchResponse.Matches.at(0).PackageInformation.PackageIdentifier == "git.package");
+    REQUIRE(searchResponse.Matches.at(0).Versions.size() == 1);
+    REQUIRE(searchResponse.Matches.at(0).Versions.at(0).VersionAndChannel.GetVersion().ToString() == "1.0.0");
+}
+
 TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
@@ -620,6 +648,45 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
     REQUIRE(manifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.0.0" });
     sampleManifest.VerifyLocalizations_AllFields(manifest);
     sampleManifest.VerifyInstallers_AllFields(manifest);
+}
+
+TEST_CASE("GetManifests_GoodResponse_PathFieldWhitespaceTrimmed", "[RestSource][Interface_1_0]")
+{
+    // The schema permits surrounding whitespace in the PackageIdentifier and PackageVersion values, so this is a valid response.
+    // Trimming at parse time keeps the stored value consistent with version comparison and with the file system path built from it.
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+        "Data": {
+            "PackageIdentifier": " Foo.Bar ",
+            "Versions": [
+                {
+                    "PackageVersion": " 5.0.0 ",
+                    "DefaultLocale": {
+                        "PackageLocale": "en-us",
+                        "Publisher": "Foo",
+                        "PackageName": "Bar",
+                        "License": "Foo bar license",
+                        "ShortDescription": "Foo bar description"
+                    },
+                    "Installers": [
+                        {
+                            "Architecture": "x64",
+                            "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
+                            "InstallerType": "exe",
+                            "InstallerUrl": "https://installer.example.com/foobar.exe"
+                        }
+                    ]
+                }
+            ]
+        }
+    })delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
+    REQUIRE(manifests.size() == 1);
+    REQUIRE(manifests[0].Id == "Foo.Bar");
+    REQUIRE(manifests[0].Version == "5.0.0");
 }
 
 TEST_CASE("GetManifests_GoodResponse_404AsEmpty", "[RestSource][Interface_1_0]")

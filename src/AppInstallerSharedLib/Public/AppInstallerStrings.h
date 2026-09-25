@@ -201,7 +201,10 @@ namespace AppInstaller::Utility
     // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
 
-    // Converts the candidate path part into one suitable for the actual file system
+    // Converts the candidate path part into one suitable for the actual file system.
+    // Illegal characters are replaced, and trailing spaces and dots are removed or replaced so that the
+    // result matches what Win32 would normalize the path to. Throws E_INVALIDARG for a candidate that
+    // cannot be represented, such as a reserved device name or a value that is entirely trailing spaces.
     std::string MakeSuitablePathPart(std::string_view candidate);
 
     // Splits the file name part off of the given URI.
