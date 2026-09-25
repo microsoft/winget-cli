@@ -137,6 +137,7 @@ deliveryoptimization
 deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
+desktopicon
 devblogs
 devhome
 DFX
@@ -334,6 +335,7 @@ Madhusudhan
 MAJORVERSION
 malware
 mapdatafolding
+MERGETASKS
 Maxed
 MAXLENGTH
 maxvalue
@@ -384,6 +386,7 @@ nlohmann
 NNS
 NOAGGREGATION
 NOCLOSE
+NODESKLINK
 NOCRLF
 NOEXPAND
 NOLINKINFO
