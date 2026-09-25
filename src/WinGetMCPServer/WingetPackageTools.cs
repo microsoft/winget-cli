@@ -100,7 +100,7 @@ namespace WinGetMCPServer
                     contents.AddPackages(findResult);
                 }
 
-                return ToolResponse.FromObject(contents);
+                return ToolResponse.FromCollection(contents, "packages");
             }
             catch (ToolResponseException e)
             {
