@@ -16,22 +16,87 @@ namespace AppInstaller::Registry::Environment
 
         void EnsurePathValueEndsWithSemicolon(std::string& value)
         {
-            if (value.back() != ';')
+            if (value.empty() || value.back() != ';')
             {
                 value += ';';
             }
+        }
+
+        // Preserves trailing slash for drive root (e.g. "C:\")
+        constexpr size_t s_DriveRootLength = 3;
+
+        // Cleans up a raw path entry by stripping leading/trailing whitespace, semicolons, and enclosing quotes.
+        void CleanPathEntry(std::wstring& entry)
+        {
+            bool modified = true;
+            while (modified)
+            {
+                modified = false;
+                Utility::Trim(entry);
+                while (!entry.empty() && entry.back() == L';')
+                {
+                    entry.pop_back();
+                    modified = true;
+                }
+                Utility::Trim(entry);
+                if (entry.size() >= 2 && entry.front() == L'"' && entry.back() == L'"')
+                {
+                    entry = entry.substr(1, entry.size() - 2);
+                    modified = true;
+                }
+            }
+        }
+
+        std::wstring NormalizeAndExpandPath(const std::filesystem::path& path)
+        {
+            std::wstring trimmedEntry = Utility::Normalize(path.wstring());
+            CleanPathEntry(trimmedEntry);
+
+            if (trimmedEntry.empty())
+            {
+                return {};
+            }
+
+            std::wstring expanded;
+            try
+            {
+                expanded = Utility::ExpandEnvironmentVariables(trimmedEntry);
+            }
+            catch (...)
+            {
+                expanded = trimmedEntry;
+            }
+
+            std::filesystem::path p{ std::move(expanded) };
+            p.make_preferred();
+            std::wstring result = p.wstring();
+            while (result.size() > s_DriveRootLength && result.back() == L'\\')
+            {
+                result.pop_back();
+            }
+
+            return Utility::Normalize(result);
+        }
+
+        std::wstring NormalizeAndExpandPathEntry(std::string_view entry)
+        {
+            return NormalizeAndExpandPath(Utility::ConvertToUTF16(entry));
         }
 
         std::string ExpandPathValue(const std::string& value)
         {
             std::string result;
             std::vector<std::string> pathEntries = Split(value, ';');
-            for (std::string& pathEntry : pathEntries)
+            for (const std::string& pathEntry : pathEntries)
             {
                 if (!pathEntry.empty())
                 {
-                    result += AppInstaller::Filesystem::GetExpandedPath(pathEntry).u8string();
-                    result += ';';
+                    std::wstring expanded = NormalizeAndExpandPathEntry(pathEntry);
+                    if (!expanded.empty())
+                    {
+                        result += Utility::ConvertToUTF8(expanded);
+                        result += ';';
+                    }
                 }
             }
             return result;
@@ -64,46 +129,116 @@ namespace AppInstaller::Registry::Environment
         }
     }
 
+    PathVariable::PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly, bool broadcastEnvironmentChange) :
+        m_scope(scope), m_key(std::move(key)), m_readOnly(readOnly), m_broadcastEnvironmentChange(broadcastEnvironmentChange)
+    {
+    }
+
     std::string PathVariable::GetPathValue()
     {
         std::wstring pathName = std::wstring{ s_PathName };
-        return Normalize(m_key[pathName]->GetValue<Value::Type::String>());
+        auto pathValue = m_key[pathName];
+        if (pathValue.has_value())
+        {
+            return Normalize(pathValue->GetValue<Value::Type::String>());
+        }
+        return {};
+    }
+
+    bool PathVariable::ContainsInternal(const std::wstring& targetExpanded)
+    {
+        if (targetExpanded.empty())
+        {
+            return false;
+        }
+
+        std::vector<std::string> pathEntries = Split(GetPathValue(), ';');
+        for (const std::string& pathEntry : pathEntries)
+        {
+            if (!pathEntry.empty() && Utility::CaseInsensitiveEquals(NormalizeAndExpandPathEntry(pathEntry), targetExpanded))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool PathVariable::Contains(const std::filesystem::path& target)
     {
-        std::string targetString = Normalize(target.u8string());
-        return (GetPathValue().find(targetString) != std::string::npos);
+        return ContainsInternal(NormalizeAndExpandPath(target));
     }
 
     bool PathVariable::Remove(const std::filesystem::path& target)
     {
         THROW_HR_IF(E_ACCESSDENIED, m_readOnly);
 
-        if (Contains(target))
-        {
-            std::string targetString = Normalize(target.u8string());
-            std::string pathValue = GetPathValue();
-            FindAndReplace(pathValue, targetString, "");
-            FindAndReplace(pathValue, ";;", ";");
-            SetPathValue(pathValue);
-            return true;
-        }
-        else
+        std::wstring targetExpanded = NormalizeAndExpandPath(target);
+        if (targetExpanded.empty())
         {
             return false;
         }
+
+        std::string pathValue = GetPathValue();
+        std::vector<std::string> pathEntries = Split(pathValue, ';');
+        std::string result;
+        bool removed = false;
+
+        for (const std::string& pathEntry : pathEntries)
+        {
+            if (pathEntry.empty())
+            {
+                continue;
+            }
+
+            if (Utility::CaseInsensitiveEquals(NormalizeAndExpandPathEntry(pathEntry), targetExpanded))
+            {
+                removed = true;
+            }
+            else
+            {
+                result += pathEntry;
+                result += ';';
+            }
+        }
+
+        if (removed)
+        {
+            SetPathValue(result);
+            return true;
+        }
+
+        return false;
     }
 
     bool PathVariable::Append(const std::filesystem::path& target)
     {
         THROW_HR_IF(E_ACCESSDENIED, m_readOnly);
 
-        if (!Contains(target))
+        std::wstring targetExpanded = NormalizeAndExpandPath(target);
+        if (targetExpanded.empty())
         {
-            std::string targetString = Normalize(target.u8string());
+            return false;
+        }
+
+        if (!ContainsInternal(targetExpanded))
+        {
+            // Store the path in environment variable form when possible (e.g. %LOCALAPPDATA%\Microsoft\WinGet\Links)
+            // rather than as a fully expanded path, so that the entry keeps working when the underlying
+            // folder location changes, such as after a user profile rename.
+            bool allowUserVariables = (m_scope != Manifest::ScopeEnum::Machine);
+            std::wstring cleanTarget = Utility::Normalize(target.wstring());
+            CleanPathEntry(cleanTarget);
+            std::string targetString = Normalize(AppInstaller::Filesystem::GetUnexpandedPath(cleanTarget, allowUserVariables).u8string());
+            while (!targetString.empty() && targetString.back() == ';')
+            {
+                targetString.pop_back();
+            }
             std::string pathValue = GetPathValue();
-            EnsurePathValueEndsWithSemicolon(pathValue);
+            if (!pathValue.empty())
+            {
+                EnsurePathValueEndsWithSemicolon(pathValue);
+            }
             pathValue += targetString;
             EnsurePathValueEndsWithSemicolon(pathValue);
             SetPathValue(pathValue);
@@ -121,8 +256,10 @@ namespace AppInstaller::Registry::Environment
 
         std::wstring pathName = std::wstring{ s_PathName };
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
-        SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)TEXT("Environment"));
-
+        if (m_broadcastEnvironmentChange)
+        {
+            SendNotifyMessageW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)TEXT("Environment"));
+        }
     }
 
     bool RefreshPathVariableForCurrentProcess()

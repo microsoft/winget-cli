@@ -562,6 +562,115 @@ namespace AppInstaller::Filesystem
         }
     }
 
+    std::filesystem::path GetUnexpandedPath(const std::filesystem::path& path, bool allowUserVariables)
+    {
+        // The environment variables considered when un-expanding a path, in order of preference.
+        // This covers the well known folders that winget stores paths for (install roots, links
+        // locations), mirroring the behavior of PathUnExpandEnvStrings for those cases.
+        static constexpr std::wstring_view s_unexpandUserEnvironmentVariables[] =
+        {
+            L"LOCALAPPDATA"sv,
+            L"APPDATA"sv,
+            L"USERPROFILE"sv,
+        };
+
+        static constexpr std::wstring_view s_unexpandSystemEnvironmentVariables[] =
+        {
+            L"ProgramData"sv,
+            L"ALLUSERSPROFILE"sv,
+            L"ProgramFiles"sv,
+            L"ProgramFiles(x86)"sv,
+            L"SystemRoot"sv,
+        };
+
+        // Preserves trailing slash for drive root (e.g. "C:\")
+        constexpr size_t s_DriveRootLength = 3;
+
+        std::filesystem::path preferredPath = path;
+        preferredPath.make_preferred();
+        std::wstring pathString = Utility::Normalize(preferredPath.wstring());
+        Utility::Trim(pathString);
+        if (pathString.size() >= 2 && pathString.front() == L'"' && pathString.back() == L'"')
+        {
+            pathString = pathString.substr(1, pathString.size() - 2);
+            Utility::Trim(pathString);
+        }
+
+        while (pathString.size() > s_DriveRootLength && pathString.back() == L'\\')
+        {
+            pathString.pop_back();
+        }
+
+        auto tryUnexpandWithVariable = [&](std::wstring_view variableName) -> std::optional<std::filesystem::path>
+        {
+            std::wstring variableReference = std::wstring{ L'%' }.append(variableName).append(L"%");
+            std::wstring variableValue;
+            try
+            {
+                variableValue = Utility::ExpandEnvironmentVariables(variableReference);
+            }
+            catch (...)
+            {
+                return std::nullopt;
+            }
+
+            // An undefined variable expands to its literal reference; only well known folder paths apply.
+            if (variableValue.empty() || variableValue == variableReference ||
+                !std::filesystem::path{ variableValue }.is_absolute())
+            {
+                return std::nullopt;
+            }
+
+            std::replace(variableValue.begin(), variableValue.end(), L'/', L'\\');
+            variableValue = Utility::Normalize(variableValue);
+
+            while (variableValue.size() > s_DriveRootLength && variableValue.back() == L'\\')
+            {
+                variableValue.pop_back();
+            }
+
+            // The path must begin with the variable's value and end at a directory separator boundary.
+            if (Utility::CaseInsensitiveStartsWith(pathString, variableValue) &&
+                (pathString.size() == variableValue.size() ||
+                    pathString[variableValue.size()] == L'\\'))
+            {
+                std::wstring result = variableReference;
+                if (pathString.size() > variableValue.size())
+                {
+                    result += pathString.substr(variableValue.size());
+                }
+
+                return std::filesystem::path{ std::move(result) };
+            }
+
+            return std::nullopt;
+        };
+
+        if (allowUserVariables)
+        {
+            for (std::wstring_view variableName : s_unexpandUserEnvironmentVariables)
+            {
+                auto result = tryUnexpandWithVariable(variableName);
+                if (result)
+                {
+                    return *result;
+                }
+            }
+        }
+
+        for (std::wstring_view variableName : s_unexpandSystemEnvironmentVariables)
+        {
+            auto result = tryUnexpandWithVariable(variableName);
+            if (result)
+            {
+                return *result;
+            }
+        }
+
+        // The path is not located under any of the well known folders; return the normalized path.
+        return std::filesystem::path{ std::move(pathString) };
+    }
+
     bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
     {
         auto prefixItr = prefix.begin();

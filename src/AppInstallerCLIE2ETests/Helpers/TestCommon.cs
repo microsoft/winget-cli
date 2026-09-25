@@ -445,6 +445,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="shouldExist">Should exists.</param>
         /// <param name="scope">Scope.</param>
         /// <param name="installDirectoryAddedToPath">Install directory added to path instead of the symlink directory.</param>
+        /// <param name="expectedRawPath">Expected raw (unexpanded) PATH entry.</param>
         public static void VerifyPortablePackage(
             string installDir,
             string commandAlias,
@@ -452,7 +453,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             string productCode,
             bool shouldExist,
             Scope scope = Scope.User,
-            bool installDirectoryAddedToPath = false)
+            bool installDirectoryAddedToPath = false,
+            string expectedRawPath = null)
         {
             // When portables are installed, if the exe path is inside a directory it will not be aliased
             // if the exe path is at the root level, it will be aliased. Therefore, if either exist, the exe exists
@@ -474,16 +476,29 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             bool isAddedToPath;
+            bool rawIsAddedToPath = false;
+            string rawPathValue = null;
             string pathDiagnostics;
             string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
             using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
-                var rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
                 var valueKind = environmentRegistryKey.GetValueKind(pathName);
                 var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
-                isAddedToPath = currentPathValue.Contains(portablePathValue);
+                isAddedToPath = currentPathValue != null && currentPathValue.Contains(portablePathValue, StringComparison.OrdinalIgnoreCase);
+
+                if (!string.IsNullOrEmpty(expectedRawPath))
+                {
+                    string targetRaw = expectedRawPath.TrimEnd('\\');
+                    if (!targetRaw.EndsWith(';'))
+                    {
+                        targetRaw += ';';
+                    }
+
+                    rawIsAddedToPath = rawPathValue != null && rawPathValue.Contains(targetRaw, StringComparison.OrdinalIgnoreCase);
+                }
 
                 string symlinkDirContents = Directory.Exists(symlinkDirectory)
                     ? (Directory.GetFileSystemEntries(symlinkDirectory) is string[] entries && entries.Length > 0
@@ -495,6 +510,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                                   $"\n  Expanded PATH value: {currentPathValue}" +
                                   $"\n  Raw PATH value:      {rawPathValue}" +
                                   $"\n  Searching for:       {portablePathValue}" +
+                                  (!string.IsNullOrEmpty(expectedRawPath) ? $"\n  Expected raw PATH:   {expectedRawPath}" : string.Empty) +
                                   $"\n  Links dir contents:  {symlinkDirContents}";
             }
 
@@ -520,6 +536,18 @@ namespace AppInstallerCLIE2ETests.Helpers
             Assert.That(symlinkExists, Is.EqualTo(shouldExist && !installDirectoryAddedToPath), $"Expected portable symlink path: {symlinkPath}");
             Assert.That(portableEntryExists, Is.EqualTo(shouldExist), $"Expected {productCode} subkey in path: {uninstallSubKey}");
             Assert.That(isAddedToPath, Is.EqualTo(shouldExist), $"Expected path variable: {(installDirectoryAddedToPath ? installDir : symlinkDirectory)}{pathDiagnostics}");
+            if (!string.IsNullOrEmpty(expectedRawPath))
+            {
+                Assert.That(rawIsAddedToPath, Is.EqualTo(shouldExist), $"Expected raw PATH entry: {expectedRawPath}{pathDiagnostics}");
+                if (shouldExist && expectedRawPath.Contains('%'))
+                {
+                    string expandedTarget = Environment.ExpandEnvironmentVariables(expectedRawPath).TrimEnd(';', '\\') + ';';
+                    if (!string.Equals(expandedTarget, expectedRawPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Assert.That(rawPathValue, Does.Not.Contain(expandedTarget), $"Raw PATH value should not contain expanded path: {expandedTarget}{pathDiagnostics}");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -532,10 +560,124 @@ namespace AppInstallerCLIE2ETests.Helpers
         {
             RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
             string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
-            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true);
-            string currentPathValue = (string)environmentRegistryKey.GetValue("Path") ?? string.Empty;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
+            string currentPathValue = (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty;
             string expectedValue = value.TrimEnd('\\') + ';';
             return currentPathValue.Contains(expectedValue, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Gets the raw PATH registry value without environment variable expansion.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The raw PATH string.</returns>
+        public static string GetRawPathValue(Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
+            return (string)environmentRegistryKey?.GetValue("Path", null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the expanded PATH registry value.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The expanded PATH string.</returns>
+        public static string GetExpandedPathValue(Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
+            return (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the PATH registry value kind.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The registry value kind, or ExpandString if not found.</returns>
+        public static RegistryValueKind GetPathRegisterValueKind(Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
+            return environmentRegistryKey?.GetValueKind("Path") ?? RegistryValueKind.ExpandString;
+        }
+
+        /// <summary>
+        /// Sets the PATH registry value.
+        /// </summary>
+        /// <param name="value">The path value to set.</param>
+        /// <param name="scope">Scope.</param>
+        /// <param name="kind">The registry value kind.</param>
+        public static void SetPathRegisterValue(string value, Scope scope = Scope.User, RegistryValueKind kind = RegistryValueKind.ExpandString)
+        {
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true);
+            if (environmentRegistryKey != null)
+            {
+                environmentRegistryKey.SetValue("Path", value, kind);
+            }
+        }
+
+        /// <summary>
+        /// Returns the path unexpanded against well-known environment variables, matching WinGet's GetUnexpandedPath logic.
+        /// </summary>
+        /// <param name="path">Absolute path.</param>
+        /// <param name="scope">Scope.</param>
+        /// <returns>Unexpanded path with environment variable references when applicable.</returns>
+        public static string GetUnexpandedPath(string path, Scope scope = Scope.User)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return path;
+            }
+
+            string normalizedPath = Path.GetFullPath(path).TrimEnd('\\');
+
+            string[] userVariables = { "LOCALAPPDATA", "APPDATA", "USERPROFILE" };
+            string[] systemVariables = { "ProgramData", "ALLUSERSPROFILE", "ProgramFiles", "ProgramFiles(x86)", "SystemRoot" };
+
+            var variablesToCheck = (scope == Scope.User)
+                ? userVariables.Concat(systemVariables)
+                : systemVariables;
+
+            foreach (string varName in variablesToCheck)
+            {
+                string varValue = Environment.GetEnvironmentVariable(varName);
+                if (!string.IsNullOrEmpty(varValue))
+                {
+                    varValue = Path.GetFullPath(varValue).TrimEnd('\\');
+                    if (normalizedPath.StartsWith(varValue, StringComparison.OrdinalIgnoreCase) &&
+                        (normalizedPath.Length == varValue.Length || normalizedPath[varValue.Length] == '\\'))
+                    {
+                        string suffix = normalizedPath.Substring(varValue.Length);
+                        return $"%{varName}%" + suffix;
+                    }
+                }
+            }
+
+            return normalizedPath;
+        }
+
+        /// <summary>
+        /// Counts how many times an entry appears in a delimited PATH value, comparing normalized entries.
+        /// </summary>
+        /// <param name="pathValue">PATH value string.</param>
+        /// <param name="targetEntry">Target entry to count.</param>
+        /// <returns>Count of matching occurrences.</returns>
+        public static int CountPathEntryOccurrences(string pathValue, string targetEntry)
+        {
+            if (string.IsNullOrEmpty(pathValue) || string.IsNullOrEmpty(targetEntry))
+            {
+                return 0;
+            }
+
+            string cleanTarget = targetEntry.Trim().Trim('"', ';').TrimEnd('\\');
+            var entries = pathValue.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            return entries.Count(e => string.Equals(e.Trim().Trim('"', ';').TrimEnd('\\'), cleanTarget, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
