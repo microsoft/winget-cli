@@ -28,12 +28,6 @@ namespace AppInstallerCLIE2ETests
     ///
     /// Run with:
     ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
-    ///
-    /// Helper exit codes for expect-denial modes (event-signal, mutex-open, rpc-mgmt):
-    ///   0 = expected denial occurred (PASS), 1 = unexpected success (FAIL), 2 = error.
-    /// Helper exit codes for rpc-connect:
-    ///   0 = the call reached the server and succeeded,
-    ///   otherwise the HRESULT that rejected the call, expected to be E_ACCESSDENIED.
     /// </summary>
     [TestFixture]
     [Category("RpcSecurity")]
