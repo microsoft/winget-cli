@@ -711,6 +711,8 @@ namespace AppInstaller::Utility
     // invalid characters in a candidate path part.
     // Additionally, based on https://docs.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison#limits
     // limit the number of characters to 255.
+    // Trailing spaces and dots are also handled, as Win32 removes those when it normalizes a path and the
+    // result of this function is expected to be the name that the file system actually uses.
     std::string MakeSuitablePathPart(std::string_view candidate)
     {
         constexpr char replaceChar = '_';
@@ -761,7 +763,25 @@ namespace AppInstaller::Utility
             return SHA256::ConvertToString(SHA256::ComputeHash(candidate));
         }
 
-        // Second, look for any newly formed illegal names.
+        // Second, remove any trailing spaces. Win32 removes these when it normalizes a path, so leaving them
+        // would mean that the value we hand out is not the one that the file system actually uses. Two values
+        // that differ only by trailing spaces would then collide on disk while appearing distinct here.
+        // Only the space needs to be considered, as every other whitespace character is a control character
+        // that was already replaced above.
+        size_t lastKeptCharacter = result.find_last_not_of(' ');
+        result.erase(lastKeptCharacter + 1);
+
+        // Removing the trailing spaces can expose a . at the end of the name, which Win32 also removes.
+        // The loop above only sees the final character of the candidate, so handle that here.
+        if (!result.empty() && result.back() == '.')
+        {
+            result.back() = replaceChar;
+        }
+
+        // A candidate that consists only of characters that are removed here cannot be used as a path part.
+        THROW_HR_IF(E_INVALIDARG, result.empty() && !candidate.empty());
+
+        // Third, look for any newly formed illegal names.
         // For now just error on these cases; they should not happen often.
         // The COM/LPT names using the superscript digits (U+00B9, U+00B2, U+00B3) are reserved as well; they are
         // written here as explicit UTF-8 byte sequences so that the encoding of this file cannot alter them.

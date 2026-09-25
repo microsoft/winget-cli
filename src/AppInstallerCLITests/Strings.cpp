@@ -207,6 +207,30 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     // Only the exact superscript digits are reserved; other trailing values are not.
     REQUIRE(MakeSuitablePathPart("COM\xC2\xB4") == "COM\xC2\xB4");
     REQUIRE(MakeSuitablePathPart("COM\xC2\xB9" "0") == "COM\xC2\xB9" "0");
+
+    // Win32 removes trailing spaces when normalizing a path, so they are removed here too. Otherwise two
+    // values that differ only by trailing spaces would collide on disk while appearing distinct.
+    REQUIRE(MakeSuitablePathPart("AB ") == "AB");
+    REQUIRE(MakeSuitablePathPart("AB   ") == "AB");
+    REQUIRE(MakeSuitablePathPart("A B") == "A B");
+    REQUIRE(MakeSuitablePathPart(" AB") == " AB");
+
+    // Removing the trailing spaces can expose a . at the end of the name, which is also not allowed.
+    REQUIRE(MakeSuitablePathPart("AB. ") == "AB_");
+    REQUIRE(MakeSuitablePathPart("AB.  ") == "AB_");
+    REQUIRE(MakeSuitablePathPart("AB. . ") == "AB. _");
+
+    // A reserved name is still reserved once the trailing spaces are removed, as Win32 would remove them
+    // before resolving the name.
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("CON "), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("NUL.txt  "), E_INVALIDARG);
+
+    // A candidate that is left with nothing cannot be used as a path part.
+    REQUIRE_THROWS_HR(MakeSuitablePathPart(" "), E_INVALIDARG);
+    REQUIRE_THROWS_HR(MakeSuitablePathPart("   "), E_INVALIDARG);
+
+    // An empty candidate is unchanged; emptiness is the caller's concern.
+    REQUIRE(MakeSuitablePathPart("") == "");
 }
 
 TEST_CASE("GetFileNameFromURI", "[strings]")
