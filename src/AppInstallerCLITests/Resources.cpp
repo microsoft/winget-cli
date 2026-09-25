@@ -5,6 +5,7 @@
 #include <AppInstallerStrings.h>
 #include <ChannelStreams.h>
 #include <ExecutionReporter.h>
+#include <winget/Resources.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
@@ -52,4 +53,37 @@ TEST_CASE("Resources_StringIdWithPlaceholders_Arithmetic", "[resources]")
         "42 upgrades available."_liv ,
         Resource::String::AvailableUpgrades(42)
     );
+}
+
+TEST_CASE("Resources_SetLanguageOverride", "[resources]")
+{
+    // When running unpackaged without a resources.pri next to the binary, no resource loader is
+    // available. Probe for that case so this test is deterministic in both packaged and unpackaged
+    // execution.
+    constexpr std::wstring_view commandArgumentDescriptionKey = L"CommandArgumentDescription"sv;
+    auto defaultValue = AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey);
+
+    if (!defaultValue)
+    {
+        // Must not crash, and must report that the override was not applied.
+        REQUIRE(!AppInstaller::Resource::SetLanguageOverride("de-DE"));
+        REQUIRE(!AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey));
+        return;
+    }
+
+    // Always restore the default language resolution for subsequent tests.
+    auto resetOverride = wil::scope_exit([&]() { AppInstaller::Resource::SetLanguageOverride({}); });
+
+    REQUIRE(AppInstaller::Resource::SetLanguageOverride("de-DE"));
+
+    auto overriddenValue = AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey);
+    REQUIRE(overriddenValue.has_value());
+    REQUIRE(overriddenValue.value().get() != defaultValue.value().get());
+
+    // An empty tag resets back to the default language.
+    REQUIRE(AppInstaller::Resource::SetLanguageOverride({}));
+
+    auto restoredValue = AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey);
+    REQUIRE(restoredValue.has_value());
+    REQUIRE(restoredValue.value().get() == defaultValue.value().get());
 }

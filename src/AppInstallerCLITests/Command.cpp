@@ -6,12 +6,14 @@
 #include <AppInstallerStrings.h>
 #include <Commands/ListCommand.h>
 #include <Commands/RootCommand.h>
+#include <winget/Locale.h>
 #include <winget/UserSettings.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller;
+using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 
@@ -686,5 +688,108 @@ TEST_CASE("EnsureListSortFieldCountMatchesLimit", "[command]")
     // The product's configured limit must match Max: adding a new field
     // without bumping Max (or changing limit) will fail this check.
     REQUIRE((1u << sortLimit) == static_cast<uint32_t>(Settings::SortField::Max));
+}
+
+TEST_CASE("ParseArguments_OutputLocaleSeparatedValue", "[command][output-locale]")
+{
+    Args args;
+    TestCommand command({ Argument::ForType(Args::Type::OutputLocale) });
+
+    Invocation inv{ std::vector<std::string>{ "--output-locale", "de-DE" } };
+
+    command.ParseArguments(inv, args);
+
+    RequireValueParsedToArg("de-DE", command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_OutputLocaleAdjoinedValue", "[command][output-locale]")
+{
+    Args args;
+    TestCommand command({ Argument::ForType(Args::Type::OutputLocale) });
+
+    Invocation inv{ std::vector<std::string>{ "--output-locale=de-DE" } };
+
+    command.ParseArguments(inv, args);
+
+    RequireValueParsedToArg("de-DE", command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_OutputLocaleIsIndependentOfLocale", "[command][output-locale]")
+{
+    Args args;
+    TestCommand command({
+            Argument::ForType(Args::Type::Locale),
+            Argument::ForType(Args::Type::OutputLocale),
+        });
+
+    Invocation inv{ std::vector<std::string>{ "--locale", "zh-CN", "--output-locale", "de-DE" } };
+
+    command.ParseArguments(inv, args);
+
+    REQUIRE("zh-CN" == args.GetArg(Args::Type::Locale));
+    REQUIRE("de-DE" == args.GetArg(Args::Type::OutputLocale));
+}
+
+TEST_CASE("ValidateArguments_OutputLocaleSupportedValues", "[command][output-locale]")
+{
+    TestCommand command({ Argument::ForType(Args::Type::OutputLocale) });
+
+    for (const auto& supportedLocale : Locale::GetSupportedOutputLocales())
+    {
+        Args args;
+        args.AddArg(Args::Type::OutputLocale, std::string{ supportedLocale });
+        REQUIRE_NOTHROW(command.ValidateArguments(args));
+    }
+}
+
+TEST_CASE("ValidateArguments_OutputLocaleIsCaseInsensitive", "[command][output-locale]")
+{
+    TestCommand command({ Argument::ForType(Args::Type::OutputLocale) });
+
+    Args args;
+    args.AddArg(Args::Type::OutputLocale, "DE-de"s);
+
+    REQUIRE_NOTHROW(command.ValidateArguments(args));
+}
+
+TEST_CASE("ValidateArguments_OutputLocaleUnsupportedValue", "[command][output-locale]")
+{
+    TestCommand command({ Argument::ForType(Args::Type::OutputLocale) });
+
+    std::vector<Utility::LocIndString> supportedLocales;
+    for (const auto& supportedLocale : Locale::GetSupportedOutputLocales())
+    {
+        supportedLocales.emplace_back(supportedLocale);
+    }
+
+    auto expectedMessage = CLI::Resource::String::InvalidArgumentValueError(
+        Argument::ForType(Args::Type::OutputLocale).Name(),
+        Utility::Join(", "_liv, supportedLocales));
+
+    // Not a locale at all
+    {
+        Args args;
+        args.AddArg(Args::Type::OutputLocale, "not-a-locale"s);
+        REQUIRE_COMMAND_EXCEPTION(command.ValidateArguments(args), expectedMessage);
+    }
+
+    // Well formed BCP47 tag, but winget has no resources for it
+    {
+        Args args;
+        args.AddArg(Args::Type::OutputLocale, "en-GB"s);
+        REQUIRE_COMMAND_EXCEPTION(command.ValidateArguments(args), expectedMessage);
+    }
+}
+
+TEST_CASE("EnsureOutputLocaleIsCommonArgument", "[command][output-locale]")
+{
+    std::vector<Argument> commonArgs;
+    Argument::GetCommon(commonArgs);
+
+    auto itr = std::find_if(commonArgs.begin(), commonArgs.end(), [](const Argument& arg) { return arg.ExecArgType() == Args::Type::OutputLocale; });
+
+    REQUIRE(itr != commonArgs.end());
+    REQUIRE("output-locale" == itr->Name());
+    REQUIRE(itr->Type() == ArgumentType::Standard);
 }
 

@@ -305,6 +305,8 @@ namespace AppInstaller::CLI
             return { type, "wait"_liv };
         case Execution::Args::Type::OpenLogs:
             return { type, "open-logs"_liv, "logs"_liv };
+        case Execution::Args::Type::OutputLocale:
+            return { type, "output-locale"_liv, ArgTypeCategory::None };
         case Execution::Args::Type::Force:
             return { type, "force"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::OutputFile:
@@ -474,6 +476,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
             return Argument{ type, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
+        case Args::Type::OutputLocale:
+            return Argument{ type, Resource::String::OutputLocaleArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::UninstallPrevious:
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
@@ -520,6 +524,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::Help));
         args.push_back(ForType(Args::Type::Wait));
         args.push_back(ForType(Args::Type::OpenLogs));
+        args.push_back(ForType(Args::Type::OutputLocale));
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));

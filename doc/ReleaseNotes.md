@@ -2,6 +2,15 @@
 
 ## New Features
 
+### `--output-locale` argument
+
+Added a new `--output-locale` argument that overrides the language used for WinGet's own output for a single invocation.
+It is available on every command, accepts the same values as the `output.locale` setting (`en-US`, `de-DE`, `es-ES`, `fr-FR`, `it-IT`, `ja-JP`, `ko-KR`, `pt-BR`, `ru-RU`, `zh-CN`, `zh-TW`), and takes precedence over that setting.
+
+`--output-locale` is independent of `--locale`: WinGet messages are shown in the locale requested by `--output-locale`, while manifest strings and package selection continue to use `--locale`.
+
+Usage: `winget show <package> --locale zh-CN --output-locale de-DE`
+
 ### Output locale override
 
 Added a persistent `output.locale` setting to override winget interface language using a BCP47 tag.

@@ -228,6 +228,7 @@ Hackathon
 hashtables
 helplib
 helplibrary
+Herausgeber
 hhx
 highcontrast
 HINSTANCE
@@ -578,11 +579,13 @@ stylecop
 SUBCHAN
 subdir
 subkey
+subtags
 Sudarshan
 superstring
 swgus
 SYD
 SYG
+Systemarchitektur
 systemnotsupported
 tableoutput
 Tagit
@@ -646,6 +649,7 @@ vcredist
 vcx
 versioned
 VERSIONINFO
+Verzeichnisse
 VIWEC
 vns
 vscodeignore
