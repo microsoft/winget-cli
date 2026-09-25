@@ -47,6 +47,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.MsiInstallerV2Path = this.InitializeFileParam(Constants.MsiInstallerV2PathParameter);
             this.FontPath = this.InitializeFileParam(Constants.FontPathParameter);
             this.InprocTestbedPath = this.InitializeFileParam(Constants.InprocTestbedPathParameter);
+            this.WinGetServerPath = this.InitializeFileParam(Constants.WinGetServerPathParameter);
+            this.RpcTestHelperPath = this.InitializeFileParam(Constants.RpcTestHelperPathParameter);
 
             this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }
@@ -136,6 +138,16 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the inproc testbed executable path.
         /// </summary>
         public string InprocTestbedPath { get; }
+
+        /// <summary>
+        /// Gets the WinGetServer (WindowsPackageManagerServer.exe) path for RPC security tests.
+        /// </summary>
+        public string WinGetServerPath { get; }
+
+        /// <summary>
+        /// Gets the WinGetRpcTestHelper executable path for RPC security tests.
+        /// </summary>
+        public string RpcTestHelperPath { get; }
 
         /// <summary>
         /// Gets a value indicating whether to use the test package or not.
