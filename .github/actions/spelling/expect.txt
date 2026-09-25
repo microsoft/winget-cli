@@ -160,6 +160,7 @@ ecfr
 ecfrbrowse
 EFGH
 ENDSESSION
+EOP
 EQU
 ERANGE
 errcode
@@ -342,6 +343,7 @@ mdmp
 mdmpto
 MDs
 megamorf
+mgmt
 microsoftentraid
 microsoftentraidforazureblobstorage
 midl
@@ -371,6 +373,7 @@ Multideclaration
 mysource
 nativehandle
 NBLGGH
+ncalrpc
 ncreate
 NESTEDINSTALLER
 netlify
@@ -397,6 +400,8 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
+NRNW
+NRNWNX
 nsis
 NTFS
 objbase
@@ -459,6 +464,7 @@ PROPVARIANT
 proxystub
 psapi
 pscustomobject
+PSECURITY
 pseudocode
 PSHOST
 psobject
@@ -542,6 +548,8 @@ shortguid
 SHOWNORMAL
 sid
 Sideload
+SIDW
+siex
 SIGNATUREHASH
 silentpreferred
 SINGLETHREADED
@@ -563,6 +571,7 @@ sqlite
 Srinivasan
 SRL
 srs
+STARTUPINFOEX
 STDMETHODCALLTYPE
 storeapps
 storeorigin
@@ -593,6 +602,7 @@ timespan
 Tlg
 tlhelp
 TLSCAs
+tokeninfo
 tombstoned
 tombstoning
 Toolhelp
@@ -668,6 +678,7 @@ wingetconfigroot
 wingetcreate
 wingetdev
 wingetutil
+WINNT
 winreg
 winrtact
 winstring
@@ -691,6 +702,7 @@ WVT
 wwinmain
 WZDNCRFJ
 xcopy
+XCount
 Xes
 XFile
 XManifest
@@ -702,6 +714,7 @@ XRESOURCEZORO
 xsi
 yamato
 yao
+YCount
 Zabcdefghijklmnopqrstuvwxyz
 Zanollo
 ZIPHASH
