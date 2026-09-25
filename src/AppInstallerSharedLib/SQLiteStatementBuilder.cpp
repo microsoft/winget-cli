@@ -371,6 +371,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::NotEqualsLiteral(int64_t value)
+    {
+        m_stream << " != " << value;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Equals()
     {
         m_stream << " =";
@@ -1084,5 +1090,20 @@ namespace AppInstaller::SQLite::Builder
         m_stream << '?';
         m_needsComma = true;
         return m_bindIndex++;
+    }
+
+    namespace Schema
+    {
+        bool TableExists(const Connection& connection, std::string_view tableName)
+        {
+            StatementBuilder builder;
+            builder.Select(RowCount).From(MainTable).
+                Where(TypeColumn).Equals(Type_Table).
+                And(NameColumn).Equals(tableName);
+
+            Statement statement = builder.Prepare(connection);
+            THROW_HR_IF(E_UNEXPECTED, !statement.Step());
+            return statement.GetColumn<int64_t>(0) != 0;
+        }
     }
 }

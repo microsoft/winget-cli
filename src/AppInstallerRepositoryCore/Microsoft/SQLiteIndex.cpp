@@ -281,26 +281,12 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(Schema::SQLiteIndexContext{ m_dbconn, m_contextData });
     }
 
-    void SQLiteIndex::MarkAsBaseline()
-    {
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Info, << "Marking index as a delta baseline");
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_mark_as_baseline");
-
-        m_interface->MarkAsBaseline(m_dbconn);
-
-        SetLastWriteTime();
-
-        savepoint.Commit();
-    }
-
     bool SQLiteIndex::CheckConsistency(bool log) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Checking index consistency...");
 
-        bool result = m_interface->CheckConsistency(m_dbconn, log);
+        bool result = m_interface->CheckConsistency(Schema::SQLiteIndexConstContext{ m_dbconn, m_contextData }, log);
 
         AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
 
@@ -424,6 +410,27 @@ namespace AppInstaller::Repository::Microsoft
             std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
             THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
             m_contextData.Add<Schema::Property::DeltaOutputPath>(std::move(pathValue));
+        }
+            break;
+        case Property::DeltaBaselineRelativeSourcePath:
+            THROW_HR_IF(E_INVALIDARG, value.empty());
+            m_contextData.Add<Schema::Property::DeltaBaselineRelativeSourcePath>(value);
+            break;
+        case Property::DeltaBaselinePackageVersion:
+            THROW_HR_IF(E_INVALIDARG, value.empty());
+            m_contextData.Add<Schema::Property::DeltaBaselinePackageVersion>(value);
+            break;
+        case Property::DeltaMarkAsBaseline:
+            // An index is either being designated as a baseline or it is not, so there is no
+            // meaningful false: a caller that does not want one simply does not set this.
+            THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(value, "true"));
+            m_contextData.Add<Schema::Property::DeltaMarkAsBaseline>(true);
+            break;
+        case Property::DeltaComparisonIndexPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::DeltaComparisonIndexPath>(std::move(pathValue));
         }
             break;
         }

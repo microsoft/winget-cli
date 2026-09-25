@@ -522,6 +522,9 @@
     <ClInclude Include="MatchCriteriaResolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaConsistency.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
     <ClInclude Include="Microsoft\Schema\2_1\DeltaGeneration.h">
       <Filter>Microsoft\Schema\2_1</Filter>
     </ClInclude>
@@ -826,6 +829,9 @@
     </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaConsistency.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\2_1\DeltaGeneration.cpp">
       <Filter>Microsoft\Schema\2_1</Filter>

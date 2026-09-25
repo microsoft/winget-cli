@@ -3,7 +3,9 @@
 #include "pch.h"
 #include "Interface.h"
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
+#include "Microsoft/Schema/2_1/DeltaConsistency.h"
 #include "Microsoft/Schema/2_1/DeltaGeneration.h"
+#include "Microsoft/Schema/2_1/DeltaTables.h"
 #include "Microsoft/Schema/2_1/DeltaViews.h"
 
 #include <winget/SQLiteMetadataTable.h>
@@ -11,6 +13,29 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 {
+    namespace
+    {
+        // Gives the index an identity that a delta can name, so that the two can only ever be
+        // paired with each other. This runs during preparation rather than as a separate step,
+        // because designating a baseline and generating the empty delta that describes it are one
+        // decision: a baseline that nothing was ever written against is of no use to a client.
+        void MarkAsBaseline(SQLite::Connection& connection)
+        {
+            THROW_HR_IF(E_NOT_VALID_STATE, Delta::IsDeltaDatabase(connection));
+
+            GUID baselineIdentifier;
+            THROW_IF_FAILED(CoCreateGuid(&baselineIdentifier));
+
+            std::ostringstream stream;
+            stream << baselineIdentifier;
+            std::string value = stream.str();
+
+            AICLI_LOG(Repo, Info, << "Marking index as a delta baseline with identifier [" << value << "]");
+
+            SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_BaselineIdentifier, value);
+        }
+    }
+
     Interface::Interface(Utility::NormalizationVersion normVersion) : V2_0::Interface(normVersion)
     {
         // Removals are recorded rather than deleted, so that delta generation can see which
@@ -46,37 +71,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         return false;
     }
 
-    void Interface::MarkAsBaseline(SQLite::Connection& connection)
-    {
-        // A delta is a description of change rather than a whole index, so it cannot stand as the
-        // baseline for another one. Both forms are refused: the delta opened on its own, which
-        // records the baseline it was built against, and the combined form, whose tables are views
-        // over a union and whose underlying database is that same delta.
-        // This is checked first because a prepared delta has no packages table, so the check below
-        // would otherwise reject it for the wrong reason.
-        THROW_HR_IF(E_NOT_VALID_STATE, m_isDeltaReadMode);
-        THROW_HR_IF(E_NOT_VALID_STATE,
-            !SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_DeltaBaselineIdentifier).value_or(std::string{}).empty());
-
-        // A baseline is the thing a delta is computed against and later merged with, and the merged
-        // views are defined over the 2.x tables. An index that has not been prepared does not have
-        // them yet -- it still holds the 1.7 tables that PrepareForPackaging reads from -- so
-        // designating one would produce a baseline that no delta could be built from or attached to.
-        EnsureInternalInterface(connection);
-        THROW_HR_IF(E_NOT_VALID_STATE, static_cast<bool>(m_internalInterface));
-
-        GUID baselineIdentifier;
-        THROW_IF_FAILED(CoCreateGuid(&baselineIdentifier));
-
-        std::ostringstream stream;
-        stream << baselineIdentifier;
-        std::string value = stream.str();
-
-        AICLI_LOG(Repo, Info, << "Marking index as a delta baseline with identifier [" << value << "]");
-
-        SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_BaselineIdentifier, value);
-    }
-
     void Interface::SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline)
     {
         Delta::SetupReadMode(connection, baseline);
@@ -88,6 +82,81 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         m_internalInterfaceChecked = true;
     }
 
+    bool Interface::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
+    {
+        bool hasBaseline = context.Data.Contains(Property::DeltaBaselineIndexPath);
+        bool hasComparison = context.Data.Contains(Property::DeltaComparisonIndexPath);
+
+        // The properties cannot decide what this database is: the working index that *generates* a
+        // delta carries the very same baseline path, and it is an ordinary index.
+        bool isDelta = IsDeltaIndex(context.Connection);
+
+        const SQLite::Connection* targetConnection = &context.Connection;
+        std::optional<SQLite::Connection> mergedConnection;
+        const ISQLiteIndex* targetInterface = this;
+        std::unique_ptr<ISQLiteIndex> combinedInterface;
+
+        bool result = true;
+
+        if (isDelta)
+        {
+            result = Delta::CheckConsistency(context.Connection, log) && result;
+
+            if (!m_isDeltaReadMode)
+            {
+                if (!hasBaseline)
+                {
+                    // There is nothing to compare a delta against until it has been merged.
+                    THROW_HR_IF(E_INVALIDARG, hasComparison);
+
+                    // We can only check the consistency of the delta itself without a baseline.
+                    return result;
+                }
+
+                if (result || log)
+                {
+                    // The combination is opened rather than attached to the caller's connection, which is
+                    // const and would be permanently changed by the attach.
+                    THROW_HR_IF(E_NOT_VALID_STATE, !context.Data.Contains(Property::DatabaseFilePath));
+
+                    mergedConnection = SQLite::Connection::Create(SQLite::DatabaseSpecifier{
+                        context.Data.Get<Property::DatabaseFilePath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+                    combinedInterface = CreateISQLiteIndex(GetVersion());
+                    combinedInterface->SetupDeltaReadMode(mergedConnection.value(), SQLite::DatabaseSpecifier{
+                        context.Data.Get<Property::DeltaBaselineIndexPath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+                    targetConnection = &mergedConnection.value();
+                    targetInterface = combinedInterface.get();
+                }
+            }
+        }
+
+        // Perform the standard consistency check against the merged interface
+        if (result || log)
+        {
+            result = targetInterface->CheckConsistency(*targetConnection, log) && result;
+        }
+
+        if (hasComparison && (result || log))
+        {
+            SQLite::Connection comparison = SQLite::Connection::Create(SQLite::DatabaseSpecifier{
+                context.Data.Get<Property::DeltaComparisonIndexPath>().u8string(), SQLite::DatabaseDisposition::Read });
+
+            // The standard index need not be this exact version, so its own interface reads it.
+            std::unique_ptr<ISQLiteIndex> comparisonInterface = CreateISQLiteIndex(SQLite::Version::GetSchemaVersion(comparison));
+
+            result = Delta::CheckEquivalence(*targetInterface, *targetConnection, *comparisonInterface, comparison, log) && result;
+        }
+
+        return result;
+    }
+
+    bool Interface::IsDeltaIndex(const SQLite::Connection& connection) const
+    {
+        return Delta::IsDeltaDatabase(connection);
+    }
+
     void Interface::CreateAdditionalPackagingOutput(const SQLiteIndexContext& context)
     {
         SQLite::Connection& connection = context.Connection;
@@ -95,14 +164,45 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         int64_t currentSequence = V2_0::PackageUpdateTrackingTable::GetCurrentChangeSequence(connection, m_trackingRemovalBehavior);
         SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_DeltaBaselineSequence, std::to_string(currentSequence));
 
-        if (!context.Data.Contains(Property::DeltaBaselineIndexPath) ||
-            !context.Data.Contains(Property::DeltaOutputPath))
+        bool hasBaselineIndexPath = context.Data.Contains(Property::DeltaBaselineIndexPath);
+        bool markAsBaseline = context.Data.Contains(Property::DeltaMarkAsBaseline);
+        bool hasOutputPath = context.Data.Contains(Property::DeltaOutputPath);
+        bool hasRelativeSourcePath = context.Data.Contains(Property::DeltaBaselineRelativeSourcePath);
+        bool hasPackageVersion = context.Data.Contains(Property::DeltaBaselinePackageVersion);
+
+        if (!hasBaselineIndexPath && !markAsBaseline && !hasOutputPath && !hasRelativeSourcePath && !hasPackageVersion)
         {
             return;
         }
 
-        std::filesystem::path baselinePath = context.Data.Get<Property::DeltaBaselineIndexPath>();
+        // Exactly one of the two says what the delta is computed against: an existing baseline, or
+        // this index, which is being designated as one. Supplying both is a contradiction and
+        // supplying neither leaves the delta with nothing to describe.
+        THROW_HR_IF(E_INVALIDARG, hasBaselineIndexPath == markAsBaseline);
+
+        // Beyond that, generation is all or nothing. A partially configured caller has made a
+        // mistake, and silently declining would only surface later as a delta that no client can
+        // pair with a baseline.
+        THROW_HR_IF(E_INVALIDARG, !(hasOutputPath && hasRelativeSourcePath && hasPackageVersion));
+
         std::filesystem::path deltaOutputPath = context.Data.Get<Property::DeltaOutputPath>();
+
+        Delta::BaselineReference baselineReference
+        {
+            context.Data.Get<Property::DeltaBaselineRelativeSourcePath>(),
+            context.Data.Get<Property::DeltaBaselinePackageVersion>(),
+        };
+
+        if (markAsBaseline)
+        {
+            MarkAsBaseline(connection);
+
+            // This index is its own baseline, so nothing has changed since it and the delta that describes it is empty.
+            Delta::Generate(connection, connection, baselineReference, deltaOutputPath, GetVersion(), {}, {});
+            return;
+        }
+
+        std::filesystem::path baselinePath = context.Data.Get<Property::DeltaBaselineIndexPath>();
 
         AICLI_LOG(Repo, Info, << "Generating a delta index against baseline [" << baselinePath << "]");
 
@@ -130,6 +230,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         Delta::Generate(
             connection,
             baselineConnection,
+            baselineReference,
             deltaOutputPath,
             GetVersion(),
             changedPackages,
