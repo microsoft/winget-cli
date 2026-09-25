@@ -12,7 +12,6 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     using System.Text;
     using Microsoft.Management.Configuration.Processor.DSCv3.Model;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Win32.SafeHandles;
 
     /// <summary>
     /// Contains settings for the DSC v3 processor components to share.
@@ -21,15 +20,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     {
         private readonly object dscV3Lock = new ();
         private readonly object defaultPathLock = new ();
-        private readonly object processorPathLock = new ();
 
         private FindDscPackageStateMachine dscPackageStateMachine = new ();
         private IDSCv3? dscV3 = null;
         private string? defaultPath = null;
         private string? defaultPathHash = null;
         private bool? defaultPathIsAlias = null;
-        private SafeFileHandle? processorPathHandle = null;
-        private bool processorPathVerified = false;
+        private ProcessorPathBinding processorPathBinding = new ();
+        private bool ownsProcessorPathBinding = true;
         private bool disposed = false;
 
 #if !AICLI_DISABLE_TEST_HOOKS
@@ -55,7 +53,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         public bool? DscExecutablePathIsAlias { get; set; }
 
         /// <summary>
-        /// Gets the path to the DSC v3 executable.
+        /// Gets the path to use to launch the DSC v3 executable.
+        /// When a custom path is provided, this is the pinned path of the verified file.
         /// </summary>
         public string EffectiveDscExecutablePath
         {
@@ -63,8 +62,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 if (this.DscExecutablePath != null)
                 {
-                    this.EnsureProcessorPathVerified();
-                    return this.DscExecutablePath;
+                    return this.EnsureProcessorPathPinned();
                 }
 
                 lock (this.defaultPathLock)
@@ -212,6 +210,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             result.DscExecutablePathHash = this.DscExecutablePathHash;
             result.DscExecutablePathIsAlias = this.DscExecutablePathIsAlias;
             result.DiagnosticTraceEnabled = this.DiagnosticTraceEnabled;
+
+            // The pin is shared with every copy so that the processor path is verified and pinned
+            // exactly once, and remains pinned for as long as the original settings object lives.
+            result.processorPathBinding = this.processorPathBinding;
+            result.ownsProcessorPathBinding = false;
             lock (this.defaultPathLock)
             {
                 result.defaultPath = this.defaultPath;
@@ -347,20 +350,16 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         }
 
         /// <summary>
-        /// Releases resources held by this instance, including the open handle used for TOCTOU protection.
+        /// Releases resources held by this instance, including the handles that pin the processor path.
         /// </summary>
         /// <param name="disposing">True if called from Dispose(); false if called from a finalizer.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)
             {
-                if (disposing)
+                if (disposing && this.ownsProcessorPathBinding)
                 {
-                    lock (this.processorPathLock)
-                    {
-                        this.processorPathHandle?.Dispose();
-                        this.processorPathHandle = null;
-                    }
+                    this.processorPathBinding.Dispose();
                 }
 
                 this.disposed = true;
@@ -379,25 +378,17 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
         }
 
-        private void EnsureProcessorPathVerified()
+        private string EnsureProcessorPathPinned()
         {
-            lock (this.processorPathLock)
+            if (this.DscExecutablePathHash == null)
             {
-                if (!this.processorPathVerified)
-                {
-                    if (this.DscExecutablePathHash == null)
-                    {
-                        throw new InvalidOperationException("A custom processor path was provided without a hash for integrity verification.");
-                    }
-
-                    bool isAlias = this.DscExecutablePathIsAlias ?? false;
-                    this.processorPathHandle = ProcessorPathIntegrity.VerifyAndOpen(
-                        this.DscExecutablePath!,
-                        this.DscExecutablePathHash,
-                        isAlias);
-                    this.processorPathVerified = true;
-                }
+                throw new InvalidOperationException("A custom processor path was provided without a hash for integrity verification.");
             }
+
+            return this.processorPathBinding.EnsurePinned(
+                this.DscExecutablePath!,
+                this.DscExecutablePathHash,
+                this.DscExecutablePathIsAlias ?? false);
         }
     }
 }
