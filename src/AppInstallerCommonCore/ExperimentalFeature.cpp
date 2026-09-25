@@ -67,6 +67,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFFonts>();
             case ExperimentalFeature::Feature::SourcePriority:
                 return userSettings.Get<Setting::EFSourcePriority>();
+            case ExperimentalFeature::Feature::StructuredOutput:
+                return userSettings.Get<Setting::EFStructuredOutput>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -102,6 +104,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
         case Feature::SourcePriority:
             return ExperimentalFeature{ "Source Priority", "sourcePriority", "https://aka.ms/winget-settings", Feature::SourcePriority };
+        case Feature::StructuredOutput:
+            return ExperimentalFeature{ "Structured Output", "structuredOutput", "https://aka.ms/winget-settings", Feature::StructuredOutput };
         default:
             THROW_HR(E_UNEXPECTED);
         }

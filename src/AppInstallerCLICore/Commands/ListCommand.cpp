@@ -82,10 +82,27 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-list"_liv;
     }
 
+    std::optional<Execution::StructuredOutput::Mode> ListCommand::GetStructuredOutputMode(const Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::ListDetails) || execArgs.Contains(Execution::Args::Type::IncludePinned))
+        {
+            return std::nullopt;
+        }
+
+        return execArgs.Contains(Execution::Args::Type::Upgrade) ?
+            Execution::StructuredOutput::Mode::AvailableUpgrades : Execution::StructuredOutput::Mode::Installed;
+    }
+
     void ListCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
+
+        if (execArgs.Contains(Execution::Args::Type::OutputFormat) &&
+            (execArgs.Contains(Execution::Args::Type::ListDetails) || execArgs.Contains(Execution::Args::Type::IncludePinned)))
+        {
+            throw CommandException(Resource::String::StructuredOutputUnsupportedOperation);
+        }
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const

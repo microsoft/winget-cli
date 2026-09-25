@@ -3,12 +3,35 @@
 #include "pch.h"
 #include "ExecutionReporter.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerTelemetry.h>
+#include <json/json.h>
+
+#include <mutex>
 
 
 namespace AppInstaller::CLI::Execution
 {
     using namespace Settings;
     using namespace VirtualTerminal;
+
+    struct Reporter::StructuredOutputState
+    {
+        struct Message
+        {
+            std::string Code;
+            std::string MessageText;
+            std::optional<std::string> Source;
+            HRESULT Result = S_OK;
+        };
+
+        std::mutex Lock;
+        std::string Command;
+        std::optional<StructuredOutput::Mode> Mode;
+        StructuredOutput::PackageResult Result;
+        std::vector<Message> Warnings;
+        std::vector<Message> Errors;
+        bool Finalized = false;
+    };
 
     const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
     const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
@@ -25,6 +48,38 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
+        constexpr std::string_view s_SchemaVersion = "1.0";
+
+        std::string_view ModeToString(StructuredOutput::Mode mode)
+        {
+            switch (mode)
+            {
+            case StructuredOutput::Mode::Installed:
+                return "installed";
+            case StructuredOutput::Mode::AvailableUpgrades:
+                return "availableUpgrades";
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        std::string GetErrorCode(HRESULT value)
+        {
+            std::ostringstream stream;
+            stream << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8) << static_cast<uint32_t>(value);
+            return stream.str();
+        }
+
+        template <typename T>
+        Json::Value MessageToJson(const T& message)
+        {
+            Json::Value result{ Json::ValueType::objectValue };
+            result["code"] = message.Code;
+            result["message"] = message.MessageText;
+            result["source"] = message.Source ? Json::Value{ *message.Source } : Json::Value{};
+            return result;
+        }
+
         DWORD GetStdHandleType(DWORD stdHandle)
         {
             DWORD result = FILE_TYPE_UNKNOWN;
@@ -81,6 +136,7 @@ namespace AppInstaller::CLI::Execution
         m_inStreamFileType = other.m_inStreamFileType;
 
         SetChannel(other.m_channel);
+        m_structuredOutput = other.m_structuredOutput;
 
         if (other.m_style.has_value())
         {
@@ -146,6 +202,177 @@ namespace AppInstaller::CLI::Execution
             m_spinner.reset();
             m_progressBar.reset();
         }
+    }
+
+    void Reporter::BeginStructuredOutput(std::string_view command, std::optional<StructuredOutput::Mode> mode)
+    {
+        if (!m_structuredOutput)
+        {
+            m_structuredOutput = std::make_shared<StructuredOutputState>();
+            m_structuredOutput->Command = command;
+            m_structuredOutput->Mode = mode;
+        }
+
+        SetChannel(Channel::Json);
+    }
+
+    bool Reporter::IsStructuredOutputEnabled() const
+    {
+        return static_cast<bool>(m_structuredOutput);
+    }
+
+    void Reporter::SetStructuredOutputResult(StructuredOutput::PackageResult result)
+    {
+        if (!m_structuredOutput)
+        {
+            return;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        m_structuredOutput->Result = std::move(result);
+    }
+
+    void Reporter::AddStructuredOutputWarning(std::string_view code, std::string_view message, std::optional<std::string_view> source)
+    {
+        if (!m_structuredOutput)
+        {
+            return;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        m_structuredOutput->Warnings.push_back({ std::string{ code }, std::string{ message }, source ? std::optional<std::string>{ *source } : std::nullopt });
+    }
+
+    void Reporter::AddStructuredOutputError(HRESULT code, std::string_view message, std::optional<std::string_view> source)
+    {
+        if (!m_structuredOutput)
+        {
+            return;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        m_structuredOutput->Errors.push_back({ GetErrorCode(code), std::string{ message }, source ? std::optional<std::string>{ *source } : std::nullopt, code });
+    }
+
+    bool Reporter::HasStructuredOutputErrors() const
+    {
+        if (!m_structuredOutput)
+        {
+            return false;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        return !m_structuredOutput->Errors.empty();
+    }
+
+    HRESULT Reporter::GetStructuredOutputError() const
+    {
+        if (!m_structuredOutput)
+        {
+            return S_OK;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        return m_structuredOutput->Errors.empty() ? S_OK : m_structuredOutput->Errors.front().Result;
+    }
+
+    void Reporter::FinalizeStructuredOutput()
+    {
+        if (!m_structuredOutput)
+        {
+            return;
+        }
+
+        std::scoped_lock lock{ m_structuredOutput->Lock };
+        if (m_structuredOutput->Finalized)
+        {
+            return;
+        }
+
+        Json::Value document{ Json::ValueType::objectValue };
+        if (m_structuredOutput->Mode)
+        {
+            document["$schema"] = "https://aka.ms/winget-cli-output." + m_structuredOutput->Command + ".1.0.schema.json";
+        }
+        else
+        {
+            document["$schema"] = "https://aka.ms/winget-cli-output.error.1.0.schema.json";
+        }
+
+        document["schemaVersion"] = std::string{ s_SchemaVersion };
+        document["command"] = m_structuredOutput->Command;
+
+        if (m_structuredOutput->Mode)
+        {
+            document["mode"] = std::string{ ModeToString(*m_structuredOutput->Mode) };
+
+            Json::Value result{ Json::ValueType::objectValue };
+            Json::Value packages{ Json::ValueType::arrayValue };
+            for (const auto& package : m_structuredOutput->Result.Packages)
+            {
+                Json::Value packageJson{ Json::ValueType::objectValue };
+                packageJson["Name"] = package.Name;
+                packageJson["Id"] = package.Id;
+                packageJson["InstalledVersion"] = package.InstalledVersion;
+
+                Json::Value versions{ Json::ValueType::arrayValue };
+                for (const auto& version : package.AvailableVersions)
+                {
+                    versions.append(version);
+                }
+                packageJson["AvailableVersions"] = std::move(versions);
+                packageJson["IsUpdateAvailable"] = package.IsUpdateAvailable;
+                packageJson["Source"] = package.Source ? Json::Value{ *package.Source } : Json::Value{};
+                packageJson["UpgradeVersion"] = package.UpgradeVersion ? Json::Value{ *package.UpgradeVersion } : Json::Value{};
+                packages.append(std::move(packageJson));
+            }
+
+            result["packages"] = std::move(packages);
+            result["truncated"] = m_structuredOutput->Result.Truncated;
+            document["result"] = std::move(result);
+        }
+        else
+        {
+            document["mode"] = Json::Value{};
+            document["result"] = Json::Value{};
+        }
+
+        Json::Value warnings{ Json::ValueType::arrayValue };
+        for (const auto& warning : m_structuredOutput->Warnings)
+        {
+            warnings.append(MessageToJson(warning));
+        }
+        document["warnings"] = std::move(warnings);
+
+        Json::Value errors{ Json::ValueType::arrayValue };
+        for (const auto& error : m_structuredOutput->Errors)
+        {
+            errors.append(MessageToJson(error));
+        }
+        document["errors"] = std::move(errors);
+
+        Json::StreamWriterBuilder writerBuilder;
+        writerBuilder.settings_["indentation"] = "";
+        writerBuilder.settings_["commentStyle"] = "None";
+        writerBuilder.settings_["emitUTF8"] = true;
+        Json() << Json::writeString(writerBuilder, document) << std::endl;
+
+        std::string_view outcome = "success";
+        if (!m_structuredOutput->Errors.empty())
+        {
+            outcome = m_structuredOutput->Result.Packages.empty() ? "failure" : "partialFailure";
+        }
+        else if (!m_structuredOutput->Warnings.empty())
+        {
+            outcome = "warning";
+        }
+
+        Logging::Telemetry().LogStructuredOutput(
+            m_structuredOutput->Command,
+            m_structuredOutput->Mode ? ModeToString(*m_structuredOutput->Mode) : "unsupported",
+            1,
+            outcome);
+        m_structuredOutput->Finalized = true;
     }
 
     void Reporter::SetStyle(VisualStyle style)

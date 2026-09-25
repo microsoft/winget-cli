@@ -305,6 +305,7 @@
     <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="StructuredOutput.cpp" />
     <ClCompile Include="TestConfiguration.cpp" />
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
@@ -343,6 +344,18 @@
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\common.1.0.schema.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\error.1.0.schema.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\list.1.0.schema.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\upgrade.1.0.schema.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestRoot.cer">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

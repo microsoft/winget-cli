@@ -98,6 +98,9 @@
     <ClInclude Include="Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StructuredOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\SettingsCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>

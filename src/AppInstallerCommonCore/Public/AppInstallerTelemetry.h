@@ -198,6 +198,9 @@ namespace AppInstaller::Logging
         // Logs the invoked command success.
         void LogCommandSuccess(std::string_view commandName) const noexcept;
 
+        // Logs use of structured command output without recording package or payload data.
+        void LogStructuredOutput(std::string_view commandName, std::string_view mode, uint32_t schemaMajorVersion, std::string_view outcome) const noexcept;
+
         // Logs the invoked command termination.
         void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 

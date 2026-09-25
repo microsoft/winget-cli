@@ -656,9 +656,28 @@ namespace AppInstaller::CLI
 
         ParseArgumentsStateMachine stateMachine{ inv, execArgs, std::move(definedArgs) };
 
+        std::optional<CommandException> firstException;
+
         while (stateMachine.Step())
         {
-            stateMachine.ThrowIfError();
+            try
+            {
+                stateMachine.ThrowIfError();
+            }
+            catch (const CommandException& e)
+            {
+                // Continue so that output selection is independent of argument order.
+                // The first parsing error remains the one reported to the caller.
+                if (!firstException)
+                {
+                    firstException = e;
+                }
+            }
+        }
+
+        if (firstException)
+        {
+            throw *firstException;
         }
 
         // Special handling for multi-query arguments:
@@ -672,6 +691,14 @@ namespace AppInstaller::CLI
         if (execArgs.Contains(Execution::Args::Type::Help))
         {
             return;
+        }
+
+        const bool structuredOutputRequested = execArgs.Contains(Execution::Args::Type::OutputFormat);
+        if (structuredOutputRequested && !Utility::CaseInsensitiveEquals(execArgs.GetArg(Execution::Args::Type::OutputFormat), "json"sv))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(
+                ArgumentCommon::ForType(Execution::Args::Type::OutputFormat).Name,
+                "json"_liv));
         }
 
         // Common arguments need to be validated with command arguments, as there may be common arguments blocked by Experimental Feature or Group Policy
@@ -821,7 +848,28 @@ namespace AppInstaller::CLI
 
         Argument::ValidateExclusiveArguments(execArgs);
 
+        if (structuredOutputRequested && !GetStructuredOutputMode(execArgs))
+        {
+            throw CommandException(Resource::String::StructuredOutputUnsupportedOperation);
+        }
+
         ValidateArgumentsInternal(execArgs);
+    }
+
+    std::optional<Execution::StructuredOutput::Mode> Command::GetStructuredOutputMode(const Execution::Args&) const
+    {
+        return std::nullopt;
+    }
+
+    void Command::ConfigureOutput(Execution::Context& context) const
+    {
+        if (!context.Args.Contains(Execution::Args::Type::Help) &&
+            context.Args.Contains(Execution::Args::Type::OutputFormat) &&
+            Utility::CaseInsensitiveEquals(context.Args.GetArg(Execution::Args::Type::OutputFormat), "json"sv))
+        {
+            context.Reporter.BeginStructuredOutput(Name(), GetStructuredOutputMode(context.Args));
+            context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
+        }
     }
 
     // Completion can produce one of several things if the completion context is appropriate:
@@ -1063,7 +1111,14 @@ namespace AppInstaller::CLI
             if (!Settings::User().GetWarnings().empty() &&
                 !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
-                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+                if (context.Reporter.IsStructuredOutputEnabled())
+                {
+                    context.Reporter.AddStructuredOutputWarning("SettingsWarning", Resource::String::SettingsWarnings().get());
+                }
+                else
+                {
+                    context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+                }
             }
 
             command->Execute(context);
@@ -1079,6 +1134,20 @@ namespace AppInstaller::CLI
     int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
     {
         ExecuteWithoutLoggingSuccess(context, command.get());
+
+        if (context.Reporter.IsStructuredOutputEnabled())
+        {
+            if (FAILED(context.GetTerminationHR()) && !context.Reporter.HasStructuredOutputErrors())
+            {
+                context.Reporter.AddStructuredOutputError(context.GetTerminationHR(), GetUserPresentableMessage(context.GetTerminationHR()));
+            }
+            else if (SUCCEEDED(context.GetTerminationHR()) && context.Reporter.HasStructuredOutputErrors())
+            {
+                context.SetTerminationHR(context.Reporter.GetStructuredOutputError());
+            }
+
+            context.Reporter.FinalizeStructuredOutput();
+        }
 
         if (SUCCEEDED(context.GetTerminationHR()))
         {
