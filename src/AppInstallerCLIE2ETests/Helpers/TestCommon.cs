@@ -484,6 +484,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                // rawPathValue is declared above as string rawPathValue = null for diagnostics; reassigned here
                 rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
                 var valueKind = environmentRegistryKey.GetValueKind(pathName);
                 var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
@@ -555,13 +556,15 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         /// <param name="value">Path value.</param>
         /// <param name="scope">Scope.</param>
+        /// <param name="expanded">If true, reads the expanded PATH value; if false, reads without environment variable expansion.</param>
         /// <returns>True if PATH contains the value.</returns>
-        public static bool PathContainsValue(string value, Scope scope = Scope.User)
+        public static bool PathContainsValue(string value, Scope scope = Scope.User, bool expanded = true)
         {
-            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
-            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
-            string currentPathValue = (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty;
+            string currentPathValue = expanded
+                ? (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty
+                : (string)environmentRegistryKey?.GetValue("Path", null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? string.Empty;
             string expectedValue = value.TrimEnd('\\') + ';';
             return currentPathValue.Contains(expectedValue, StringComparison.OrdinalIgnoreCase);
         }
@@ -573,8 +576,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <returns>The raw PATH string.</returns>
         public static string GetRawPathValue(Scope scope = Scope.User)
         {
-            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
-            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
             return (string)environmentRegistryKey?.GetValue("Path", null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? string.Empty;
         }
@@ -586,8 +588,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <returns>The expanded PATH string.</returns>
         public static string GetExpandedPathValue(Scope scope = Scope.User)
         {
-            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
-            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
             return (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty;
         }
@@ -596,13 +597,12 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the PATH registry value kind.
         /// </summary>
         /// <param name="scope">Scope.</param>
-        /// <returns>The registry value kind, or ExpandString if not found.</returns>
+        /// <returns>The registry value kind, or None if not found.</returns>
         public static RegistryValueKind GetPathRegisterValueKind(Scope scope = Scope.User)
         {
-            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
-            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
-            return environmentRegistryKey?.GetValueKind("Path") ?? RegistryValueKind.ExpandString;
+            return environmentRegistryKey?.GetValueKind("Path") ?? RegistryValueKind.None;
         }
 
         /// <summary>
@@ -613,13 +613,9 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="kind">The registry value kind.</param>
         public static void SetPathRegisterValue(string value, Scope scope = Scope.User, RegistryValueKind kind = RegistryValueKind.ExpandString)
         {
-            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
-            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true);
-            if (environmentRegistryKey != null)
-            {
-                environmentRegistryKey.SetValue("Path", value, kind);
-            }
+            environmentRegistryKey?.SetValue("Path", value, kind);
         }
 
         /// <summary>
@@ -1473,6 +1469,21 @@ namespace AppInstallerCLIE2ETests.Helpers
             Dictionary<string, string> environmentVariables)
         {
             return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout, environmentVariables);
+        }
+
+        /// <summary>
+        /// Resolves registry base key and subkey path for the PATH variable.
+        /// </summary>
+        private static (RegistryKey baseKey, string pathSubKey) GetPathRegistryInfo(Scope scope)
+        {
+            if (scope == Scope.User)
+            {
+                return (Registry.CurrentUser, Constants.PathSubKey_User);
+            }
+            else
+            {
+                return (Registry.LocalMachine, Constants.PathSubKey_Machine);
+            }
         }
 
         /// <summary>

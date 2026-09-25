@@ -12,8 +12,10 @@ namespace AppInstaller::Registry::Environment
     {
         PathVariable(Manifest::ScopeEnum scope, bool readOnly = false);
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
         // Constructor overload for dependency injection (e.g. unit testing with volatile keys).
         PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly = false, bool broadcastEnvironmentChange = true);
+#endif
 
         // Returns the PATH variable as a string.
         std::string GetPathValue();

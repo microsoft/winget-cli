@@ -16,7 +16,7 @@ namespace AppInstaller::Registry::Environment
 
         void EnsurePathValueEndsWithSemicolon(std::string& value)
         {
-            if (value.empty() || value.back() != ';')
+            if (!value.empty() && value.back() != ';')
             {
                 value += ';';
             }
@@ -26,25 +26,28 @@ namespace AppInstaller::Registry::Environment
         constexpr size_t s_DriveRootLength = 3;
 
         // Cleans up a raw path entry by stripping leading/trailing whitespace, semicolons, and enclosing quotes.
-        void CleanPathEntry(std::wstring& entry)
+        // Returns true if the entry was modified.
+        bool CleanPathEntry(std::wstring& entry)
         {
-            bool modified = true;
-            while (modified)
+            std::wstring original = entry;
+            bool changed = true;
+            while (changed)
             {
-                modified = false;
+                changed = false;
                 Utility::Trim(entry);
                 while (!entry.empty() && entry.back() == L';')
                 {
                     entry.pop_back();
-                    modified = true;
+                    changed = true;
                 }
                 Utility::Trim(entry);
                 if (entry.size() >= 2 && entry.front() == L'"' && entry.back() == L'"')
                 {
                     entry = entry.substr(1, entry.size() - 2);
-                    modified = true;
+                    changed = true;
                 }
             }
+            return entry != original;
         }
 
         std::wstring NormalizeAndExpandPath(const std::filesystem::path& path)
@@ -64,12 +67,13 @@ namespace AppInstaller::Registry::Environment
             }
             catch (...)
             {
+                AICLI_LOG(Core, Warning, << "Failed to expand environment variables for PATH entry: " << Utility::ConvertToUTF8(trimmedEntry));
                 expanded = trimmedEntry;
             }
 
-            std::filesystem::path p{ std::move(expanded) };
-            p.make_preferred();
-            std::wstring result = p.wstring();
+            std::filesystem::path expandedPath{ expanded };
+            expandedPath.make_preferred();
+            std::wstring result = expandedPath.wstring();
             while (result.size() > s_DriveRootLength && result.back() == L'\\')
             {
                 result.pop_back();
@@ -78,28 +82,24 @@ namespace AppInstaller::Registry::Environment
             return Utility::Normalize(result);
         }
 
-        std::wstring NormalizeAndExpandPathEntry(std::string_view entry)
-        {
-            return NormalizeAndExpandPath(Utility::ConvertToUTF16(entry));
-        }
-
         std::string ExpandPathValue(const std::string& value)
         {
-            std::string result;
-            std::vector<std::string> pathEntries = Split(value, ';');
-            for (const std::string& pathEntry : pathEntries)
+            std::wstring wideValue = ConvertToUTF16(value);
+            std::vector<std::wstring> pathEntries = Split(wideValue, L';');
+            std::wstring result;
+            for (const std::wstring& pathEntry : pathEntries)
             {
                 if (!pathEntry.empty())
                 {
-                    std::wstring expanded = NormalizeAndExpandPathEntry(pathEntry);
+                    std::wstring expanded = NormalizeAndExpandPath(pathEntry);
                     if (!expanded.empty())
                     {
-                        result += Utility::ConvertToUTF8(expanded);
-                        result += ';';
+                        result += expanded;
+                        result += L';';
                     }
                 }
             }
-            return result;
+            return ConvertToUTF8(result);
         }
     }
 
@@ -129,10 +129,12 @@ namespace AppInstaller::Registry::Environment
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     PathVariable::PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly, bool broadcastEnvironmentChange) :
         m_scope(scope), m_key(std::move(key)), m_readOnly(readOnly), m_broadcastEnvironmentChange(broadcastEnvironmentChange)
     {
     }
+#endif
 
     std::string PathVariable::GetPathValue()
     {
@@ -155,7 +157,7 @@ namespace AppInstaller::Registry::Environment
         std::vector<std::string> pathEntries = Split(GetPathValue(), ';');
         for (const std::string& pathEntry : pathEntries)
         {
-            if (!pathEntry.empty() && Utility::CaseInsensitiveEquals(NormalizeAndExpandPathEntry(pathEntry), targetExpanded))
+            if (!pathEntry.empty() && Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(Utility::ConvertToUTF16(pathEntry)), targetExpanded))
             {
                 return true;
             }
@@ -191,7 +193,7 @@ namespace AppInstaller::Registry::Environment
                 continue;
             }
 
-            if (Utility::CaseInsensitiveEquals(NormalizeAndExpandPathEntry(pathEntry), targetExpanded))
+            if (Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(Utility::ConvertToUTF16(pathEntry)), targetExpanded))
             {
                 removed = true;
             }

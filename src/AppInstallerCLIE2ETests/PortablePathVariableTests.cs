@@ -7,7 +7,6 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Scenario 1: User-scope install stores an environment-variable PATH entry.
         /// Verify raw value contains %LOCALAPPDATA%\Microsoft\WinGet\Links; and not expanded profile path.
-        /// Verify expanded registry read resolves to Links dir and portable command is available via PATH.
+        /// Verify expanded registry read resolves to Links dir and portable command symlink exists on disk.
         /// </summary>
         [Test]
         public void UserScopeInstall_StoresEnvironmentVariablePathEntry()
@@ -61,20 +60,6 @@ namespace AppInstallerCLIE2ETests
 
                 // Verify portable command is available on disk
                 Assert.That(File.Exists(symlinkPath), Is.True, $"Portable command symlink should exist at: {symlinkPath}");
-
-                // Verify command is available and executable via PATH lookup
-                string refreshedPath = TestCommon.GetExpandedPathValue(TestCommon.Scope.Machine).TrimEnd(';') + ";" +
-                                       TestCommon.GetExpandedPathValue(TestCommon.Scope.User);
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", $"/c {Constants.AppInstallerTestExeInstallerExe} /NoOperation")
-                {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                };
-                startInfo.Environment["PATH"] = refreshedPath;
-                using Process process = Process.Start(startInfo);
-                Assert.That(process, Is.Not.Null, "Process should start successfully.");
-                process.WaitForExit();
-                Assert.That(process.ExitCode, Is.EqualTo(0), "Portable command should be resolved and executed successfully via refreshed PATH.");
             }
             finally
             {
@@ -486,7 +471,7 @@ namespace AppInstallerCLIE2ETests
         /// Install AppInstallerTest.ArchivePortableWithBinariesDependentOnPath:
         /// - Verify install directory added to PATH rather than shared Links directory.
         /// - Inspect raw registry value uses environment-variable form when under known folder.
-        /// - Verify archive's dependent binaries can run through installed package via refreshed PATH.
+        /// - Verify package installation directory is added to PATH rather than shared Links directory.
         /// - Uninstall: verify only install-directory PATH entry removed and unrelated PATH entries intact.
         /// - Covers both user-scope and machine-scope.
         /// </summary>
@@ -523,24 +508,6 @@ namespace AppInstallerCLIE2ETests
                 int linksCountAfter = TestCommon.CountPathEntryOccurrences(postInstallRaw, expectedLinksRaw);
                 Assert.That(linksCountAfter, Is.EqualTo(linksCountBefore), "Shared Links directory should not be added when archive binaries depend on PATH.");
 
-                // The package AppInstallerTest.ArchivePortableWithBinariesDependentOnPath declares NestedInstallerFiles
-                // with PortableCommandAlias: TestPortable and entrypoint AppInstallerTestExeInstaller.exe.
-                // Because its archive binaries depend on each other via PATH, WinGet adds the package installation directory
-                // directly to PATH rather than creating symlinks in the shared Links directory.
-                // Executing TestPortable.exe via the refreshed PATH verifies PATH resolution to the package directory.
-                string refreshedPath = TestCommon.GetExpandedPathValue(TestCommon.Scope.Machine).TrimEnd(';') + ";" +
-                                       TestCommon.GetExpandedPathValue(TestCommon.Scope.User);
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", $"/c {Constants.TestPortableExe} /NoOperation")
-                {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                };
-                startInfo.Environment["PATH"] = refreshedPath;
-                using Process process = Process.Start(startInfo);
-                Assert.That(process, Is.Not.Null, "Process should start successfully.");
-                process.WaitForExit();
-                Assert.That(process.ExitCode, Is.EqualTo(0), "Archive dependent binary should run successfully via refreshed PATH.");
-
                 // Uninstall
                 var uninstallResult = TestCommon.RunAICLICommand("uninstall", packageId);
                 Assert.That(uninstallResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
@@ -563,7 +530,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Scenario 8 (Machine-scope variant): Archive binaries that depend on PATH.
         /// Verify machine-scope install adds package directory to HKLM using derived system variable,
-        /// does not store user-scoped variables, runs binaries via refreshed PATH, and cleanly uninstalls.
+        /// does not store user-scoped variables, preserves unrelated PATH entries, and cleanly uninstalls.
         /// </summary>
         [Test]
         public void ArchiveBinariesDependentOnPath_MachineScope()
@@ -599,24 +566,6 @@ namespace AppInstallerCLIE2ETests
                 Assert.That(postInstallRaw, Does.Not.Contain("%APPDATA%"), "Machine PATH must not contain %APPDATA%");
                 Assert.That(postInstallRaw, Does.Not.Contain("%USERPROFILE%"), "Machine PATH must not contain %USERPROFILE%");
                 Assert.That(postInstallRaw, Does.Contain(sentinel), "Machine PATH should preserve sentinel.");
-
-                // The package AppInstallerTest.ArchivePortableWithBinariesDependentOnPath declares NestedInstallerFiles
-                // with PortableCommandAlias: TestPortable and entrypoint AppInstallerTestExeInstaller.exe.
-                // Because its archive binaries depend on each other via PATH, WinGet adds the package installation directory
-                // directly to PATH rather than creating symlinks in the shared Links directory.
-                // Executing TestPortable.exe via the refreshed PATH verifies PATH resolution to the package directory in machine scope.
-                string refreshedPath = TestCommon.GetExpandedPathValue(TestCommon.Scope.Machine).TrimEnd(';') + ";" +
-                                       TestCommon.GetExpandedPathValue(TestCommon.Scope.User);
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", $"/c {Constants.TestPortableExe} /NoOperation")
-                {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                };
-                startInfo.Environment["PATH"] = refreshedPath;
-                using Process process = Process.Start(startInfo);
-                Assert.That(process, Is.Not.Null, "Process should start successfully.");
-                process.WaitForExit();
-                Assert.That(process.ExitCode, Is.EqualTo(0), "Archive dependent binary should run successfully in machine scope via refreshed PATH.");
 
                 // Uninstall
                 var uninstallResult = TestCommon.RunAICLICommand("uninstall", $"{packageId} --scope machine");

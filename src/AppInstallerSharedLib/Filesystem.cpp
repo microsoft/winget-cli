@@ -564,25 +564,6 @@ namespace AppInstaller::Filesystem
 
     std::filesystem::path GetUnexpandedPath(const std::filesystem::path& path, bool allowUserVariables)
     {
-        // The environment variables considered when un-expanding a path, in order of preference.
-        // This covers the well known folders that winget stores paths for (install roots, links
-        // locations), mirroring the behavior of PathUnExpandEnvStrings for those cases.
-        static constexpr std::wstring_view s_unexpandUserEnvironmentVariables[] =
-        {
-            L"LOCALAPPDATA"sv,
-            L"APPDATA"sv,
-            L"USERPROFILE"sv,
-        };
-
-        static constexpr std::wstring_view s_unexpandSystemEnvironmentVariables[] =
-        {
-            L"ProgramData"sv,
-            L"ALLUSERSPROFILE"sv,
-            L"ProgramFiles"sv,
-            L"ProgramFiles(x86)"sv,
-            L"SystemRoot"sv,
-        };
-
         // Preserves trailing slash for drive root (e.g. "C:\")
         constexpr size_t s_DriveRootLength = 3;
 
@@ -601,74 +582,66 @@ namespace AppInstaller::Filesystem
             pathString.pop_back();
         }
 
-        auto tryUnexpandWithVariable = [&](std::wstring_view variableName) -> std::optional<std::filesystem::path>
+        std::filesystem::path normalizedPath{ pathString };
+
+        // Known folder to environment variable mappings, in order of preference.
+        // User-scoped folders are tried first (when allowed), then system-scoped folders.
+        struct FolderMapping
         {
-            std::wstring variableReference = std::wstring{ L'%' }.append(variableName).append(L"%");
-            std::wstring variableValue;
+            KNOWNFOLDERID folderId;
+            std::string_view variableReference;
+        };
+
+        static const FolderMapping s_userFolderMappings[] =
+        {
+            { FOLDERID_LocalAppData, "%LOCALAPPDATA%" },
+            { FOLDERID_RoamingAppData, "%APPDATA%" },
+            { FOLDERID_Profile, "%USERPROFILE%" },
+        };
+
+        static const FolderMapping s_systemFolderMappings[] =
+        {
+            { FOLDERID_ProgramData, "%ProgramData%" },
+            { FOLDERID_ProgramFiles, "%ProgramFiles%" },
+            { FOLDERID_ProgramFilesX86, "%ProgramFiles(x86)%" },
+            { FOLDERID_Windows, "%SystemRoot%" },
+        };
+
+        auto tryReplace = [&](const FolderMapping& mapping) -> bool
+        {
             try
             {
-                variableValue = Utility::ExpandEnvironmentVariables(variableReference);
+                std::filesystem::path folderPath = GetKnownFolderPath(mapping.folderId);
+                return ReplaceCommonPathPrefix(normalizedPath, folderPath, mapping.variableReference);
             }
             catch (...)
             {
-                return std::nullopt;
+                return false;
             }
-
-            // An undefined variable expands to its literal reference; only well known folder paths apply.
-            if (variableValue.empty() || variableValue == variableReference ||
-                !std::filesystem::path{ variableValue }.is_absolute())
-            {
-                return std::nullopt;
-            }
-
-            std::replace(variableValue.begin(), variableValue.end(), L'/', L'\\');
-            variableValue = Utility::Normalize(variableValue);
-
-            while (variableValue.size() > s_DriveRootLength && variableValue.back() == L'\\')
-            {
-                variableValue.pop_back();
-            }
-
-            // The path must begin with the variable's value and end at a directory separator boundary.
-            if (Utility::CaseInsensitiveStartsWith(pathString, variableValue) &&
-                (pathString.size() == variableValue.size() ||
-                    pathString[variableValue.size()] == L'\\'))
-            {
-                std::wstring result = variableReference;
-                if (pathString.size() > variableValue.size())
-                {
-                    result += pathString.substr(variableValue.size());
-                }
-
-                return std::filesystem::path{ std::move(result) };
-            }
-
-            return std::nullopt;
         };
 
         if (allowUserVariables)
         {
-            for (std::wstring_view variableName : s_unexpandUserEnvironmentVariables)
+            for (const auto& mapping : s_userFolderMappings)
             {
-                auto result = tryUnexpandWithVariable(variableName);
-                if (result)
+                if (tryReplace(mapping))
                 {
-                    return *result;
+                    normalizedPath.make_preferred();
+                    return normalizedPath;
                 }
             }
         }
 
-        for (std::wstring_view variableName : s_unexpandSystemEnvironmentVariables)
+        for (const auto& mapping : s_systemFolderMappings)
         {
-            auto result = tryUnexpandWithVariable(variableName);
-            if (result)
+            if (tryReplace(mapping))
             {
-                return *result;
+                normalizedPath.make_preferred();
+                return normalizedPath;
             }
         }
 
-        // The path is not located under any of the well known folders; return the normalized path.
-        return std::filesystem::path{ std::move(pathString) };
+        return normalizedPath;
     }
 
     bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
