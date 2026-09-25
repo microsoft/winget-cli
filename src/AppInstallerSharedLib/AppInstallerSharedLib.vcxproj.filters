@@ -35,6 +35,9 @@
     <ClInclude Include="Public\AppInstallerStrings.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerHash.h">
+      <Filter>Public</Filter>
+    </ClInclude>
     <ClInclude Include="Public\AppInstallerSHA256.h">
       <Filter>Public</Filter>
     </ClInclude>
@@ -163,7 +166,7 @@
     <ClCompile Include="DateTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SHA256.cpp">
+    <ClCompile Include="Hash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Errors.cpp">

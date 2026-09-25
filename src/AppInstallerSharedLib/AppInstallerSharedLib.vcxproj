@@ -319,6 +319,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
+    <ClInclude Include="Public\AppInstallerHash.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
@@ -367,6 +368,7 @@
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
+    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">NotUsing</PrecompiledHeader>
@@ -392,7 +394,6 @@
     </ClCompile>
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="Security.cpp" />
-    <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteStorageBase.cpp" />
