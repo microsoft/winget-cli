@@ -14,7 +14,7 @@ namespace AppInstaller::Registry::Environment
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Constructor overload for dependency injection (e.g. unit testing with volatile keys).
-        PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly = false, bool broadcastEnvironmentChange = true);
+        PathVariable(Manifest::ScopeEnum scope, Registry::Key key, bool readOnly = false, bool broadcastEnvironmentChange = false);
 #endif
 
         // Returns the PATH variable as a string.

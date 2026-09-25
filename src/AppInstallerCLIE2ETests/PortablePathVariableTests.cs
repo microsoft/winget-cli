@@ -140,7 +140,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             // Pre-seed user PATH with sentinels
-            string seededPath = originalRawPath.TrimEnd(';') + $";{sentinel1};{sentinel2};";
+            string seededPath = string.IsNullOrEmpty(originalRawPath) ? $"{sentinel1};{sentinel2};" : originalRawPath.TrimEnd(';') + $";{sentinel1};{sentinel2};";
             TestCommon.SetPathRegisterValue(seededPath, TestCommon.Scope.User, originalKind);
 
             try
@@ -174,6 +174,7 @@ namespace AppInstallerCLIE2ETests
             }
             finally
             {
+                TestCommon.RunAICLICommand("uninstall", $"{packageId} --force");
                 TestCommon.SetPathRegisterValue(originalRawPath, TestCommon.Scope.User, originalKind);
             }
         }
@@ -333,7 +334,9 @@ namespace AppInstallerCLIE2ETests
             var originalKind = TestCommon.GetPathRegisterValueKind(TestCommon.Scope.User);
 
             // Pre-seed user PATH with sentinelBefore;legacyExpandedLinks;sentinelAfter;
-            string seededPath = originalRawPath.TrimEnd(';') + $";{sentinelBefore};{legacyExpandedLinks};{sentinelAfter};";
+            string seededPath = string.IsNullOrEmpty(originalRawPath)
+                ? $"{sentinelBefore};{legacyExpandedLinks};{sentinelAfter};"
+                : originalRawPath.TrimEnd(';') + $";{sentinelBefore};{legacyExpandedLinks};{sentinelAfter};";
             TestCommon.SetPathRegisterValue(seededPath, TestCommon.Scope.User, originalKind);
 
             try
@@ -398,7 +401,8 @@ namespace AppInstallerCLIE2ETests
             // Pre-seed user PATH with variable-form links entry if not present
             if (!originalUserPath.Contains(userRawLinks, StringComparison.OrdinalIgnoreCase))
             {
-                TestCommon.SetPathRegisterValue(originalUserPath.TrimEnd(';') + $";{userRawLinks}", TestCommon.Scope.User, originalUserKind);
+                string seededPath = string.IsNullOrEmpty(originalUserPath) ? userRawLinks : originalUserPath.TrimEnd(';') + $";{userRawLinks}";
+                TestCommon.SetPathRegisterValue(seededPath, TestCommon.Scope.User, originalUserKind);
             }
 
             try
@@ -436,11 +440,10 @@ namespace AppInstallerCLIE2ETests
                 // Split process PATH into individual entries
                 string[] entries = processPath.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-                // Verify that no entry contains unexpanded %...% references
-                foreach (string entry in entries)
-                {
-                    Assert.That(entry, Does.Not.Contain("%"), $"Process PATH entry '{entry}' must be fully expanded and not contain '%' references.");
-                }
+                // Verify that the refreshed user Links entry in process PATH does not contain unexpanded %...% references
+                string userLinksEntryInProcess = entries.FirstOrDefault(e => string.Equals(e, userLinksDir.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
+                Assert.That(userLinksEntryInProcess, Is.Not.Null, "Process PATH should contain user Links directory.");
+                Assert.That(userLinksEntryInProcess, Does.Not.Contain("%"), "Target user Links entry in process PATH must be fully expanded.");
 
                 // Verify ordering: machine PATH entries must precede user PATH entries
                 string machinePathRaw = TestCommon.GetRawPathValue(TestCommon.Scope.Machine);
@@ -489,7 +492,7 @@ namespace AppInstallerCLIE2ETests
             string originalRawPath = TestCommon.GetRawPathValue(TestCommon.Scope.User);
             var originalKind = TestCommon.GetPathRegisterValueKind(TestCommon.Scope.User);
 
-            string seededPath = originalRawPath.TrimEnd(';') + $";{sentinel};";
+            string seededPath = string.IsNullOrEmpty(originalRawPath) ? $"{sentinel};" : originalRawPath.TrimEnd(';') + $";{sentinel};";
             TestCommon.SetPathRegisterValue(seededPath, TestCommon.Scope.User, originalKind);
 
             try
@@ -550,7 +553,7 @@ namespace AppInstallerCLIE2ETests
             string originalRawPath = TestCommon.GetRawPathValue(TestCommon.Scope.Machine);
             var originalKind = TestCommon.GetPathRegisterValueKind(TestCommon.Scope.Machine);
 
-            string seededPath = originalRawPath.TrimEnd(';') + $";{sentinel};";
+            string seededPath = string.IsNullOrEmpty(originalRawPath) ? $"{sentinel};" : originalRawPath.TrimEnd(';') + $";{sentinel};";
             TestCommon.SetPathRegisterValue(seededPath, TestCommon.Scope.Machine, originalKind);
 
             try

@@ -469,9 +469,9 @@ namespace AppInstallerCLIE2ETests.Helpers
             bool portableEntryExists;
             RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
             string uninstallSubKey = Constants.UninstallSubKey;
-            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(uninstallSubKey, true))
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(uninstallSubKey, false))
             {
-                RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                using RegistryKey portableEntry = uninstallRegistryKey?.OpenSubKey(productCode, false);
                 portableEntryExists = portableEntry != null;
             }
 
@@ -480,13 +480,15 @@ namespace AppInstallerCLIE2ETests.Helpers
             string rawPathValue = null;
             string pathDiagnostics;
             string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
-            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
+            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false))
             {
                 string pathName = "Path";
-                var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
+                var currentPathValue = (string)environmentRegistryKey?.GetValue(pathName);
                 // rawPathValue is declared above as string rawPathValue = null for diagnostics; reassigned here
-                rawPathValue = (string)environmentRegistryKey.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
-                var valueKind = environmentRegistryKey.GetValueKind(pathName);
+                rawPathValue = (string)environmentRegistryKey?.GetValue(pathName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                var valueKind = environmentRegistryKey?.GetValue(pathName) != null
+                    ? environmentRegistryKey.GetValueKind(pathName)
+                    : RegistryValueKind.None;
                 var portablePathValue = (installDirectoryAddedToPath ? installDir : symlinkDirectory) + ';';
                 isAddedToPath = currentPathValue != null && currentPathValue.Contains(portablePathValue, StringComparison.OrdinalIgnoreCase);
 
@@ -565,8 +567,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             string currentPathValue = expanded
                 ? (string)environmentRegistryKey?.GetValue("Path") ?? string.Empty
                 : (string)environmentRegistryKey?.GetValue("Path", null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? string.Empty;
-            string expectedValue = value.TrimEnd('\\') + ';';
-            return currentPathValue.Contains(expectedValue, StringComparison.OrdinalIgnoreCase);
+            return CountPathEntryOccurrences(currentPathValue, value) > 0;
         }
 
         /// <summary>
@@ -602,7 +603,12 @@ namespace AppInstallerCLIE2ETests.Helpers
         {
             var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, false);
-            return environmentRegistryKey?.GetValueKind("Path") ?? RegistryValueKind.None;
+            if (environmentRegistryKey?.GetValue("Path") == null)
+            {
+                return RegistryValueKind.None;
+            }
+
+            return environmentRegistryKey.GetValueKind("Path");
         }
 
         /// <summary>
@@ -615,7 +621,17 @@ namespace AppInstallerCLIE2ETests.Helpers
         {
             var (baseKey, pathSubKey) = GetPathRegistryInfo(scope);
             using RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true);
-            environmentRegistryKey?.SetValue("Path", value, kind);
+            if (environmentRegistryKey != null)
+            {
+                if (kind == RegistryValueKind.None || value == null)
+                {
+                    environmentRegistryKey.DeleteValue("Path", false);
+                }
+                else
+                {
+                    environmentRegistryKey.SetValue("Path", value, kind);
+                }
+            }
         }
 
         /// <summary>

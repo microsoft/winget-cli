@@ -29,25 +29,43 @@ namespace AppInstaller::Registry::Environment
         // Returns true if the entry was modified.
         bool CleanPathEntry(std::wstring& entry)
         {
-            std::wstring original = entry;
+            bool modified = false;
             bool changed = true;
             while (changed)
             {
                 changed = false;
+                size_t prevLength = entry.length();
                 Utility::Trim(entry);
+                if (entry.length() != prevLength)
+                {
+                    modified = true;
+                }
+                while (!entry.empty() && entry.front() == L';')
+                {
+                    entry.erase(0, 1);
+                    changed = true;
+                    modified = true;
+                }
                 while (!entry.empty() && entry.back() == L';')
                 {
                     entry.pop_back();
                     changed = true;
+                    modified = true;
                 }
+                prevLength = entry.length();
                 Utility::Trim(entry);
+                if (entry.length() != prevLength)
+                {
+                    modified = true;
+                }
                 if (entry.size() >= 2 && entry.front() == L'"' && entry.back() == L'"')
                 {
                     entry = entry.substr(1, entry.size() - 2);
                     changed = true;
+                    modified = true;
                 }
             }
-            return entry != original;
+            return modified;
         }
 
         std::wstring NormalizeAndExpandPath(const std::filesystem::path& path)
@@ -154,10 +172,11 @@ namespace AppInstaller::Registry::Environment
             return false;
         }
 
-        std::vector<std::string> pathEntries = Split(GetPathValue(), ';');
-        for (const std::string& pathEntry : pathEntries)
+        std::wstring widePathValue = ConvertToUTF16(GetPathValue());
+        std::vector<std::wstring> pathEntries = Split(widePathValue, L';');
+        for (const std::wstring& pathEntry : pathEntries)
         {
-            if (!pathEntry.empty() && Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(Utility::ConvertToUTF16(pathEntry)), targetExpanded))
+            if (!pathEntry.empty() && Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(pathEntry), targetExpanded))
             {
                 return true;
             }
@@ -181,32 +200,32 @@ namespace AppInstaller::Registry::Environment
             return false;
         }
 
-        std::string pathValue = GetPathValue();
-        std::vector<std::string> pathEntries = Split(pathValue, ';');
-        std::string result;
+        std::wstring widePathValue = ConvertToUTF16(GetPathValue());
+        std::vector<std::wstring> pathEntries = Split(widePathValue, L';');
+        std::wstring result;
         bool removed = false;
 
-        for (const std::string& pathEntry : pathEntries)
+        for (const std::wstring& pathEntry : pathEntries)
         {
             if (pathEntry.empty())
             {
                 continue;
             }
 
-            if (Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(Utility::ConvertToUTF16(pathEntry)), targetExpanded))
+            if (Utility::CaseInsensitiveEquals(NormalizeAndExpandPath(pathEntry), targetExpanded))
             {
                 removed = true;
             }
             else
             {
                 result += pathEntry;
-                result += ';';
+                result += L';';
             }
         }
 
         if (removed)
         {
-            SetPathValue(result);
+            SetPathValue(ConvertToUTF8(result));
             return true;
         }
 

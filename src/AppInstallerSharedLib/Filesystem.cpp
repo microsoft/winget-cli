@@ -602,8 +602,8 @@ namespace AppInstaller::Filesystem
         static const FolderMapping s_systemFolderMappings[] =
         {
             { FOLDERID_ProgramData, "%ProgramData%" },
-            { FOLDERID_ProgramFiles, "%ProgramFiles%" },
             { FOLDERID_ProgramFilesX86, "%ProgramFiles(x86)%" },
+            { FOLDERID_ProgramFiles, "%ProgramFiles%" },
             { FOLDERID_Windows, "%SystemRoot%" },
         };
 
@@ -611,7 +611,7 @@ namespace AppInstaller::Filesystem
         {
             try
             {
-                std::filesystem::path folderPath = GetKnownFolderPath(mapping.folderId);
+                std::filesystem::path folderPath = Utility::Normalize(GetKnownFolderPath(mapping.folderId).wstring());
                 return ReplaceCommonPathPrefix(normalizedPath, folderPath, mapping.variableReference);
             }
             catch (...)
