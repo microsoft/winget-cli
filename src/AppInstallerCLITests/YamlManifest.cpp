@@ -1442,7 +1442,34 @@ TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
     RequireSingleError(ValidatePackageIdentifier("ab\0c"sv), ManifestError::InvalidPathCharacters);
 
     // Values that exceed the maximum length declared by the schema.
+    REQUIRE(ValidatePackageVersion(std::string(128, '1')).empty());
     RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
+
+    // The schema limit is expressed in characters, so the length is measured in grapheme clusters rather than
+    // in UTF-8 code units. Each of these characters encodes to more than one byte.
+    {
+        // U+00E9, two bytes each.
+        std::string twoByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            twoByteCharacters += "\xC3\xA9";
+        }
+
+        REQUIRE(twoByteCharacters.size() == 256);
+        REQUIRE(ValidatePackageVersion(twoByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(twoByteCharacters + "\xC3\xA9"), ManifestError::FieldExceedsMaxLength);
+
+        // U+1F600, four bytes each.
+        std::string fourByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            fourByteCharacters += "\xF0\x9F\x98\x80";
+        }
+
+        REQUIRE(fourByteCharacters.size() == 512);
+        REQUIRE(ValidatePackageVersion(fourByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(fourByteCharacters + "\xF0\x9F\x98\x80"), ManifestError::FieldExceedsMaxLength);
+    }
 
     // Values consisting solely of relative path specifiers.
     RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);

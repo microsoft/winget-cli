@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerMsixInfo.h"
+#include "AppInstallerStrings.h"
 #include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
 #include "winget/MsixManifestValidation.h"
@@ -119,6 +120,9 @@ namespace AppInstaller::Manifest
         constexpr std::string_view s_InvalidPathFieldCharacters = "\\/:*?\"<>|"sv;
 
         // The maximum length declared by the manifest schema for fields that are used to construct file system paths.
+        // The schema limit is expressed in characters rather than bytes, so the value is measured with the ICU
+        // helpers instead of by the size of its UTF-8 encoding. This also matches how MakeSuitablePathPart measures
+        // the values that these fields are converted into.
         constexpr size_t s_MaxPathFieldLength = 128;
 
         // Validates a manifest field value that is used to construct file system paths.
@@ -135,11 +139,13 @@ namespace AppInstaller::Manifest
             std::string fieldNameString{ fieldName };
             std::string valueString{ value };
 
-            if (value.length() > s_MaxPathFieldLength)
+            if (Utility::UTF8Length(value) > s_MaxPathFieldLength)
             {
                 resultErrors.emplace_back(ManifestError::FieldExceedsMaxLength, fieldNameString, valueString);
             }
 
+            // Every character excluded below is in the ASCII range, and the bytes of a multi byte UTF-8 sequence
+            // are all 0x80 or greater, so iterating the encoded bytes cannot produce a false match here.
             for (char character : value)
             {
                 auto rawCharacter = static_cast<unsigned char>(character);
