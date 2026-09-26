@@ -5,6 +5,8 @@
 
 #include <filesystem>
 #include <fstream>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
 
@@ -55,6 +57,8 @@ namespace AppInstaller::Logging
     private:
         std::string m_name;
         std::filesystem::path m_filePath;
+        // Keep the stream lock movable with the logger.
+        std::unique_ptr<std::mutex> m_streamLock = std::make_unique<std::mutex>();
         std::ofstream m_stream;
         std::ofstream::pos_type m_headersEnd = 0;
         std::ofstream::off_type m_maximumSize = 0;
