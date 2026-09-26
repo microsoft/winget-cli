@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "MatchCriteriaResolver.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include <winget/HttpClientHelper.h>
@@ -21,6 +22,159 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         // Query params
         constexpr std::string_view VersionQueryParam = "Version"sv;
         constexpr std::string_view ChannelQueryParam = "Channel"sv;
+        constexpr std::string_view MarketQueryParam = "Market"sv;
+
+        std::optional<bool> MatchesPackage(const PackageMatchFilter& filter, const IRestClient::Package& package)
+        {
+            if (filter.Field == PackageMatchField::Id)
+            {
+                return MatchesRequest(filter, package.PackageInformation.PackageIdentifier);
+            }
+            if (filter.Field == PackageMatchField::Name &&
+                MatchesRequest(filter, package.PackageInformation.PackageName).value_or(false))
+            {
+                return true;
+            }
+
+            std::optional<bool> result = package.Versions.empty() ? std::nullopt : std::optional<bool>{ false };
+            for (const auto& version : package.Versions)
+            {
+                const std::vector<std::string>* values = nullptr;
+                switch (filter.Field)
+                {
+                case PackageMatchField::PackageFamilyName:
+                    values = &version.PackageFamilyNames;
+                    break;
+                case PackageMatchField::ProductCode:
+                    values = &version.ProductCodes;
+                    break;
+                case PackageMatchField::UpgradeCode:
+                    values = &version.UpgradeCodes;
+                    break;
+                }
+
+                if (values && std::any_of(values->begin(), values->end(), [&](const auto& value)
+                    {
+                        return !value.empty() && MatchesRequest(filter, value).value_or(false);
+                    }))
+                {
+                    return true;
+                }
+
+                auto match = version.Manifest ? MatchesRequest(filter, version.Manifest.value()) : std::nullopt;
+                if (match && match.value())
+                {
+                    return true;
+                }
+                if (!match)
+                {
+                    result = std::nullopt;
+                }
+            }
+
+            return result;
+        }
+
+        std::vector<IRestClient::VersionInfo> CreateVersionInfos(std::vector<Manifest::Manifest> manifests)
+        {
+            std::vector<IRestClient::VersionInfo> versions;
+            versions.reserve(manifests.size());
+            for (auto& manifest : manifests)
+            {
+                auto packageFamilyNames = manifest.GetPackageFamilyNames();
+                auto productCodes = manifest.GetProductCodes();
+                auto arpVersionRange = manifest.GetArpVersionRange();
+                auto upgradeCodes = manifest.GetUpgradeCodes();
+                AppInstaller::Utility::VersionAndChannel versionAndChannel{ manifest.Version, manifest.Channel };
+
+                versions.emplace_back(
+                    IRestClient::VersionInfo{
+                        std::move(versionAndChannel),
+                        std::move(manifest),
+                        std::vector<std::string>{ packageFamilyNames.begin(), packageFamilyNames.end() },
+                        std::vector<std::string>{ productCodes.begin(), productCodes.end() },
+                        arpVersionRange.IsEmpty() ? std::vector<Utility::Version>{} : std::vector<Utility::Version>{ arpVersionRange.GetMinVersion(), arpVersionRange.GetMaxVersion() },
+                        std::vector<std::string>{ upgradeCodes.begin(), upgradeCodes.end() } });
+            }
+
+            return versions;
+        }
+
+        std::optional<Manifest::Manifest> FindManifestByVersionAndChannel(
+            const std::vector<Manifest::Manifest>& manifests, std::string_view version, std::string_view channel)
+        {
+            for (const auto& manifest : manifests)
+            {
+                if (Utility::CaseInsensitiveEquals(manifest.Version, version) &&
+                    Utility::CaseInsensitiveEquals(manifest.Channel, channel))
+                {
+                    return manifest;
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        void PopulateManifestCache(IRestClient::Package& package, std::vector<Manifest::Manifest> manifests)
+        {
+            Utility::NormalizedString packageIdentifier = package.PackageInformation.PackageIdentifier;
+            for (const auto& manifest : manifests)
+            {
+                if (!Utility::ICUCaseInsensitiveEquals(manifest.Id, packageIdentifier))
+                {
+                    AICLI_LOG(Repo, Error, << "Manifest response identifier '" << manifest.Id <<
+                        "' does not match '" << package.PackageInformation.PackageIdentifier << "'.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+            }
+
+            // A single unknown version represents all versions in its channel.
+            if (!manifests.empty() && package.Versions.size() == 1 &&
+                package.Versions[0].VersionAndChannel.GetVersion().IsUnknown())
+            {
+                const auto& channel = package.Versions[0].VersionAndChannel.GetChannel().ToString();
+                if (!channel.empty())
+                {
+                    manifests.erase(std::remove_if(manifests.begin(), manifests.end(), [&](const auto& manifest)
+                        {
+                            return !Utility::CaseInsensitiveEquals(manifest.Channel, channel);
+                        }), manifests.end());
+                }
+                if (!manifests.empty())
+                {
+                    auto versions = CreateVersionInfos(std::move(manifests));
+                    const auto& original = package.Versions[0];
+                    auto mergeReferences = [](auto& values, const auto& additional)
+                    {
+                        for (const auto& value : additional)
+                        {
+                            if (std::find(values.begin(), values.end(), value) == values.end())
+                            {
+                                values.emplace_back(value);
+                            }
+                        }
+                    };
+                    for (auto& version : versions)
+                    {
+                        mergeReferences(version.PackageFamilyNames, original.PackageFamilyNames);
+                        mergeReferences(version.ProductCodes, original.ProductCodes);
+                        mergeReferences(version.UpgradeCodes, original.UpgradeCodes);
+                    }
+                    package.Versions = std::move(versions);
+                }
+            }
+            else
+            {
+                for (auto& version : package.Versions)
+                {
+                    if (!version.Manifest)
+                    {
+                        version.Manifest = FindManifestByVersionAndChannel(manifests,
+                            version.VersionAndChannel.GetVersion().ToString(), version.VersionAndChannel.GetChannel().ToString());
+                    }
+                }
+            }
+        }
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
@@ -117,23 +271,41 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
     {
+        const SearchRequest validatedRequest = GetValidatedSearchRequest(request);
+        if (!validatedRequest.Query && !request.Inclusions.empty() && validatedRequest.Inclusions.empty())
+        {
+            AICLI_LOG(Repo, Info, << "No supported inclusions remain in the search request.");
+            return {};
+        }
+
+        const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
+        constexpr size_t c_manifestRetrievalLimit = 3;
+        size_t remainingManifestRetrievals = c_manifestRetrievalLimit;
         SearchResult results;
         utility::string_t continuationToken;
+        std::set<utility::string_t> usedContinuationTokens;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
         do
         {
             if (!continuationToken.empty())
             {
+                if (!usedContinuationTokens.emplace(continuationToken).second)
+                {
+                    AICLI_LOG(Repo, Error, << "REST source returned a repeated continuation token.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+
                 AICLI_LOG(Repo, Verbose, << "Received continuation token. Retrieving more results.");
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, searchBody, searchHeaders, GetAuthHeaders(), CustomRestCallResponseHandler);
 
             utility::string_t ct;
             if (jsonObject)
             {
                 SearchResult currentResult = GetSearchResult(jsonObject.value());
+                FilterSearchResult(validatedRequest, currentResult, remainingManifestRetrievals);
 
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
@@ -164,6 +336,101 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return results;
     }
 
+    void Interface::FilterSearchResult(const SearchRequest& request, SearchResult& result, size_t& remainingManifestRetrievals) const
+    {
+        std::vector<Package> matches;
+        matches.reserve(result.Matches.size());
+        for (auto& package : result.Matches)
+        {
+            bool retrievalAttempted = false;
+            auto matchesField = [&](const PackageMatchFilter& filter)
+            {
+                return MatchesPackage(filter, package);
+            };
+
+            std::function<std::optional<bool>(const PackageMatchFilter&)> resolveField;
+            if (request.Purpose == SearchPurpose::Default && remainingManifestRetrievals)
+            {
+                resolveField = [&](const PackageMatchFilter& filter) -> std::optional<bool>
+                {
+                    switch (filter.Type)
+                    {
+                    case MatchType::Exact:
+                    case MatchType::CaseInsensitive:
+                    case MatchType::StartsWith:
+                    case MatchType::Substring:
+                        break;
+                    default:
+                        return std::nullopt;
+                    }
+                    switch (filter.Field)
+                    {
+                    case PackageMatchField::Name:
+                    case PackageMatchField::Moniker:
+                    case PackageMatchField::Tag:
+                    case PackageMatchField::Command:
+                    case PackageMatchField::PackageFamilyName:
+                    case PackageMatchField::ProductCode:
+                    case PackageMatchField::UpgradeCode:
+                        break;
+                    default:
+                        return std::nullopt;
+                    }
+
+                    if (!retrievalAttempted)
+                    {
+                        retrievalAttempted = true;
+                        std::map<std::string_view, std::string> queryParams;
+                        for (const auto& requestFilter : request.Filters)
+                        {
+                            if (requestFilter.Field == PackageMatchField::Market)
+                            {
+                                auto [market, inserted] = queryParams.emplace(MarketQueryParam, requestFilter.Value);
+                                if ((requestFilter.Type != MatchType::Exact && requestFilter.Type != MatchType::CaseInsensitive) ||
+                                    (!inserted && !Utility::ICUCaseInsensitiveEquals(market->second, requestFilter.Value)))
+                                {
+                                    AICLI_LOG(Repo, Info, << "Manifest lookup cannot represent the requested market filters.");
+                                    return std::nullopt;
+                                }
+                            }
+                        }
+                        try
+                        {
+                            queryParams = GetValidatedQueryParams(queryParams);
+                        }
+                        catch (const UnsupportedRequestException& e)
+                        {
+                            AICLI_LOG(Repo, Info, << "Manifest lookup cannot validate search metadata for " <<
+                                package.PackageInformation.PackageIdentifier << ": " << e.what());
+                            return std::nullopt;
+                        }
+
+                        AICLI_LOG(Repo, Verbose, << "Retrieving manifests to validate search criteria for " << package.PackageInformation.PackageIdentifier);
+                        --remainingManifestRetrievals;
+                        auto manifests = GetManifests(package.PackageInformation.PackageIdentifier, queryParams);
+                        if (!remainingManifestRetrievals)
+                        {
+                            AICLI_LOG(Repo, Verbose, << "REST search manifest retrieval limit reached; remaining candidates will use available metadata.");
+                        }
+                        PopulateManifestCache(package, std::move(manifests));
+                    }
+
+                    return matchesField(filter);
+                };
+            }
+
+            auto match = MatchesRequest(request, matchesField, resolveField);
+            if (match && !match.value())
+            {
+                AICLI_LOG(Repo, Verbose, << "Discarding REST package " << package.PackageInformation.PackageIdentifier <<
+                    ": does not match search request " << request.ToString());
+                continue;
+            }
+            matches.emplace_back(std::move(package));
+        }
+        result.Matches = std::move(matches);
+    }
+
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
     {
         std::map<std::string_view, std::string> queryParams;
@@ -177,21 +444,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             queryParams.emplace(ChannelQueryParam, channel);
         }
 
-        std::vector<Manifest::Manifest> manifests = GetManifests(packageId, queryParams);
-
-        if (!manifests.empty())
-        {
-            for (Manifest::Manifest manifest : manifests)
-            {
-                if (Utility::CaseInsensitiveEquals(manifest.Version, version) &&
-                    Utility::CaseInsensitiveEquals(manifest.Channel, channel))
-                {
-                    return manifest;
-                }
-            }
-        }
-
-        return {};
+        return FindManifestByVersionAndChannel(GetManifests(packageId, queryParams), version, channel);
     }
 
     bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request, bool allowSubstringMatch) const
@@ -217,36 +470,25 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     IRestClient::SearchResult Interface::OptimizedSearch(const SearchRequest& request) const
     {
         SearchResult searchResult;
-        std::vector<Manifest::Manifest> manifests = GetManifests(request.Filters[0].Value);
+        const auto& idFilter = request.Filters[0];
+        std::vector<Manifest::Manifest> manifests = GetManifests(idFilter.Value);
 
         if (!manifests.empty())
         {
             auto& manifest = manifests.at(0);
+            if (MatchesRequest(idFilter, manifest.Id) == false)
+            {
+                AICLI_LOG(Repo, Verbose, << "Discarding REST package " << manifest.Id <<
+                    ": does not match search request " << request.ToString());
+                return searchResult;
+            }
+
             PackageInfo packageInfo = PackageInfo{
                 manifest.Id,
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>(),
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::Publisher>() };
 
-            // Add all the versions to the package info object
-            std::vector<VersionInfo> versions;
-            for (auto& manifestVersion : manifests)
-            {
-                auto packageFamilyNames = manifestVersion.GetPackageFamilyNames();
-                auto productCodes = manifestVersion.GetProductCodes();
-                auto arpVersionRange = manifestVersion.GetArpVersionRange();
-                auto upgradeCodes = manifestVersion.GetUpgradeCodes();
-
-                versions.emplace_back(
-                    VersionInfo{
-                        AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
-                        manifestVersion,
-                        std::vector<std::string>{ packageFamilyNames.begin(), packageFamilyNames.end()},
-                        std::vector<std::string>{ productCodes.begin(), productCodes.end()},
-                        arpVersionRange.IsEmpty() ? std::vector<Utility::Version>{} : std::vector<Utility::Version>{ arpVersionRange.GetMinVersion(), arpVersionRange.GetMaxVersion() },
-                        std::vector<std::string>{ upgradeCodes.begin(), upgradeCodes.end()} });
-            }
-
-            Package package = Package{ std::move(packageInfo), std::move(versions) };
+            Package package = Package{ std::move(packageInfo), CreateVersionInfos(std::move(manifests)) };
             searchResult.Matches.emplace_back(std::move(package));
         }
 
@@ -300,10 +542,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return params;
     }
 
-    web::json::value Interface::GetValidatedSearchBody(const SearchRequest& searchRequest) const
+    SearchRequest Interface::GetValidatedSearchRequest(const SearchRequest& searchRequest) const
     {
-        SearchRequestComposer searchRequestComposer{ GetVersion() };
-        return searchRequestComposer.Serialize(searchRequest);
+        return searchRequest;
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const

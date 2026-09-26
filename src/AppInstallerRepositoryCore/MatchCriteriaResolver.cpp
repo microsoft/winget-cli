@@ -9,11 +9,6 @@ namespace AppInstaller::Repository
     {
         using ValueMatchFunction = bool (*)(const Utility::NormalizedString&, const Utility::NormalizedString&);
 
-        bool ValueMatchFunction_AlwaysFalse(const Utility::NormalizedString&, const Utility::NormalizedString&)
-        {
-            return false;
-        }
-
         bool ValueMatchFunction_Exact(const Utility::NormalizedString& a, const Utility::NormalizedString& b)
         {
             return a == b;
@@ -50,7 +45,7 @@ namespace AppInstaller::Repository
             case MatchType::FuzzySubstring:
             case MatchType::Wildcard:
             default:
-                return ValueMatchFunction_AlwaysFalse;
+                return nullptr;
             }
         }
 
@@ -105,7 +100,7 @@ namespace AppInstaller::Repository
 
                 auto matchFunction = GetMatchTypeFunction(matchType);
 
-                if (matchFunction(value, request.Value))
+                if (matchFunction && matchFunction(value, request.Value))
                 {
                     return matchType;
                 }
@@ -167,6 +162,166 @@ namespace AppInstaller::Repository
 
             return MatchType::Exact == result.Type;
         }
+    }
+
+    std::optional<bool> MatchesRequest(const RequestMatch& request, const Utility::NormalizedString& value)
+    {
+        if (auto matchFunction = GetMatchTypeFunction(request.Type))
+        {
+            return matchFunction(value, request.Value);
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Utility::NormalizedString& value)
+    {
+        if (request.Type == MatchType::Exact &&
+            (request.Field == PackageMatchField::PackageFamilyName || request.Field == PackageMatchField::ProductCode ||
+                request.Field == PackageMatchField::UpgradeCode))
+        {
+            return ValueMatchFunction_CaseInsensitive(value, request.Value);
+        }
+
+        return MatchesRequest(static_cast<const RequestMatch&>(request), value);
+    }
+
+    std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Manifest::Manifest& manifest)
+    {
+        if (!GetMatchTypeFunction(request.Type))
+        {
+            return std::nullopt;
+        }
+
+        auto matches = [&](const Utility::NormalizedString& value)
+        {
+            return !value.empty() && MatchesRequest(request, value).value_or(false);
+        };
+        auto matchesAny = [&](const auto& values)
+        {
+            return std::any_of(values.begin(), values.end(), matches);
+        };
+
+        switch (request.Field)
+        {
+        case PackageMatchField::Id:
+            return matches(manifest.Id);
+        case PackageMatchField::Name:
+            return matchesAny(manifest.GetOriginalPackageNames());
+        case PackageMatchField::Moniker:
+            return matches(manifest.Moniker);
+        case PackageMatchField::Tag:
+            return matchesAny(manifest.GetAggregatedTags());
+        case PackageMatchField::Command:
+            return matchesAny(manifest.GetAggregatedCommands());
+        case PackageMatchField::PackageFamilyName:
+            return matchesAny(manifest.GetPackageFamilyNames());
+        case PackageMatchField::ProductCode:
+            return matchesAny(manifest.GetProductCodes());
+        case PackageMatchField::UpgradeCode:
+            return matchesAny(manifest.GetUpgradeCodes());
+        default:
+            return std::nullopt;
+        }
+    }
+
+    std::optional<bool> MatchesRequest(const SearchRequest& request,
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesAvailableField,
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& resolveUnknownField)
+    {
+        std::vector<std::optional<bool>> filterMatches(request.Filters.size());
+        std::vector<std::optional<bool>> inclusionMatches(request.Inclusions.size());
+        bool selectionMatches = false;
+
+        // Keep definitive results; new metadata may answer previously unknown fields.
+        auto evaluateRequest = [&]() -> std::optional<bool>
+        {
+            bool allFiltersMatch = true;
+            for (size_t i = 0; i < request.Filters.size(); ++i)
+            {
+                auto& match = filterMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Filters[i]);
+                }
+                if (match == false)
+                {
+                    return false;
+                }
+                if (!match.has_value())
+                {
+                    allFiltersMatch = false;
+                }
+            }
+
+            selectionMatches = !request.Query && request.Inclusions.empty();
+            bool selectionUnknown = request.Query.has_value();
+            for (size_t i = 0; i < request.Inclusions.size(); ++i)
+            {
+                auto& match = inclusionMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Inclusions[i]);
+                }
+                if (match == true)
+                {
+                    selectionMatches = true;
+                    break;
+                }
+                if (!match.has_value())
+                {
+                    selectionUnknown = true;
+                }
+            }
+
+            if (!selectionMatches && !selectionUnknown)
+            {
+                return false;
+            }
+            if (allFiltersMatch && selectionMatches)
+            {
+                return true;
+            }
+            return std::nullopt;
+        };
+
+        auto result = evaluateRequest();
+        if (result.has_value() || !resolveUnknownField)
+        {
+            return result;
+        }
+
+        // Resolve each unknown at most once, checking all available metadata after each attempt.
+        for (size_t i = 0; i < request.Filters.size(); ++i)
+        {
+            if (!filterMatches[i].has_value())
+            {
+                filterMatches[i] = resolveUnknownField(request.Filters[i]);
+                result = evaluateRequest();
+                if (result.has_value())
+                {
+                    return result;
+                }
+            }
+        }
+
+        // A source-defined query can still match even if every inclusion fails.
+        if (!request.Query && !selectionMatches)
+        {
+            for (size_t i = 0; i < request.Inclusions.size(); ++i)
+            {
+                if (!inclusionMatches[i].has_value())
+                {
+                    inclusionMatches[i] = resolveUnknownField(request.Inclusions[i]);
+                    result = evaluateRequest();
+                    if (result.has_value() || selectionMatches)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+        return std::nullopt;
     }
 
     PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)

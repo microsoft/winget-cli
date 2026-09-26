@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
 
+            std::vector<std::vector<std::string>> GetMatrixProperty(PackageMatrixProperty property) const override;
+
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
@@ -288,6 +290,33 @@ namespace AppInstaller::Repository::Rest
                     });
             }
 
+            return result;
+        }
+
+        std::vector<std::vector<std::string>> RestPackage::GetMatrixProperty(PackageMatrixProperty property) const
+        {
+            if (property != PackageMatrixProperty::NormalizedNameAndPublisher)
+            {
+                return IPackage::GetMatrixProperty(property);
+            }
+
+            std::scoped_lock versionsLock{ m_packageVersionsLock };
+            std::vector<std::vector<std::string>> result;
+            result.push_back({ m_package.PackageInformation.PackageName, m_package.PackageInformation.Publisher });
+            for (const auto& version : m_package.Versions)
+            {
+                if (version.Manifest)
+                {
+                    for (auto&& [name, publisher] : version.Manifest->GetNameAndPublisherPairs())
+                    {
+                        std::vector<std::string> row{ std::move(name), std::move(publisher) };
+                        if (std::find(result.begin(), result.end(), row) == result.end())
+                        {
+                            result.emplace_back(std::move(row));
+                        }
+                    }
+                }
+            }
             return result;
         }
 

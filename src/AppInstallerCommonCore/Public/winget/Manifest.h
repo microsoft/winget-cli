@@ -7,6 +7,7 @@
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
+#include <utility>
 #include <vector>
 
 namespace AppInstaller::Manifest
@@ -61,8 +62,14 @@ namespace AppInstaller::Manifest
         // Get package names across localizations and installers, Case folded.
         std::vector<string_t> GetPackageNames() const;
 
+        // Get unique, non-empty package names across localizations and installers, preserving case.
+        std::vector<string_t> GetOriginalPackageNames() const;
+
         // Get publishers across localizations and installers, Case folded.
         std::vector<string_t> GetPublishers() const;
+
+        // Gets name/publisher pairs with default fallbacks, preserving case.
+        std::vector<std::pair<string_t, string_t>> GetNameAndPublisherPairs() const;
 
         // If not empty, the SHA256 hash of the manifest stream itself.
         Utility::SHA256::HashBuffer StreamSha256;

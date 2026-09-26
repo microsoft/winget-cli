@@ -4,6 +4,8 @@
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
 #include "TestSettings.h"
+#include "TestRestRequestHandler.h"
+#include <Rest/RestSource.h>
 #include <winget/ManifestYamlParser.h>
 #include <Commands/DscSourceResource.h>
 #include <Commands/SourceCommand.h>
@@ -107,6 +109,95 @@ TEST_CASE("SourcePriority_SearchResult", "[SourcePriority][workflow]")
     {
         REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
     }
+}
+
+TEST_CASE("Search_ManifestResolution_BeforeSourcePriority", "[RestSource][SourcePriority][workflow]")
+{
+    namespace RepositoryRest = AppInstaller::Repository::Rest;
+    bool restMatches = GENERATE(false, true);
+    CAPTURE(restMatches);
+    auto searchResponse = web::json::value::parse(LR"({
+        "Data": [{
+            "PackageIdentifier": "Foo.Bar", "PackageName": "Unrelated application", "Publisher": "Foo",
+            "Versions": [{ "PackageVersion": "Unknown" }]
+        }]
+    })");
+    auto manifestResponse = web::json::value::parse(LR"({
+        "Data": {
+            "PackageIdentifier": "Foo.Bar",
+            "Versions": [{
+                "PackageVersion": "1.0.0",
+                "DefaultLocale": {
+                    "PackageLocale": "en-US", "PackageName": "Bar", "Publisher": "Foo",
+                    "License": "MIT", "ShortDescription": "Example application"
+                },
+                "Installers": [{
+                    "Architecture": "x64", "InstallerType": "exe", "InstallerUrl": "https://example.com/installer.exe",
+                    "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"
+                }]
+            }]
+        }
+    })");
+    if (restMatches)
+    {
+        manifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"tool");
+    }
+    size_t searches = 0;
+    size_t lookups = 0;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::BadRequest };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (request.method() == web::http::methods::POST)
+            {
+                ++searches;
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(searchResponse);
+            }
+            else if (request.method() == web::http::methods::GET)
+            {
+                ++lookups;
+                response.set_status_code(web::http::status_codes::OK);
+                response.set_body(manifestResponse);
+            }
+            return pplx::task_from_result(response);
+        });
+    AppInstaller::Http::HttpClientHelper helper{ handler };
+    SourceDetails details;
+    details.Identifier = "RestSource";
+    details.Priority = 10;
+    auto rest = std::make_shared<RepositoryRest::RestSource>(details, SourceInformation{},
+        RepositoryRest::RestClient::Create("https://restsource.com/api", {}, {}, helper,
+            RepositoryRest::Schema::IRestClient::Information{ "RestSource", { "1.4.0" } }));
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Query, "tool"sv);
+    context << GetSearchRequestForSingle;
+    auto results = rest->Search(context.Get<Execution::Data::SearchRequest>());
+    REQUIRE(results.Matches.size() == (restMatches ? size_t{ 1 } : size_t{ 0 }));
+
+    AppInstaller::Manifest::Manifest manifest;
+    manifest.Id = "Example.Tool";
+    manifest.Version = "1.0.0";
+    manifest.Moniker = "tool";
+    manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>("Example Tool");
+    auto otherSource = std::make_shared<TestSource>();
+    otherSource->Details.Priority = 0;
+    auto otherPackage = TestCompositePackage::Make(std::vector<AppInstaller::Manifest::Manifest>{ manifest }, otherSource);
+    auto expectedPackage = restMatches ? results.Matches[0].Package : otherPackage;
+    results.Matches.emplace_back(otherPackage, PackageMatchFilter{ PackageMatchField::Moniker, MatchType::Exact, "tool" });
+    context.Add<Execution::Data::SearchResult>(std::move(results));
+    context << EnsureOneMatchFromSearchResult(OperationType::Install);
+
+    INFO(output.str());
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
+    REQUIRE(searches == 1);
+    REQUIRE(lookups == 1);
 }
 
 TEST_CASE("SourcePriority_SourceOutput", "[SourcePriority][workflow]")

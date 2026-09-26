@@ -31,6 +31,8 @@ The solution uses:
 - vcpkg for C++ dependencies
 - NuGet for C++ and .NET dependencies
 
+CI uses `/p:PreferredToolArchitecture=x64` to avoid 32-bit linker memory limits without changing the target architecture. Use the same setting for command-line Release builds.
+
 ### Running/Debugging
 
 1. Deploy solution: Build > Deploy Solution

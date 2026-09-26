@@ -123,6 +123,29 @@ namespace AppInstaller::Repository
         }
     }
 
+    std::vector<std::vector<std::string>> IPackage::GetMatrixProperty(PackageMatrixProperty property) const
+    {
+        switch (property)
+        {
+        case PackageMatrixProperty::NormalizedNameAndPublisher:
+        {
+            auto names = GetMultiProperty(PackageMultiProperty::NormalizedName);
+            auto publishers = GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
+            std::vector<std::vector<std::string>> result;
+            for (const auto& name : names)
+            {
+                for (const auto& publisher : publishers)
+                {
+                    result.push_back({ name.get(), publisher.get() });
+                }
+            }
+            return result;
+        }
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     const char* UnsupportedRequestException::what() const noexcept
     {
         if (m_whatMessage.empty())

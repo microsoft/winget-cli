@@ -217,7 +217,9 @@ namespace AppInstaller::Utility
 
     bool ICUCaseInsensitiveStartsWith(std::string_view a, std::string_view b)
     {
-        return a.length() >= b.length() && ICUCaseInsensitiveEquals(a.substr(0, b.length()), b);
+        const auto foldedA = FoldCase(a);
+        const auto foldedB = FoldCase(b);
+        return foldedA.compare(0, foldedB.size(), foldedB) == 0;
     }
 
     std::string ConvertToUTF8(std::wstring_view input)
