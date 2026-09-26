@@ -100,6 +100,82 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return versions;
         }
 
+        std::optional<Manifest::Manifest> FindManifestByVersionAndChannel(
+            const std::vector<Manifest::Manifest>& manifests, std::string_view version, std::string_view channel)
+        {
+            for (const auto& manifest : manifests)
+            {
+                if (Utility::CaseInsensitiveEquals(manifest.Version, version) &&
+                    Utility::CaseInsensitiveEquals(manifest.Channel, channel))
+                {
+                    return manifest;
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        void PopulateManifestCache(IRestClient::Package& package, std::vector<Manifest::Manifest> manifests)
+        {
+            Utility::NormalizedString packageIdentifier = package.PackageInformation.PackageIdentifier;
+            for (const auto& manifest : manifests)
+            {
+                if (!Utility::ICUCaseInsensitiveEquals(manifest.Id, packageIdentifier))
+                {
+                    AICLI_LOG(Repo, Error, << "Manifest response identifier '" << manifest.Id <<
+                        "' does not match '" << package.PackageInformation.PackageIdentifier << "'.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                }
+            }
+
+            // A single unknown version represents all versions in its channel.
+            if (!manifests.empty() && package.Versions.size() == 1 &&
+                package.Versions[0].VersionAndChannel.GetVersion().IsUnknown())
+            {
+                const auto& channel = package.Versions[0].VersionAndChannel.GetChannel().ToString();
+                if (!channel.empty())
+                {
+                    manifests.erase(std::remove_if(manifests.begin(), manifests.end(), [&](const auto& manifest)
+                        {
+                            return !Utility::CaseInsensitiveEquals(manifest.Channel, channel);
+                        }), manifests.end());
+                }
+                if (!manifests.empty())
+                {
+                    auto versions = CreateVersionInfos(std::move(manifests));
+                    const auto& original = package.Versions[0];
+                    auto mergeReferences = [](auto& values, const auto& additional)
+                    {
+                        for (const auto& value : additional)
+                        {
+                            if (std::find(values.begin(), values.end(), value) == values.end())
+                            {
+                                values.emplace_back(value);
+                            }
+                        }
+                    };
+                    for (auto& version : versions)
+                    {
+                        mergeReferences(version.PackageFamilyNames, original.PackageFamilyNames);
+                        mergeReferences(version.ProductCodes, original.ProductCodes);
+                        mergeReferences(version.UpgradeCodes, original.UpgradeCodes);
+                    }
+                    package.Versions = std::move(versions);
+                }
+            }
+            else
+            {
+                for (auto& version : package.Versions)
+                {
+                    if (!version.Manifest)
+                    {
+                        version.Manifest = FindManifestByVersionAndChannel(manifests,
+                            version.VersionAndChannel.GetVersion().ToString(), version.VersionAndChannel.GetChannel().ToString());
+                    }
+                }
+            }
+        }
+
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
             return AppInstaller::Rest::AppendPathToUri(AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestSearchPostEndpoint));
@@ -336,69 +412,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                         {
                             AICLI_LOG(Repo, Verbose, << "REST search manifest retrieval limit reached; remaining candidates will use available metadata.");
                         }
-                        Utility::NormalizedString packageIdentifier = package.PackageInformation.PackageIdentifier;
-                        for (const auto& manifest : manifests)
-                        {
-                            if (!Utility::ICUCaseInsensitiveEquals(manifest.Id, packageIdentifier))
-                            {
-                                AICLI_LOG(Repo, Error, << "Manifest response identifier '" << manifest.Id <<
-                                    "' does not match '" << package.PackageInformation.PackageIdentifier << "'.");
-                                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
-                            }
-                        }
-
-                        if (!manifests.empty() && package.Versions.size() == 1 &&
-                            package.Versions[0].VersionAndChannel.GetVersion().IsUnknown())
-                        {
-                            const auto& channel = package.Versions[0].VersionAndChannel.GetChannel().ToString();
-                            if (!channel.empty())
-                            {
-                                manifests.erase(std::remove_if(manifests.begin(), manifests.end(), [&](const auto& manifest)
-                                    {
-                                        return !Utility::CaseInsensitiveEquals(manifest.Channel, channel);
-                                    }), manifests.end());
-                            }
-                            if (!manifests.empty())
-                            {
-                                auto versions = CreateVersionInfos(std::move(manifests));
-                                const auto& original = package.Versions[0];
-                                auto mergeReferences = [](auto& values, const auto& additional)
-                                {
-                                    for (const auto& value : additional)
-                                    {
-                                        if (std::find(values.begin(), values.end(), value) == values.end())
-                                        {
-                                            values.emplace_back(value);
-                                        }
-                                    }
-                                };
-                                for (auto& version : versions)
-                                {
-                                    mergeReferences(version.PackageFamilyNames, original.PackageFamilyNames);
-                                    mergeReferences(version.ProductCodes, original.ProductCodes);
-                                    mergeReferences(version.UpgradeCodes, original.UpgradeCodes);
-                                }
-                                package.Versions = std::move(versions);
-                            }
-                        }
-                        else
-                        {
-                            for (auto& version : package.Versions)
-                            {
-                                if (!version.Manifest)
-                                {
-                                    auto manifest = std::find_if(manifests.begin(), manifests.end(), [&](const auto& candidate)
-                                    {
-                                        return Utility::CaseInsensitiveEquals(candidate.Version, version.VersionAndChannel.GetVersion().ToString()) &&
-                                            Utility::CaseInsensitiveEquals(candidate.Channel, version.VersionAndChannel.GetChannel().ToString());
-                                    });
-                                    if (manifest != manifests.end())
-                                    {
-                                        version.Manifest = *manifest;
-                                    }
-                                }
-                            }
-                        }
+                        PopulateManifestCache(package, std::move(manifests));
                     }
 
                     return matchesField(filter);
@@ -430,21 +444,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             queryParams.emplace(ChannelQueryParam, channel);
         }
 
-        std::vector<Manifest::Manifest> manifests = GetManifests(packageId, queryParams);
-
-        if (!manifests.empty())
-        {
-            for (Manifest::Manifest manifest : manifests)
-            {
-                if (Utility::CaseInsensitiveEquals(manifest.Version, version) &&
-                    Utility::CaseInsensitiveEquals(manifest.Channel, channel))
-                {
-                    return manifest;
-                }
-            }
-        }
-
-        return {};
+        return FindManifestByVersionAndChannel(GetManifests(packageId, queryParams), version, channel);
     }
 
     bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request, bool allowSubstringMatch) const

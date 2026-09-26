@@ -999,6 +999,7 @@ TEST_CASE("Search_ManifestResolution_Versions", "[RestSource][Interface_1_0]")
     responses.SearchResponse[L"Data"][0][L"Versions"][1][L"PackageVersion"] = web::json::value::string(L"2.0.0");
     size_t expectedCount = 1;
     bool secondManifestCached = true;
+    std::string expectedVersion = "2.0.0";
     std::string expectedChannel;
 
     SECTION("A different version can match") {}
@@ -1020,6 +1021,18 @@ TEST_CASE("Search_ManifestResolution_Versions", "[RestSource][Interface_1_0]")
     {
         responses.SearchResponse[L"Data"][0][L"Versions"][1][L"Channel"] = web::json::value::string(L"beta");
         expectedChannel = "beta";
+        secondManifestCached = false;
+    }
+    SECTION("Version matching ignores casing")
+    {
+        expectedVersion = "2.0.0-BETA";
+        responses.SearchResponse[L"Data"][0][L"Versions"][1][L"PackageVersion"] = web::json::value::string(ConvertToUTF16(expectedVersion));
+        responses.ManifestResponse[L"Data"][L"Versions"][1][L"PackageVersion"] = web::json::value::string(L"2.0.0-beta");
+    }
+    SECTION("Version matching does not normalize version parts")
+    {
+        expectedVersion = "2.0";
+        responses.SearchResponse[L"Data"][0][L"Versions"][1][L"PackageVersion"] = web::json::value::string(ConvertToUTF16(expectedVersion));
         secondManifestCached = false;
     }
     SECTION("All versions reject the request")
@@ -1048,7 +1061,7 @@ TEST_CASE("Search_ManifestResolution_Versions", "[RestSource][Interface_1_0]")
         REQUIRE(versions.size() == 2);
         REQUIRE(versions[0].Manifest.has_value());
         REQUIRE(versions[1].Manifest.has_value() == secondManifestCached);
-        REQUIRE(versions[1].VersionAndChannel.GetVersion().ToString() == "2.0.0");
+        REQUIRE(versions[1].VersionAndChannel.GetVersion().ToString() == expectedVersion);
         REQUIRE(versions[1].VersionAndChannel.GetChannel().ToString() == expectedChannel);
     }
 }
@@ -1112,6 +1125,30 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE_FALSE(containsPair(searchPackage.at(L"PackageName"), locale.at(L"Publisher")));
     REQUIRE_FALSE(containsPair(locale.at(L"PackageName"), searchPackage.at(L"Publisher")));
     REQUIRE_THROWS_HR(package->GetMatrixProperty(static_cast<PackageMatrixProperty>(-1)), E_UNEXPECTED);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+}
+
+TEST_CASE("Search_ManifestResolution_UnknownVersionChannel", "[RestSource][Interface_1_0]")
+{
+    std::string channel = GENERATE("", "preview");
+    CAPTURE(channel);
+    SearchAndManifestResponses responses;
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"Unknown");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"Channel"] = web::json::value::string(ConvertToUTF16(channel));
+    responses.ManifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"target");
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "target");
+
+    auto result = rest.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    const auto& versions = result.Matches[0].Versions;
+    REQUIRE(versions.size() == 1);
+    REQUIRE(versions[0].Manifest.has_value() == channel.empty());
+    REQUIRE(versions[0].VersionAndChannel.GetVersion().ToString() == (channel.empty() ? "1.0.0" : "Unknown"));
+    REQUIRE(versions[0].VersionAndChannel.GetChannel().ToString() == channel);
     REQUIRE(responses.SearchRequests == 1);
     REQUIRE(responses.ManifestRequests == 1);
 }
@@ -1989,4 +2026,40 @@ TEST_CASE("GetManifestByVersion_GoodResponse_MultipleVersions_VersionNotFound", 
     // GetManifests
     std::optional<Manifest> manifest = v1.GetManifestByVersion("Foo.Bar", "7.0.0", "");
     REQUIRE_FALSE(manifest.has_value());
+}
+
+TEST_CASE("GetManifestByVersion_VersionAndChannelMatching", "[RestSource][Interface_1_0]")
+{
+    std::string version = GENERATE("5.0.0-beta", "5.0.0-BETA", "5.0-beta", "6.0.0-beta");
+    std::string channel = GENERATE("", "missing");
+    CAPTURE(version, channel);
+    SearchAndManifestResponses responses;
+    auto firstVersion = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    firstVersion[L"PackageVersion"] = web::json::value::string(L"4.0.0");
+    auto secondVersion = firstVersion;
+    secondVersion[L"PackageVersion"] = web::json::value::string(L"5.0.0-beta");
+    responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstVersion, secondVersion });
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+
+    auto manifest = rest.GetManifestByVersion("Foo.Bar", version, channel);
+    bool expected = (version == "5.0.0-beta" || version == "5.0.0-BETA") && channel.empty();
+    REQUIRE(manifest.has_value() == expected);
+    if (expected)
+    {
+        REQUIRE(manifest->Version == "5.0.0-beta");
+        REQUIRE(manifest->Channel.empty());
+    }
+    REQUIRE(responses.SearchRequests == 0);
+    REQUIRE(responses.ManifestRequests == 1);
+    auto query = web::uri::split_query(responses.LastManifestRequest.absolute_uri().query());
+    REQUIRE(query.at(L"Version") == ConvertToUTF16(version));
+    if (!channel.empty())
+    {
+        REQUIRE(query.at(L"Channel") == ConvertToUTF16(channel));
+    }
+    else
+    {
+        REQUIRE(query.count(L"Channel") == 0);
+    }
 }
