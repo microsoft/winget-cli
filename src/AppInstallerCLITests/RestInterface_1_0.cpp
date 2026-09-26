@@ -1731,20 +1731,31 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource][Interface_1_
 
 TEST_CASE("Search_Optimized_ExplicitIdFilter", "[RestSource][Interface_1_0]")
 {
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, GetGoodManifest_RequiredFields()) };
-    Interface v1{ TestRestUriString, helper };
-    SearchRequest request;
     auto type = GENERATE(MatchType::Exact, MatchType::CaseInsensitive);
     std::string id = GENERATE("Foo.Bar", "foo.bar", "Foo", "Other.Package");
+    bool manifestFound = GENERATE(false, true);
+    CAPTURE(ToString(type), id, manifestFound);
+    SearchAndManifestResponses responses;
+    if (!manifestFound)
+    {
+        responses.SetManifestNotFound();
+    }
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface v1{ TestRestUriString, helper };
+    SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, type, id);
 
     auto result = v1.Search(request);
-    bool expected = id == "Foo.Bar" || (type == MatchType::CaseInsensitive && id == "foo.bar");
+    bool expected = manifestFound && (id == "Foo.Bar" || (type == MatchType::CaseInsensitive && id == "foo.bar"));
+    REQUIRE(responses.SearchRequests == 0);
+    REQUIRE(responses.ManifestRequests == 1);
+    REQUIRE(responses.LastManifestRequest.absolute_uri().path() == L"/api/packageManifests/" + ConvertToUTF16(id));
     REQUIRE(result.Matches.size() == (expected ? size_t{ 1 } : size_t{ 0 }));
     REQUIRE_FALSE(result.Truncated);
     if (expected)
     {
         REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+        REQUIRE(result.Matches[0].Versions.size() == 1);
         REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
     }
 }
@@ -1752,7 +1763,9 @@ TEST_CASE("Search_Optimized_ExplicitIdFilter", "[RestSource][Interface_1_0]")
 TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface_1_0]")
 {
     bool filteredSearch = GENERATE(false, true);
-    bool manifestMatches = GENERATE(false, true);
+    std::string_view id = GENERATE("Foo.Bar", "foo.bar", "Other.Id");
+    bool manifestMatches = id != "Other.Id";
+    CAPTURE(filteredSearch, id);
     auto searchResponse = filteredSearch ? GetSearchResponse_PackageIds({ L"Unrelated.Package" }) : GetSearchResponse_PackageIds({});
     size_t searchCount = 0;
     size_t manifestCount = 0;
@@ -1786,7 +1799,6 @@ TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface
 
     HttpClientHelper helper{ std::move(handler) };
     AppInstaller::Repository::SearchRequest request;
-    std::string_view id = manifestMatches ? "Foo.Bar" : "Other.Id";
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Substring, id);
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search(request);

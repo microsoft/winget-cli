@@ -470,11 +470,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     IRestClient::SearchResult Interface::OptimizedSearch(const SearchRequest& request) const
     {
         SearchResult searchResult;
-        std::vector<Manifest::Manifest> manifests = GetManifests(request.Filters[0].Value);
+        const auto& idFilter = request.Filters[0];
+        std::vector<Manifest::Manifest> manifests = GetManifests(idFilter.Value);
 
         if (!manifests.empty())
         {
             auto& manifest = manifests.at(0);
+            if (MatchesRequest(idFilter, manifest.Id) == false)
+            {
+                AICLI_LOG(Repo, Verbose, << "Discarding REST package " << manifest.Id <<
+                    ": does not match search request " << request.ToString());
+                return searchResult;
+            }
+
             PackageInfo packageInfo = PackageInfo{
                 manifest.Id,
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>(),
@@ -484,8 +492,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             searchResult.Matches.emplace_back(std::move(package));
         }
 
-        size_t remainingManifestRetrievals = 0;
-        FilterSearchResult(request, searchResult, remainingManifestRetrievals);
         return searchResult;
     }
 
