@@ -75,10 +75,10 @@ TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
     manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "DefaultTag" });
     auto& localization = manifest.Localizations.emplace_back();
     localization.Add<Manifest::Localization::PackageName>("Localized Name");
-    localization.Add<Manifest::Localization::Tags>({ "LocalizedTag" });
+    localization.Add<Manifest::Localization::Tags>({ "Localized_Tag" });
     manifest.Localizations.emplace_back().Add<Manifest::Localization::PackageName>(u8"Caf\u00E9");
     auto& installer = manifest.Installers.emplace_back();
-    installer.Commands.emplace_back("ToolCmd");
+    installer.Commands.emplace_back("Tool_Cmd");
     installer.PackageFamilyName = "Foo.Bar_123";
     installer.ProductCode = "Installer.Code";
     auto& entry = installer.AppsAndFeaturesEntries.emplace_back();
@@ -112,10 +112,10 @@ TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
         { PackageMatchField::Moniker, MatchType::Exact, "foobar", false },
         { PackageMatchField::Moniker, MatchType::CaseInsensitive, "foobar", true },
         { PackageMatchField::Tag, MatchType::Exact, "DefaultTag", true },
-        { PackageMatchField::Tag, MatchType::Exact, "LocalizedTag", true },
-        { PackageMatchField::Tag, MatchType::Exact, "localizedtag", false },
-        { PackageMatchField::Command, MatchType::Exact, "ToolCmd", true },
-        { PackageMatchField::Command, MatchType::Exact, "toolcmd", false },
+        { PackageMatchField::Tag, MatchType::Exact, "Localized_Tag", true },
+        { PackageMatchField::Tag, MatchType::Exact, "localized_tag", false },
+        { PackageMatchField::Command, MatchType::Exact, "Tool_Cmd", true },
+        { PackageMatchField::Command, MatchType::Exact, "tool_cmd", false },
         { PackageMatchField::PackageFamilyName, MatchType::Exact, "FOO.BAR_123", true },
         { PackageMatchField::ProductCode, MatchType::Exact, "INSTALLER.CODE", true },
         { PackageMatchField::ProductCode, MatchType::Exact, "ARP.CODE", true },
