@@ -213,19 +213,19 @@ namespace AppInstaller::Manifest
     std::vector<std::pair<string_t, string_t>> Manifest::GetNameAndPublisherPairs() const
     {
         std::vector<std::pair<string_t, string_t>> result;
+        const auto defaultName = DefaultLocalization.Get<Localization::PackageName>();
         const auto defaultPublisher = DefaultLocalization.Get<Localization::Publisher>();
         if (DefaultLocalization.Contains(Localization::PackageName))
         {
-            const auto defaultName = DefaultLocalization.Get<Localization::PackageName>();
             result.emplace_back(defaultName, defaultPublisher);
-            for (const auto& localization : Localizations)
+        }
+        for (const auto& localization : Localizations)
+        {
+            if (localization.Contains(Localization::PackageName) || localization.Contains(Localization::Publisher))
             {
-                if (localization.Contains(Localization::PackageName) || localization.Contains(Localization::Publisher))
-                {
-                    result.emplace_back(
-                        localization.Contains(Localization::PackageName) ? localization.Get<Localization::PackageName>() : defaultName,
-                        localization.Contains(Localization::Publisher) ? localization.Get<Localization::Publisher>() : defaultPublisher);
-                }
+                result.emplace_back(
+                    localization.Contains(Localization::PackageName) ? localization.Get<Localization::PackageName>() : defaultName,
+                    localization.Contains(Localization::Publisher) ? localization.Get<Localization::Publisher>() : defaultPublisher);
             }
         }
 

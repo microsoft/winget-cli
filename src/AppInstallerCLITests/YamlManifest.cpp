@@ -718,10 +718,11 @@ TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
     bool hasDefaultPublisher = GENERATE(false, true);
     CAPTURE(hasDefaultName, hasDefaultPublisher);
     Manifest manifest;
+    const std::string defaultName = hasDefaultName ? "Default Name" : "";
     const std::string defaultPublisher = hasDefaultPublisher ? "Default Publisher" : "";
     if (hasDefaultName)
     {
-        manifest.DefaultLocalization.Add<Localization::PackageName>("Default Name");
+        manifest.DefaultLocalization.Add<Localization::PackageName>(defaultName);
     }
     if (hasDefaultPublisher)
     {
@@ -743,11 +744,11 @@ TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
     std::vector<std::pair<Manifest::string_t, Manifest::string_t>> expected;
     if (hasDefaultName)
     {
-        expected.emplace_back("Default Name", defaultPublisher);
-        expected.emplace_back("Localized Name", "Localized Publisher");
-        expected.emplace_back("Name Only", defaultPublisher);
-        expected.emplace_back("Default Name", "Publisher Only");
+        expected.emplace_back(defaultName, defaultPublisher);
     }
+    expected.emplace_back("Localized Name", "Localized Publisher");
+    expected.emplace_back("Name Only", defaultPublisher);
+    expected.emplace_back(defaultName, "Publisher Only");
     expected.emplace_back("Installed Name", "Installed Publisher");
     expected.emplace_back("Fallback Name", defaultPublisher);
     REQUIRE(manifest.GetNameAndPublisherPairs() == expected);
