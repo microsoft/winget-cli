@@ -224,6 +224,65 @@ TEST_CASE("MatchCriteriaResolver_SearchRequest", "[MatchCriteriaResolver]")
     }
 }
 
+TEST_CASE("MatchCriteriaResolver_SearchRequestTruthTable", "[MatchCriteriaResolver]")
+{
+    auto firstFilter = GENERATE(std::optional<bool>{}, std::optional<bool>{ false }, std::optional<bool>{ true });
+    auto secondFilter = GENERATE(std::optional<bool>{}, std::optional<bool>{ false }, std::optional<bool>{ true });
+    auto firstInclusion = GENERATE(std::optional<bool>{}, std::optional<bool>{ false }, std::optional<bool>{ true });
+    auto secondInclusion = GENERATE(std::optional<bool>{}, std::optional<bool>{ false }, std::optional<bool>{ true });
+    bool hasQuery = GENERATE(false, true);
+    CAPTURE(firstFilter, secondFilter, firstInclusion, secondInclusion, hasQuery);
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Name");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "Moniker");
+    request.Inclusions.emplace_back(PackageMatchField::Tag, MatchType::Exact, "Tag");
+    if (hasQuery)
+    {
+        request.Query.emplace(MatchType::Substring, "Query");
+    }
+    std::vector<PackageMatchField> evaluatedFields;
+    auto matchesField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        evaluatedFields.emplace_back(field.Field);
+        switch (field.Field)
+        {
+        case PackageMatchField::Name: return firstFilter;
+        case PackageMatchField::Id: return secondFilter;
+        case PackageMatchField::Moniker: return firstInclusion;
+        case PackageMatchField::Tag: return secondInclusion;
+        default: THROW_HR(E_UNEXPECTED);
+        }
+    };
+
+    std::optional<bool> expected;
+    if (firstFilter == false || secondFilter == false ||
+        (!hasQuery && firstInclusion == false && secondInclusion == false))
+    {
+        expected = false;
+    }
+    else if (firstFilter == true && secondFilter == true && (firstInclusion == true || secondInclusion == true))
+    {
+        expected = true;
+    }
+    REQUIRE(MatchesRequest(request, matchesField) == expected);
+
+    std::vector<PackageMatchField> expectedEvaluatedFields{ PackageMatchField::Name };
+    if (firstFilter != false)
+    {
+        expectedEvaluatedFields.emplace_back(PackageMatchField::Id);
+        if (secondFilter != false)
+        {
+            expectedEvaluatedFields.emplace_back(PackageMatchField::Moniker);
+            if (firstInclusion != true)
+            {
+                expectedEvaluatedFields.emplace_back(PackageMatchField::Tag);
+            }
+        }
+    }
+    REQUIRE(evaluatedFields == expectedEvaluatedFields);
+}
+
 TEST_CASE("MatchCriteriaResolver_ResolveUnknownCriteria", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;
@@ -267,6 +326,7 @@ TEST_CASE("MatchCriteriaResolver_ResolveUnknownCriteria", "[MatchCriteriaResolve
         { "Resolve next inclusion after mismatch", {}, { monikerMismatch, nameMatch }, false, true, { PackageMatchField::Moniker, PackageMatchField::Name } },
         { "Unknown filter cannot override failed inclusions", { unknown }, { monikerMismatch }, false, false, { PackageMatchField::Market, PackageMatchField::Moniker } },
         { "Matching inclusion cannot prove unknown filter", { unknown }, { nameMatch }, false, std::nullopt, { PackageMatchField::Market, PackageMatchField::Name } },
+        { "Resolved inclusion stops lookups despite unknown filter", { unknown }, { nameMatch, monikerMismatch }, false, std::nullopt, { PackageMatchField::Market, PackageMatchField::Name } },
         { "Matching filter cannot prove unknown inclusion", { nameMatch }, { unknown }, false, std::nullopt, { PackageMatchField::Name, PackageMatchField::Market } },
         { "Source-defined query", {}, {}, true, std::nullopt, {} },
         { "Query makes inclusion lookup unnecessary", {}, { nameMatch }, true, std::nullopt, {} },
@@ -300,6 +360,46 @@ TEST_CASE("MatchCriteriaResolver_ResolveUnknownCriteria", "[MatchCriteriaResolve
         REQUIRE(MatchesRequest(request, matchesField, resolveField) == test.Expected);
         REQUIRE(resolvedFields == test.ResolvedFields);
     }
+}
+
+TEST_CASE("MatchCriteriaResolver_ResolutionAttemptsUnknownsOnce", "[MatchCriteriaResolver]")
+{
+    bool hasQuery = GENERATE(false, true);
+    CAPTURE(hasQuery);
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Name");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
+    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "Moniker");
+    request.Inclusions.emplace_back(PackageMatchField::Tag, MatchType::Exact, "Tag");
+    if (hasQuery)
+    {
+        request.Query.emplace(MatchType::Substring, "Query");
+    }
+    size_t idEvaluations = 0;
+    auto matchesField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        if (field.Field == PackageMatchField::Id)
+        {
+            ++idEvaluations;
+            return true;
+        }
+        return std::nullopt;
+    };
+    std::vector<PackageMatchField> resolvedFields;
+    auto resolveField = [&](const PackageMatchFilter& field) -> std::optional<bool>
+    {
+        resolvedFields.emplace_back(field.Field);
+        return std::nullopt;
+    };
+    std::vector<PackageMatchField> expectedResolvedFields{ PackageMatchField::Name };
+    if (!hasQuery)
+    {
+        expectedResolvedFields.insert(expectedResolvedFields.end(), { PackageMatchField::Moniker, PackageMatchField::Tag });
+    }
+
+    REQUIRE_FALSE(MatchesRequest(request, matchesField, resolveField).has_value());
+    REQUIRE(resolvedFields == expectedResolvedFields);
+    REQUIRE(idEvaluations == 1);
 }
 
 TEST_CASE("MatchCriteriaResolver_ResolutionReusesAvailableMetadata", "[MatchCriteriaResolver]")

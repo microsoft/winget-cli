@@ -226,86 +226,102 @@ namespace AppInstaller::Repository
     }
 
     std::optional<bool> MatchesRequest(const SearchRequest& request,
-        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesField,
-        const std::function<std::optional<bool>(const PackageMatchFilter&)>& resolveField)
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesAvailableField,
+        const std::function<std::optional<bool>(const PackageMatchFilter&)>& resolveUnknownField)
     {
         std::vector<std::optional<bool>> filterMatches(request.Filters.size());
         std::vector<std::optional<bool>> inclusionMatches(request.Inclusions.size());
-        auto evaluate = [&](const auto& fields, auto& matches, bool requireAll) -> std::optional<bool>
-        {
-            std::optional<bool> result = requireAll;
-            for (size_t i = 0; i < fields.size(); ++i)
-            {
-                auto& match = matches[i];
-                if (!match)
-                {
-                    match = matchesField(fields[i]);
-                }
-                // AND rejects on false; OR accepts on true.
-                if (match && match.value() != requireAll)
-                {
-                    return match;
-                }
-                if (!match)
-                {
-                    result = std::nullopt;
-                }
-            }
-            return result;
-        };
-        auto resolveNext = [&](const auto& fields, auto& matches, size_t& next)
-        {
-            while (next < fields.size())
-            {
-                const size_t i = next++;
-                if (!matches[i])
-                {
-                    matches[i] = resolveField(fields[i]);
-                    return true;
-                }
-            }
-            return false;
-        };
+        bool selectionMatches = false;
 
-        size_t nextFilter = 0;
-        size_t nextInclusion = 0;
-        // Recheck unknowns after each resolution attempt; retain definitive results.
-        while (true)
+        // Keep definitive results; new metadata may answer previously unknown fields.
+        auto evaluateRequest = [&]() -> std::optional<bool>
         {
-            auto filtersMatch = evaluate(request.Filters, filterMatches, true);
-            if (!filtersMatch.value_or(true))
+            bool allFiltersMatch = true;
+            for (size_t i = 0; i < request.Filters.size(); ++i)
+            {
+                auto& match = filterMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Filters[i]);
+                }
+                if (match == false)
+                {
+                    return false;
+                }
+                if (!match.has_value())
+                {
+                    allFiltersMatch = false;
+                }
+            }
+
+            selectionMatches = !request.Query && request.Inclusions.empty();
+            bool selectionUnknown = request.Query.has_value();
+            for (size_t i = 0; i < request.Inclusions.size(); ++i)
+            {
+                auto& match = inclusionMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Inclusions[i]);
+                }
+                if (match == true)
+                {
+                    selectionMatches = true;
+                    break;
+                }
+                if (!match.has_value())
+                {
+                    selectionUnknown = true;
+                }
+            }
+
+            if (!selectionMatches && !selectionUnknown)
             {
                 return false;
             }
-
-            auto selectionMatch = !request.Query && request.Inclusions.empty() ?
-                std::optional<bool>{ true } : evaluate(request.Inclusions, inclusionMatches, false);
-            if (request.Query && !selectionMatch.value_or(false))
-            {
-                selectionMatch = std::nullopt;
-            }
-            if (!selectionMatch.value_or(true))
-            {
-                return false;
-            }
-            if (filtersMatch && selectionMatch)
+            if (allFiltersMatch && selectionMatches)
             {
                 return true;
             }
-            if (!resolveField)
-            {
-                return std::nullopt;
-            }
-            if (!filtersMatch && resolveNext(request.Filters, filterMatches, nextFilter))
-            {
-                continue;
-            }
-            if (!selectionMatch && !request.Query && resolveNext(request.Inclusions, inclusionMatches, nextInclusion))
-            {
-                continue;
-            }
             return std::nullopt;
+        };
+
+        auto result = evaluateRequest();
+        if (result.has_value() || !resolveUnknownField)
+        {
+            return result;
         }
+
+        // Resolve each unknown at most once, checking all available metadata after each attempt.
+        for (size_t i = 0; i < request.Filters.size(); ++i)
+        {
+            if (!filterMatches[i].has_value())
+            {
+                filterMatches[i] = resolveUnknownField(request.Filters[i]);
+                result = evaluateRequest();
+                if (result.has_value())
+                {
+                    return result;
+                }
+            }
+        }
+
+        // A source-defined query can still match even if every inclusion fails.
+        if (!request.Query && !selectionMatches)
+        {
+            for (size_t i = 0; i < request.Inclusions.size(); ++i)
+            {
+                if (!inclusionMatches[i].has_value())
+                {
+                    inclusionMatches[i] = resolveUnknownField(request.Inclusions[i]);
+                    result = evaluateRequest();
+                    if (result.has_value() || selectionMatches)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+        return std::nullopt;
     }
 
     PackageMatchFilter FindBestMatchCriteria(const SearchRequest& request, const IPackageVersion* packageVersion)
