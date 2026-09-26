@@ -203,6 +203,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
+        constexpr size_t c_manifestRetrievalLimit = 3;
+        size_t remainingManifestRetrievals = c_manifestRetrievalLimit;
         SearchResult results;
         utility::string_t continuationToken;
         std::set<utility::string_t> usedContinuationTokens;
@@ -227,7 +229,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             if (jsonObject)
             {
                 SearchResult currentResult = GetSearchResult(jsonObject.value());
-                FilterSearchResult(validatedRequest, currentResult);
+                FilterSearchResult(validatedRequest, currentResult, remainingManifestRetrievals);
 
                 size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
                     std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
@@ -258,7 +260,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return results;
     }
 
-    void Interface::FilterSearchResult(const SearchRequest& request, SearchResult& result) const
+    void Interface::FilterSearchResult(const SearchRequest& request, SearchResult& result, size_t& remainingManifestRetrievals) const
     {
         std::vector<Package> matches;
         matches.reserve(result.Matches.size());
@@ -271,7 +273,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             };
 
             std::function<std::optional<bool>(const PackageMatchFilter&)> resolveField;
-            if (request.Purpose == SearchPurpose::Default)
+            if (request.Purpose == SearchPurpose::Default && remainingManifestRetrievals)
             {
                 resolveField = [&](const PackageMatchFilter& filter) -> std::optional<bool>
                 {
@@ -328,7 +330,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                         }
 
                         AICLI_LOG(Repo, Verbose, << "Retrieving manifests to validate search criteria for " << package.PackageInformation.PackageIdentifier);
+                        --remainingManifestRetrievals;
                         auto manifests = GetManifests(package.PackageInformation.PackageIdentifier, queryParams);
+                        if (!remainingManifestRetrievals)
+                        {
+                            AICLI_LOG(Repo, Verbose, << "REST search manifest retrieval limit reached; remaining candidates will use available metadata.");
+                        }
                         Utility::NormalizedString packageIdentifier = package.PackageInformation.PackageIdentifier;
                         for (const auto& manifest : manifests)
                         {
@@ -477,7 +484,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             searchResult.Matches.emplace_back(std::move(package));
         }
 
-        FilterSearchResult(request, searchResult);
+        size_t remainingManifestRetrievals = 0;
+        FilterSearchResult(request, searchResult, remainingManifestRetrievals);
         return searchResult;
     }
 

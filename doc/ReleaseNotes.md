@@ -27,7 +27,7 @@ This change resolves alias failures in non-symlinked scenarios, including cases 
 Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
 
 ### Minor Bug Fixes
-* Fixed REST search results bypassing package filters and selectors, retrieving missing manifest metadata only when needed to evaluate a match.
+* Fixed REST search results bypassing package filters and selectors, retrieving missing manifest metadata only when needed and for at most three packages per search.
 * Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
 * Prevented REST searches from looping indefinitely when continuation tokens repeat.

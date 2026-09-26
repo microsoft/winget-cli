@@ -1222,6 +1222,120 @@ TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]
     REQUIRE_FALSE(manifestReceivedContinuation);
 }
 
+TEST_CASE("Search_ManifestResolution_RetrievalLimit", "[RestSource][Interface_1_0]")
+{
+    bool paginated = GENERATE(false, true);
+    bool manifestAvailable = GENERATE(false, true);
+    bool manifestMatches = GENERATE(false, true);
+    bool useInclusions = GENERATE(false, true);
+    size_t maximumResults = GENERATE(size_t{ 0 }, size_t{ 1 });
+    CAPTURE(paginated, manifestAvailable, manifestMatches, useInclusions, maximumResults);
+    const std::vector<std::string> identifiers{ "Foo.One", "Foo.Two", "Foo.Three", "Foo.Four", "Foo.Five" };
+    size_t searches = 0;
+    std::vector<utility::string_t> manifestPaths;
+    auto handler = std::make_shared<TestRestRequestHandler>(
+        [&](web::http::http_request request) -> pplx::task<web::http::http_response>
+        {
+            web::http::http_response response{ web::http::status_codes::OK };
+            response.headers().set_content_type(web::http::details::mime_types::application_json);
+            response.headers().set_cache_control(L"no-store");
+            if (request.method() == web::http::methods::POST)
+            {
+                ++searches;
+                auto page = paginated ?
+                    (request.headers().has(L"ContinuationToken") ?
+                        GetSearchResponse_PackageIds({ L"Foo.Three", L"Foo.Four", L"Foo.Five" }) :
+                        GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two" }, L"next")) :
+                    GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two", L"Foo.Three", L"Foo.Four", L"Foo.Five" });
+                response.set_body(web::json::value::parse(page));
+            }
+            else if (request.method() == web::http::methods::GET)
+            {
+                auto path = request.absolute_uri().path();
+                manifestPaths.emplace_back(path);
+                if (manifestAvailable)
+                {
+                    auto manifest = web::json::value::parse(GetGoodManifest_RequiredFields());
+                    manifest[L"Data"][L"PackageIdentifier"] = web::json::value::string(web::uri::split_path(path).back());
+                    auto& version = manifest[L"Data"][L"Versions"][0];
+                    version[L"PackageVersion"] = web::json::value::string(L"1.0.0");
+                    version[L"DefaultLocale"][L"PackageName"] = web::json::value::string(manifestMatches ? L"Wanted" : L"Other");
+                    response.set_body(manifest);
+                }
+                else
+                {
+                    response.set_status_code(web::http::status_codes::NotFound);
+                    response.set_body(web::json::value::parse(LR"({"code":"DataNotFound","message":"Not found"})"));
+                }
+            }
+            return pplx::task_from_result(response);
+        });
+    HttpClientHelper helper{ handler };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    auto& criteria = useInclusions ? request.Inclusions : request.Filters;
+    criteria.emplace_back(PackageMatchField::Name, MatchType::Exact, "Wanted");
+    request.MaximumResults = maximumResults;
+
+    for (size_t attempt = 0; attempt < 2; ++attempt)
+    {
+        CAPTURE(attempt);
+        searches = 0;
+        manifestPaths.clear();
+        auto result = rest.Search(request);
+        bool firstPageSatisfiesLimit = paginated && maximumResults && (!manifestAvailable || manifestMatches);
+        size_t expectedLookups = firstPageSatisfiesLimit ? 2 : 3;
+        REQUIRE(manifestPaths.size() == expectedLookups);
+        for (size_t i = 0; i < expectedLookups; ++i)
+        {
+            REQUIRE(manifestPaths[i] == L"/api/packageManifests/" + ConvertToUTF16(identifiers[i]));
+        }
+
+        size_t firstRetained = manifestAvailable && !manifestMatches ? 3 : 0;
+        size_t expectedCount = identifiers.size() - firstRetained;
+        if (maximumResults)
+        {
+            expectedCount = std::min(expectedCount, maximumResults);
+        }
+        REQUIRE(result.Matches.size() == expectedCount);
+        REQUIRE(result.Truncated == (maximumResults != 0));
+        REQUIRE(searches == (paginated && !firstPageSatisfiesLimit ? size_t{ 2 } : size_t{ 1 }));
+        for (size_t i = 0; i < expectedCount; ++i)
+        {
+            REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == identifiers[firstRetained + i]);
+            REQUIRE(result.Matches[i].Versions[0].Manifest.has_value() == (manifestAvailable && firstRetained + i < expectedLookups));
+        }
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_RetrievalLimit_AvailableMetadata", "[RestSource][Interface_1_0]")
+{
+    SearchAndManifestResponses responses;
+    responses.SearchResponse = web::json::value::parse(GetSearchResponse_PackageIds(
+        { L"Other.First", L"Foo.Known", L"Foo.One", L"Foo.Two", L"Foo.Three", L"Other.Last", L"Foo.Last", L"Foo.Unknown" }));
+    for (size_t index : { size_t{ 1 }, size_t{ 5 }, size_t{ 6 } })
+    {
+        responses.SearchResponse[L"Data"][index][L"PackageName"] = web::json::value::string(L"Wanted");
+    }
+    responses.SetManifestNotFound();
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Wanted");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Foo.");
+
+    auto result = rest.Search(request);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 3);
+    REQUIRE_FALSE(result.Truncated);
+    const std::vector<std::string> expected{ "Foo.Known", "Foo.One", "Foo.Two", "Foo.Three", "Foo.Last", "Foo.Unknown" };
+    REQUIRE(result.Matches.size() == expected.size());
+    for (size_t i = 0; i < expected.size(); ++i)
+    {
+        REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == expected[i]);
+    }
+}
+
 TEST_CASE("Search_ExplicitIdFilters_UnsupportedMatchType", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK,
