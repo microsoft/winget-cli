@@ -162,10 +162,33 @@ namespace AppInstaller::Manifest
     {
         std::set<string_t> set;
 
-        AddFoldedStringToSetIfNotEmpty(set, DefaultLocalization.Get<Localization::PackageName>());
+        for (const auto& name : GetOriginalPackageNames())
+        {
+            AddFoldedStringToSetIfNotEmpty(set, name);
+        }
+
+        std::vector<Utility::NormalizedString> result(
+            std::make_move_iterator(set.begin()),
+            std::make_move_iterator(set.end()));
+
+        return result;
+    }
+
+    std::vector<string_t> Manifest::GetOriginalPackageNames() const
+    {
+        std::set<string_t> set;
+        auto addName = [&](const string_t& name)
+        {
+            if (!name.empty())
+            {
+                set.emplace(name);
+            }
+        };
+
+        addName(DefaultLocalization.Get<Localization::PackageName>());
         for (const auto& loc : Localizations)
         {
-            AddFoldedStringToSetIfNotEmpty(set, loc.Get<Localization::PackageName>());
+            addName(loc.Get<Localization::PackageName>());
         }
 
         // In addition to the names used for our display, add the display names from the ARP entries
@@ -173,7 +196,7 @@ namespace AppInstaller::Manifest
         {
             for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
             {
-                AddFoldedStringToSetIfNotEmpty(set, appsAndFeaturesEntry.DisplayName);
+                addName(appsAndFeaturesEntry.DisplayName);
             }
         }
 

@@ -63,10 +63,15 @@ TEST_CASE("MatchCriteriaResolver_MatchesRequest_Unsupported", "[MatchCriteriaRes
 
 TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
 {
+    bool hasDefaultName = GENERATE(false, true);
+    CAPTURE(hasDefaultName);
     Manifest::Manifest manifest;
     manifest.Id = "Foo.Bar";
     manifest.Moniker = "FooBar";
-    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+    if (hasDefaultName)
+    {
+        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+    }
     manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "DefaultTag" });
     auto& localization = manifest.Localizations.emplace_back();
     localization.Add<Manifest::Localization::PackageName>("Localized Name");
@@ -93,9 +98,9 @@ TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
     {
         { PackageMatchField::Id, MatchType::Exact, "Foo.Bar", true },
         { PackageMatchField::Id, MatchType::Exact, "foo.bar", false },
-        { PackageMatchField::Name, MatchType::Exact, "Foo Bar", true },
+        { PackageMatchField::Name, MatchType::Exact, "Foo Bar", hasDefaultName },
         { PackageMatchField::Name, MatchType::Exact, "foo bar", false },
-        { PackageMatchField::Name, MatchType::CaseInsensitive, "foo bar", true },
+        { PackageMatchField::Name, MatchType::CaseInsensitive, "foo bar", hasDefaultName },
         { PackageMatchField::Name, MatchType::Exact, "Localized Name", true },
         { PackageMatchField::Name, MatchType::Exact, "localized name", false },
         { PackageMatchField::Name, MatchType::Exact, "Installed Name", true },
@@ -140,7 +145,7 @@ TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
 TEST_CASE("MatchCriteriaResolver_ManifestEmptyFields", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;
-    auto field = GENERATE(PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command,
+    auto field = GENERATE(PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command,
         PackageMatchField::PackageFamilyName, PackageMatchField::ProductCode, PackageMatchField::UpgradeCode);
     auto type = GENERATE(MatchType::Exact, MatchType::CaseInsensitive, MatchType::StartsWith, MatchType::Substring);
     CAPTURE(ToString(field), ToString(type));

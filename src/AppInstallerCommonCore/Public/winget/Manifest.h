@@ -62,6 +62,9 @@ namespace AppInstaller::Manifest
         // Get package names across localizations and installers, Case folded.
         std::vector<string_t> GetPackageNames() const;
 
+        // Get unique, non-empty package names across localizations and installers, preserving case.
+        std::vector<string_t> GetOriginalPackageNames() const;
+
         // Get publishers across localizations and installers, Case folded.
         std::vector<string_t> GetPublishers() const;
 

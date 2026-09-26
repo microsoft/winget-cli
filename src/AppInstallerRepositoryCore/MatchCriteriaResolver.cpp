@@ -201,27 +201,13 @@ namespace AppInstaller::Repository
         {
             return std::any_of(values.begin(), values.end(), matches);
         };
-        auto matchesName = [&](const Manifest::ManifestLocalization& localization)
-        {
-            return matches(localization.Get<Manifest::Localization::PackageName>());
-        };
 
         switch (request.Field)
         {
         case PackageMatchField::Id:
             return matches(manifest.Id);
         case PackageMatchField::Name:
-            // GetPackageNames() folds case, so compare the original names here.
-            if (matchesName(manifest.DefaultLocalization) ||
-                std::any_of(manifest.Localizations.begin(), manifest.Localizations.end(), matchesName))
-            {
-                return true;
-            }
-            return std::any_of(manifest.Installers.begin(), manifest.Installers.end(), [&](const auto& installer)
-                {
-                    return std::any_of(installer.AppsAndFeaturesEntries.begin(), installer.AppsAndFeaturesEntries.end(),
-                        [&](const auto& entry) { return matches(entry.DisplayName); });
-                });
+            return matchesAny(manifest.GetOriginalPackageNames());
         case PackageMatchField::Moniker:
             return matches(manifest.Moniker);
         case PackageMatchField::Tag:

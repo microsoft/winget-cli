@@ -712,6 +712,49 @@ namespace
     }
 }
 
+TEST_CASE("Manifest_PackageNames", "[ManifestValidation]")
+{
+    std::string_view defaultNameState = GENERATE("Missing", "Empty", "Present");
+    CAPTURE(defaultNameState);
+    Manifest manifest;
+    REQUIRE(manifest.GetPackageNames().empty());
+    REQUIRE(manifest.GetOriginalPackageNames().empty());
+    if (defaultNameState != "Missing")
+    {
+        const std::string_view defaultName = defaultNameState == "Present" ? "Default Name" : "";
+        manifest.DefaultLocalization.Add<Localization::PackageName>(defaultName);
+    }
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Localized Name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("localized name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Localized Name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>(u8"Caf\u00E9");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>(u8"Cafe\u0301");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("");
+    manifest.Localizations.emplace_back();
+    auto& installer = manifest.Installers.emplace_back();
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Installed Name";
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Localized Name";
+    installer.AppsAndFeaturesEntries.emplace_back().Publisher = "Unused Publisher";
+    manifest.Installers.emplace_back().AppsAndFeaturesEntries.emplace_back().DisplayName = "Other Installed Name";
+    manifest.CurrentLocalization.Add<Localization::PackageName>("Current Name");
+
+    std::vector<Manifest::string_t> expected{ u8"caf\u00E9" };
+    if (defaultNameState == "Present")
+    {
+        expected.emplace_back("default name");
+    }
+    expected.insert(expected.end(), { "installed name", "localized name", "other installed name" });
+    REQUIRE(manifest.GetPackageNames() == expected);
+
+    std::vector<Manifest::string_t> expectedOriginal{ u8"Caf\u00E9" };
+    if (defaultNameState == "Present")
+    {
+        expectedOriginal.emplace_back("Default Name");
+    }
+    expectedOriginal.insert(expectedOriginal.end(), { "Installed Name", "Localized Name", "Other Installed Name", "localized name" });
+    REQUIRE(manifest.GetOriginalPackageNames() == expectedOriginal);
+}
+
 TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
 {
     bool hasDefaultName = GENERATE(false, true);
