@@ -309,7 +309,11 @@ namespace AppInstaller::Repository::Rest
                 {
                     for (auto&& [name, publisher] : version.Manifest->GetNameAndPublisherPairs())
                     {
-                        result.push_back({ std::move(name), std::move(publisher) });
+                        std::vector<std::string> row{ std::move(name), std::move(publisher) };
+                        if (std::find(result.begin(), result.end(), row) == result.end())
+                        {
+                            result.emplace_back(std::move(row));
+                        }
                     }
                 }
             }

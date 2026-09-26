@@ -1116,6 +1116,73 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE(responses.ManifestRequests == 1);
 }
 
+TEST_CASE("RestSource_MatrixProperty_DeduplicatesNameAndPublisher", "[RestSource]")
+{
+    bool cacheManifests = GENERATE(false, true);
+    CAPTURE(cacheManifests);
+    SearchAndManifestResponses responses;
+    auto& searchPackage = responses.SearchResponse[L"Data"][0];
+    searchPackage[L"PackageName"] = web::json::value::string(L"Bar");
+    searchPackage[L"Publisher"] = web::json::value::string(L"Foo");
+    searchPackage[L"Versions"][1][L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    auto firstVersion = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    firstVersion[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"bar");
+    firstVersion[L"Locales"] = web::json::value::parse(LR"([
+        { "PackageLocale": "fr-FR", "PackageName": "Bar", "Publisher": "Foo" },
+        { "PackageLocale": "de-DE", "PackageName": "Other Name", "Publisher": "Foo" },
+        { "PackageLocale": "es-ES", "PackageName": "Bar", "Publisher": "Other Publisher" },
+        { "PackageLocale": "ja-JP", "PackageName": "bar", "Publisher": "Foo" },
+        { "PackageLocale": "nl-NL", "PackageName": "Bar", "Publisher": "foo" }
+    ])");
+    firstVersion[L"Installers"][0][L"AppsAndFeaturesEntries"] = web::json::value::parse(LR"([
+        { "DisplayName": "Bar", "Publisher": "Foo" },
+        { "DisplayName": "Installed Name", "Publisher": "Installed Publisher" },
+        { "DisplayName": "Installed Name", "Publisher": "Installed Publisher" },
+        { "DisplayName": "Other Name" }
+    ])");
+    auto secondVersion = firstVersion;
+    secondVersion[L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    firstVersion[L"Installers"][0][L"AppsAndFeaturesEntries"][4] = web::json::value::parse(
+        LR"({ "DisplayName": "Older Name", "Publisher": "Older Publisher" })");
+    responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstVersion, secondVersion });
+    HttpClientHelper helper{ responses.GetHandler() };
+    IRestClient::Information information{ "TestSource", { "1.4.0" } };
+    SourceDetails details;
+    details.Identifier = "TestSource";
+    auto source = std::make_shared<RestSource>(details, SourceInformation{},
+        RestClient::Create(TestRestUriString, {}, {}, helper, information));
+    SearchRequest request;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    if (cacheManifests)
+    {
+        request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
+    }
+
+    auto result = source->Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package->GetAvailable().at(0);
+    REQUIRE(package->GetVersionKeys().size() == 2);
+    std::vector<std::vector<std::string>> expected{ { "Bar", "Foo" } };
+    if (cacheManifests)
+    {
+        expected.insert(expected.end(), {
+            { "Other Name", "Foo" },
+            { "Bar", "Other Publisher" },
+            { "bar", "Foo" },
+            { "Bar", "foo" },
+            { "Installed Name", "Installed Publisher" },
+            { "Older Name", "Older Publisher" },
+        });
+    }
+    for (size_t attempt = 0; attempt < 2; ++attempt)
+    {
+        CAPTURE(attempt);
+        REQUIRE(package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher) == expected);
+        REQUIRE(responses.SearchRequests == 1);
+        REQUIRE(responses.ManifestRequests == (cacheManifests ? size_t{ 1 } : size_t{ 0 }));
+    }
+}
+
 TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interface_1_1]")
 {
     SearchAndManifestResponses responses;
