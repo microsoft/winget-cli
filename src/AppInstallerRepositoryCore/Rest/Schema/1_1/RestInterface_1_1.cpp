@@ -126,7 +126,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             }
         }
 
-        return resultSearchRequest;
+        return V1_0::Interface::GetValidatedSearchRequest(resultSearchRequest);
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
