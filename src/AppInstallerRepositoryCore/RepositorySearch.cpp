@@ -123,19 +123,27 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::vector<IPackage::NameAndPublisher> IPackage::GetNameAndPublisherPairs() const
+    std::vector<std::vector<std::string>> IPackage::GetMatrixProperty(PackageMatrixProperty property) const
     {
-        auto names = GetMultiProperty(PackageMultiProperty::NormalizedName);
-        auto publishers = GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
-        std::vector<NameAndPublisher> result;
-        for (const auto& name : names)
+        switch (property)
         {
-            for (const auto& publisher : publishers)
+        case PackageMatrixProperty::NormalizedNameAndPublisher:
+        {
+            auto names = GetMultiProperty(PackageMultiProperty::NormalizedName);
+            auto publishers = GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
+            std::vector<std::vector<std::string>> result;
+            for (const auto& name : names)
             {
-                result.emplace_back(name, publisher);
+                for (const auto& publisher : publishers)
+                {
+                    result.push_back({ name.get(), publisher.get() });
+                }
             }
+            return result;
         }
-        return result;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
     }
 
     const char* UnsupportedRequestException::what() const noexcept

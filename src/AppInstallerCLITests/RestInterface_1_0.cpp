@@ -1092,13 +1092,17 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE(package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode).at(0).get() == "Search.Upgrade");
     REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMinVersion).get() == (unknownVersion ? "" : "0.5.0"));
     REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMaxVersion).get() == (unknownVersion ? "" : "0.6.0"));
-    auto pairs = package->GetNameAndPublisherPairs();
+    auto pairs = package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher);
+    for (const auto& pair : pairs)
+    {
+        REQUIRE(pair.size() == 2);
+    }
     auto containsPair = [&](const auto& name, const auto& publisher)
     {
         return std::any_of(pairs.begin(), pairs.end(), [&](const auto& pair)
             {
-                return ICUCaseInsensitiveEquals(pair.first.get(), ConvertToUTF8(name.as_string())) &&
-                    ICUCaseInsensitiveEquals(pair.second.get(), ConvertToUTF8(publisher.as_string()));
+                return pair[0] == ConvertToUTF8(name.as_string()) &&
+                    pair[1] == ConvertToUTF8(publisher.as_string());
             });
     };
     const auto& searchPackage = responses.SearchResponse.at(L"Data")[0];
@@ -1107,6 +1111,7 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE(containsPair(locale.at(L"PackageName"), locale.at(L"Publisher")));
     REQUIRE_FALSE(containsPair(searchPackage.at(L"PackageName"), locale.at(L"Publisher")));
     REQUIRE_FALSE(containsPair(locale.at(L"PackageName"), searchPackage.at(L"Publisher")));
+    REQUIRE_THROWS_HR(package->GetMatrixProperty(static_cast<PackageMatrixProperty>(-1)), E_UNEXPECTED);
     REQUIRE(responses.SearchRequests == 1);
     REQUIRE(responses.ManifestRequests == 1);
 }

@@ -440,6 +440,64 @@ TEST_CASE("CompositeSource_ProductCode_Available", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package->GetAvailable()[0]->GetVersionKeys().size() == 1);
 }
 
+TEST_CASE("Package_MatrixProperty_NameAndPublisher", "[CompositeSource]")
+{
+    bool hasNames = GENERATE(false, true);
+    bool hasPublishers = GENERATE(false, true);
+    CAPTURE(hasNames, hasPublishers);
+    Manifest::Manifest manifest;
+    manifest.Version = "1.0";
+    auto& localization = manifest.Localizations.emplace_back();
+    if (hasNames)
+    {
+        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("First Name");
+        localization.Add<Manifest::Localization::PackageName>("Second Name");
+    }
+    if (hasPublishers)
+    {
+        manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("First Publisher");
+        localization.Add<Manifest::Localization::Publisher>("Second Publisher");
+    }
+    auto package = TestPackage::Make(std::vector<Manifest::Manifest>{ manifest });
+    std::vector<std::vector<std::string>> expected;
+    if (hasNames && hasPublishers)
+    {
+        expected = {
+            { "first name", "first publisher" },
+            { "first name", "second publisher" },
+            { "second name", "first publisher" },
+            { "second name", "second publisher" },
+        };
+    }
+    REQUIRE(package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher) == expected);
+    REQUIRE_THROWS_HR(package->GetMatrixProperty(static_cast<PackageMatrixProperty>(-1)), E_UNEXPECTED);
+}
+
+TEST_CASE("CompositeSource_NameAndPublisher_InvalidMatrixRow", "[CompositeSource]")
+{
+    struct TestMatrixPackage : TestPackage
+    {
+        using TestPackage::TestPackage;
+
+        std::vector<std::vector<std::string>> GetMatrixProperty(PackageMatrixProperty) const override
+        {
+            return Rows;
+        }
+
+        std::vector<std::vector<std::string>> Rows;
+    };
+
+    size_t columnCount = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 3 });
+    CAPTURE(columnCount);
+    CompositeTestSetup setup{ CompositeSearchBehavior::AvailablePackages };
+    auto package = std::make_shared<TestMatrixPackage>(std::vector<Manifest::Manifest>{ MakeDefaultManifest() }, setup.Available);
+    package->Rows.emplace_back(columnCount, "value");
+    auto available = setup.MakeAvailable().ToPackage();
+    available->Available[0] = package;
+    setup.Available->Everything.Matches.emplace_back(available, Criteria());
+    REQUIRE_THROWS_HR(setup.Search(), E_UNEXPECTED);
+}
+
 TEST_CASE("CompositeSource_NameAndPublisher_Match", "[CompositeSource]")
 {
     CompositeTestSetup setup;

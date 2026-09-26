@@ -57,7 +57,7 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
 
-            std::vector<NameAndPublisher> GetNameAndPublisherPairs() const override;
+            std::vector<std::vector<std::string>> GetMatrixProperty(PackageMatrixProperty property) const override;
 
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
@@ -293,19 +293,23 @@ namespace AppInstaller::Repository::Rest
             return result;
         }
 
-        std::vector<IPackage::NameAndPublisher> RestPackage::GetNameAndPublisherPairs() const
+        std::vector<std::vector<std::string>> RestPackage::GetMatrixProperty(PackageMatrixProperty property) const
         {
+            if (property != PackageMatrixProperty::NormalizedNameAndPublisher)
+            {
+                return IPackage::GetMatrixProperty(property);
+            }
+
             std::scoped_lock versionsLock{ m_packageVersionsLock };
-            std::vector<NameAndPublisher> result;
-            result.emplace_back(Utility::LocIndString{ m_package.PackageInformation.PackageName },
-                Utility::LocIndString{ m_package.PackageInformation.Publisher });
+            std::vector<std::vector<std::string>> result;
+            result.push_back({ m_package.PackageInformation.PackageName, m_package.PackageInformation.Publisher });
             for (const auto& version : m_package.Versions)
             {
                 if (version.Manifest)
                 {
                     for (auto&& [name, publisher] : version.Manifest->GetNameAndPublisherPairs())
                     {
-                        result.emplace_back(Utility::LocIndString{ std::move(name) }, Utility::LocIndString{ std::move(publisher) });
+                        result.push_back({ std::move(name), std::move(publisher) });
                     }
                 }
             }

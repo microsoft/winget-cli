@@ -993,12 +993,13 @@ namespace AppInstaller::Repository
                 void GetNameAndPublisher(
                     IPackage* package)
                 {
-                    for (auto&& [name, publisher] : package->GetNameAndPublisherPairs())
+                    for (auto&& row : package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher))
                     {
+                        THROW_HR_IF(E_UNEXPECTED, row.size() != 2);
                         AddIfNotPresent(SystemReferenceString{
                             PackageMatchField::NormalizedNameAndPublisher,
-                            std::move(name),
-                            std::move(publisher) });
+                            Utility::LocIndString{ std::move(row[0]) },
+                            Utility::LocIndString{ std::move(row[1]) } });
                     }
                 }
             };

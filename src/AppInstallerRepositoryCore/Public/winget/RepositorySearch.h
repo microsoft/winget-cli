@@ -308,6 +308,13 @@ namespace AppInstaller::Repository
     // Maps the package multi-property value to its package version multi-property value for internal use.
     PackageVersionMultiProperty PackageMultiPropertyToPackageVersionMultiProperty(PackageMultiProperty property);
 
+    // A property of a package that contains rows of related values.
+    enum class PackageMatrixProperty
+    {
+        // Each row contains exactly two values: name, then publisher.
+        NormalizedNameAndPublisher,
+    };
+
     // To allow for runtime casting from IPackage to the specific types, this enum contains all of the IPackage implementations.
     enum class IPackageType
     {
@@ -339,8 +346,6 @@ namespace AppInstaller::Repository
     // Contains information about a package and its versions from a single source.
     struct IPackage : public IPackageVersionCollection
     {
-        using NameAndPublisher = std::pair<Utility::LocIndString, Utility::LocIndString>;
-
         virtual ~IPackage() = default;
 
         // Gets a property of this package.
@@ -349,8 +354,8 @@ namespace AppInstaller::Repository
         // Gets a property of this package that can have multiple values.
         virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const = 0;
 
-        // Gets correlation name/publisher pairs, preserving available pairing information.
-        virtual std::vector<NameAndPublisher> GetNameAndPublisherPairs() const;
+        // Gets rows of related values with columns defined by the matrix property.
+        virtual std::vector<std::vector<std::string>> GetMatrixProperty(PackageMatrixProperty property) const;
 
         // Gets the source that this package is from.
         virtual Source GetSource() const = 0;
