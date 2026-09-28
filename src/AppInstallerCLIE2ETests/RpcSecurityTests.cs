@@ -51,11 +51,10 @@ namespace AppInstallerCLIE2ETests
         // finds the single-instance mutex already held.
         private const int ServiceAlreadyRunningHResult = -2147023840;
 
-        // HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED): returned by a server instance that finds one of
-        // its named objects already in existence with a security descriptor that does not enforce
-        // what the server asked for. Numerically the same as RpcErrorAccessDeniedHResult; it is
-        // named separately because it is reported by an unrelated part of the server.
-        private const int AccessDeniedHResult = -2147024891;
+        // How long the helper waits for the server to signal that it is ready. Long enough that a
+        // wait which is going to be satisfied has been, and short enough that the tests which
+        // expect it to time out do not drag.
+        private const int StartEventWaitMs = 3000;
 
         // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
         // = (0 & 0x0000FFFF) | (0 << 16) | (1 << 17) = 0x00020000
@@ -430,23 +429,101 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that the server refuses a server-ready event that already exists and was not
-        /// secured by it. An event created by someone else does not carry the high integrity
-        /// mandatory label, which is what stops a medium-integrity process running as the same user
-        /// from signalling it early and defeating the client's wait for the server to become ready.
+        /// Verifies that a process running as this user cannot deny service by squatting the
+        /// public server-ready event. The security attributes passed to a create call are ignored
+        /// when the name already exists, so whoever creates the name first chooses the security of
+        /// the object, and the name is in the session object namespace where any process running
+        /// as this user can reach it. Refusing such an event would turn a signalling attack into a
+        /// denial of service, so the server must instead ignore it and fall back to the copy of
+        /// the event inside its private namespace, which cannot be squatted.
+        /// <para>
+        /// The squatted event must also be left unsignalled, which is what shows that the server
+        /// ignored it rather than used it: a signal on that event is exactly what the squatter
+        /// would be able to forge.
+        /// </para>
         /// </summary>
         [Test]
-        public void Server_RejectsPreExistingStartEvent()
+        public void Server_IgnoresSquattedStartEvent()
         {
-            string sid = GetCurrentUserSID();
-
-            using var squattedEvent = new EventWaitHandle(false, EventResetMode.ManualReset, "WinGetServerStartEvent_" + sid, out bool createdNew);
+            using var squattedEvent = new EventWaitHandle(false, EventResetMode.ManualReset, "WinGetServerStartEvent_" + GetCurrentUserSID(), out bool createdNew);
             Assert.That(createdNew, Is.True, "The server-ready event already existed; a server for this user is probably still running.");
 
-            this.AssertServerExitsWithAccessDenied(
-                "The server used a server-ready event that it did not secure, leaving a medium-integrity process able to "
-                + "signal it early. It must read the security descriptor back after creating or opening the event and "
-                + "refuse one that does not enforce what it asked for.");
+            // The server will not signal the squatted event, and the private event it falls back
+            // to is deliberately not reachable by name from here, so readiness cannot be observed
+            // through either of them. Accepting a connection is the observable equivalent.
+            Process server = Process.Start(new ProcessStartInfo
+            {
+                FileName = this.serverPath,
+                Arguments = "--manualActivation",
+                UseShellExecute = false,
+            }) ?? throw new InvalidOperationException("Failed to start WinGetServer");
+
+            try
+            {
+                this.WaitForServerToAcceptConnections(
+                    server,
+                    "The server did not come up after the public server-ready event was created by another process.");
+
+                Assert.That(
+                    squattedEvent.WaitOne(0),
+                    Is.False,
+                    "The server signalled the pre-existing server-ready event, so it is still using an event that it did not secure.");
+            }
+            finally
+            {
+                KillProcess(server);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that signalling the squatted public server-ready event does not satisfy the
+        /// client's wait for the server to become ready. This is the attack the fallback exists to
+        /// defeat: the squatter owns the event the client used to wait on, so it can signal it at
+        /// will unless the client has moved to the private event. No server is started, so the
+        /// only thing that could end the wait early is the squatted event.
+        /// <para>
+        /// Both sides decide independently whether to trust the public event, so this also
+        /// confirms that the client reaches the same verdict as the server does in
+        /// <see cref="Server_IgnoresSquattedStartEvent"/> without the two having to communicate.
+        /// </para>
+        /// </summary>
+        [Test]
+        public void Client_IgnoresSignalOnSquattedStartEvent()
+        {
+            using var squattedEvent = new EventWaitHandle(true, EventResetMode.ManualReset, "WinGetServerStartEvent_" + GetCurrentUserSID(), out bool createdNew);
+            Assert.That(createdNew, Is.True, "The server-ready event already existed; a server for this user is probably still running.");
+
+            int rc = this.RunHelper($"--mode start-event-wait --timeout {StartEventWaitMs}");
+
+            string message = rc == 1
+                ? "The client stopped waiting for the server because another process running as this user signalled the public server-ready event. "
+                  + "It must ignore an event that does not enforce what it asked for and wait on the private one instead."
+                : $"Helper inconclusive (exit {rc}).";
+            Assert.That(rc, Is.EqualTo(0), message);
+        }
+
+        /// <summary>
+        /// Positive counterpart to <see cref="Client_IgnoresSignalOnSquattedStartEvent"/>: with a
+        /// real server running, the client's wait must be satisfied. Without this the timeout that
+        /// test expects would also be produced by a client whose wait never completes at all.
+        /// </summary>
+        [Test]
+        public void Client_WaitIsSatisfiedByRunningServer()
+        {
+            Process server = this.StartServer(GetCurrentUserSID());
+            try
+            {
+                int rc = this.RunHelper($"--mode start-event-wait --timeout {StartEventWaitMs}");
+
+                string message = rc == 0
+                    ? "The client's wait for the server to become ready timed out even though a server is running and has signalled that it is ready."
+                    : $"Helper inconclusive (exit {rc}).";
+                Assert.That(rc, Is.EqualTo(1), message);
+            }
+            finally
+            {
+                KillProcess(server);
+            }
         }
 
         private static string GetCurrentUserSID()
@@ -516,35 +593,36 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Starts the real WinGetServer in --manualActivation mode and asserts that it exits
-        /// promptly with ERROR_ACCESS_DENIED.
+        /// Waits for the server to start accepting connections, for the cases where its ready
+        /// event cannot be used to detect that: the public one may have been created by another
+        /// process, in which case the server ignores it, and the private one is deliberately not
+        /// reachable by name from outside the server's namespace.
         /// </summary>
-        /// <param name="failureMessage">Explains what the server got wrong if it did not.</param>
-        private void AssertServerExitsWithAccessDenied(string failureMessage)
+        /// <param name="serverProcess">The server process to monitor while waiting.</param>
+        /// <param name="failureMessage">Explains what the server got wrong if it never comes up.</param>
+        private void WaitForServerToAcceptConnections(Process serverProcess, string failureMessage)
         {
-            Process server = Process.Start(new ProcessStartInfo
-            {
-                FileName = this.serverPath,
-                Arguments = "--manualActivation",
-                UseShellExecute = false,
-            }) ?? throw new InvalidOperationException("Failed to start WinGetServer");
+            const int PollMs = 250;
+            const int MaxWaitMs = 15000;
 
-            try
+            int rc = -1;
+            for (int elapsed = 0; elapsed < MaxWaitMs; elapsed += PollMs)
             {
-                Assert.That(
-                    server.WaitForExit(5000),
-                    Is.True,
-                    $"{failureMessage} The server is still running rather than having exited immediately.");
+                if (serverProcess.HasExited)
+                {
+                    Assert.Fail($"{failureMessage} It exited with 0x{serverProcess.ExitCode:X8}.");
+                }
 
-                Assert.That(
-                    server.ExitCode,
-                    Is.EqualTo(AccessDeniedHResult),
-                    $"{failureMessage} It exited with 0x{server.ExitCode:X8} rather than ERROR_ACCESS_DENIED (0x{AccessDeniedHResult:X8}).");
+                rc = this.RunHelper("--mode rpc-connect");
+                if (rc == 0)
+                {
+                    return;
+                }
+
+                Thread.Sleep(PollMs);
             }
-            finally
-            {
-                KillProcess(server);
-            }
+
+            Assert.Fail($"{failureMessage} It is still running but did not accept a connection within {MaxWaitMs}ms (last result 0x{rc:X8}).");
         }
 
         /// <summary>Polls for <paramref name="eventName"/> to appear and waits for it to be signaled.</summary>

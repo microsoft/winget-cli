@@ -20,7 +20,8 @@
 //   mutex-squat
 //       Attempts to create or open the server's private namespace using the high integrity
 //       boundary that an elevated server uses, which is what a process would have to do to
-//       create the single-instance mutex before the server and hold it to deny service.
+//       create the single-instance mutex before the server and hold it to deny service. The
+//       server's protected start event lives in the same namespace.
 //       Exit codes: 0 = the namespace could not be entered, 1 = it was entered.
 //
 //   rpc-mgmt
@@ -29,6 +30,13 @@
 //       both satisfied, leaving the management authorization callback as the only thing that
 //       can reject the call.
 //       Exit codes: 0 = denied as expected, 1 = the operation succeeded, 2 = other error.
+//
+//   start-event-wait [--timeout <ms>]
+//       Creates or opens the server start events through the production code and waits for the
+//       server to signal one of them, which is what the client does after launching the server.
+//       No server is launched, so with none running this reports whether anything managed to
+//       satisfy that wait.
+//       Exit codes: 0 = the wait timed out, 1 = an event was signalled, 2 = error.
 //
 //   rpc-connect
 //       Calls WinGetServerManualActivation_CreateInstance for a simple options class.
@@ -44,6 +52,7 @@
 #include <windows.h>
 #include <objbase.h>
 
+#include <cstdlib>
 #include <string>
 
 // RPC headers and generated client stub.
@@ -111,6 +120,25 @@ static int TestMutexAcquireAccess(const wchar_t* mutexName)
 static int TestServerNamespaceSquatting()
 {
     return TryEnterHighIntegrityServerNamespace() ? 1 : 0;
+}
+
+// ---------------------------------------------------------------------------
+// start-event-wait  (0=timed out  1=signalled  2=error)
+// ---------------------------------------------------------------------------
+
+static int TestStartEventWait(const wchar_t* timeoutText)
+{
+    DWORD timeout = timeoutText ? static_cast<DWORD>(std::wcstoul(timeoutText, nullptr, 10)) : 2000;
+
+    try
+    {
+        ServerSynchronization serverSync = CreateOrOpenServerSynchronization();
+        return serverSync.StartEvents.WaitForAny(timeout) ? 1 : 0;
+    }
+    catch (...)
+    {
+        return 2;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -198,6 +226,10 @@ int wmain(int argc, wchar_t* argv[])
     else if (_wcsicmp(mode, L"mutex-squat") == 0)
     {
         return TestServerNamespaceSquatting();
+    }
+    else if (_wcsicmp(mode, L"start-event-wait") == 0)
+    {
+        return TestStartEventWait(GetFlag(argc, argv, L"--timeout"));
     }
     else if (_wcsicmp(mode, L"rpc-mgmt") == 0)
     {
