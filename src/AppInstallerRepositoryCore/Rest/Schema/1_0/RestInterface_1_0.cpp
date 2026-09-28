@@ -478,9 +478,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             auto& manifest = manifests.at(0);
             if (MatchesRequest(idFilter, manifest.Id) == false)
             {
-                AICLI_LOG(Repo, Verbose, << "Discarding REST package " << manifest.Id <<
-                    ": does not match search request " << request.ToString());
-                return searchResult;
+                AICLI_LOG(Repo, Error, << "Manifest response identifier '" << manifest.Id <<
+                    "' does not match search request " << request.ToString());
+                THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
             }
 
             PackageInfo packageInfo = PackageInfo{

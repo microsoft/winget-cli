@@ -1782,19 +1782,26 @@ TEST_CASE("Search_Optimized_ExplicitIdFilter", "[RestSource][Interface_1_0]")
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, type, id);
 
-    auto result = v1.Search(request);
     bool expected = manifestFound && (id == "Foo.Bar" || (type == MatchType::CaseInsensitive && id == "foo.bar"));
+    if (manifestFound && !expected)
+    {
+        REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    }
+    else
+    {
+        auto result = v1.Search(request);
+        REQUIRE(result.Matches.size() == (expected ? size_t{ 1 } : size_t{ 0 }));
+        REQUIRE_FALSE(result.Truncated);
+        if (expected)
+        {
+            REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
+            REQUIRE(result.Matches[0].Versions.size() == 1);
+            REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
+        }
+    }
     REQUIRE(responses.SearchRequests == 0);
     REQUIRE(responses.ManifestRequests == 1);
     REQUIRE(responses.LastManifestRequest.absolute_uri().path() == L"/api/packageManifests/" + ConvertToUTF16(id));
-    REQUIRE(result.Matches.size() == (expected ? size_t{ 1 } : size_t{ 0 }));
-    REQUIRE_FALSE(result.Truncated);
-    if (expected)
-    {
-        REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
-        REQUIRE(result.Matches[0].Versions.size() == 1);
-        REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
-    }
 }
 
 TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface_1_0]")
@@ -1838,18 +1845,22 @@ TEST_CASE("Search_SubstringIdFallback_ManifestResponse", "[RestSource][Interface
     AppInstaller::Repository::SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Substring, id);
     Interface v1{ TestRestUriString, std::move(helper) };
-    Schema::IRestClient::SearchResult result = v1.Search(request);
 
-    REQUIRE(searchCount == 1);
-    REQUIRE(manifestCount == 1);
-    REQUIRE(result.Matches.size() == (manifestMatches ? size_t{ 1 } : size_t{ 0 }));
     if (manifestMatches)
     {
+        Schema::IRestClient::SearchResult result = v1.Search(request);
+        REQUIRE(result.Matches.size() == 1);
         REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
         REQUIRE(result.Matches[0].Versions.size() == 1);
         REQUIRE(result.Matches[0].Versions[0].VersionAndChannel.GetVersion().ToString() == "5.0.0");
         REQUIRE(result.Matches[0].Versions[0].Manifest.has_value());
     }
+    else
+    {
+        REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    }
+    REQUIRE(searchCount == 1);
+    REQUIRE(manifestCount == 1);
 }
 
 TEST_CASE("Search_SubstringId_NoFallbackWhenSearchMatches", "[RestSource][Interface_1_0]")
