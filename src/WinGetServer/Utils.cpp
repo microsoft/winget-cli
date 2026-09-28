@@ -137,9 +137,9 @@ static DWORD GetIntegrityLevelFromLabelSid(PSID sid)
     return *GetSidSubAuthority(sid, static_cast<DWORD>(*subAuthorityCount - 1));
 }
 
-// Verifies that the security descriptor of an object is at least as restrictive as the one that
-// we attempted to apply when creating it.
-static void EnsureObjectSecurityDescriptor(HANDLE object, MandatoryLabelPolicy mandatoryLabelPolicy)
+// Determines whether the security descriptor of an object is at least as restrictive as the one
+// that we attempted to apply when creating it.
+static bool ObjectSecurityDescriptorMatches(HANDLE object, MandatoryLabelPolicy mandatoryLabelPolicy)
 {
     PACL dacl = nullptr;
     PACL sacl = nullptr;
@@ -150,7 +150,10 @@ static void EnsureObjectSecurityDescriptor(HANDLE object, MandatoryLabelPolicy m
     wil::unique_hlocal_security_descriptor securityDescriptor{ securityDescriptorPtr };
 
     // A null DACL grants everyone full access.
-    THROW_HR_IF(E_ACCESSDENIED, !dacl);
+    if (!dacl)
+    {
+        return false;
+    }
 
     auto tokenUser = GetCurrentProcessTokenUser();
 
@@ -170,17 +173,26 @@ static void EnsureObjectSecurityDescriptor(HANDLE object, MandatoryLabelPolicy m
 
         // Anything that is not a plain allow ace grants access in a form that we never apply and
         // cannot evaluate here; treat it as not matching.
-        THROW_HR_IF(E_ACCESSDENIED, ace->AceType != ACCESS_ALLOWED_ACE_TYPE);
+        if (ace->AceType != ACCESS_ALLOWED_ACE_TYPE)
+        {
+            return false;
+        }
 
         // We only ever grant access to the current user, so any other trustee means that this is
         // not our object, regardless of which rights it was given.
         PSID aceSid = reinterpret_cast<PSID>(&reinterpret_cast<ACCESS_ALLOWED_ACE*>(ace)->SidStart);
-        THROW_HR_IF(E_ACCESSDENIED, !IsValidSid(aceSid) || !EqualSid(aceSid, tokenUser->User.Sid));
+        if (!IsValidSid(aceSid) || !EqualSid(aceSid, tokenUser->User.Sid))
+        {
+            return false;
+        }
     }
 
     if (mandatoryLabelPolicy)
     {
-        THROW_HR_IF(E_ACCESSDENIED, !sacl);
+        if (!sacl)
+        {
+            return false;
+        }
 
         ACL_SIZE_INFORMATION saclSizeInformation{};
         THROW_IF_WIN32_BOOL_FALSE(GetAclInformation(sacl, &saclSizeInformation, sizeof(saclSizeInformation), AclSizeInformation));
@@ -201,26 +213,49 @@ static void EnsureObjectSecurityDescriptor(HANDLE object, MandatoryLabelPolicy m
 
             // An object labelled above high integrity is also acceptable; it denies at least as
             // much as the label that we apply.
-            THROW_HR_IF(E_ACCESSDENIED, GetIntegrityLevelFromLabelSid(reinterpret_cast<PSID>(&labelAce->SidStart)) < SECURITY_MANDATORY_HIGH_RID);
-            THROW_HR_IF(E_ACCESSDENIED, (labelAce->Mask & mandatoryLabelPolicy) != mandatoryLabelPolicy);
+            if (GetIntegrityLevelFromLabelSid(reinterpret_cast<PSID>(&labelAce->SidStart)) < SECURITY_MANDATORY_HIGH_RID ||
+                (labelAce->Mask & mandatoryLabelPolicy) != mandatoryLabelPolicy)
+            {
+                return false;
+            }
 
             labelFound = true;
         }
 
-        THROW_HR_IF(E_ACCESSDENIED, !labelFound);
+        if (!labelFound)
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
-static std::wstring GetServerStartEventName()
+// Verifies that the security descriptor of an object is at least as restrictive as the one that
+// we attempted to apply when creating it, for the objects that we have no way to carry on
+// without.
+static void EnsureObjectSecurityDescriptor(HANDLE object, MandatoryLabelPolicy mandatoryLabelPolicy)
+{
+    THROW_HR_IF(E_ACCESSDENIED, !ObjectSecurityDescriptorMatches(object, mandatoryLabelPolicy));
+}
+
+// The alias that names the server's private namespace, and the name of the boundary that
+// isolates it. Namespaces are identified by both, so a namespace created with this alias outside
+// of the boundary below is a different namespace entirely.
+static constexpr PCWSTR s_serverNamespaceAlias = L"WinGetServer";
+static constexpr PCWSTR s_serverBoundaryName = L"WinGetServerBoundary";
+
+// The name that previously shipped clients know the server start event by. It is in the session
+// object namespace, so any process running as this user can reach it.
+static std::wstring GetPublicServerStartEventName()
 {
     return L"WinGetServerStartEvent_" + GetUserSIDW();
 }
 
-// The alias that names the private namespace holding the server mutex, and the name of the
-// boundary that isolates it. Namespaces are identified by both, so a namespace created with
-// this alias outside of the boundary below is a different namespace entirely.
-static constexpr PCWSTR s_serverNamespaceAlias = L"WinGetServer";
-static constexpr PCWSTR s_serverBoundaryName = L"WinGetServerBoundary";
+static std::wstring GetPrivateServerStartEventName()
+{
+    return std::wstring{ s_serverNamespaceAlias } + L"\\WinGetServerStartEvent_" + GetUserSIDW();
+}
 
 static std::wstring GetServerMutexName()
 {
@@ -282,15 +317,14 @@ static wil::unique_boundary_descriptor CreateServerBoundaryDescriptor(DWORD inte
     return boundary;
 }
 
-// Creates, or opens if a server is already running, the private namespace that the server mutex
-// lives in.
+// Creates, or opens if a server is already running, the server's private namespace.
 //
-// The namespace is what protects the mutex by name rather than only by security descriptor. A
-// process can only create a namespace at or below its own integrity level, so a lower integrity
-// process cannot create this one ahead of the server in order to choose the security of the mutex
-// that the server would then open. A namespace it creates with the same alias at its own
-// integrity level is a separate namespace, because a namespace is identified by its alias and its
-// boundary together, so it cannot collide with this one either.
+// The namespace is what protects the objects in it by name rather than only by security
+// descriptor. A process can only create a namespace at or below its own integrity level, so a
+// lower integrity process cannot create this one ahead of the server in order to choose the
+// security of the objects that the server would then open. A namespace it creates with the same
+// alias at its own integrity level is a separate namespace, because a namespace is identified by
+// its alias and its boundary together, so it cannot collide with this one either.
 static wil::unique_private_namespace_close CreateOrOpenServerNamespace(DWORD integrityLevel)
 {
     auto boundary = CreateServerBoundaryDescriptor(integrityLevel);
@@ -309,8 +343,8 @@ static wil::unique_private_namespace_close CreateOrOpenServerNamespace(DWORD int
 
     if (!result)
     {
-        // Another server instance for this user got there first; join it so that the mutex below
-        // resolves to the same object and this instance can see that one is already running.
+        // Another process for this user got there first; join it so that the objects below
+        // resolve to the same ones that it created.
         THROW_LAST_ERROR_IF(GetLastError() != ERROR_ALREADY_EXISTS);
         result.reset(OpenPrivateNamespaceW(boundary.get(), s_serverNamespaceAlias));
         THROW_LAST_ERROR_IF(!result);
@@ -319,11 +353,9 @@ static wil::unique_private_namespace_close CreateOrOpenServerNamespace(DWORD int
     return result;
 }
 
-ServerMutex CreateOrOpenServerMutex()
+// Creates or opens the mutex used to ensure a single manual activation server per user.
+static wil::unique_mutex CreateOrOpenServerMutex()
 {
-    ServerMutex result;
-    result.PrivateNamespace = CreateOrOpenServerNamespace(GetServerBoundaryIntegrityLevel());
-
     // The namespace prevents anything below high integrity from reaching the mutex by name at
     // all; the descriptor is the second layer, for anything that is within the boundary.
     // The mandatory label prevents a lower integrity process running as this user from
@@ -343,11 +375,128 @@ ServerMutex CreateOrOpenServerMutex()
 
     std::wstring name = GetServerMutexName();
 
-    THROW_LAST_ERROR_IF(!result.Mutex.try_create(name.c_str(), 0, MUTEX_ALL_ACCESS, &securityAttributes));
+    wil::unique_mutex result;
+    result.create(name.c_str(), 0, MUTEX_ALL_ACCESS, &securityAttributes);
 
+    // The name is inside the private namespace, so anything that could have created it ahead of
+    // us is already running as this user at high integrity. The check is kept as a second layer.
     // MUTEX_ALL_ACCESS contains READ_CONTROL, so the descriptor can be read back.
-    EnsureObjectSecurityDescriptor(result.Mutex.get(), mandatoryLabelPolicy);
+    EnsureObjectSecurityDescriptor(result.get(), mandatoryLabelPolicy);
 
+    return result;
+}
+
+// Creates, or opens if it already exists, one of the server start events.
+// Returns a null handle if the event could not be created or opened, or if it already existed
+// and does not enforce what we asked for.
+static wil::unique_event TryCreateOrOpenServerStartEvent(const std::wstring& name, MandatoryLabelPolicy mandatoryLabelPolicy)
+{
+    auto securityDescriptor = CreateCurrentUserHighIntegritySecurityDescriptor(mandatoryLabelPolicy);
+
+    SECURITY_ATTRIBUTES securityAttributes{};
+    securityAttributes.nLength = sizeof(securityAttributes);
+    securityAttributes.lpSecurityDescriptor = securityDescriptor.get();
+
+    wil::unique_event result;
+
+    for (int i = 0; !result && i < 2; ++i)
+    {
+        if (!result.try_create(wil::EventOptions::ManualReset, name.c_str(), &securityAttributes))
+        {
+            // READ_CONTROL is requested in addition to the access that the callers need so that
+            // the descriptor can be read back below.
+            result.try_open(name.c_str(), SYNCHRONIZE | EVENT_MODIFY_STATE | READ_CONTROL);
+        }
+    }
+
+    if (result && !ObjectSecurityDescriptorMatches(result.get(), mandatoryLabelPolicy))
+    {
+        result.reset();
+    }
+
+    return result;
+}
+
+static ServerStartEvents CreateOrOpenServerStartEvents()
+{
+    ServerStartEvents result;
+
+    // The public event is created only so that clients that shipped before the private one
+    // existed still get signalled. Its descriptor is left exactly as those clients apply it, so
+    // that neither side rejects an event legitimately created by the other.
+    // No-write-up is sufficient there and is deliberately used in place of the stricter policy
+    // applied to the private event: for this object type the right to signal the event is
+    // reached through the generic write right, so this denies signalling while still allowing a
+    // lower integrity process to wait on the event, which is harmless.
+    // A squatted public event is silently ignored rather than refused, because refusing it would
+    // let any process running as this user deny service simply by creating the name first.
+    result.PublicEvent = TryCreateOrOpenServerStartEvent(
+        GetPublicServerStartEventName(),
+        GetEffectiveMandatoryLabelPolicy(SYSTEM_MANDATORY_LABEL_NO_WRITE_UP));
+
+    MandatoryLabelPolicy privateMandatoryLabelPolicy = GetEffectiveMandatoryLabelPolicy(
+        SYSTEM_MANDATORY_LABEL_NO_READ_UP | SYSTEM_MANDATORY_LABEL_NO_WRITE_UP | SYSTEM_MANDATORY_LABEL_NO_EXECUTE_UP);
+    result.PrivateEvent = TryCreateOrOpenServerStartEvent(GetPrivateServerStartEventName(), privateMandatoryLabelPolicy);
+
+    // There is no fallback left if the protected event is unusable.
+    THROW_HR_IF(E_ACCESSDENIED, !result.PrivateEvent);
+
+    return result;
+}
+
+void ServerStartEvents::SignalAll() const
+{
+    if (PublicEvent)
+    {
+        PublicEvent.SetEvent();
+    }
+
+    if (PrivateEvent)
+    {
+        PrivateEvent.SetEvent();
+    }
+}
+
+bool ServerStartEvents::WaitForAny(DWORD timeoutMilliseconds) const
+{
+    HANDLE handles[2]{};
+    DWORD count = 0;
+
+    if (PublicEvent)
+    {
+        handles[count++] = PublicEvent.get();
+    }
+
+    if (PrivateEvent)
+    {
+        handles[count++] = PrivateEvent.get();
+    }
+
+    if (count == 0)
+    {
+        return false;
+    }
+
+    DWORD waitResult = WaitForMultipleObjects(count, handles, FALSE, timeoutMilliseconds);
+
+    return (waitResult - WAIT_OBJECT_0) < count;
+}
+
+void ServerStartEvents::Reset()
+{
+    PublicEvent.reset();
+    PrivateEvent.reset();
+}
+
+ServerSynchronization CreateOrOpenServerSynchronization(bool openMutex)
+{
+    ServerSynchronization result;
+    result.PrivateNamespace = CreateOrOpenServerNamespace(GetServerBoundaryIntegrityLevel());
+    if (openMutex)
+    {
+        result.Mutex = CreateOrOpenServerMutex();
+    }
+    result.StartEvents = CreateOrOpenServerStartEvents();
     return result;
 }
 
@@ -364,39 +513,3 @@ wil::unique_private_namespace_close TryEnterHighIntegrityServerNamespace()
     }
 }
 #endif
-
-wil::unique_event CreateOrOpenServerStartEvent()
-{
-    // The DACL keeps the event private to this user and the mandatory label prevents a lower
-    // integrity process running as this user from signalling it early to defeat the wait below.
-    // No-write-up is sufficient and is deliberately used in place of the stricter policy applied
-    // to the mutex: for this object type the right to signal the event is reached through the
-    // generic write right, so this denies signalling while still allowing a lower integrity
-    // process to wait on the event, which is harmless.
-    MandatoryLabelPolicy mandatoryLabelPolicy = GetEffectiveMandatoryLabelPolicy(SYSTEM_MANDATORY_LABEL_NO_WRITE_UP);
-    auto securityDescriptor = CreateCurrentUserHighIntegritySecurityDescriptor(mandatoryLabelPolicy);
-
-    SECURITY_ATTRIBUTES securityAttributes{};
-    securityAttributes.nLength = sizeof(securityAttributes);
-    securityAttributes.lpSecurityDescriptor = securityDescriptor.get();
-
-    std::wstring name = GetServerStartEventName();
-
-    wil::unique_event result;
-
-    for (int i = 0; !result && i < 2; ++i)
-    {
-        if (!result.try_create(wil::EventOptions::ManualReset, name.c_str(), &securityAttributes))
-        {
-            // READ_CONTROL is requested in addition to the access that the callers need so that
-            // the descriptor can be read back below.
-            result.try_open(name.c_str(), SYNCHRONIZE | EVENT_MODIFY_STATE | READ_CONTROL);
-        }
-    }
-
-    THROW_LAST_ERROR_IF(!result);
-
-    EnsureObjectSecurityDescriptor(result.get(), mandatoryLabelPolicy);
-
-    return result;
-}

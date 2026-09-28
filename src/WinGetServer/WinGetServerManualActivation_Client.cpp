@@ -152,15 +152,15 @@ struct ServerProcessLauncher
 
         RETURN_LAST_ERROR_IF(!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &process));
 
-        // Wait for manual reset event from server before proceeding with COM activation.
-        wil::unique_event manualResetEvent;
+        // Wait for the server to signal that it is ready before proceeding with COM activation.
+        ServerSynchronization serverSync;
         try
         {
-            manualResetEvent = CreateOrOpenServerStartEvent();
+            serverSync = CreateOrOpenServerSynchronization();
         }
         CATCH_RETURN();
 
-        manualResetEvent.wait(10000);
+        serverSync.StartEvents.WaitForAny(10000);
 
         return S_OK;
     }

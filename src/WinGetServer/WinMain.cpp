@@ -254,19 +254,18 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
     RETURN_IF_FAILED(WindowsPackageManagerServerModuleCreate(&_releaseNotifier));
     try
     {
-        // Manual reset event to notify the client that the server is available.
-        wil::unique_event manualResetEvent;
-
-        // Held for the lifetime of the server to ensure only one instance per user.
-        ServerMutex serverMutex;
+        // Named objects the server coordinates through.
+        // Held for the lifetime of the server: the mutex ensures only one instance per user, and
+        // the private namespace has to stay open for a second instance to be able to find it.
+        ServerSynchronization serverSync;
 
         if (manualActivation)
         {
             // For manual activation, do not register com objects
             // so that only RPC channel can be used.
-            serverMutex = CreateOrOpenServerMutex();
+            serverSync = CreateOrOpenServerSynchronization(true);
 
-            DWORD waitResult = WaitForSingleObject(serverMutex.get(), 0);
+            DWORD waitResult = WaitForSingleObject(serverSync.Mutex.get(), 0);
             if (waitResult != WAIT_OBJECT_0 && waitResult != WAIT_ABANDONED)
             {
                 return HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING);
@@ -274,8 +273,8 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
 
-            manualResetEvent = CreateOrOpenServerStartEvent();
-            manualResetEvent.SetEvent();
+            // Notify the client that the server is available.
+            serverSync.StartEvents.SignalAll();
         }
         else
         {
@@ -286,10 +285,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         _comServerExitEvent.wait();
         WindowsPackageManagerServerLog("Server shutting down after exit event signaled.");
 
-        if (manualResetEvent)
-        {
-            manualResetEvent.reset();
-        }
+        serverSync.StartEvents.Reset();
 
         if (!manualActivation)
         {
