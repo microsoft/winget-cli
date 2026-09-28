@@ -238,17 +238,22 @@ namespace AppInstaller::Manifest
         std::vector<std::pair<string_t, string_t>> result;
         const auto defaultName = DefaultLocalization.Get<Localization::PackageName>();
         const auto defaultPublisher = DefaultLocalization.Get<Localization::Publisher>();
-        if (DefaultLocalization.Contains(Localization::PackageName))
+        if (!defaultName.empty())
         {
             result.emplace_back(defaultName, defaultPublisher);
         }
         for (const auto& localization : Localizations)
         {
-            if (localization.Contains(Localization::PackageName) || localization.Contains(Localization::Publisher))
+            const auto localizedName = localization.Get<Localization::PackageName>();
+            const auto localizedPublisher = localization.Get<Localization::Publisher>();
+            if (!localizedName.empty() || !localizedPublisher.empty())
             {
-                result.emplace_back(
-                    localization.Contains(Localization::PackageName) ? localization.Get<Localization::PackageName>() : defaultName,
-                    localization.Contains(Localization::Publisher) ? localization.Get<Localization::Publisher>() : defaultPublisher);
+                const auto& name = localizedName.empty() ? defaultName : localizedName;
+                const auto& publisher = localizedPublisher.empty() ? defaultPublisher : localizedPublisher;
+                if (!name.empty())
+                {
+                    result.emplace_back(name, publisher);
+                }
             }
         }
 

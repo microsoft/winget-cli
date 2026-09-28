@@ -757,26 +757,42 @@ TEST_CASE("Manifest_PackageNames", "[ManifestValidation]")
 
 TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
 {
-    bool hasDefaultName = GENERATE(false, true);
-    bool hasDefaultPublisher = GENERATE(false, true);
-    CAPTURE(hasDefaultName, hasDefaultPublisher);
+    std::string_view defaultNameState = GENERATE("Missing", "Empty", "Present");
+    std::string_view defaultPublisherState = GENERATE("Missing", "Empty", "Present");
+    bool emptyLocalizationValues = GENERATE(false, true);
+    CAPTURE(defaultNameState, defaultPublisherState, emptyLocalizationValues);
     Manifest manifest;
-    const std::string defaultName = hasDefaultName ? "Default Name" : "";
-    const std::string defaultPublisher = hasDefaultPublisher ? "Default Publisher" : "";
-    if (hasDefaultName)
+    const std::string defaultName = defaultNameState == "Present" ? "Default Name" : "";
+    const std::string defaultPublisher = defaultPublisherState == "Present" ? "Default Publisher" : "";
+    if (defaultNameState != "Missing")
     {
         manifest.DefaultLocalization.Add<Localization::PackageName>(defaultName);
     }
-    if (hasDefaultPublisher)
+    if (defaultPublisherState != "Missing")
     {
         manifest.DefaultLocalization.Add<Localization::Publisher>(defaultPublisher);
     }
     auto& localization = manifest.Localizations.emplace_back();
     localization.Add<Localization::PackageName>("Localized Name");
     localization.Add<Localization::Publisher>("Localized Publisher");
-    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Name Only");
-    manifest.Localizations.emplace_back().Add<Localization::Publisher>("Publisher Only");
-    manifest.Localizations.emplace_back();
+    auto& nameOnly = manifest.Localizations.emplace_back();
+    nameOnly.Add<Localization::PackageName>("Name Only");
+    if (emptyLocalizationValues)
+    {
+        nameOnly.Add<Localization::Publisher>("");
+    }
+    auto& publisherOnly = manifest.Localizations.emplace_back();
+    publisherOnly.Add<Localization::Publisher>("Publisher Only");
+    if (emptyLocalizationValues)
+    {
+        publisherOnly.Add<Localization::PackageName>("");
+    }
+    auto& emptyLocalization = manifest.Localizations.emplace_back();
+    if (emptyLocalizationValues)
+    {
+        emptyLocalization.Add<Localization::PackageName>("");
+        emptyLocalization.Add<Localization::Publisher>("");
+    }
     auto& installer = manifest.Installers.emplace_back();
     auto& entry = installer.AppsAndFeaturesEntries.emplace_back();
     entry.DisplayName = "Installed Name";
@@ -785,13 +801,16 @@ TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
     installer.AppsAndFeaturesEntries.emplace_back().Publisher = "Unused Publisher";
 
     std::vector<std::pair<Manifest::string_t, Manifest::string_t>> expected;
-    if (hasDefaultName)
+    if (!defaultName.empty())
     {
         expected.emplace_back(defaultName, defaultPublisher);
     }
     expected.emplace_back("Localized Name", "Localized Publisher");
     expected.emplace_back("Name Only", defaultPublisher);
-    expected.emplace_back(defaultName, "Publisher Only");
+    if (!defaultName.empty())
+    {
+        expected.emplace_back(defaultName, "Publisher Only");
+    }
     expected.emplace_back("Installed Name", "Installed Publisher");
     expected.emplace_back("Fallback Name", defaultPublisher);
     REQUIRE(manifest.GetNameAndPublisherPairs() == expected);
