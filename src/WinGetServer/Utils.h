@@ -28,8 +28,10 @@ std::string GetServerEndpointName();
 
 // Creates or opens the mutex used to ensure a single manual activation server per user.
 // The mutex is per-user and cannot be acquired below high integrity.
+// Throws E_ACCESSDENIED if the mutex already existed and does not enforce that.
 wil::unique_mutex CreateOrOpenServerMutex();
 
 // Creates or opens the event used to signal that the manual activation server is ready.
 // The event is per-user and cannot be signalled below high integrity.
+// Throws E_ACCESSDENIED if the event already existed and does not enforce that.
 wil::unique_event CreateOrOpenServerStartEvent();

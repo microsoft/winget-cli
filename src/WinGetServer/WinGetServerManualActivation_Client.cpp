@@ -153,7 +153,13 @@ struct ServerProcessLauncher
         RETURN_LAST_ERROR_IF(!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &process));
 
         // Wait for manual reset event from server before proceeding with COM activation.
-        wil::unique_event manualResetEvent = CreateOrOpenServerStartEvent();
+        wil::unique_event manualResetEvent;
+        try
+        {
+            manualResetEvent = CreateOrOpenServerStartEvent();
+        }
+        CATCH_RETURN();
+
         manualResetEvent.wait(10000);
 
         return S_OK;
