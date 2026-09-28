@@ -256,7 +256,9 @@ namespace AppInstallerCLIE2ETests
         /// Verifies that a medium-integrity process cannot open the single-instance server mutex
         /// with SYNCHRONIZE, which is the access it would need to acquire the mutex and hold it
         /// so that the elevated server exits with ERROR_SERVICE_ALREADY_RUNNING instead of
-        /// starting. Validates both the per-user mutex name and its mandatory label.
+        /// starting. The mutex lives in a private namespace that a medium-integrity process cannot
+        /// enter, so the name should not even resolve for it; the mandatory label on the mutex
+        /// itself is the second layer behind that.
         /// </summary>
         [Test]
         public void MediumIntegrityClient_CannotAcquireServerMutex()
@@ -265,12 +267,12 @@ namespace AppInstallerCLIE2ETests
             Process server = this.StartServer(sid);
             try
             {
-                string mutexName = "WinGetServerMutex_" + sid;
+                string mutexName = @"WinGetServer\WinGetServerMutex_" + sid;
                 int rc = this.RunHelperAtMediumIntegrity(
                     $"\"{this.helperPath}\" --mode mutex-open --mutex-name {mutexName}");
 
                 string message = rc == 1
-                    ? "Medium-integrity process opened the server mutex with SYNCHRONIZE and could hold it to block the elevated server from starting - per-user name or mandatory label is missing. "
+                    ? "Medium-integrity process opened the server mutex with SYNCHRONIZE and could hold it to block the elevated server from starting - the private namespace, the per-user name or the mandatory label is missing. "
                       + "Note that the mutex label must be NRNWNX; unlike the event, a bare NW leaves the wait access granted through the generic execute right."
                     : $"Helper inconclusive (exit {rc}).";
                 Assert.That(rc, Is.EqualTo(0), message);
@@ -389,25 +391,42 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that the server refuses a single-instance mutex that already exists and was not
-        /// secured by it. The security attributes passed to a create call are ignored when the name
-        /// already exists, so whichever process creates the name first gets to choose the security
-        /// of the object that the server ends up using. The name cannot be made unpredictable
-        /// because every participant has to agree on it, so the server has to read the descriptor
-        /// back and refuse the object rather than trust the attributes to have been applied.
-        /// Creating the mutex with default security is exactly what a squatting process would do.
+        /// Verifies that a medium-integrity process cannot deny service by squatting the server's
+        /// single-instance mutex. The security attributes passed to a create call are ignored when
+        /// the name already exists, so whoever creates the name first chooses the security of the
+        /// object, and could take the mutex and hold it so that every elevated server exits with
+        /// ERROR_SERVICE_ALREADY_RUNNING instead of starting. The name cannot be made
+        /// unpredictable because a second instance has to find it in order to detect the first.
+        /// The mutex is therefore kept in a private namespace bounded by this user at high
+        /// integrity, which a medium-integrity process cannot create or open: a namespace can only
+        /// be created at or below the creator's own integrity level, and one it creates with the
+        /// same alias at its own level is a different namespace rather than a collision.
+        /// The attempt is made before any server is started, which is when squatting would work.
         /// </summary>
         [Test]
-        public void Server_RejectsPreExistingMutex()
+        public void MediumIntegrityClient_CannotSquatServerMutex()
         {
             string sid = GetCurrentUserSID();
 
-            using var squattedMutex = new Mutex(false, "WinGetServerMutex_" + sid, out bool createdNew);
-            Assert.That(createdNew, Is.True, "The single-instance mutex already existed; a server for this user is probably still running.");
+            int rc = this.RunHelperAtMediumIntegrity($"\"{this.helperPath}\" --mode mutex-squat");
 
-            this.AssertServerExitsWithAccessDenied(
-                "The server used a single-instance mutex that it did not secure. It must read the security descriptor "
-                + "back after creating or opening the mutex and refuse one that does not enforce what it asked for.");
+            string message = rc == 1
+                ? "Medium-integrity process entered the private namespace that holds the single-instance mutex and could create that mutex ahead of the server to deny service. "
+                  + "The namespace boundary must require this user at high integrity."
+                : $"Helper inconclusive (exit {rc}).";
+            Assert.That(rc, Is.EqualTo(0), message);
+
+            // The failed attempt must also leave nothing behind that keeps the server from starting.
+            Process server = this.StartServer(sid);
+            try
+            {
+                int connectResult = this.RunHelper("--mode rpc-connect");
+                Assert.That(connectResult, Is.EqualTo(0), $"The server did not come up and serve after the squatting attempt (0x{connectResult:X8}).");
+            }
+            finally
+            {
+                KillProcess(server);
+            }
         }
 
         /// <summary>

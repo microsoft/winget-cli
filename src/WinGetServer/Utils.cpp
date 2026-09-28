@@ -6,6 +6,7 @@
 #include <wil/resource.h>
 #pragma warning( pop )
 #include <aclapi.h>
+#include <namespaceapi.h>
 #include <processthreadsapi.h>
 #include <sddl.h>
 #include <string_view>
@@ -215,13 +216,116 @@ static std::wstring GetServerStartEventName()
     return L"WinGetServerStartEvent_" + GetUserSIDW();
 }
 
+// The alias that names the private namespace holding the server mutex, and the name of the
+// boundary that isolates it. Namespaces are identified by both, so a namespace created with
+// this alias outside of the boundary below is a different namespace entirely.
+static constexpr PCWSTR s_serverNamespaceAlias = L"WinGetServer";
+static constexpr PCWSTR s_serverBoundaryName = L"WinGetServerBoundary";
+
 static std::wstring GetServerMutexName()
 {
-    return L"WinGetServerMutex_" + GetUserSIDW();
+    return std::wstring{ s_serverNamespaceAlias } + L"\\WinGetServerMutex_" + GetUserSIDW();
 }
 
-wil::unique_mutex CreateOrOpenServerMutex()
+// The integrity level of the boundary that the server's private namespace is created in.
+static DWORD GetServerBoundaryIntegrityLevel()
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // A process can only create a namespace at or below its own integrity level, so a medium
+    // integrity server would fail outright rather than have the boundary reduced to fit. The
+    // security E2E tests deliberately run such a server; let it have its own namespace, which
+    // is separate from the one an elevated server uses.
+    if (!IsCurrentProcessAdmin())
+    {
+        return SECURITY_MANDATORY_MEDIUM_RID;
+    }
+#endif
+
+    return SECURITY_MANDATORY_HIGH_RID;
+}
+
+// Adds a required sid to a boundary descriptor. The add functions may reallocate the descriptor,
+// so the handle has to be handed to them directly and stored back afterwards.
+static void AddSidToServerBoundaryDescriptor(wil::unique_boundary_descriptor& boundary, PSID sid)
+{
+    HANDLE raw = boundary.release();
+    BOOL success = AddSIDToBoundaryDescriptor(&raw, sid);
+    DWORD lastError = GetLastError();
+    boundary.reset(raw);
+    THROW_WIN32_IF(lastError, !success);
+}
+
+static void AddIntegrityLabelToServerBoundaryDescriptor(wil::unique_boundary_descriptor& boundary, DWORD integrityLevel)
+{
+    SID_IDENTIFIER_AUTHORITY mandatoryLabelAuthority = SECURITY_MANDATORY_LABEL_AUTHORITY;
+    wil::unique_sid integrityLabel;
+    THROW_IF_WIN32_BOOL_FALSE(AllocateAndInitializeSid(&mandatoryLabelAuthority, 1, integrityLevel, 0, 0, 0, 0, 0, 0, 0, &integrityLabel));
+
+    HANDLE raw = boundary.release();
+    BOOL success = AddIntegrityLabelToBoundaryDescriptor(&raw, integrityLabel.get());
+    DWORD lastError = GetLastError();
+    boundary.reset(raw);
+    THROW_WIN32_IF(lastError, !success);
+}
+
+// Builds the boundary that isolates the server's private namespace. Only a process running as
+// this user at the given integrity level or above is within it.
+static wil::unique_boundary_descriptor CreateServerBoundaryDescriptor(DWORD integrityLevel)
+{
+    wil::unique_boundary_descriptor boundary{ CreateBoundaryDescriptorW(s_serverBoundaryName, 0) };
+    THROW_LAST_ERROR_IF(!boundary);
+
+    auto tokenUser = GetCurrentProcessTokenUser();
+    AddSidToServerBoundaryDescriptor(boundary, tokenUser->User.Sid);
+    AddIntegrityLabelToServerBoundaryDescriptor(boundary, integrityLevel);
+
+    return boundary;
+}
+
+// Creates, or opens if a server is already running, the private namespace that the server mutex
+// lives in.
+//
+// The namespace is what protects the mutex by name rather than only by security descriptor. A
+// process can only create a namespace at or below its own integrity level, so a lower integrity
+// process cannot create this one ahead of the server in order to choose the security of the mutex
+// that the server would then open. A namespace it creates with the same alias at its own
+// integrity level is a separate namespace, because a namespace is identified by its alias and its
+// boundary together, so it cannot collide with this one either.
+static wil::unique_private_namespace_close CreateOrOpenServerNamespace(DWORD integrityLevel)
+{
+    auto boundary = CreateServerBoundaryDescriptor(integrityLevel);
+
+    // Being outside the boundary does not by itself prevent opening an existing namespace; that
+    // is what the descriptor on the namespace is for.
+    MandatoryLabelPolicy mandatoryLabelPolicy = GetEffectiveMandatoryLabelPolicy(
+        SYSTEM_MANDATORY_LABEL_NO_READ_UP | SYSTEM_MANDATORY_LABEL_NO_WRITE_UP | SYSTEM_MANDATORY_LABEL_NO_EXECUTE_UP);
+    auto securityDescriptor = CreateCurrentUserHighIntegritySecurityDescriptor(mandatoryLabelPolicy);
+
+    SECURITY_ATTRIBUTES securityAttributes{};
+    securityAttributes.nLength = sizeof(securityAttributes);
+    securityAttributes.lpSecurityDescriptor = securityDescriptor.get();
+
+    wil::unique_private_namespace_close result{ CreatePrivateNamespaceW(&securityAttributes, boundary.get(), s_serverNamespaceAlias) };
+
+    if (!result)
+    {
+        // Another server instance for this user got there first; join it so that the mutex below
+        // resolves to the same object and this instance can see that one is already running.
+        THROW_LAST_ERROR_IF(GetLastError() != ERROR_ALREADY_EXISTS);
+        result.reset(OpenPrivateNamespaceW(boundary.get(), s_serverNamespaceAlias));
+        THROW_LAST_ERROR_IF(!result);
+    }
+
+    return result;
+}
+
+ServerMutex CreateOrOpenServerMutex()
+{
+    ServerMutex result;
+    result.PrivateNamespace = CreateOrOpenServerNamespace(GetServerBoundaryIntegrityLevel());
+
+    // The namespace prevents anything below high integrity from reaching the mutex by name at
+    // all; the descriptor is the second layer, for anything that is within the boundary.
     // The mandatory label prevents a lower integrity process running as this user from
     // acquiring the mutex to keep the server from starting.
     // No-write-up on its own is not enough here: for this object type the right to wait on the
@@ -239,14 +343,27 @@ wil::unique_mutex CreateOrOpenServerMutex()
 
     std::wstring name = GetServerMutexName();
 
-    wil::unique_mutex result;
-    THROW_LAST_ERROR_IF(!result.try_create(name.c_str(), 0, MUTEX_ALL_ACCESS, &securityAttributes));
+    THROW_LAST_ERROR_IF(!result.Mutex.try_create(name.c_str(), 0, MUTEX_ALL_ACCESS, &securityAttributes));
 
     // MUTEX_ALL_ACCESS contains READ_CONTROL, so the descriptor can be read back.
-    EnsureObjectSecurityDescriptor(result.get(), mandatoryLabelPolicy);
+    EnsureObjectSecurityDescriptor(result.Mutex.get(), mandatoryLabelPolicy);
 
     return result;
 }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+wil::unique_private_namespace_close TryEnterHighIntegrityServerNamespace()
+{
+    try
+    {
+        return CreateOrOpenServerNamespace(SECURITY_MANDATORY_HIGH_RID);
+    }
+    catch (...)
+    {
+        return {};
+    }
+}
+#endif
 
 wil::unique_event CreateOrOpenServerStartEvent()
 {

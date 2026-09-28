@@ -258,7 +258,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         wil::unique_event manualResetEvent;
 
         // Held for the lifetime of the server to ensure only one instance per user.
-        wil::unique_mutex serverMutex;
+        ServerMutex serverMutex;
 
         if (manualActivation)
         {

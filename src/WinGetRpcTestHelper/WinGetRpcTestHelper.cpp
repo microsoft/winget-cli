@@ -12,7 +12,16 @@
 //   mutex-open --mutex-name <name>
 //       Opens <name> with SYNCHRONIZE at current integrity, which is the access a process
 //       would need to acquire the mutex and hold it to keep the server from starting.
-//       Expects ERROR_ACCESS_DENIED from the high-integrity SACL on the mutex SD.
+//       Expects the name to be unreachable: the mutex lives in a private namespace that a
+//       lower integrity process cannot enter, so the open fails with ERROR_FILE_NOT_FOUND or
+//       ERROR_PATH_NOT_FOUND, and with ERROR_ACCESS_DENIED from the mutex SD for anything that
+//       does reach it.
+//
+//   mutex-squat
+//       Attempts to create or open the server's private namespace using the high integrity
+//       boundary that an elevated server uses, which is what a process would have to do to
+//       create the single-instance mutex before the server and hold it to deny service.
+//       Exit codes: 0 = the namespace could not be entered, 1 = it was entered.
 //
 //   rpc-mgmt
 //       Connects to the server endpoint and attempts a management operation
@@ -88,7 +97,20 @@ static int TestMutexAcquireAccess(const wchar_t* mutexName)
         CloseHandle(hMutex);
         return 1; // security broken
     }
-    return (GetLastError() == ERROR_ACCESS_DENIED) ? 0 : 2;
+
+    // Not found is as good as denied here, and is the expected result: the name is inside a
+    // private namespace that this process cannot enter, so it does not resolve at all.
+    DWORD lastError = GetLastError();
+    return (lastError == ERROR_ACCESS_DENIED || lastError == ERROR_FILE_NOT_FOUND || lastError == ERROR_PATH_NOT_FOUND) ? 0 : 2;
+}
+
+// ---------------------------------------------------------------------------
+// mutex-squat  (0=denied/pass  1=entered/fail)
+// ---------------------------------------------------------------------------
+
+static int TestServerNamespaceSquatting()
+{
+    return TryEnterHighIntegrityServerNamespace() ? 1 : 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -172,6 +194,10 @@ int wmain(int argc, wchar_t* argv[])
         const wchar_t* name = GetFlag(argc, argv, L"--mutex-name");
         if (!name) return 3;
         return TestMutexAcquireAccess(name);
+    }
+    else if (_wcsicmp(mode, L"mutex-squat") == 0)
+    {
+        return TestServerNamespaceSquatting();
     }
     else if (_wcsicmp(mode, L"rpc-mgmt") == 0)
     {
