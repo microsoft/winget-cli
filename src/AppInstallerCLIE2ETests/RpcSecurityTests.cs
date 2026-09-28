@@ -25,9 +25,6 @@ namespace AppInstallerCLIE2ETests
     /// All tests require the test runner to be elevated (high integrity) and UAC enabled.
     /// They are decorated [Category("RpcSecurity")] and [Explicit] so they are excluded
     /// from default CI runs.
-    ///
-    /// Run with:
-    ///   vstest.console.exe ... --TestCaseFilter:"Category=RpcSecurity"
     /// </summary>
     [TestFixture]
     [Category("RpcSecurity")]
