@@ -233,6 +233,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComInprocTestbed", "ComInprocTestbed\ComInprocTestbed.vcxproj", "{E5BCFF58-7D0C-4770-ABB9-AECE1027CD94}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinGetRpcTestHelper", "WinGetRpcTestHelper\WinGetRpcTestHelper.vcxproj", "{3F7A8E42-C1D5-4B9F-A2E6-D8C0F73B5412}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2B00D362-AC92-41F3-A8D2-5B1599BDCA01} = {2B00D362-AC92-41F3-A8D2-5B1599BDCA01}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DSC", "DSC", "{40D7CA7F-EB86-4345-9641-AD27180C559D}"
 	ProjectSection(SolutionItems) = preProject

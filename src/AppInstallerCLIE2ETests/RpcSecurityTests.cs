@@ -54,6 +54,12 @@ namespace AppInstallerCLIE2ETests
         // finds the single-instance mutex already held.
         private const int ServiceAlreadyRunningHResult = -2147023840;
 
+        // HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED): returned by a server instance that finds one of
+        // its named objects already in existence with a security descriptor that does not enforce
+        // what the server asked for. Numerically the same as RpcErrorAccessDeniedHResult; it is
+        // named separately because it is reported by an unrelated part of the server.
+        private const int AccessDeniedHResult = -2147024891;
+
         // PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = ProcThreadAttributeValue(0, FALSE, TRUE, FALSE)
         // = (0 & 0x0000FFFF) | (0 << 16) | (1 << 17) = 0x00020000
         private static readonly IntPtr ProcThreadAttributeParentProcess = new IntPtr(0x00020000);
@@ -385,6 +391,48 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Verifies that the server refuses a single-instance mutex that already exists and was not
+        /// secured by it. The security attributes passed to a create call are ignored when the name
+        /// already exists, so whichever process creates the name first gets to choose the security
+        /// of the object that the server ends up using. The name cannot be made unpredictable
+        /// because every participant has to agree on it, so the server has to read the descriptor
+        /// back and refuse the object rather than trust the attributes to have been applied.
+        /// Creating the mutex with default security is exactly what a squatting process would do.
+        /// </summary>
+        [Test]
+        public void Server_RejectsPreExistingMutex()
+        {
+            string sid = GetCurrentUserSID();
+
+            using var squattedMutex = new Mutex(false, "WinGetServerMutex_" + sid, out bool createdNew);
+            Assert.That(createdNew, Is.True, "The single-instance mutex already existed; a server for this user is probably still running.");
+
+            this.AssertServerExitsWithAccessDenied(
+                "The server used a single-instance mutex that it did not secure. It must read the security descriptor "
+                + "back after creating or opening the mutex and refuse one that does not enforce what it asked for.");
+        }
+
+        /// <summary>
+        /// Verifies that the server refuses a server-ready event that already exists and was not
+        /// secured by it. An event created by someone else does not carry the high integrity
+        /// mandatory label, which is what stops a medium-integrity process running as the same user
+        /// from signalling it early and defeating the client's wait for the server to become ready.
+        /// </summary>
+        [Test]
+        public void Server_RejectsPreExistingStartEvent()
+        {
+            string sid = GetCurrentUserSID();
+
+            using var squattedEvent = new EventWaitHandle(false, EventResetMode.ManualReset, "WinGetServerStartEvent_" + sid, out bool createdNew);
+            Assert.That(createdNew, Is.True, "The server-ready event already existed; a server for this user is probably still running.");
+
+            this.AssertServerExitsWithAccessDenied(
+                "The server used a server-ready event that it did not secure, leaving a medium-integrity process able to "
+                + "signal it early. It must read the security descriptor back after creating or opening the event and "
+                + "refuse one that does not enforce what it asked for.");
+        }
+
         private static string GetCurrentUserSID()
         {
             return WindowsIdentity.GetCurrent().User?.Value
@@ -438,9 +486,49 @@ namespace AppInstallerCLIE2ETests
             var proc = Process.Start(startInfo)
                 ?? throw new InvalidOperationException("Failed to start WinGetServer");
 
-            string readyEventName = "WinGetServerStartEvent_" + sid;
-            this.WaitForServerReadyEvent(readyEventName, proc);
-            return proc;
+            try
+            {
+                string readyEventName = "WinGetServerStartEvent_" + sid;
+                this.WaitForServerReadyEvent(readyEventName, proc);
+                return proc;
+            }
+            catch
+            {
+                KillProcess(proc);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Starts the real WinGetServer in --manualActivation mode and asserts that it exits
+        /// promptly with ERROR_ACCESS_DENIED.
+        /// </summary>
+        /// <param name="failureMessage">Explains what the server got wrong if it did not.</param>
+        private void AssertServerExitsWithAccessDenied(string failureMessage)
+        {
+            Process server = Process.Start(new ProcessStartInfo
+            {
+                FileName = this.serverPath,
+                Arguments = "--manualActivation",
+                UseShellExecute = false,
+            }) ?? throw new InvalidOperationException("Failed to start WinGetServer");
+
+            try
+            {
+                Assert.That(
+                    server.WaitForExit(5000),
+                    Is.True,
+                    $"{failureMessage} The server is still running rather than having exited immediately.");
+
+                Assert.That(
+                    server.ExitCode,
+                    Is.EqualTo(AccessDeniedHResult),
+                    $"{failureMessage} It exited with 0x{server.ExitCode:X8} rather than ERROR_ACCESS_DENIED (0x{AccessDeniedHResult:X8}).");
+            }
+            finally
+            {
+                KillProcess(server);
+            }
         }
 
         /// <summary>Polls for <paramref name="eventName"/> to appear and waits for it to be signaled.</summary>
