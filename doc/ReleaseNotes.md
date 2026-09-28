@@ -2,6 +2,12 @@
 
 ## New Features
 
+### Interactive package selection
+
+When multiple packages match a single-package `install`, `show`, or `download` command, WinGet offers a numbered choice in an interactive terminal. Enter a package number to continue or `0` to cancel. Package IDs and sources remain visible without truncation.
+
+Scripts and other noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
+
 ### Source priority
 
 Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence; sources with equal priority still require disambiguation when multiple matches remain.

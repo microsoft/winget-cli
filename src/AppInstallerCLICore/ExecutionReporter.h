@@ -113,6 +113,14 @@ namespace AppInstaller::CLI::Execution
         // Check if the input stream is interactive or not.
         bool InputStreamIsInteractive() const;
 
+        bool CanPrompt();
+
+        std::optional<size_t> PromptForSelection(size_t count, std::function<bool()> isCancelled = {});
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        void SetConsoleStreamsForTest(bool value) { m_consoleStreams = value; }
+#endif
+
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);
 
@@ -210,6 +218,7 @@ namespace AppInstaller::CLI::Execution
         std::atomic<IProgressSink*> m_progressSink;
         DWORD m_outStreamFileType = FILE_TYPE_UNKNOWN;
         DWORD m_inStreamFileType = FILE_TYPE_UNKNOWN;
+        bool m_consoleStreams = false;
 
         // Enable all levels by default
         Level m_enabledLevels = Level::All;

@@ -1396,25 +1396,115 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            size_t selectedIndex = 0;
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (operationTargetsInstalled)
+                bool selectionSupported = m_allowSelection &&
+                    (m_operationType == OperationType::Install || m_operationType == OperationType::Show || m_operationType == OperationType::Download);
+                bool canSelect = selectionSupported && !searchResult.Truncated &&
+                    !context.Args.Contains(Execution::Args::Type::Silent) &&
+                    IsInteractivityAllowed(context) && context.Reporter.CanPrompt();
+
+                if (canSelect)
+                {
+                    auto out = context.Reporter.Info();
+                    auto title = m_operationType == OperationType::Install ? Resource::String::PackageSelectionInstall :
+                        m_operationType == OperationType::Download ? Resource::String::PackageSelectionDownload : Resource::String::PackageSelectionShow;
+                    out << title << std::endl << std::endl;
+
+                    std::vector<Execution::TableOutput<5>::line_t> lines;
+                    for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+                    {
+                        auto package = searchResult.Matches[i].Package;
+                        Execution::TableOutput<5>::line_t line{
+                            std::to_string(i + 1),
+                            package->GetProperty(PackageProperty::Name),
+                            package->GetProperty(PackageProperty::Id),
+                            Resource::LocString{ Resource::String::Unavailable }.get(),
+                            Resource::LocString{ Resource::String::Unavailable }.get()
+                        };
+
+                        auto availablePackages = package->GetAvailable();
+                        if (availablePackages.empty())
+                        {
+                            lines.emplace_back(std::move(line));
+                        }
+                        std::pair<std::string, std::string> previousIdentity;
+                        for (const auto& available : availablePackages)
+                        {
+                            std::pair<std::string, std::string> identity{
+                                available->GetProperty(PackageProperty::Name),
+                                available->GetProperty(PackageProperty::Id)
+                            };
+                            bool repeatedIdentity = line[0].empty() && identity == previousIdentity;
+                            line[1] = repeatedIdentity ? ""s : identity.first;
+                            line[2] = repeatedIdentity ? ""s : identity.second;
+                            auto version = available->GetLatestVersion();
+                            auto source = available->GetSource();
+                            std::string versionString = version ? version->GetProperty(PackageVersionProperty::Version).get() : std::string{};
+                            std::string sourceName = source ? source.GetDetails().Name : std::string{};
+                            line[3] = versionString.empty() ? Resource::LocString{ Resource::String::Unavailable }.get() : versionString;
+                            line[4] = sourceName.empty() ? Resource::LocString{ Resource::String::Unavailable }.get() : sourceName;
+                            lines.emplace_back(line);
+                            line[0].clear();
+                            previousIdentity = std::move(identity);
+                        }
+                    }
+
+                    bool showSource = std::any_of(lines.begin(), lines.end(), [&](const auto& line) { return line[4] != lines.front()[4]; });
+                    Execution::TableOutput<5> table(context.Reporter,
+                        {
+                            Resource::LocString{ Utility::LocIndString{ "#"sv } },
+                            Resource::String::SearchName,
+                            Resource::String::SearchId,
+                            Resource::String::SearchVersion,
+                            Resource::String::SearchSource
+                        });
+                    for (auto& line : lines)
+                    {
+                        if (!showSource)
+                        {
+                            line[4].clear();
+                        }
+                        table.OutputLine(std::move(line));
+                    }
+                    table.Complete();
+
+                    out << std::endl;
+                    auto selection = context.Reporter.PromptForSelection(searchResult.Matches.size(), [&]() { return context.IsTerminated(); });
+                    AICLI_RETURN_IF_TERMINATED(context);
+                    if (!selection)
+                    {
+                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                        AICLI_TERMINATE_CONTEXT(E_ABORT);
+                    }
+
+                    selectedIndex = *selection;
+                    auto package = searchResult.Matches[selectedIndex].Package;
+                    out << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
+                        package->GetProperty(PackageProperty::Id)) << std::endl;
+                }
+                else if (operationTargetsInstalled)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
                 }
                 else
                 {
                     context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResultWithSource;
+                    if (selectionSupported)
+                    {
+                        context.Reporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
+                    }
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
                 }
-
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(0).Package;
+            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(selectedIndex).Package;
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));

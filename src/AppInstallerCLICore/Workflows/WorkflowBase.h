@@ -263,13 +263,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(OperationType operation) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
+        EnsureOneMatchFromSearchResult(OperationType operation, bool allowSelection = false) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation), m_allowSelection(allowSelection) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         OperationType m_operationType;
+        bool m_allowSelection;
     };
 
     // Gets the manifest from package.

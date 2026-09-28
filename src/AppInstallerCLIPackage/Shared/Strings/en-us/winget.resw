@@ -407,6 +407,34 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
   </data>
+  <data name="PackageSelectionInstall" xml:space="preserve">
+    <value>Multiple packages match. Choose one to install.</value>
+    <comment>Introduces a numbered list of packages. The user must select a package before installation can continue.</comment>
+  </data>
+  <data name="PackageSelectionDownload" xml:space="preserve">
+    <value>Multiple packages match. Choose one to download.</value>
+    <comment>Introduces a numbered list of packages to download, not install.</comment>
+  </data>
+  <data name="PackageSelectionShow" xml:space="preserve">
+    <value>Multiple packages match. Choose one to view.</value>
+    <comment>Introduces a numbered list of packages whose information can be displayed.</comment>
+  </data>
+  <data name="PackageSelectionPrompt" xml:space="preserve">
+    <value>Enter a number (1-{0}), or 0 to cancel:</value>
+    <comment>{0} is the number of packages in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="PackageSelectionInvalid" xml:space="preserve">
+    <value>Invalid selection. Enter a number from 1 to {0}, or 0 to cancel.</value>
+    <comment>{0} is the number of packages in the list. Shown after invalid or empty input.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>Selected: {0} [{1}]</value>
+    <comment>{0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>Specify a package with --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
+    <comment>Guidance when interactive selection is unavailable. Do not translate --id, --exact, or --source. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
   </data>

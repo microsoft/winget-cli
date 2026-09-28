@@ -11,36 +11,31 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace
+    bool IsInteractivityAllowed(Execution::Context& context)
     {
-        bool IsInteractivityAllowed(Execution::Context& context)
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
         {
-            // Interactivity can be disabled for several reasons:
-            //   * We are running in a non-interactive context (e.g., COM call)
-            //   * It is disabled in the settings
-            //   * It was disabled from the command line
-
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
-            {
-                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
-                return false;
-            }
-
-            if (context.Args.Contains(Execution::Args::Type::DisableInteractivity))
-            {
-                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled by command line argument.");
-                return false;
-            }
-
-            if (Settings::User().Get<Settings::Setting::InteractivityDisable>())
-            {
-                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled in settings.");
-                return false;
-            }
-
-            return true;
+            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
+            return false;
         }
 
+        if (context.Args.Contains(Execution::Args::Type::DisableInteractivity))
+        {
+            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled by command line argument.");
+            return false;
+        }
+
+        if (Settings::User().Get<Settings::Setting::InteractivityDisable>())
+        {
+            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled in settings.");
+            return false;
+        }
+
+        return true;
+    }
+
+    namespace
+    {
         bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Repository::Source& source)
         {
             auto details = source.GetDetails();
