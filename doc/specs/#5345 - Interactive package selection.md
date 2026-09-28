@@ -1,5 +1,5 @@
 ---
-author: AmelBawa-msft, GitHub Copilot <Copilot>
+author: AmelBawa-msft
 created on: 2026-09-28
 last updated: 2026-09-28
 issue id: 5345
@@ -29,7 +29,7 @@ Display candidates in their existing order with stable, one-based numbers. A val
 | One match after existing policy | Continue without prompting. |
 | Multiple matches for single-package `install`, `show`, or `download` | Prompt if eligible, including `show --versions`. |
 | Truncated results | Retain ambiguity error and request refinement. |
-| Invalid or empty input | Explain the valid range and reprompt; no default. |
+| Invalid or empty input | Explain the valid range and prompt again; no default. |
 | `0` | Cancel without acting on a package. |
 | Ctrl+C | Cancel immediately, including while waiting for input. |
 | EOF or input failure | Report the existing prompt input error. |
