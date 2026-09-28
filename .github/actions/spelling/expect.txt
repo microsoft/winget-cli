@@ -5,6 +5,7 @@ ABORTIFHUNG
 accepteula
 ACCESSDENIED
 ACCESSTOKEN
+aclapi
 ACL'd
 adjacents
 adminproperties
@@ -376,6 +377,7 @@ mta
 Mugiwara
 Multideclaration
 mysource
+namespaceapi
 nativehandle
 NBLGGH
 ncalrpc
@@ -555,6 +557,7 @@ shortguid
 SHOWNORMAL
 sid
 Sideload
+SIDTo
 SIDW
 siex
 SIGNATUREHASH
@@ -584,6 +587,7 @@ storeapps
 storeorigin
 STRRET
 stylecop
+subauthority
 SUBCHAN
 subdir
 subkey

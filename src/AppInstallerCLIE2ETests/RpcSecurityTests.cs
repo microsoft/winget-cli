@@ -467,7 +467,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.That(
                     squattedEvent.WaitOne(0),
                     Is.False,
-                    "The server signalled the pre-existing server-ready event, so it is still using an event that it did not secure.");
+                    "The server signalled the preexisting server-ready event, so it is still using an event that it did not secure.");
             }
             finally
             {
