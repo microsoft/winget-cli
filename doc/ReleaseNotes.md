@@ -4,7 +4,7 @@
 
 ### Interactive package selection
 
-When multiple packages match a single-package `install`, `show`, or `download` command, WinGet offers a numbered choice in an interactive terminal. Enter a package number to continue or `0` to cancel. Package IDs and sources remain visible without truncation.
+When multiple packages match a single-package `install`, `show`, or `download` command, WinGet offers a numbered choice in an interactive terminal. Enter a package number to continue or `0` to cancel.
 
 Scripts and other noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
 
