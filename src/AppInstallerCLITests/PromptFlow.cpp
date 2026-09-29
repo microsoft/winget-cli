@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
 #include <Commands/InstallCommand.h>
 #include <Commands/DownloadCommand.h>
 #include <Commands/ShowCommand.h>
@@ -9,9 +10,12 @@
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/ShowFlow.h>
+#include <winget/ManifestYamlParser.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 
 TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
@@ -313,6 +317,271 @@ TEST_CASE("PackageSelection_MultipleQueries", "[PackageSelection][workflow][Mult
     INFO(output.str());
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
     REQUIRE(input.peek() == '1');
+    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) == std::string::npos);
+}
+
+TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][workflow]")
+{
+    TestUserSettings settings;
+    auto width = GENERATE(size_t{20}, size_t{120});
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{width} };
+    auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download);
+    auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    std::vector<AppInstaller::Manifest::Manifest> versions{ manifest };
+    auto firstSource = std::make_shared<TestSource>();
+    auto secondSource = std::make_shared<TestSource>();
+    auto lowPriority = std::make_shared<TestSource>();
+    firstSource->Details.Name = "FirstSource";
+    secondSource->Details.Name = "SecondSource";
+    SearchResult result;
+    result.Matches.emplace_back(TestCompositePackage::Make(versions, firstSource),
+        PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
+    result.Matches.emplace_back(TestCompositePackage::Make(versions, secondSource),
+        PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
+    auto expectedPackage = result.Matches[1].Package;
+    bool expectPrompt = true;
+    bool expectSecondSource = true;
+    size_t expectedRows = 2;
+
+    SECTION("Same identity across sources")
+    {
+    }
+    SECTION("Single source")
+    {
+        result.Matches[1].Package = TestCompositePackage::Make(versions, firstSource);
+        expectedPackage = result.Matches[1].Package;
+        expectSecondSource = false;
+    }
+    SECTION("Multiple available sources for a candidate")
+    {
+        auto package = TestCompositePackage::Make(versions, firstSource);
+        package->Available.emplace_back(TestPackage::Make(versions, secondSource));
+        result.Matches[0].Package = package;
+        expectedRows = 3;
+    }
+    SECTION("Unique source priority")
+    {
+        secondSource->Details.Priority = 1;
+        expectPrompt = false;
+    }
+    SECTION("Priority tie")
+    {
+        firstSource->Details.Priority = 1;
+        secondSource->Details.Priority = 1;
+        auto excluded = TestCompositePackage::Make(versions, lowPriority);
+        result.Matches.insert(result.Matches.begin(), ResultMatch{ excluded,
+            PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id } });
+    }
+    SECTION("Single match")
+    {
+        result.Matches.erase(result.Matches.begin());
+        expectPrompt = false;
+    }
+
+    std::istringstream input{ "2\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    context << EnsureOneMatchFromSearchResult(operation, true);
+
+    INFO(output.str());
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
+    REQUIRE((output.str().find(Resource::String::PackageSelectionPrompt(2).get()) != std::string::npos) == expectPrompt);
+    if (expectPrompt)
+    {
+        auto tableStart = output.str().find("\n# ");
+        REQUIRE(tableStart != std::string::npos);
+        auto tableEnd = output.str().find("\n\n", tableStart + 1);
+        REQUIRE(tableEnd != std::string::npos);
+        auto tableText = output.str().substr(tableStart + 1, tableEnd - tableStart - 1);
+        REQUIRE(tableText.find("\n1 ") != std::string::npos);
+        REQUIRE(tableText.find("\n2 ") != std::string::npos);
+        std::istringstream tableStream{ tableText };
+        std::string line;
+        size_t lineCount = 0;
+        while (std::getline(tableStream, line))
+        {
+            REQUIRE(AppInstaller::Utility::UTF8ColumnWidth(line) < width);
+            ++lineCount;
+        }
+        REQUIRE(lineCount == expectedRows + 2);
+        if (width == 120)
+        {
+            REQUIRE(tableText.find(manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>()) != std::string::npos);
+            REQUIRE(tableText.find(manifest.Id) != std::string::npos);
+            REQUIRE(tableText.find(manifest.Version) != std::string::npos);
+            REQUIRE(tableText.find(Resource::LocString{ Resource::String::SearchSource }.get()) != std::string::npos);
+            REQUIRE(tableText.find("FirstSource") != std::string::npos);
+            REQUIRE((tableText.find("SecondSource") != std::string::npos) == expectSecondSource);
+        }
+        else
+        {
+            REQUIRE(tableText.find("\xE2\x80\xA6") != std::string::npos);
+        }
+    }
+    else
+    {
+        REQUIRE(input.peek() == '2');
+    }
+    REQUIRE(firstSource->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(secondSource->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
+{
+    struct PrimaryPackage : TestCompositePackage
+    {
+        using TestCompositePackage::TestCompositePackage;
+
+        LocIndString GetProperty(PackageProperty property) const override
+        {
+            return Available.at(1)->GetProperty(property);
+        }
+    };
+
+    TestUserSettings settings;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download);
+    bool differentName = GENERATE(false, true);
+    bool differentId = GENERATE(false, true);
+    auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    manifest.Id = "Public.App";
+    manifest.Version = "1.0";
+    manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>("PublicName");
+    auto firstSource = std::make_shared<TestSource>();
+    auto secondSource = std::make_shared<TestSource>();
+    firstSource->Details.Name = "FirstSource";
+    secondSource->Details.Name = "SecondSource";
+    auto package = std::make_shared<PrimaryPackage>(std::vector{ manifest }, firstSource);
+
+    std::string secondName = differentName ? "PrivateName" : "PublicName";
+    std::string secondId = differentId ? "Private.App" : "Public.App";
+    manifest.Id = secondId;
+    manifest.Version = "2.0";
+    manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(secondName);
+    package->Available.emplace_back(TestPackage::Make(std::vector{ manifest }, secondSource));
+    manifest.Version = "3.0";
+    package->Available.emplace_back(TestPackage::Make(std::vector{ manifest }, secondSource));
+
+    SearchResult result;
+    result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, secondId });
+    manifest.Id = "Other.App";
+    manifest.Version = "4.0";
+    manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>("OtherName");
+    result.Matches.emplace_back(TestCompositePackage::Make(std::vector{ manifest }, firstSource),
+        PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
+
+    std::istringstream input{ "1\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    context << EnsureOneMatchFromSearchResult(operation, true);
+
+    INFO(output.str());
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Execution::Data::Package>() == package);
+    auto tableStart = output.str().find("\n# ");
+    REQUIRE(tableStart != std::string::npos);
+    auto tableEnd = output.str().find("\n\n", tableStart + 1);
+    REQUIRE(tableEnd != std::string::npos);
+    std::istringstream tableStream{ output.str().substr(tableStart + 1, tableEnd - tableStart - 1) };
+    std::string line;
+    REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
+    REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
+    std::vector<std::vector<std::string>> expectedRows{
+        { "1", "PublicName", "Public.App", "1.0", "FirstSource" },
+        differentName || differentId ? std::vector<std::string>{ secondName, secondId, "2.0", "SecondSource" } :
+            std::vector<std::string>{ "2.0", "SecondSource" },
+        { "3.0", "SecondSource" },
+        { "2", "OtherName", "Other.App", "4.0", "FirstSource" }
+    };
+    for (const auto& expectedRow : expectedRows)
+    {
+        REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
+        std::istringstream rowStream{ line };
+        std::vector<std::string> fields;
+        std::string field;
+        while (rowStream >> field)
+        {
+            fields.emplace_back(std::move(field));
+        }
+        REQUIRE(fields == expectedRow);
+    }
+    REQUIRE_FALSE(std::getline(tableStream, line));
+    REQUIRE(firstSource->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(secondSource->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    std::istringstream input{ "2\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
+    auto result = source->Search({});
+    auto operation = OperationType::Install;
+    bool allowSelection = true;
+    HRESULT expectedError = APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND;
+
+    SECTION("Default workflow")
+    {
+        allowSelection = false;
+    }
+    SECTION("Context disabled")
+    {
+        context.SetFlags(Execution::ContextFlag::DisableInteractivity);
+    }
+    SECTION("Argument disabled")
+    {
+        context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
+    }
+    SECTION("Setting disabled")
+    {
+        settings.Set<Setting::InteractivityDisable>(true);
+    }
+    SECTION("Silent")
+    {
+        context.Args.AddArg(Execution::Args::Type::Silent);
+    }
+    SECTION("Redirected streams")
+    {
+        context.Reporter.SetConsoleStreamsForTest(false);
+    }
+    SECTION("Hidden output")
+    {
+        context.Reporter.SetChannel(Execution::Reporter::Channel::Disabled);
+    }
+    SECTION("Truncated results")
+    {
+        result.Truncated = true;
+    }
+    SECTION("No matches")
+    {
+        result.Matches.clear();
+        expectedError = APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND;
+    }
+    SECTION("Excluded operation")
+    {
+        operation = GENERATE(OperationType::Upgrade, OperationType::Uninstall, OperationType::Repair,
+            OperationType::Export, OperationType::Pin, OperationType::Search, OperationType::List, OperationType::Completion);
+    }
+
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    context << EnsureOneMatchFromSearchResult(operation, allowSelection);
+    INFO(output.str());
+    REQUIRE_TERMINATED_WITH(context, expectedError);
+    REQUIRE_FALSE(context.Contains(Execution::Data::Package));
+    REQUIRE(input.peek() == '2');
     REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) == std::string::npos);
 }
 
