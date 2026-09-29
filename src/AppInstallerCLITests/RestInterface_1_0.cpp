@@ -64,6 +64,19 @@ namespace
         }
     };
 
+    struct QueryValidationTrackingInterface : V1_1::Interface
+    {
+        using V1_1::Interface::Interface;
+        mutable size_t QueryValidations = 0;
+
+    protected:
+        std::map<std::string_view, std::string> GetValidatedQueryParams(const std::map<std::string_view, std::string>& params) const override
+        {
+            ++QueryValidations;
+            return V1_1::Interface::GetValidatedQueryParams(params);
+        }
+    };
+
     utility::string_t GetGoodManifest_RequiredFields()
     {
         return _XPLATSTR(
@@ -1097,6 +1110,7 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
         RestClient::Create(TestRestUriString, {}, {}, helper, information));
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    request.Filters.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, "Search.Product");
     request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
 
     auto result = source->Search(request);
@@ -1108,9 +1122,23 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE(package->GetVersion(keys[0])->GetManifest().Moniker == "bar");
     REQUIRE(package->GetLatestVersion()->GetManifest().Version == "1.0.0");
     auto references = package->GetMultiProperty(PackageMultiProperty::PackageFamilyName);
-    REQUIRE(std::any_of(references.begin(), references.end(), [](const auto& value) { return value.get() == "Search.Reference_123"; }));
-    REQUIRE(package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::ProductCode).at(0).get() == "Search.Product");
-    REQUIRE(package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode).at(0).get() == "Search.Upgrade");
+    auto productCodes = package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+    auto upgradeCodes = package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode);
+    if (unknownVersion)
+    {
+        REQUIRE(references.empty());
+        REQUIRE(productCodes.empty());
+        REQUIRE(upgradeCodes.empty());
+    }
+    else
+    {
+        REQUIRE(references.size() == 1);
+        REQUIRE(references[0].get() == "Search.Reference_123");
+        REQUIRE(productCodes.size() == 1);
+        REQUIRE(productCodes[0].get() == "Search.Product");
+        REQUIRE(upgradeCodes.size() == 1);
+        REQUIRE(upgradeCodes[0].get() == "Search.Upgrade");
+    }
     REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMinVersion).get() == (unknownVersion ? "" : "0.5.0"));
     REQUIRE(package->GetLatestVersion()->GetProperty(PackageVersionProperty::ArpMaxVersion).get() == (unknownVersion ? "" : "0.6.0"));
     auto pairs = package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher);
@@ -1144,19 +1172,61 @@ TEST_CASE("Search_ManifestResolution_UnknownVersionChannel", "[RestSource][Inter
     SearchAndManifestResponses responses;
     responses.SearchResponse[L"Data"][0][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"Unknown");
     responses.SearchResponse[L"Data"][0][L"Versions"][0][L"Channel"] = web::json::value::string(ConvertToUTF16(channel));
-    responses.ManifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"target");
+    responses.SearchResponse[L"Data"][0][L"Versions"][0][L"ProductCodes"][0] = web::json::value::string(L"Search.Product");
+    auto firstManifest = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    firstManifest[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"target");
+    firstManifest[L"Installers"][0][L"ProductCode"] = web::json::value::string(L"{00000000-0000-0000-0000-000000000001}");
+    auto secondManifest = firstManifest;
+    secondManifest[L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    secondManifest[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"other");
+    secondManifest[L"Installers"][0][L"ProductCode"] = web::json::value::string(L"{00000000-0000-0000-0000-000000000002}");
+    responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstManifest, secondManifest });
+    size_t expectedCount = 1;
+    bool manifestFound = true;
+
+    SECTION("All retrieved versions replace the unknown entry") {}
+    SECTION("Nonmatching manifests reject the candidate")
+    {
+        responses.ManifestResponse[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"other");
+        expectedCount = 0;
+    }
+    SECTION("Missing manifests preserve the unknown version")
+    {
+        responses.SetManifestNotFound();
+        manifestFound = false;
+    }
+
     HttpClientHelper helper{ responses.GetHandler() };
     Interface rest{ TestRestUriString, helper };
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "target");
 
     auto result = rest.Search(request);
-    REQUIRE(result.Matches.size() == 1);
-    const auto& versions = result.Matches[0].Versions;
-    REQUIRE(versions.size() == 1);
-    REQUIRE(versions[0].Manifest.has_value() == channel.empty());
-    REQUIRE(versions[0].VersionAndChannel.GetVersion().ToString() == (channel.empty() ? "1.0.0" : "Unknown"));
-    REQUIRE(versions[0].VersionAndChannel.GetChannel().ToString() == channel);
+    REQUIRE(result.Matches.size() == expectedCount);
+    if (expectedCount)
+    {
+        const auto& versions = result.Matches[0].Versions;
+        if (manifestFound)
+        {
+            REQUIRE(versions.size() == 2);
+            REQUIRE(versions[0].Manifest.has_value());
+            REQUIRE(versions[0].VersionAndChannel.GetVersion().ToString() == "1.0.0");
+            REQUIRE(versions[0].VersionAndChannel.GetChannel().ToString().empty());
+            REQUIRE(versions[0].ProductCodes == std::vector<std::string>{ "{00000000-0000-0000-0000-000000000001}" });
+            REQUIRE(versions[1].Manifest.has_value());
+            REQUIRE(versions[1].VersionAndChannel.GetVersion().ToString() == "2.0.0");
+            REQUIRE(versions[1].VersionAndChannel.GetChannel().ToString().empty());
+            REQUIRE(versions[1].ProductCodes == std::vector<std::string>{ "{00000000-0000-0000-0000-000000000002}" });
+        }
+        else
+        {
+            REQUIRE(versions.size() == 1);
+            REQUIRE_FALSE(versions[0].Manifest.has_value());
+            REQUIRE(versions[0].VersionAndChannel.GetVersion().IsUnknown());
+            REQUIRE(versions[0].VersionAndChannel.GetChannel().ToString() == channel);
+            REQUIRE(versions[0].ProductCodes == std::vector<std::string>{ "Search.Product" });
+        }
+    }
     REQUIRE(responses.SearchRequests == 1);
     REQUIRE(responses.ManifestRequests == 1);
 }
@@ -1238,6 +1308,7 @@ TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interfac
     request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
     std::string expectedMarket = AppInstaller::Runtime::GetOSRegion();
     size_t expectedManifestRequests = 1;
+    size_t expectedQueryValidations = 1;
     SECTION("Use the required market") {}
     SECTION("Preserve an explicit market")
     {
@@ -1249,11 +1320,13 @@ TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interfac
         request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "FR");
         request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "DE");
         expectedManifestRequests = 0;
+        expectedQueryValidations = 0;
     }
     SECTION("A market prefix cannot be represented")
     {
         request.Filters.emplace_back(PackageMatchField::Market, MatchType::StartsWith, "F");
         expectedManifestRequests = 0;
+        expectedQueryValidations = 0;
     }
     SECTION("Required version prevents an all-manifests lookup")
     {
@@ -1270,11 +1343,12 @@ TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interfac
         information.UnsupportedQueryParameters = { "Version", "Channel" };
     }
     HttpClientHelper helper{ responses.GetHandler() };
-    V1_1::Interface rest{ TestRestUriString, helper, information, { { L"Windows-Package-Manager", L"TestHeader" } } };
+    QueryValidationTrackingInterface rest{ TestRestUriString, helper, information, { { L"Windows-Package-Manager", L"TestHeader" } } };
     auto result = rest.Search(request);
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(responses.SearchRequests == 1);
     REQUIRE(responses.ManifestRequests == expectedManifestRequests);
+    REQUIRE(rest.QueryValidations == expectedQueryValidations);
     REQUIRE(result.Matches[0].Versions[0].Manifest.has_value() == (expectedManifestRequests != 0));
     if (expectedManifestRequests)
     {

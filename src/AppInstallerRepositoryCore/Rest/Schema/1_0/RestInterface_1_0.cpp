@@ -128,40 +128,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 }
             }
 
-            // A single unknown version represents all versions in its channel.
             if (!manifests.empty() && package.Versions.size() == 1 &&
                 package.Versions[0].VersionAndChannel.GetVersion().IsUnknown())
             {
-                const auto& channel = package.Versions[0].VersionAndChannel.GetChannel().ToString();
-                if (!channel.empty())
-                {
-                    manifests.erase(std::remove_if(manifests.begin(), manifests.end(), [&](const auto& manifest)
-                        {
-                            return !Utility::CaseInsensitiveEquals(manifest.Channel, channel);
-                        }), manifests.end());
-                }
-                if (!manifests.empty())
-                {
-                    auto versions = CreateVersionInfos(std::move(manifests));
-                    const auto& original = package.Versions[0];
-                    auto mergeReferences = [](auto& values, const auto& additional)
-                    {
-                        for (const auto& value : additional)
-                        {
-                            if (std::find(values.begin(), values.end(), value) == values.end())
-                            {
-                                values.emplace_back(value);
-                            }
-                        }
-                    };
-                    for (auto& version : versions)
-                    {
-                        mergeReferences(version.PackageFamilyNames, original.PackageFamilyNames);
-                        mergeReferences(version.ProductCodes, original.ProductCodes);
-                        mergeReferences(version.UpgradeCodes, original.UpgradeCodes);
-                    }
-                    package.Versions = std::move(versions);
-                }
+                package.Versions = CreateVersionInfos(std::move(manifests));
             }
             else
             {
@@ -380,6 +350,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                     if (!retrievalAttempted)
                     {
                         retrievalAttempted = true;
+                        // Use the search market rather than defaulting the manifest lookup to the OS region.
                         std::map<std::string_view, std::string> queryParams;
                         for (const auto& requestFilter : request.Filters)
                         {
@@ -407,7 +378,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
                         AICLI_LOG(Repo, Verbose, << "Retrieving manifests to validate search criteria for " << package.PackageInformation.PackageIdentifier);
                         --remainingManifestRetrievals;
-                        auto manifests = GetManifests(package.PackageInformation.PackageIdentifier, queryParams);
+                        auto manifests = GetManifestsInternal(package.PackageInformation.PackageIdentifier, queryParams);
                         if (!remainingManifestRetrievals)
                         {
                             AICLI_LOG(Repo, Verbose, << "REST search manifest retrieval limit reached; remaining candidates will use available metadata.");
@@ -498,8 +469,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     std::vector<Manifest::Manifest> Interface::GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params) const
     {
-        auto validatedParams = GetValidatedQueryParams(params);
+        return GetManifestsInternal(packageId, GetValidatedQueryParams(params));
+    }
 
+    std::vector<Manifest::Manifest> Interface::GetManifestsInternal(const std::string& packageId, const std::map<std::string_view, std::string>& validatedParams) const
+    {
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;

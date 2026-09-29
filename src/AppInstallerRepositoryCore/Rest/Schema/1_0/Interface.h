@@ -44,6 +44,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     private:
         void FilterSearchResult(const SearchRequest& request, SearchResult& result, size_t& remainingManifestRetrievals) const;
+        std::vector<Manifest::Manifest> GetManifestsInternal(const std::string& packageId, const std::map<std::string_view, std::string>& validatedParams) const;
 
         std::string m_restApiUri;
         utility::string_t m_searchEndpoint;
