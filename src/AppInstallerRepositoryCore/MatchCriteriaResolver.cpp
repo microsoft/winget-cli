@@ -162,6 +162,62 @@ namespace AppInstaller::Repository
 
             return MatchType::Exact == result.Type;
         }
+
+        // Keep definitive results; new metadata may answer previously unknown fields.
+        std::optional<bool> EvaluateRequest(const SearchRequest& request,
+            const std::function<std::optional<bool>(const PackageMatchFilter&)>& matchesAvailableField,
+            std::vector<std::optional<bool>>& filterMatches,
+            std::vector<std::optional<bool>>& inclusionMatches,
+            bool& selectionMatches)
+        {
+            bool allFiltersMatch = true;
+            for (size_t i = 0; i < request.Filters.size(); ++i)
+            {
+                auto& match = filterMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Filters[i]);
+                }
+                if (match == false)
+                {
+                    return false;
+                }
+                if (!match.has_value())
+                {
+                    allFiltersMatch = false;
+                }
+            }
+
+            selectionMatches = !request.Query && request.Inclusions.empty();
+            bool selectionUnknown = request.Query.has_value();
+            for (size_t i = 0; i < request.Inclusions.size(); ++i)
+            {
+                auto& match = inclusionMatches[i];
+                if (!match.has_value())
+                {
+                    match = matchesAvailableField(request.Inclusions[i]);
+                }
+                if (match == true)
+                {
+                    selectionMatches = true;
+                    break;
+                }
+                if (!match.has_value())
+                {
+                    selectionUnknown = true;
+                }
+            }
+
+            if (!selectionMatches && !selectionUnknown)
+            {
+                return false;
+            }
+            if (allFiltersMatch && selectionMatches)
+            {
+                return true;
+            }
+            return std::nullopt;
+        }
     }
 
     std::optional<bool> MatchesRequest(const RequestMatch& request, const Utility::NormalizedString& value)
@@ -233,59 +289,7 @@ namespace AppInstaller::Repository
         std::vector<std::optional<bool>> inclusionMatches(request.Inclusions.size());
         bool selectionMatches = false;
 
-        // Keep definitive results; new metadata may answer previously unknown fields.
-        auto evaluateRequest = [&]() -> std::optional<bool>
-        {
-            bool allFiltersMatch = true;
-            for (size_t i = 0; i < request.Filters.size(); ++i)
-            {
-                auto& match = filterMatches[i];
-                if (!match.has_value())
-                {
-                    match = matchesAvailableField(request.Filters[i]);
-                }
-                if (match == false)
-                {
-                    return false;
-                }
-                if (!match.has_value())
-                {
-                    allFiltersMatch = false;
-                }
-            }
-
-            selectionMatches = !request.Query && request.Inclusions.empty();
-            bool selectionUnknown = request.Query.has_value();
-            for (size_t i = 0; i < request.Inclusions.size(); ++i)
-            {
-                auto& match = inclusionMatches[i];
-                if (!match.has_value())
-                {
-                    match = matchesAvailableField(request.Inclusions[i]);
-                }
-                if (match == true)
-                {
-                    selectionMatches = true;
-                    break;
-                }
-                if (!match.has_value())
-                {
-                    selectionUnknown = true;
-                }
-            }
-
-            if (!selectionMatches && !selectionUnknown)
-            {
-                return false;
-            }
-            if (allFiltersMatch && selectionMatches)
-            {
-                return true;
-            }
-            return std::nullopt;
-        };
-
-        auto result = evaluateRequest();
+        auto result = EvaluateRequest(request, matchesAvailableField, filterMatches, inclusionMatches, selectionMatches);
         if (result.has_value() || !resolveUnknownField)
         {
             return result;
@@ -297,7 +301,7 @@ namespace AppInstaller::Repository
             if (!filterMatches[i].has_value())
             {
                 filterMatches[i] = resolveUnknownField(request.Filters[i]);
-                result = evaluateRequest();
+                result = EvaluateRequest(request, matchesAvailableField, filterMatches, inclusionMatches, selectionMatches);
                 if (result.has_value())
                 {
                     return result;
@@ -313,7 +317,7 @@ namespace AppInstaller::Repository
                 if (!inclusionMatches[i].has_value())
                 {
                     inclusionMatches[i] = resolveUnknownField(request.Inclusions[i]);
-                    result = evaluateRequest();
+                    result = EvaluateRequest(request, matchesAvailableField, filterMatches, inclusionMatches, selectionMatches);
                     if (result.has_value() || selectionMatches)
                     {
                         return result;
