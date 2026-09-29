@@ -372,7 +372,7 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             SearchSourceForSingle <<
-            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType, false, m_allowSelection) <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType, m_allowSelection) <<
             InstallSinglePackage;
     }
 }

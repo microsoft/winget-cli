@@ -39,7 +39,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
     {
-        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation, bool allowDowngrade = false, bool allowSelection = false) :
+        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation, bool allowSelection, bool allowDowngrade = false) :
             WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_operationType(operation), m_allowDowngrade(allowDowngrade),
             m_allowSelection(allowSelection) {}
 
