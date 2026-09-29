@@ -37,7 +37,7 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 | `--silent` | Controls installer UI, not selection prompts; normal interactivity rules apply. |
 | Redirected input or output, or disabled informational output | Do not prompt. |
 | `--no-vt` | Use the same text and numeric input without terminal escape sequences. |
-| Multi-package operations, including individual package subcontexts | No disambiguation prompts, either per package or up front; retain existing ambiguity errors. |
+| Multi-package operations, including individual package contexts | No disambiguation prompts, either per package or up front; retain existing ambiguity errors. |
 | Upgrade, uninstall, repair, pin, search, list, or completion | Preserve existing behavior. |
 | COM API, PowerShell cmdlets, or configuration/DSC | No new prompts or API changes. |
 

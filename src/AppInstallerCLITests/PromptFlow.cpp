@@ -150,7 +150,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
 TEST_CASE("ReporterReadLine", "[PromptFlow]")
 {
     auto response = GENERATE("", "  text \t", "0", "invalid", "99999999999999999999999999");
-    std::istringstream input{ std::string{ response } + "\nnext\n" };
+    std::istringstream input{ std::string{ response } + '\n' + "next\n" };
     std::ostringstream output;
     Execution::Reporter reporter{ output, input };
     reporter.SetConsoleStreamsForTest(true);
