@@ -38,9 +38,6 @@
     <ClInclude Include="Public\winget\Hash.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerSHA256.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerErrors.h">
       <Filter>Public</Filter>
     </ClInclude>

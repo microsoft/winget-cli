@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AppInstallerSHA256.h"
 #include <string>
 #include <filesystem>
+#include "winget/Hash.h"
 
 namespace AppInstaller::Portable
 {

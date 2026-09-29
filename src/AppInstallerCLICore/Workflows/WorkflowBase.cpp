@@ -12,10 +12,10 @@
 #include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
-#include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 #include <winget/IconExtraction.h>

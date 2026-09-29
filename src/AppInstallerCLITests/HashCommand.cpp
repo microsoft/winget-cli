@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "Commands/HashCommand.h"
-#include <AppInstallerSHA256.h>
+#include <winget/Hash.h>
 
 using namespace std::string_literals;
 using namespace TestCommon;

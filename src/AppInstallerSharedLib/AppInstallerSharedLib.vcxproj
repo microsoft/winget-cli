@@ -321,7 +321,6 @@
     <ClInclude Include="Public\AppInstallerErrors.h" />
     <ClInclude Include="Public\winget\Hash.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
-    <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />

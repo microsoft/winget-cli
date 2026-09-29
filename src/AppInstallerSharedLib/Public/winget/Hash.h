@@ -185,3 +185,10 @@ namespace AppInstaller::Cryptography {
     template <HashAlgorithm Algorithm>
     using AlgorithmHash = HashT<Algorithm>;
 }
+
+// Binds the generic hash implementation to the SHA256 algorithm.
+// This alias is kept for backward compatibility with existing code that uses the SHA256 class.
+namespace AppInstaller::Utility
+{
+    using SHA256 = Cryptography::AlgorithmHash<Cryptography::HashAlgorithm::Sha256>;
+}
