@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "ExecutionReporter.h"
 #include <AppInstallerErrors.h>
-#include <charconv>
 
 
 namespace AppInstaller::CLI::Execution
@@ -186,97 +185,83 @@ namespace AppInstaller::CLI::Execution
         return m_consoleStreams && Info().IsEnabled();
     }
 
-    std::optional<size_t> Reporter::PromptForSelection(size_t count, std::function<bool()> isCancelled)
+    std::optional<std::string> Reporter::ReadLine(std::function<bool()> isCancelled)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !CanPrompt() || !count);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !CanPrompt());
+
+        if (isCancelled && isCancelled())
+        {
+            return std::nullopt;
+        }
 
         wil::unique_handle inputThread;
         THROW_IF_WIN32_BOOL_FALSE(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(),
             inputThread.put(), THREAD_TERMINATE, FALSE, 0));
 
-        auto out = Info();
-        for (;;)
+        std::string response;
+        bool readSucceeded = false;
+        DWORD readError = ERROR_SUCCESS;
+        ProgressCallback progress;
+        wil::unique_event readCompleted{ wil::EventOptions::ManualReset };
+        auto cancellation = progress.SetCancellationFunction([&]()
         {
-            if (isCancelled && isCancelled())
+            // Retry until the read ends to cover cancellation immediately before it starts.
+            while (!readCompleted.wait(10))
             {
-                return std::nullopt;
-            }
-            out << Resource::String::PackageSelectionPrompt(count) << ' ' << std::flush;
-
-            std::string response;
-            bool readSucceeded = false;
-            DWORD readError = ERROR_SUCCESS;
-            ProgressCallback progress;
-            wil::unique_event readCompleted{ wil::EventOptions::ManualReset };
-            auto cancellation = progress.SetCancellationFunction([&]()
-            {
-                // Retry until the read ends to cover cancellation immediately before it starts.
-                while (!readCompleted.wait(10))
+                if (!CancelSynchronousIo(inputThread.get()))
                 {
-                    if (!CancelSynchronousIo(inputThread.get()))
+                    DWORD error = GetLastError();
+                    if (error != ERROR_NOT_FOUND)
                     {
-                        DWORD error = GetLastError();
-                        if (error != ERROR_NOT_FOUND)
-                        {
-                            LOG_WIN32(error);
-                        }
+                        LOG_WIN32(error);
                     }
                 }
+            }
+        });
+        SetProgressCallback(&progress);
+        {
+            auto unregister = wil::scope_exit([&]()
+            {
+                readCompleted.SetEvent();
+                SetProgressCallback(nullptr);
             });
-            SetProgressCallback(&progress);
+            if (!isCancelled || !isCancelled())
             {
-                auto unregister = wil::scope_exit([&]()
+                if (m_inStreamFileType == FILE_TYPE_CHAR)
                 {
-                    readCompleted.SetEvent();
-                    SetProgressCallback(nullptr);
-                });
-                if (!isCancelled || !isCancelled())
-                {
-                    if (m_inStreamFileType == FILE_TYPE_CHAR)
+                    std::wstring consoleResponse;
+                    do
                     {
-                        std::wstring consoleResponse;
-                        do
-                        {
-                            wchar_t buffer[256];
-                            DWORD charactersRead = 0;
-                            SetLastError(ERROR_SUCCESS);
-                            // The CRT loses ERROR_OPERATION_ABORTED when Ctrl+C ends a console read.
-                            bool succeeded = ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), buffer, ARRAYSIZE(buffer), &charactersRead, nullptr);
-                            readError = GetLastError();
-                            readSucceeded = succeeded && charactersRead != 0;
-                            if (!readSucceeded || readError == ERROR_OPERATION_ABORTED)
-                            {
-                                break;
-                            }
-                            consoleResponse.append(buffer, charactersRead);
-                        } while (consoleResponse.back() != L'\n');
-                        response = Utility::ConvertToUTF8(consoleResponse);
-                        readSucceeded = readSucceeded && response.find('\x1a') == std::string::npos;
-                    }
-                    else
-                    {
+                        wchar_t buffer[256];
+                        DWORD charactersRead = 0;
                         SetLastError(ERROR_SUCCESS);
-                        readSucceeded = static_cast<bool>(std::getline(m_in, response));
+                        // The CRT loses ERROR_OPERATION_ABORTED when Ctrl+C ends a console read.
+                        bool succeeded = ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), buffer, ARRAYSIZE(buffer), &charactersRead, nullptr);
                         readError = GetLastError();
-                    }
+                        readSucceeded = succeeded && charactersRead != 0;
+                        if (!readSucceeded || readError == ERROR_OPERATION_ABORTED)
+                        {
+                            break;
+                        }
+                        consoleResponse.append(buffer, charactersRead);
+                    } while (consoleResponse.back() != L'\n');
+                    response = Utility::ConvertToUTF8(consoleResponse);
+                    readSucceeded = readSucceeded && response.find('\x1a') == std::string::npos;
+                }
+                else
+                {
+                    SetLastError(ERROR_SUCCESS);
+                    readSucceeded = static_cast<bool>(std::getline(m_in, response));
+                    readError = GetLastError();
                 }
             }
-            if (progress.IsCancelledBy(CancelReason::Any) || (isCancelled && isCancelled()) || readError == ERROR_OPERATION_ABORTED)
-            {
-                return std::nullopt;
-            }
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR, !readSucceeded);
-            Utility::Trim(response);
-
-            size_t selection = 0;
-            auto result = std::from_chars(response.data(), response.data() + response.size(), selection);
-            if (result.ec == std::errc{} && result.ptr == response.data() + response.size() && selection <= count)
-            {
-                return selection ? std::optional<size_t>{ selection - 1 } : std::nullopt;
-            }
-
-            out << Resource::String::PackageSelectionInvalid(count) << std::endl;
         }
+        if (progress.IsCancelledBy(CancelReason::Any) || (isCancelled && isCancelled()) || readError == ERROR_OPERATION_ABORTED)
+        {
+            return std::nullopt;
+        }
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR, !readSucceeded);
+        return response;
     }
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)

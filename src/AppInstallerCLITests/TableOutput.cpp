@@ -19,6 +19,41 @@ namespace
     }
 }
 
+TEST_CASE("TableOutput_DynamicMatchesTyped", "[tableoutput]")
+{
+    std::ostringstream typedOutput;
+    std::ostringstream dynamicOutput;
+    std::istringstream input;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{GENERATE(size_t{20}, size_t{120})} };
+    Reporter typedReporter(typedOutput, input);
+    Reporter dynamicReporter(dynamicOutput, input);
+    typedReporter.SetStyle(AppInstaller::Settings::VisualStyle::NoVT);
+    dynamicReporter.SetStyle(AppInstaller::Settings::VisualStyle::NoVT);
+    TableOutput<3> typed(typedReporter, { MakeHeader("Name"), MakeHeader("Empty"), MakeHeader("Id") });
+    TableOutputBase dynamic(dynamicReporter, { MakeHeader("Name"), MakeHeader("Empty"), MakeHeader("Id") });
+    typed.OutputLine({ "LongPackageName", "", "test.id" });
+    dynamic.OutputLine({ "LongPackageName", "", "test.id" });
+    typed.Complete();
+    dynamic.Complete();
+
+    REQUIRE_FALSE(dynamic.IsEmpty());
+    REQUIRE(dynamicOutput.str() == typedOutput.str());
+    dynamic.Complete();
+    REQUIRE(dynamicOutput.str() == typedOutput.str());
+}
+
+TEST_CASE("TableOutput_DynamicInvalidDimensions", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+    Reporter reporter(output, input);
+    REQUIRE_THROWS_HR(TableOutputBase(reporter, {}), E_INVALIDARG);
+    TableOutputBase table(reporter, { MakeHeader("Name") });
+    REQUIRE_THROWS_HR(table.OutputLine({ "Name", "Extra" }), E_INVALIDARG);
+    REQUIRE(table.IsEmpty());
+    REQUIRE(output.str().empty());
+}
+
 // Test that all rows are buffered and column widths account for values beyond the first 50 rows.
 // In the old sizing-buffer design, a row at position 55 with a longer value than any of the
 // first 50 rows would be truncated. The new design buffers every row so no value is clipped.

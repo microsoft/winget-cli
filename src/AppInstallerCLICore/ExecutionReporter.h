@@ -115,7 +115,8 @@ namespace AppInstaller::CLI::Execution
 
         bool CanPrompt();
 
-        std::optional<size_t> PromptForSelection(size_t count, std::function<bool()> isCancelled = {});
+        // Reads one line without output; returns nullopt on cancellation.
+        std::optional<std::string> ReadLine(std::function<bool()> isCancelled = {});
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         void SetConsoleStreamsForTest(bool value) { m_consoleStreams = value; }

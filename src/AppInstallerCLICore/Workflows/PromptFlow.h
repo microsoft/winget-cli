@@ -2,10 +2,30 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include "TableOutput.h"
 
 namespace AppInstaller::CLI::Workflow
 {
-    bool IsInteractivityAllowed(Execution::Context& context);
+    // Displays numbered choices and reads a selection when prompting is available.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: PromptSelection (zero-based index, or nullopt if prompting is unavailable)
+    struct PromptForSelection : public WorkflowTask
+    {
+        PromptForSelection(Execution::TableOutputBase& table, size_t count, Resource::LocString title,
+            Resource::LocString prompt, Resource::LocString invalid) :
+            WorkflowTask("PromptForSelection"), m_table(table), m_count(count), m_title(std::move(title)),
+            m_prompt(std::move(prompt)), m_invalid(std::move(invalid)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::TableOutputBase& m_table;
+        size_t m_count;
+        Resource::LocString m_title;
+        Resource::LocString m_prompt;
+        Resource::LocString m_invalid;
+    };
 
     // Handles all opened source(s) agreements if needed.
     // Required Args: The source to be checked for agreements

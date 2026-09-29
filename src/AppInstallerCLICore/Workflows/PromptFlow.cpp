@@ -4,6 +4,7 @@
 #include "PromptFlow.h"
 #include "ShowFlow.h"
 #include <winget/UserSettings.h>
+#include <charconv>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Settings;
@@ -11,31 +12,31 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
-    bool IsInteractivityAllowed(Execution::Context& context)
-    {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
-        {
-            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
-            return false;
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::DisableInteractivity))
-        {
-            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled by command line argument.");
-            return false;
-        }
-
-        if (Settings::User().Get<Settings::Setting::InteractivityDisable>())
-        {
-            AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled in settings.");
-            return false;
-        }
-
-        return true;
-    }
-
     namespace
     {
+        bool IsInteractivityAllowed(Execution::Context& context)
+        {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
+            {
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
+                return false;
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::DisableInteractivity))
+            {
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled by command line argument.");
+                return false;
+            }
+
+            if (Settings::User().Get<Settings::Setting::InteractivityDisable>())
+            {
+                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled in settings.");
+                return false;
+            }
+
+            return true;
+        }
+
         bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Repository::Source& source)
         {
             auto details = source.GetDetails();
@@ -387,6 +388,52 @@ namespace AppInstaller::CLI::Workflow
             }
 
             return result;
+        }
+    }
+
+    void PromptForSelection::operator()(Execution::Context& context) const
+    {
+        context.Add<Data::PromptSelection>(std::optional<size_t>{});
+        AICLI_RETURN_IF_TERMINATED(context);
+        THROW_HR_IF(E_INVALIDARG, !m_count);
+
+        if (!IsInteractivityAllowed(context) || !context.Reporter.CanPrompt())
+        {
+            return;
+        }
+
+        auto out = context.Reporter.Info();
+        out << m_title << std::endl << std::endl;
+        m_table.Complete();
+        out << std::endl;
+
+        for (;;)
+        {
+            AICLI_RETURN_IF_TERMINATED(context);
+            out << m_prompt << ' ' << std::flush;
+            auto response = context.Reporter.ReadLine([&]() { return context.IsTerminated(); });
+            AICLI_RETURN_IF_TERMINATED(context);
+            if (!response)
+            {
+                out << Resource::String::Cancelled << std::endl;
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+
+            Utility::Trim(*response);
+            size_t selection = 0;
+            auto result = std::from_chars(response->data(), response->data() + response->size(), selection);
+            if (result.ec == std::errc{} && result.ptr == response->data() + response->size() && selection <= m_count)
+            {
+                if (!selection)
+                {
+                    out << Resource::String::Cancelled << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
+                context.Add<Data::PromptSelection>(std::optional<size_t>{ selection - 1 });
+                return;
+            }
+
+            out << m_invalid << std::endl;
         }
     }
 

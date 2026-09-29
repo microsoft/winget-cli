@@ -20,19 +20,29 @@ using namespace AppInstaller::Settings;
 
 TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
 {
+    TestUserSettings settings;
     auto response = GENERATE("1", "2", "10", " 2 \t", "0");
     std::istringstream input{ response };
     std::ostringstream output;
-    Execution::Reporter reporter{ output, input };
-    reporter.SetConsoleStreamsForTest(true);
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
+    for (size_t i = 1; i <= 10; ++i)
+    {
+        table.OutputLine({ std::to_string(i) });
+    }
 
-    auto selection = reporter.PromptForSelection(10);
+    context << PromptForSelection(table, 10, Resource::String::PackageSelectionInstall,
+        Resource::String::PackageSelectionPrompt(10), Resource::String::PackageSelectionInvalid(10));
+    auto selection = context.Get<Execution::Data::PromptSelection>();
     if (std::string_view{ response } == "0")
     {
         REQUIRE_FALSE(selection);
+        REQUIRE_TERMINATED_WITH(context, E_ABORT);
     }
     else
     {
+        REQUIRE_FALSE(context.IsTerminated());
         REQUIRE(selection == static_cast<size_t>(std::stoul(response) - 1));
     }
     REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(10).get()) != std::string::npos);
@@ -40,17 +50,117 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
 
 TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
 {
+    TestUserSettings settings;
     auto response = GENERATE("", " ", "-1", "+1", "3", "1x", "1.0", "1 2", "99999999999999999999999999");
     std::istringstream input{ std::string{ response } + "\n2\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
+    table.OutputLine({ "First" });
+    table.OutputLine({ "Second" });
+
+    context << PromptForSelection(table, 2, Resource::String::PackageSelectionInstall,
+        Resource::String::PackageSelectionPrompt(2), Resource::String::PackageSelectionInvalid(2));
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
+    REQUIRE(output.str().find(Resource::String::PackageSelectionInvalid(2).get()) != std::string::npos);
+}
+
+TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
+{
+    TestUserSettings settings;
+    std::istringstream input{ "wrong\n2\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    auto text = [](std::string value)
+    {
+        return Resource::LocString{ AppInstaller::Utility::LocIndString{ std::move(value) } };
+    };
+    Execution::TableOutput<1> table(context.Reporter, { text("Choice") });
+    table.OutputLine({ "1 First" });
+    table.OutputLine({ "2 Second" });
+    context << PromptForSelection(table, 2, text("Choose a value"), text("Number:"), text("Try again"));
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
+    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\nNumber: Try again\nNumber: ");
+}
+
+TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
+{
+    TestUserSettings settings;
+    std::istringstream input{ "1\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Add<Execution::Data::PromptSelection>(std::optional<size_t>{0});
+    Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
+    table.OutputLine({ "First" });
+
+    SECTION("Context disabled")
+    {
+        context.SetFlags(Execution::ContextFlag::DisableInteractivity);
+    }
+    SECTION("Argument disabled")
+    {
+        context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
+    }
+    SECTION("Setting disabled")
+    {
+        settings.Set<Setting::InteractivityDisable>(true);
+    }
+    SECTION("Redirected streams")
+    {
+        context.Reporter.SetConsoleStreamsForTest(false);
+    }
+    SECTION("Hidden output")
+    {
+        context.Reporter.SetLevelMask(Execution::Reporter::Level::Info, false);
+    }
+
+    context << PromptForSelection(table, 1, Resource::String::PackageSelectionInstall,
+        Resource::String::PackageSelectionPrompt(1), Resource::String::PackageSelectionInvalid(1));
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
+    REQUIRE(output.str().empty());
+    REQUIRE(input.peek() == '1');
+}
+
+TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
+{
+    TestUserSettings settings;
+    std::istringstream input;
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
+    table.OutputLine({ "First" });
+    auto count = GENERATE(size_t{0}, size_t{1});
+    PromptForSelection prompt(table, count, Resource::String::PackageSelectionInstall,
+        Resource::String::PackageSelectionPrompt(count), Resource::String::PackageSelectionInvalid(count));
+
+    REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
+    REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
+}
+
+TEST_CASE("ReporterReadLine", "[PromptFlow]")
+{
+    auto response = GENERATE("", "  text \t", "0", "invalid", "99999999999999999999999999");
+    std::istringstream input{ std::string{ response } + "\nnext\n" };
     std::ostringstream output;
     Execution::Reporter reporter{ output, input };
     reporter.SetConsoleStreamsForTest(true);
 
-    REQUIRE(reporter.PromptForSelection(2) == 1);
-    REQUIRE(output.str().find(Resource::String::PackageSelectionInvalid(2).get()) != std::string::npos);
+    REQUIRE(reporter.ReadLine() == response);
+    REQUIRE(input.peek() == 'n');
+    REQUIRE(output.str().empty());
 }
 
-TEST_CASE("PackageSelection_InputFailure", "[PackageSelection][PromptFlow]")
+TEST_CASE("ReporterReadLine_InputFailure", "[PromptFlow]")
 {
     std::istringstream input;
     std::ostringstream output;
@@ -59,12 +169,12 @@ TEST_CASE("PackageSelection_InputFailure", "[PackageSelection][PromptFlow]")
 
     SECTION("EOF")
     {
-        REQUIRE_THROWS_HR(reporter.PromptForSelection(2), APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+        REQUIRE_THROWS_HR(reporter.ReadLine(), APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
     }
     SECTION("Cancelled input failure")
     {
         int checks = 0;
-        REQUIRE_FALSE(reporter.PromptForSelection(2, [&]() { return ++checks == 3; }));
+        REQUIRE_FALSE(reporter.ReadLine([&]() { return ++checks == 3; }));
     }
     SECTION("Console read aborts before the signal handler runs")
     {
@@ -79,13 +189,14 @@ TEST_CASE("PackageSelection_InputFailure", "[PackageSelection][PromptFlow]")
         std::istream abortedInput{ &buffer };
         Execution::Reporter abortedReporter{ output, abortedInput };
         abortedReporter.SetConsoleStreamsForTest(true);
-        REQUIRE_FALSE(abortedReporter.PromptForSelection(2, []() { return false; }));
+        REQUIRE_FALSE(abortedReporter.ReadLine([]() { return false; }));
     }
+    REQUIRE(output.str().empty());
 }
 
-TEST_CASE("PackageSelection_CancelBeforeRead", "[PackageSelection][PromptFlow]")
+TEST_CASE("ReporterReadLine_CancelBeforeRead", "[PromptFlow]")
 {
-    auto cancelOnCheck = GENERATE(1, 2, 3, 4);
+    auto cancelOnCheck = GENERATE(1, 2, 3);
     std::istringstream input{ "invalid\n2\n" };
     std::ostringstream output;
     TestContext context{ output, input };
@@ -100,16 +211,13 @@ TEST_CASE("PackageSelection_CancelBeforeRead", "[PackageSelection][PromptFlow]")
         return context.IsTerminated();
     };
 
-    REQUIRE_FALSE(context.Reporter.PromptForSelection(2, isCancelled));
+    REQUIRE_FALSE(context.Reporter.ReadLine(isCancelled));
     REQUIRE_TERMINATED_WITH(context, E_ABORT);
     REQUIRE(input.peek() == (cancelOnCheck >= 3 ? '2' : 'i'));
-    if (cancelOnCheck == 1)
-    {
-        REQUIRE(output.str().empty());
-    }
+    REQUIRE(output.str().empty());
 }
 
-TEST_CASE("PackageSelection_CancelPendingRead", "[PackageSelection][PromptFlow]")
+TEST_CASE("ReporterReadLine_CancelPendingRead", "[PromptFlow]")
 {
     struct PipeInputBuffer : std::streambuf
     {
@@ -166,14 +274,14 @@ TEST_CASE("PackageSelection_CancelPendingRead", "[PackageSelection][PromptFlow]"
         watchdog.join();
     });
 
-    REQUIRE_FALSE(context.Reporter.PromptForSelection(2, [&]() { return context.IsTerminated(); }));
+    REQUIRE_FALSE(context.Reporter.ReadLine([&]() { return context.IsTerminated(); }));
     finished.SetEvent();
     cancel.join();
     watchdog.join();
     join.release();
     REQUIRE_FALSE(timedOut);
     REQUIRE_TERMINATED_WITH(context, E_ABORT);
-    REQUIRE(output.str().find(Resource::String::PackageSelectionInvalid(2).get()) == std::string::npos);
+    REQUIRE(output.str().empty());
 }
 
 TEST_CASE("PackageSelection_ConsoleStreams", "[PackageSelection][PromptFlow]")
@@ -211,7 +319,7 @@ TEST_CASE("PackageSelection_ReporterUnavailable", "[PackageSelection][PromptFlow
     }
 
     REQUIRE_FALSE(reporter.CanPrompt());
-    REQUIRE_THROWS_HR(reporter.PromptForSelection(2), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+    REQUIRE_THROWS_HR(reporter.ReadLine(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
     REQUIRE(input.peek() == '1');
 }
 

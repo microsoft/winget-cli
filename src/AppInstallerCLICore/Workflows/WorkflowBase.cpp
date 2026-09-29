@@ -1403,15 +1403,11 @@ namespace AppInstaller::CLI::Workflow
 
                 bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
                     (m_operationType == OperationType::Install || m_operationType == OperationType::Show || m_operationType == OperationType::Download);
-                bool canSelect = selectionSupported && !searchResult.Truncated &&
-                    IsInteractivityAllowed(context) && context.Reporter.CanPrompt();
-
-                if (canSelect)
+                std::optional<size_t> selection;
+                if (selectionSupported && !searchResult.Truncated)
                 {
-                    auto out = context.Reporter.Info();
                     auto title = m_operationType == OperationType::Install ? Resource::String::PackageSelectionInstall :
                         m_operationType == OperationType::Download ? Resource::String::PackageSelectionDownload : Resource::String::PackageSelectionShow;
-                    out << title << std::endl << std::endl;
 
                     std::vector<Execution::TableOutput<5>::line_t> lines;
                     const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
@@ -1475,20 +1471,18 @@ namespace AppInstaller::CLI::Workflow
                     {
                         table.OutputLine(std::move(line));
                     }
-                    table.Complete();
-
-                    out << std::endl;
-                    auto selection = context.Reporter.PromptForSelection(searchResult.Matches.size(), [&]() { return context.IsTerminated(); });
+                    context << PromptForSelection(table, searchResult.Matches.size(), title,
+                        Resource::String::PackageSelectionPrompt(searchResult.Matches.size()),
+                        Resource::String::PackageSelectionInvalid(searchResult.Matches.size()));
                     AICLI_RETURN_IF_TERMINATED(context);
-                    if (!selection)
-                    {
-                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                        AICLI_TERMINATE_CONTEXT(E_ABORT);
-                    }
+                    selection = context.Get<Execution::Data::PromptSelection>();
+                }
 
+                if (selection)
+                {
                     selectedIndex = *selection;
                     auto package = searchResult.Matches[selectedIndex].Package;
-                    out << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
+                    context.Reporter.Info() << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
                         package->GetProperty(PackageProperty::Id)) << std::endl;
                 }
                 else if (operationTargetsInstalled)
