@@ -21,7 +21,7 @@ The same query can match multiple packages, including packages from different so
 
 Apply existing search matching and source-priority rules first. If multiple candidates remain, eligible CLI call sites opt into selection. Shared workflows remain noninteractive by default.
 
-Display candidates in their existing order with stable, one-based numbers. A valid number selects the existing package object without searching again. Preserve command options and continue normal version selection, applicability checks, and agreement handling.
+Display candidates in their existing order with stable, one-indexed numbers. A valid number selects the existing package object without searching again. Preserve command options and continue normal version selection, applicability checks, and agreement handling.
 
 | Situation | Behavior |
 | --- | --- |
