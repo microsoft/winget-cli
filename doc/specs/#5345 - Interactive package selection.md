@@ -36,7 +36,8 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 | `--disable-interactivity`, interactivity disabled in settings or context, or `--silent` | Retain ambiguity error without reading input. |
 | Redirected input or output, or disabled informational output | Do not prompt. |
 | `--no-vt` | Use the same text and numeric input without terminal escape sequences. |
-| Multi-package operations, upgrade, uninstall, repair, pin, search, list, or completion | Preserve existing behavior. |
+| Multi-package operations, including individual package subcontexts | No disambiguation prompts, either per package or up front; retain existing ambiguity errors. |
+| Upgrade, uninstall, repair, pin, search, list, or completion | Preserve existing behavior. |
 | COM API, PowerShell cmdlets, or configuration/DSC | No new prompts or API changes. |
 
 The prompt adds no settings, command-line flags, group policies, manifest fields, or schema versions. Existing interactivity settings apply. Package validation pipelines and manifest authoring tools are unchanged; manifest examples and schema snippets are not applicable.
