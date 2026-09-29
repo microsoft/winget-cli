@@ -511,12 +511,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void PopulateContextFromInstallOptions(
         ::AppInstaller::CLI::Execution::Context* context,
-        winrt::Microsoft::Management::Deployment::InstallOptions options,
-        bool isUpgrade)
+        winrt::Microsoft::Management::Deployment::InstallOptions options)
     {
         if (options)
         {
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !isUpgrade && options.SkipDependencies() && options.InstallDependenciesOnly());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, options.SkipDependencies() && options.InstallDependenciesOnly());
 
             if (!options.LogOutputPath().empty())
             {
@@ -601,7 +600,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::SkipDependencies);
             }
-            if (!isUpgrade && options.InstallDependenciesOnly())
+            if (options.InstallDependenciesOnly())
             {
                 context->Args.AddArg(Execution::Args::Type::DependenciesOnly);
             }
@@ -783,8 +782,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     template <typename TOptions>
     std::unique_ptr<COMContext> CreateContextFromOperationOptions(
         TOptions options,
-        std::wstring callerProcessInfoString,
-        bool isUpgrade = false)
+        std::wstring callerProcessInfoString)
     {
         std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
@@ -794,7 +792,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Convert the options to arguments for the installer.
         if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
         {
-            PopulateContextFromInstallOptions(context.get(), options, isUpgrade);
+            PopulateContextFromInstallOptions(context.get(), options);
         }
         else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::UninstallOptions>)
         {
@@ -977,7 +975,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             if (queueItem == nullptr)
             {
-                std::unique_ptr<COMContext> comContext = CreateContextFromOperationOptions<TOptions>(options, callerProcessInfoString, isUpgrade);
+                std::unique_ptr<COMContext> comContext = CreateContextFromOperationOptions<TOptions>(options, callerProcessInfoString);
 
                 if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
                 {
