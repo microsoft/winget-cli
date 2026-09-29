@@ -24,6 +24,34 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         constexpr std::string_view ChannelQueryParam = "Channel"sv;
         constexpr std::string_view MarketQueryParam = "Market"sv;
 
+        bool CanResolveWithManifest(const PackageMatchFilter& filter)
+        {
+            switch (filter.Type)
+            {
+            case MatchType::Exact:
+            case MatchType::CaseInsensitive:
+            case MatchType::StartsWith:
+            case MatchType::Substring:
+                break;
+            default:
+                return false;
+            }
+
+            switch (filter.Field)
+            {
+            case PackageMatchField::Name:
+            case PackageMatchField::Moniker:
+            case PackageMatchField::Tag:
+            case PackageMatchField::Command:
+            case PackageMatchField::PackageFamilyName:
+            case PackageMatchField::ProductCode:
+            case PackageMatchField::UpgradeCode:
+                return true;
+            default:
+                return false;
+            }
+        }
+
         std::optional<bool> MatchesPackage(const PackageMatchFilter& filter, const IRestClient::Package& package)
         {
             if (filter.Field == PackageMatchField::Id)
@@ -241,16 +269,25 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     IRestClient::SearchResult Interface::SearchInternal(const SearchRequest& request) const
     {
-        const SearchRequest validatedRequest = GetValidatedSearchRequest(request);
+        SearchRequest validatedRequest = GetValidatedSearchRequest(request);
         if (!validatedRequest.Query && !request.Inclusions.empty() && validatedRequest.Inclusions.empty())
         {
             AICLI_LOG(Repo, Info, << "No supported inclusions remain in the search request.");
             return {};
         }
 
+        constexpr size_t c_manifestRetrievalResultLimit = 3;
+        // Probe beyond the enrichment threshold even when the caller requests fewer results.
+        if (validatedRequest.Purpose == SearchPurpose::Default && validatedRequest.MaximumResults &&
+            (std::any_of(validatedRequest.Filters.begin(), validatedRequest.Filters.end(), CanResolveWithManifest) ||
+                (!validatedRequest.Query && std::any_of(validatedRequest.Inclusions.begin(), validatedRequest.Inclusions.end(), CanResolveWithManifest))))
+        {
+            validatedRequest.MaximumResults = std::max(validatedRequest.MaximumResults, c_manifestRetrievalResultLimit + 1);
+        }
+
         const auto searchBody = SearchRequestComposer{ GetVersion() }.Serialize(validatedRequest);
-        constexpr size_t c_manifestRetrievalLimit = 3;
-        size_t remainingManifestRetrievals = c_manifestRetrievalLimit;
+        size_t candidateCount = 0;
+        bool manifestRetrievalDeferred = false;
         SearchResult results;
         utility::string_t continuationToken;
         std::set<utility::string_t> usedContinuationTokens;
@@ -275,23 +312,34 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             if (jsonObject)
             {
                 SearchResult currentResult = GetSearchResult(jsonObject.value());
-                FilterSearchResult(validatedRequest, currentResult, remainingManifestRetrievals);
-
-                size_t insertElements = !request.MaximumResults ? currentResult.Matches.size() :
-                    std::min(currentResult.Matches.size(), request.MaximumResults - results.Matches.size());
-
-                if (insertElements < currentResult.Matches.size())
-                {
-                    results.Truncated = true;
-                }
-
-                std::move(currentResult.Matches.begin(), std::next(currentResult.Matches.begin(), insertElements), std::inserter(results.Matches, results.Matches.end()));
+                candidateCount += currentResult.Matches.size();
+                manifestRetrievalDeferred |= FilterSearchResult(validatedRequest, currentResult, false);
+                std::move(currentResult.Matches.begin(), currentResult.Matches.end(), std::inserter(results.Matches, results.Matches.end()));
                 ct = GetContinuationToken(jsonObject.value()).value_or(L"");
             }
 
             continuationToken = ct;
 
-        } while (!continuationToken.empty() && (!request.MaximumResults || results.Matches.size() < request.MaximumResults));
+        } while (!continuationToken.empty() && (!request.MaximumResults || results.Matches.size() < request.MaximumResults ||
+            (manifestRetrievalDeferred && candidateCount <= c_manifestRetrievalResultLimit)));
+
+        if (manifestRetrievalDeferred)
+        {
+            if (continuationToken.empty() && candidateCount <= c_manifestRetrievalResultLimit)
+            {
+                FilterSearchResult(validatedRequest, results, true);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping manifest retrieval because the search exceeds the complete-result limit.");
+            }
+        }
+
+        if (request.MaximumResults && results.Matches.size() > request.MaximumResults)
+        {
+            results.Matches.erase(std::next(results.Matches.begin(), request.MaximumResults), results.Matches.end());
+            results.Truncated = true;
+        }
 
         if (!continuationToken.empty())
         {
@@ -306,8 +354,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return results;
     }
 
-    void Interface::FilterSearchResult(const SearchRequest& request, SearchResult& result, size_t& remainingManifestRetrievals) const
+    bool Interface::FilterSearchResult(const SearchRequest& request, SearchResult& result, bool allowManifestRetrieval) const
     {
+        bool manifestRetrievalDeferred = false;
         std::vector<Package> matches;
         matches.reserve(result.Matches.size());
         for (auto& package : result.Matches)
@@ -319,31 +368,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             };
 
             std::function<std::optional<bool>(const PackageMatchFilter&)> resolveField;
-            if (request.Purpose == SearchPurpose::Default && remainingManifestRetrievals)
+            if (request.Purpose == SearchPurpose::Default)
             {
                 resolveField = [&](const PackageMatchFilter& filter) -> std::optional<bool>
                 {
-                    switch (filter.Type)
+                    if (!CanResolveWithManifest(filter))
                     {
-                    case MatchType::Exact:
-                    case MatchType::CaseInsensitive:
-                    case MatchType::StartsWith:
-                    case MatchType::Substring:
-                        break;
-                    default:
                         return std::nullopt;
                     }
-                    switch (filter.Field)
+
+                    if (!allowManifestRetrieval)
                     {
-                    case PackageMatchField::Name:
-                    case PackageMatchField::Moniker:
-                    case PackageMatchField::Tag:
-                    case PackageMatchField::Command:
-                    case PackageMatchField::PackageFamilyName:
-                    case PackageMatchField::ProductCode:
-                    case PackageMatchField::UpgradeCode:
-                        break;
-                    default:
+                        manifestRetrievalDeferred = true;
                         return std::nullopt;
                     }
 
@@ -377,12 +413,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                         }
 
                         AICLI_LOG(Repo, Verbose, << "Retrieving manifests to validate search criteria for " << package.PackageInformation.PackageIdentifier);
-                        --remainingManifestRetrievals;
                         auto manifests = GetManifestsInternal(package.PackageInformation.PackageIdentifier, queryParams);
-                        if (!remainingManifestRetrievals)
-                        {
-                            AICLI_LOG(Repo, Verbose, << "REST search manifest retrieval limit reached; remaining candidates will use available metadata.");
-                        }
                         PopulateManifestCache(package, std::move(manifests));
                     }
 
@@ -401,6 +432,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             matches.emplace_back(std::move(package));
         }
         result.Matches = std::move(matches);
+        return manifestRetrievalDeferred;
     }
 
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const

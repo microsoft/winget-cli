@@ -43,7 +43,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         Http::HttpClientHelper::HttpRequestHeaders m_requiredRestApiHeaders;
 
     private:
-        void FilterSearchResult(const SearchRequest& request, SearchResult& result, size_t& remainingManifestRetrievals) const;
+        // Returns whether manifest retrieval was deferred for a supported criterion.
+        bool FilterSearchResult(const SearchRequest& request, SearchResult& result, bool allowManifestRetrieval) const;
         std::vector<Manifest::Manifest> GetManifestsInternal(const std::string& packageId, const std::map<std::string_view, std::string>& validatedParams) const;
 
         std::string m_restApiUri;

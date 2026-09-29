@@ -162,6 +162,7 @@ namespace
         web::http::status_code ManifestStatus = web::http::status_codes::OK;
         size_t SearchRequests = 0;
         size_t ManifestRequests = 0;
+        web::http::http_request LastSearchRequest;
         web::http::http_request LastManifestRequest;
 
         SearchAndManifestResponses()
@@ -186,6 +187,7 @@ namespace
                     if (request.method() == web::http::methods::POST)
                     {
                         ++SearchRequests;
+                        LastSearchRequest = request;
                         response.set_status_code(web::http::status_codes::OK);
                         response.set_body(SearchResponse);
                     }
@@ -1363,10 +1365,13 @@ TEST_CASE("Search_ManifestResolution_SourceCapabilities", "[RestSource][Interfac
 
 TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]")
 {
+    bool exceedsResultLimit = GENERATE(false, true);
+    CAPTURE(exceedsResultLimit);
     size_t searches = 0;
     size_t lookups = 0;
     std::vector<utility::string_t> tokens;
     bool manifestReceivedContinuation = false;
+    bool manifestBeforeSearchComplete = false;
     auto handler = std::make_shared<TestRestRequestHandler>(
         [&](web::http::http_request request) -> pplx::task<web::http::http_response>
         {
@@ -1378,19 +1383,21 @@ TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]
                 tokens.emplace_back(request.headers()[L"ContinuationToken"]);
                 ++searches;
                 response.set_body(web::json::value::parse(searches == 1 ?
-                    GetSearchResponse_PackageIds({ L"Other.Package" }, L"next") : GetSearchResponse_PackageIds({ L"Foo.Bar" })));
+                    GetSearchResponse_PackageIds({ L"Other.Package" }, L"next") :
+                    (exceedsResultLimit ?
+                        GetSearchResponse_PackageIds({ L"Other.Second", L"Other.Third", L"Foo.Bar" }, L"more") :
+                        GetSearchResponse_PackageIds({ L"Foo.Bar" }))));
             }
             else if (request.method() == web::http::methods::GET)
             {
                 ++lookups;
                 manifestReceivedContinuation |= request.headers().has(L"ContinuationToken");
+                manifestBeforeSearchComplete |= searches < 2;
                 auto manifest = web::json::value::parse(GetGoodManifest_RequiredFields());
+                auto packageId = web::uri::split_path(request.absolute_uri().path()).back();
+                manifest[L"Data"][L"PackageIdentifier"] = web::json::value::string(packageId);
                 manifest[L"Data"][L"Versions"][0][L"PackageVersion"] = web::json::value::string(L"1.0.0");
-                if (request.absolute_uri().path() == L"/api/packageManifests/Other.Package")
-                {
-                    manifest[L"Data"][L"PackageIdentifier"] = web::json::value::string(L"Other.Package");
-                }
-                else
+                if (packageId == L"Foo.Bar")
                 {
                     manifest[L"Data"][L"Versions"][0][L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"bar");
                 }
@@ -1405,25 +1412,42 @@ TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]
     request.MaximumResults = 1;
     auto result = rest.Search(request);
     REQUIRE(result.Matches.size() == 1);
-    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == "Foo.Bar");
-    REQUIRE_FALSE(result.Truncated);
+    REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == (exceedsResultLimit ? "Other.Package" : "Foo.Bar"));
+    REQUIRE(result.Truncated == exceedsResultLimit);
     REQUIRE(searches == 2);
-    REQUIRE(lookups == 2);
+    REQUIRE(lookups == (exceedsResultLimit ? 0 : 2));
     REQUIRE(tokens == std::vector<utility::string_t>{ L"", L"next" });
     REQUIRE_FALSE(manifestReceivedContinuation);
+    REQUIRE_FALSE(manifestBeforeSearchComplete);
 }
 
-TEST_CASE("Search_ManifestResolution_RetrievalLimit", "[RestSource][Interface_1_0]")
+TEST_CASE("Search_ManifestResolution_ResultLimit", "[RestSource][Interface_1_0]")
 {
+    size_t packageCount = GENERATE(size_t{ 3 }, size_t{ 4 });
     bool paginated = GENERATE(false, true);
     bool manifestAvailable = GENERATE(false, true);
     bool manifestMatches = GENERATE(false, true);
     bool useInclusions = GENERATE(false, true);
     size_t maximumResults = GENERATE(size_t{ 0 }, size_t{ 1 });
-    CAPTURE(paginated, manifestAvailable, manifestMatches, useInclusions, maximumResults);
-    const std::vector<std::string> identifiers{ "Foo.One", "Foo.Two", "Foo.Three", "Foo.Four", "Foo.Five" };
+    CAPTURE(packageCount, paginated, manifestAvailable, manifestMatches, useInclusions, maximumResults);
+    const std::vector<std::string> identifiers{ "Foo.One", "Foo.Two", "Foo.Three", "Foo.Four" };
+    std::vector<utility::string_t> pages;
+    if (paginated)
+    {
+        pages.emplace_back(GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two" }, L"next"));
+        pages.emplace_back(packageCount == 3 ?
+            GetSearchResponse_PackageIds({ L"Foo.Three" }) :
+            GetSearchResponse_PackageIds({ L"Foo.Three", L"Foo.Four" }));
+    }
+    else
+    {
+        pages.emplace_back(packageCount == 3 ?
+            GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two", L"Foo.Three" }) :
+            GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two", L"Foo.Three", L"Foo.Four" }));
+    }
     size_t searches = 0;
     std::vector<utility::string_t> manifestPaths;
+    bool manifestBeforeSearchComplete = false;
     auto handler = std::make_shared<TestRestRequestHandler>(
         [&](web::http::http_request request) -> pplx::task<web::http::http_response>
         {
@@ -1432,18 +1456,13 @@ TEST_CASE("Search_ManifestResolution_RetrievalLimit", "[RestSource][Interface_1_
             response.headers().set_cache_control(L"no-store");
             if (request.method() == web::http::methods::POST)
             {
-                ++searches;
-                auto page = paginated ?
-                    (request.headers().has(L"ContinuationToken") ?
-                        GetSearchResponse_PackageIds({ L"Foo.Three", L"Foo.Four", L"Foo.Five" }) :
-                        GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two" }, L"next")) :
-                    GetSearchResponse_PackageIds({ L"Foo.One", L"Foo.Two", L"Foo.Three", L"Foo.Four", L"Foo.Five" });
-                response.set_body(web::json::value::parse(page));
+                response.set_body(web::json::value::parse(pages.at(searches++)));
             }
             else if (request.method() == web::http::methods::GET)
             {
                 auto path = request.absolute_uri().path();
                 manifestPaths.emplace_back(path);
+                manifestBeforeSearchComplete |= searches != pages.size();
                 if (manifestAvailable)
                 {
                     auto manifest = web::json::value::parse(GetGoodManifest_RequiredFields());
@@ -1473,33 +1492,35 @@ TEST_CASE("Search_ManifestResolution_RetrievalLimit", "[RestSource][Interface_1_
         CAPTURE(attempt);
         searches = 0;
         manifestPaths.clear();
+        manifestBeforeSearchComplete = false;
         auto result = rest.Search(request);
-        bool firstPageSatisfiesLimit = paginated && maximumResults && (!manifestAvailable || manifestMatches);
-        size_t expectedLookups = firstPageSatisfiesLimit ? 2 : 3;
+        bool enrich = packageCount <= 3;
+        size_t expectedLookups = enrich ? packageCount : 0;
         REQUIRE(manifestPaths.size() == expectedLookups);
+        REQUIRE_FALSE(manifestBeforeSearchComplete);
         for (size_t i = 0; i < expectedLookups; ++i)
         {
             REQUIRE(manifestPaths[i] == L"/api/packageManifests/" + ConvertToUTF16(identifiers[i]));
         }
 
-        size_t firstRetained = manifestAvailable && !manifestMatches ? 3 : 0;
-        size_t expectedCount = identifiers.size() - firstRetained;
+        size_t expectedCount = enrich && manifestAvailable && !manifestMatches ? 0 : packageCount;
+        bool expectedTruncated = maximumResults && expectedCount > maximumResults;
         if (maximumResults)
         {
             expectedCount = std::min(expectedCount, maximumResults);
         }
         REQUIRE(result.Matches.size() == expectedCount);
-        REQUIRE(result.Truncated == (maximumResults != 0));
-        REQUIRE(searches == (paginated && !firstPageSatisfiesLimit ? size_t{ 2 } : size_t{ 1 }));
+        REQUIRE(result.Truncated == expectedTruncated);
+        REQUIRE(searches == pages.size());
         for (size_t i = 0; i < expectedCount; ++i)
         {
-            REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == identifiers[firstRetained + i]);
-            REQUIRE(result.Matches[i].Versions[0].Manifest.has_value() == (manifestAvailable && firstRetained + i < expectedLookups));
+            REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == identifiers[i]);
+            REQUIRE(result.Matches[i].Versions[0].Manifest.has_value() == (enrich && manifestAvailable));
         }
     }
 }
 
-TEST_CASE("Search_ManifestResolution_RetrievalLimit_AvailableMetadata", "[RestSource][Interface_1_0]")
+TEST_CASE("Search_ManifestResolution_ResultLimit_AvailableMetadata", "[RestSource][Interface_1_0]")
 {
     SearchAndManifestResponses responses;
     responses.SearchResponse = web::json::value::parse(GetSearchResponse_PackageIds(
@@ -1514,16 +1535,80 @@ TEST_CASE("Search_ManifestResolution_RetrievalLimit_AvailableMetadata", "[RestSo
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Wanted");
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Foo.");
+    std::vector<std::string> expected{ "Foo.Known", "Foo.One", "Foo.Two", "Foo.Three", "Foo.Last", "Foo.Unknown" };
+
+    SECTION("Available metadata still filters larger result sets") {}
+    SECTION("Known mismatches do not reduce the source result count")
+    {
+        request.Filters[1].Type = MatchType::Exact;
+        request.Filters[1].Value = "Foo.Unknown";
+        expected = { "Foo.Unknown" };
+    }
 
     auto result = rest.Search(request);
     REQUIRE(responses.SearchRequests == 1);
-    REQUIRE(responses.ManifestRequests == 3);
+    REQUIRE(responses.ManifestRequests == 0);
     REQUIRE_FALSE(result.Truncated);
-    const std::vector<std::string> expected{ "Foo.Known", "Foo.One", "Foo.Two", "Foo.Three", "Foo.Last", "Foo.Unknown" };
     REQUIRE(result.Matches.size() == expected.size());
     for (size_t i = 0; i < expected.size(); ++i)
     {
         REQUIRE(result.Matches[i].PackageInformation.PackageIdentifier == expected[i]);
+    }
+}
+
+TEST_CASE("Search_ManifestResolution_ResultLimit_SearchRequest", "[RestSource][Interface_1_0]")
+{
+    size_t maximumResults = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 3 }, size_t{ 4 });
+    CAPTURE(maximumResults);
+    SearchAndManifestResponses responses;
+    SearchRequest request;
+    request.MaximumResults = maximumResults;
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Microsoft Teams");
+    size_t expectedMaximumResults = maximumResults ? std::max(maximumResults, size_t{ 4 }) : 0;
+
+    SECTION("Request enough candidates to detect a larger result set") {}
+    SECTION("ID-only criteria do not require extra candidates")
+    {
+        request.Filters.clear();
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::StartsWith, "Foo.");
+        expectedMaximumResults = maximumResults;
+    }
+    SECTION("Generic queries do not require extra candidates")
+    {
+        request.Filters.clear();
+        request.Query.emplace(MatchType::Substring, "Teams");
+        expectedMaximumResults = maximumResults;
+    }
+    SECTION("Correlation does not require extra candidates")
+    {
+        request.Purpose = SearchPurpose::CorrelationToAvailable;
+        expectedMaximumResults = maximumResults;
+    }
+    SECTION("Unsupported comparisons do not require extra candidates")
+    {
+        request.Filters[0].Type = MatchType::Fuzzy;
+        expectedMaximumResults = maximumResults;
+    }
+    SECTION("Unverifiable fields do not require extra candidates")
+    {
+        request.Filters.clear();
+        request.Filters.emplace_back(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, "Microsoft Teams", "Microsoft");
+        expectedMaximumResults = maximumResults;
+    }
+
+    HttpClientHelper helper{ responses.GetHandler() };
+    Interface rest{ TestRestUriString, helper };
+    auto result = rest.Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE_FALSE(result.Truncated);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 0);
+    REQUIRE(request.MaximumResults == maximumResults);
+    auto searchBody = responses.LastSearchRequest.extract_json().get();
+    REQUIRE(searchBody.has_field(L"MaximumResults") == (maximumResults != 0));
+    if (maximumResults)
+    {
+        REQUIRE(searchBody.at(L"MaximumResults").as_number().to_uint64() == expectedMaximumResults);
     }
 }
 
