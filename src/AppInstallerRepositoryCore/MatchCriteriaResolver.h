@@ -12,7 +12,7 @@ namespace AppInstaller::Repository
     // Applies field-specific casing rules when comparing a value.
     std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Utility::NormalizedString& value);
 
-    // Evaluates a field using complete manifest data; unsupported fields and match types remain unknown.
+    // Manifest matching leaves unsupported fields (including NormalizedNameAndPublisher) and match types unknown.
     std::optional<bool> MatchesRequest(const PackageMatchFilter& request, const Manifest::Manifest& manifest);
 
     // Evaluates (Query OR Inclusions) AND Filters; source-defined queries remain unknown.

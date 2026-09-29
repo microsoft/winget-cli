@@ -419,6 +419,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 };
             }
 
+            // Only proven mismatches are removed; retained NormalizedNameAndPublisher candidates are unvalidated.
             auto match = MatchesRequest(request, matchesField, resolveField);
             if (match && !match.value())
             {

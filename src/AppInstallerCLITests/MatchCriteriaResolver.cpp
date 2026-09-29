@@ -142,6 +142,19 @@ TEST_CASE("MatchCriteriaResolver_ManifestFields", "[MatchCriteriaResolver]")
     }
 }
 
+TEST_CASE("MatchCriteriaResolver_ManifestNormalizedNameAndPublisher_Unknown", "[MatchCriteriaResolver]")
+{
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Foo Bar");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Foo");
+    auto name = GENERATE("Foo Bar", "Other Name");
+    auto publisher = GENERATE("Foo", "Other Publisher");
+    CAPTURE(name, publisher);
+
+    PackageMatchFilter request{ PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, name, publisher };
+    REQUIRE_FALSE(MatchesRequest(request, manifest).has_value());
+}
+
 TEST_CASE("MatchCriteriaResolver_ManifestEmptyFields", "[MatchCriteriaResolver]")
 {
     Manifest::Manifest manifest;

@@ -924,10 +924,18 @@ TEST_CASE("Search_ManifestResolution_SkipsUnnecessaryLookups", "[RestSource][Int
         auto type = GENERATE(MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Wildcard);
         request.Filters.emplace_back(PackageMatchField::Name, type, "browser");
     }
-    SECTION("Unverifiable field")
+    SECTION("Market remains unvalidated")
     {
-        auto field = GENERATE(PackageMatchField::Market, PackageMatchField::NormalizedNameAndPublisher);
-        request.Filters.emplace_back(field, MatchType::Exact, "value");
+        request.Filters.emplace_back(PackageMatchField::Market, MatchType::Exact, "value");
+    }
+    SECTION("Normalized pair remains unvalidated")
+    {
+        request.Purpose = GENERATE(SearchPurpose::Default, SearchPurpose::CorrelationToInstalled, SearchPurpose::CorrelationToAvailable);
+        bool useInclusions = GENERATE(false, true);
+        CAPTURE(request.Purpose, useInclusions);
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Foo.Bar");
+        auto& criteria = useInclusions ? request.Inclusions : request.Filters;
+        criteria.emplace_back(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, "Other Name", "Other Publisher");
     }
     SECTION("Installed-package correlation")
     {
