@@ -131,7 +131,7 @@ namespace
 
     std::wstring Hash::ConvertToWideString(const HashBuffer& hashBuffer, size_t hashBufferSizeInBytes)
     {
-        return ConvertToUTF16(Hash::ConvertToString(hashBuffer, hashBufferSizeInBytes));
+        return Utility::ConvertToUTF16(Hash::ConvertToString(hashBuffer, hashBufferSizeInBytes));
     }
 
     Hash::HashBuffer Hash::ConvertToBytes(const std::string& hashStr, size_t hashBufferSizeInBytes)
