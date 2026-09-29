@@ -1415,7 +1415,7 @@ TEST_CASE("Search_ManifestResolution_Continuation", "[RestSource][Interface_1_0]
     REQUIRE(result.Matches[0].PackageInformation.PackageIdentifier == (exceedsResultLimit ? "Other.Package" : "Foo.Bar"));
     REQUIRE(result.Truncated == exceedsResultLimit);
     REQUIRE(searches == 2);
-    REQUIRE(lookups == (exceedsResultLimit ? 0 : 2));
+    REQUIRE(lookups == (exceedsResultLimit ? size_t{ 0 } : size_t{ 2 }));
     REQUIRE(tokens == std::vector<utility::string_t>{ L"", L"next" });
     REQUIRE_FALSE(manifestReceivedContinuation);
     REQUIRE_FALSE(manifestBeforeSearchComplete);
