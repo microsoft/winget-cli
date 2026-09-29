@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="3.1.2" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.18" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.Msix.Utils" Version="2.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
@@ -17,7 +17,7 @@
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.3.1" />
     <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1742" />
-    <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.3" />
+    <PackageVersion Include="ModelContextProtocol" Version="2.2.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="nunit" Version="4.6.1" />
@@ -29,7 +29,7 @@
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.18" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.10" />
     <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageVersion Include="xunit" Version="2.4.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />

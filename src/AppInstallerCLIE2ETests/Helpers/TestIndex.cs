@@ -170,6 +170,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         Name = Path.Combine(Constants.FontFileName, Constants.FontFileName),
                         Input = testParams.FontPath,
                         HashToken = "<FONTHASH>",
+                        SkipSignature = true, // same fix as microsoft/winget-cli#6261 where TTF is not a valid type to be signed
                     },
                 },
                 DynamicInstallers = new ()

@@ -90,6 +90,9 @@ namespace AppInstaller::SQLite::Builder
 
         // The sqlite_schema column name for the name of the object.
         constexpr std::string_view NameColumn = "name"sv;
+
+        // Whether a table with the given name exists in the main database.
+        bool TableExists(const Connection& connection, std::string_view tableName);
     }
 
     // A qualified column reference.
@@ -296,6 +299,7 @@ namespace AppInstaller::SQLite::Builder
         // rather than bound to it. A view definition cannot contain bound parameters, so a
         // comparison within one has to be expressed this way.
         StatementBuilder& EqualsLiteral(int64_t value);
+        StatementBuilder& NotEqualsLiteral(int64_t value);
 
         template <typename ValueType>
         StatementBuilder& IsGreaterThan(const ValueType& value)

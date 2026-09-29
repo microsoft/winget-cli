@@ -127,13 +127,15 @@ namespace AppInstaller::Repository::Microsoft
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
 
-        // Designates this index as a baseline that delta indexes may be generated against.
-        // Should be called on an index that has been prepared for packaging, as that is the form
-        // that will be published and that a delta will later be paired with.
-        void MarkAsBaseline();
-
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
+        //
+        // What that means depends on what the database is and on the properties that have been
+        // set. A delta is not an index in its own right: on its own only what it says about itself
+        // can be checked, and DeltaBaselineIndexPath additionally checks the merged form.
+        // DeltaComparisonIndexPath requires the result -- the merged form for such a delta, or the
+        // database itself for any other index -- to present the same data as the index it names.
+        // Equivalence includes package identity, so the two must share lineage.
         bool CheckConsistency(bool log = false) const;
 
         // Performs a search based on the given criteria.
@@ -180,6 +182,10 @@ namespace AppInstaller::Repository::Microsoft
             IntermediateFileOutputPath,
             DeltaBaselineIndexPath,
             DeltaOutputPath,
+            DeltaBaselineRelativeSourcePath,
+            DeltaBaselinePackageVersion,
+            DeltaMarkAsBaseline,
+            DeltaComparisonIndexPath,
         };
 
         // Sets the given property.
