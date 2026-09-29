@@ -459,6 +459,7 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download);
     bool differentName = GENERATE(false, true);
     bool differentId = GENERATE(false, true);
+    bool missingMetadata = GENERATE(false, true);
     auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
     manifest.Id = "Public.App";
     manifest.Version = "1.0";
@@ -475,8 +476,13 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     manifest.Version = "2.0";
     manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(secondName);
     package->Available.emplace_back(TestPackage::Make(std::vector{ manifest }, secondSource));
-    manifest.Version = "3.0";
-    package->Available.emplace_back(TestPackage::Make(std::vector{ manifest }, secondSource));
+    manifest.Version = std::string{ missingMetadata ? "" : "3.0" };
+    auto thirdPackage = TestPackage::Make(std::vector{ manifest }, secondSource);
+    if (missingMetadata)
+    {
+        thirdPackage->Source.reset();
+    }
+    package->Available.emplace_back(std::move(thirdPackage));
 
     SearchResult result;
     result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, secondId });
@@ -506,11 +512,12 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     std::string line;
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
+    const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
     std::vector<std::vector<std::string>> expectedRows{
         { "1", "PublicName", "Public.App", "1.0", "FirstSource" },
         differentName || differentId ? std::vector<std::string>{ secondName, secondId, "2.0", "SecondSource" } :
             std::vector<std::string>{ "2.0", "SecondSource" },
-        { "3.0", "SecondSource" },
+        { missingMetadata ? unavailable : "3.0", missingMetadata ? unavailable : "SecondSource" },
         { "2", "OtherName", "Other.App", "4.0", "FirstSource" }
     };
     for (const auto& expectedRow : expectedRows)

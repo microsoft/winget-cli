@@ -1418,19 +1418,18 @@ namespace AppInstaller::CLI::Workflow
                     for (size_t i = 0; i < searchResult.Matches.size(); ++i)
                     {
                         auto package = searchResult.Matches[i].Package;
-                        Execution::TableOutput<5>::line_t line{
-                            std::to_string(i + 1),
-                            package->GetProperty(PackageProperty::Name),
-                            package->GetProperty(PackageProperty::Id),
-                            unavailable,
-                            unavailable
-                        };
-
                         auto availablePackages = package->GetAvailable();
                         if (availablePackages.empty())
                         {
-                            lines.emplace_back(std::move(line));
+                            lines.emplace_back(Execution::TableOutput<5>::line_t{
+                                std::to_string(i + 1),
+                                package->GetProperty(PackageProperty::Name),
+                                package->GetProperty(PackageProperty::Id),
+                                unavailable,
+                                unavailable
+                            });
                         }
+                        bool firstSource = true;
                         std::pair<std::string, std::string> previousIdentity;
                         for (const auto& available : availablePackages)
                         {
@@ -1438,17 +1437,28 @@ namespace AppInstaller::CLI::Workflow
                                 available->GetProperty(PackageProperty::Name),
                                 available->GetProperty(PackageProperty::Id)
                             };
-                            bool repeatedIdentity = line[0].empty() && identity == previousIdentity;
-                            line[1] = repeatedIdentity ? ""s : identity.first;
-                            line[2] = repeatedIdentity ? ""s : identity.second;
+                            bool repeatedIdentity = !firstSource && identity == previousIdentity;
+                            Execution::TableOutput<5>::line_t line{
+                                firstSource ? std::to_string(i + 1) : ""s,
+                                repeatedIdentity ? ""s : identity.first,
+                                repeatedIdentity ? ""s : identity.second,
+                                unavailable,
+                                unavailable
+                            };
                             auto version = available->GetLatestVersion();
                             auto source = available->GetSource();
                             std::string versionString = version ? version->GetProperty(PackageVersionProperty::Version).get() : std::string{};
                             std::string sourceName = source ? source.GetDetails().Name : std::string{};
-                            line[3] = versionString.empty() ? unavailable : versionString;
-                            line[4] = sourceName.empty() ? unavailable : sourceName;
-                            lines.emplace_back(line);
-                            line[0].clear();
+                            if (!versionString.empty())
+                            {
+                                line[3] = std::move(versionString);
+                            }
+                            if (!sourceName.empty())
+                            {
+                                line[4] = std::move(sourceName);
+                            }
+                            lines.emplace_back(std::move(line));
+                            firstSource = false;
                             previousIdentity = std::move(identity);
                         }
                     }
