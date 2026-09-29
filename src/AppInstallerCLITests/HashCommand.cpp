@@ -10,13 +10,13 @@ using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 
-TEST_CASE("SHA256_KnownVectors", "[Sha256Hash]")
+TEST_CASE("SHA256_KnownVectors", "[Sha256Hash][Cryptography]")
 {
     REQUIRE(SHA256::ConvertToString(SHA256::ComputeHash("")) == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     REQUIRE(SHA256::ConvertToString(SHA256::ComputeHash("abc")) == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 }
 
-TEST_CASE("SHA256_Streaming", "[Sha256Hash]")
+TEST_CASE("SHA256_Streaming", "[Sha256Hash][Cryptography]")
 {
     SHA256 hasher;
     std::string_view first{ "a" };
@@ -31,7 +31,7 @@ TEST_CASE("SHA256_Streaming", "[Sha256Hash]")
     REQUIRE_THROWS_HR(hasher.Get(), E_UNEXPECTED);
 }
 
-TEST_CASE("SHA256_StreamAndFile", "[Sha256Hash]")
+TEST_CASE("SHA256_StreamAndFile", "[Sha256Hash][Cryptography]")
 {
     std::istringstream stream{ "abc" };
     SHA256::HashDetails details = SHA256::ComputeHashDetails(stream);
@@ -48,7 +48,7 @@ TEST_CASE("SHA256_StreamAndFile", "[Sha256Hash]")
     REQUIRE(SHA256::ConvertToString(SHA256::ComputeHashFromFile(tempFile.GetPath())) == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 }
 
-TEST_CASE("SHA256_Conversions", "[Sha256Hash]")
+TEST_CASE("SHA256_Conversions", "[Sha256Hash][Cryptography]")
 {
     std::string hashString = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
     SHA256::HashBuffer hashBytes = SHA256::ConvertToBytes(hashString);
@@ -58,7 +58,7 @@ TEST_CASE("SHA256_Conversions", "[Sha256Hash]")
     REQUIRE(SHA256::ConvertToWideString(hashBytes) == L"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 }
 
-TEST_CASE("HashCommandWithTestMsix", "[Sha256Hash]")
+TEST_CASE("HashCommandWithTestMsix", "[Sha256Hash][Cryptography]")
 {
     std::ostringstream hashOutput;
     Execution::Context context{ hashOutput, std::cin };
