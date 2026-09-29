@@ -92,6 +92,8 @@ namespace
         m_context->HashHandle.reset(hashHandle);
     }
 
+    Hash::~Hash() = default;
+
     void Hash::Add(const uint8_t* buffer, size_t cbBuffer)
     {
         EnsureNotFinished();
@@ -204,7 +206,7 @@ namespace
     Hash::HashBuffer Hash::ComputeHashFromFile(HashAlgorithm algorithm, const std::filesystem::path& path)
     {
         std::ifstream inStream{ path, std::ifstream::binary };
-        const Utility::Hash::HashBuffer& targetFileHash = Utility::Hash::ComputeHash(algorithm, inStream);
+        const Hash::HashBuffer& targetFileHash = Hash::ComputeHash(algorithm, inStream);
         inStream.close();
         return targetFileHash;
     }
@@ -222,11 +224,6 @@ namespace
         }
 
         return hasher.Get();
-    }
-
-    void Hash::HashContextDeleter::operator()(HashContext* context)
-    {
-        delete context;
     }
 
     bool Hash::AreEqual(const HashBuffer& first, const HashBuffer& second)

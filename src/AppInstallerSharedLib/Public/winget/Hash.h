@@ -42,6 +42,7 @@ namespace AppInstaller::Cryptography {
         };
 
         Hash(HashAlgorithm algorithm);
+        ~Hash();
 
         // Adds the next chunk of data to the hash.
         void Add(const uint8_t* buffer, size_t cbBuffer);
@@ -99,12 +100,7 @@ namespace AppInstaller::Cryptography {
 
         HashAlgorithm m_algorithm;
 
-        struct HashContextDeleter
-        {
-            void operator()(HashContext* context);
-        };
-
-        std::unique_ptr<HashContext, HashContextDeleter> m_context;
+        std::unique_ptr<HashContext> m_context;
     };
 
     // Binds the generic hash implementation to a specific algorithm.
