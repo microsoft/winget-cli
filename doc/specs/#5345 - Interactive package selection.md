@@ -33,7 +33,8 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 | `0` | Cancel without acting on a package. |
 | Ctrl+C | Cancel immediately, including while waiting for input. |
 | EOF or input failure | Report the existing prompt input error. |
-| `--disable-interactivity`, interactivity disabled in settings or context, or `--silent` | Retain ambiguity error without reading input. |
+| `--disable-interactivity`, interactivity disabled in settings or context | Retain ambiguity error without reading input. |
+| `--silent` | Controls installer UI, not selection prompts; normal interactivity rules apply. |
 | Redirected input or output, or disabled informational output | Do not prompt. |
 | `--no-vt` | Use the same text and numeric input without terminal escape sequences. |
 | Multi-package operations, including individual package subcontexts | No disambiguation prompts, either per package or up front; retain existing ambiguity errors. |

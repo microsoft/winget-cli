@@ -228,6 +228,11 @@ TEST_CASE("PackageSelection_CommandCancel", "[PackageSelection][workflow]")
 
     SECTION("Install")
     {
+        bool silent = GENERATE(false, true);
+        if (silent)
+        {
+            context.Args.AddArg(Execution::Args::Type::Silent);
+        }
         context.Args.AddArg(Execution::Args::Type::Force);
         InstallCommand({}).Execute(context);
     }
@@ -275,9 +280,15 @@ TEST_CASE("PackageSelection_CommandContinue", "[PackageSelection][workflow]")
 
     SECTION("Install")
     {
+        bool silent = GENERATE(false, true);
+        if (silent)
+        {
+            context.Args.AddArg(Execution::Args::Type::Silent);
+        }
         context.Args.AddArg(Execution::Args::Type::Force);
         context.Override({ Workflow::InstallSinglePackage, checkSelection, 1 });
         InstallCommand({}).Execute(context);
+        REQUIRE(context.Args.Contains(Execution::Args::Type::Silent) == silent);
     }
     SECTION("Show")
     {
@@ -549,9 +560,10 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     {
         settings.Set<Setting::InteractivityDisable>(true);
     }
-    SECTION("Silent")
+    SECTION("Silent with interactivity disabled")
     {
         context.Args.AddArg(Execution::Args::Type::Silent);
+        context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
     }
     SECTION("Redirected streams")
     {
