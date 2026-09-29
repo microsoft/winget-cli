@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft
 created on: 2026-09-28
-last updated: 2026-09-28
+last updated: 2026-09-29
 issue id: 5345
 ---
 
@@ -43,15 +43,15 @@ The prompt adds no settings, command-line flags, group policies, manifest fields
 
 ## UI/UX Design
 
-Use the existing search table layout with a leading selection number. Show the Source column only when candidates span sources. For example:
+Use the existing search table layout with a leading selection number. Always show the Source column, including when all candidates use the same source. For example:
 
 ```text
 Multiple packages match. Choose one to install.
 
-# Name           Id                 Version
--------------------------------------------
-1 Contoso Editor Contoso.Editor     2.4.0
-2 Contoso Editor Contoso.Editor.Pro 2.4.0
+# Name           Id                 Version Source
+--------------------------------------------------
+1 Contoso Editor Contoso.Editor     2.4.0   winget
+2 Contoso Editor Contoso.Editor.Pro 2.4.0   winget
 
 Enter a number (1-2), or 0 to cancel: 1
 Selected: Contoso Editor [Contoso.Editor]

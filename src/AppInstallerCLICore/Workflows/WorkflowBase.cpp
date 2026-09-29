@@ -1454,7 +1454,6 @@ namespace AppInstaller::CLI::Workflow
                         }
                     }
 
-                    bool showSource = std::any_of(lines.begin(), lines.end(), [&](const auto& line) { return line[4] != lines.front()[4]; });
                     Execution::TableOutput<5> table(context.Reporter,
                         {
                             Resource::LocString{ Utility::LocIndString{ "#"sv } },
@@ -1465,10 +1464,6 @@ namespace AppInstaller::CLI::Workflow
                         });
                     for (auto& line : lines)
                     {
-                        if (!showSource)
-                        {
-                            line[4].clear();
-                        }
                         table.OutputLine(std::move(line));
                     }
                     table.Complete();

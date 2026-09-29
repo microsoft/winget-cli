@@ -131,7 +131,7 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
         PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
     auto expectedPackage = result.Matches[1].Package;
     bool expectPrompt = true;
-    bool expectSource = true;
+    bool expectSecondSource = true;
     size_t expectedRows = 2;
 
     SECTION("Same identity across sources")
@@ -141,7 +141,7 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     {
         result.Matches[1].Package = TestCompositePackage::Make(versions, firstSource);
         expectedPackage = result.Matches[1].Package;
-        expectSource = false;
+        expectSecondSource = false;
     }
     SECTION("Multiple available sources for a candidate")
     {
@@ -205,9 +205,9 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
             REQUIRE(tableText.find(manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>()) != std::string::npos);
             REQUIRE(tableText.find(manifest.Id) != std::string::npos);
             REQUIRE(tableText.find(manifest.Version) != std::string::npos);
-            REQUIRE((tableText.find(Resource::LocString{ Resource::String::SearchSource }.get()) != std::string::npos) == expectSource);
-            REQUIRE((tableText.find("FirstSource") != std::string::npos) == expectSource);
-            REQUIRE((tableText.find("SecondSource") != std::string::npos) == expectSource);
+            REQUIRE(tableText.find(Resource::LocString{ Resource::String::SearchSource }.get()) != std::string::npos);
+            REQUIRE(tableText.find("FirstSource") != std::string::npos);
+            REQUIRE((tableText.find("SecondSource") != std::string::npos) == expectSecondSource);
         }
         else
         {
