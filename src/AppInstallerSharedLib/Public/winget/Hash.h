@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace AppInstaller::Utility {
+namespace AppInstaller::Cryptography {
 
     enum class HashAlgorithm
     {

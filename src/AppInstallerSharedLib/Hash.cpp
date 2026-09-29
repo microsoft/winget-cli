@@ -7,7 +7,7 @@
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerStrings.h"
 
-namespace AppInstaller::Utility {
+namespace AppInstaller::Cryptography {
 namespace
 {
     struct HashAlgorithmInfo
