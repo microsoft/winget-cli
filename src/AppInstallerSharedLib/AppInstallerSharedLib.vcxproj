@@ -319,7 +319,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
-    <ClInclude Include="Public\AppInstallerHash.h" />
+    <ClInclude Include="Public\winget\Hash.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />

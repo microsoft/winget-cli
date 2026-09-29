@@ -35,7 +35,7 @@
     <ClInclude Include="Public\AppInstallerStrings.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerHash.h">
+    <ClInclude Include="Public\winget\Hash.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerSHA256.h">

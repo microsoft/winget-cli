@@ -3,7 +3,7 @@
 #include <pch.h>
 #define WIN32_NO_STATUS
 #include <bcrypt.h>
-#include "Public/AppInstallerHash.h"
+#include "Public/winget/Hash.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerStrings.h"
 
