@@ -109,7 +109,7 @@ namespace AppInstaller::Cryptography {
 
     // Binds the generic hash implementation to a specific algorithm.
     template <HashAlgorithm Algorithm>
-    class AlgorithmHash
+    class HashT : public Hash
     {
     public:
         using HashBuffer = Hash::HashBuffer;
@@ -117,29 +117,13 @@ namespace AppInstaller::Cryptography {
         constexpr static size_t HashBufferSizeInBytes = HashAlgorithmTraits<Algorithm>::HashBufferSizeInBytes;
         constexpr static size_t HashStringSizeInChars = HashBufferSizeInBytes * 2;
 
-        AlgorithmHash() : m_hash(Algorithm)
+        HashT() : Hash(Algorithm)
         {
         }
 
-        void Add(const uint8_t* buffer, size_t cbBuffer)
-        {
-            m_hash.Add(buffer, cbBuffer);
-        }
-
-        void Add(const std::vector<std::uint8_t>& buffer)
-        {
-            m_hash.Add(buffer);
-        }
-
-        void Get(HashBuffer& hash)
-        {
-            m_hash.Get(hash);
-        }
-
-        HashBuffer Get()
-        {
-            return m_hash.Get();
-        }
+        using Hash::Add;
+        using Hash::AreEqual;
+        using Hash::Get;
 
         static HashBuffer ComputeHash(const uint8_t* buffer, std::uint32_t cbBuffer)
         {
@@ -196,12 +180,8 @@ namespace AppInstaller::Cryptography {
             return Hash::ConvertToBytes(hashStr, HashBufferSizeInBytes);
         }
 
-        static bool AreEqual(const HashBuffer& first, const HashBuffer& second)
-        {
-            return Hash::AreEqual(first, second);
-        }
-
-    private:
-        Hash m_hash;
     };
+
+    template <HashAlgorithm Algorithm>
+    using AlgorithmHash = HashT<Algorithm>;
 }
