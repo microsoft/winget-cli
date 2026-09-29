@@ -1415,6 +1415,7 @@ namespace AppInstaller::CLI::Workflow
                     out << title << std::endl << std::endl;
 
                     std::vector<Execution::TableOutput<5>::line_t> lines;
+                    const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
                     for (size_t i = 0; i < searchResult.Matches.size(); ++i)
                     {
                         auto package = searchResult.Matches[i].Package;
@@ -1422,8 +1423,8 @@ namespace AppInstaller::CLI::Workflow
                             std::to_string(i + 1),
                             package->GetProperty(PackageProperty::Name),
                             package->GetProperty(PackageProperty::Id),
-                            Resource::LocString{ Resource::String::Unavailable }.get(),
-                            Resource::LocString{ Resource::String::Unavailable }.get()
+                            unavailable,
+                            unavailable
                         };
 
                         auto availablePackages = package->GetAvailable();
@@ -1445,8 +1446,8 @@ namespace AppInstaller::CLI::Workflow
                             auto source = available->GetSource();
                             std::string versionString = version ? version->GetProperty(PackageVersionProperty::Version).get() : std::string{};
                             std::string sourceName = source ? source.GetDetails().Name : std::string{};
-                            line[3] = versionString.empty() ? Resource::LocString{ Resource::String::Unavailable }.get() : versionString;
-                            line[4] = sourceName.empty() ? Resource::LocString{ Resource::String::Unavailable }.get() : sourceName;
+                            line[3] = versionString.empty() ? unavailable : versionString;
+                            line[4] = sourceName.empty() ? unavailable : sourceName;
                             lines.emplace_back(line);
                             line[0].clear();
                             previousIdentity = std::move(identity);
