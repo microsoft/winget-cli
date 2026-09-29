@@ -385,7 +385,7 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     context.Reporter.SetConsoleStreamsForTest(true);
     context.Reporter.SetStyle(VisualStyle::NoVT);
     context.Add<Execution::Data::SearchResult>(std::move(result));
-    context << EnsureOneMatchFromSearchResult(operation, true);
+    context << EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Prompt);
 
     INFO(output.str());
     REQUIRE_FALSE(context.IsTerminated());
@@ -482,7 +482,7 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     context.Reporter.SetConsoleStreamsForTest(true);
     context.Reporter.SetStyle(VisualStyle::NoVT);
     context.Add<Execution::Data::SearchResult>(std::move(result));
-    context << EnsureOneMatchFromSearchResult(operation, true);
+    context << EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Prompt);
 
     INFO(output.str());
     REQUIRE_FALSE(context.IsTerminated());
@@ -530,12 +530,12 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
     auto result = source->Search({});
     auto operation = OperationType::Install;
-    bool allowSelection = true;
+    auto selectionBehavior = PackageSelectionBehavior::Prompt;
     HRESULT expectedError = APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND;
 
     SECTION("Default workflow")
     {
-        allowSelection = false;
+        selectionBehavior = PackageSelectionBehavior::Disabled;
     }
     SECTION("Context disabled")
     {
@@ -577,7 +577,7 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     }
 
     context.Add<Execution::Data::SearchResult>(std::move(result));
-    context << EnsureOneMatchFromSearchResult(operation, allowSelection);
+    context << EnsureOneMatchFromSearchResult(operation, selectionBehavior);
     INFO(output.str());
     REQUIRE_TERMINATED_WITH(context, expectedError);
     REQUIRE_FALSE(context.Contains(Execution::Data::Package));

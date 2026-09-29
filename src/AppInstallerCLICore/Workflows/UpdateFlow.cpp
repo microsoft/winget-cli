@@ -322,7 +322,7 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             HandleSearchResultFailures <<
-            EnsureOneMatchFromSearchResult(m_operationType, m_allowSelection) <<
+            EnsureOneMatchFromSearchResult(m_operationType, m_selectionBehavior) <<
             GetInstalledPackageVersion;
 
         if ( m_operationType != OperationType::Upgrade && 
@@ -372,7 +372,7 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             SearchSourceForSingle <<
-            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType, m_allowSelection) <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType, m_selectionBehavior) <<
             InstallSinglePackage;
     }
 }

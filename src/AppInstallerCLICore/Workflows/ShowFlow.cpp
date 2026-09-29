@@ -226,7 +226,7 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource() <<
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(OperationType::Show, m_allowSelection) <<
+                EnsureOneMatchFromSearchResult(OperationType::Show, m_selectionBehavior) <<
                 GetManifestFromPackage(m_considerPins);
         }
     }

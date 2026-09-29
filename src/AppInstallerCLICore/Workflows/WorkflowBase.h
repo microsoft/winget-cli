@@ -46,6 +46,12 @@ namespace AppInstaller::CLI::Workflow
         Repair,
     };
 
+    enum class PackageSelectionBehavior
+    {
+        Disabled,
+        Prompt,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -263,14 +269,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(OperationType operation, bool allowSelection = false) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation), m_allowSelection(allowSelection) {}
+        EnsureOneMatchFromSearchResult(OperationType operation, PackageSelectionBehavior selectionBehavior = PackageSelectionBehavior::Disabled) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation), m_selectionBehavior(selectionBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         OperationType m_operationType;
-        bool m_allowSelection;
+        PackageSelectionBehavior m_selectionBehavior;
     };
 
     // Gets the manifest from package.

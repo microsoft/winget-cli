@@ -39,16 +39,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
     {
-        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation, bool allowSelection, bool allowDowngrade = false) :
+        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation, PackageSelectionBehavior selectionBehavior, bool allowDowngrade = false) :
             WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_operationType(operation), m_allowDowngrade(allowDowngrade),
-            m_allowSelection(allowSelection) {}
+            m_selectionBehavior(selectionBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         mutable OperationType m_operationType;
         bool m_allowDowngrade;
-        bool m_allowSelection;
+        PackageSelectionBehavior m_selectionBehavior;
     };
 
     // Install or upgrade a single package
@@ -57,13 +57,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InstallOrUpgradeSinglePackage : public WorkflowTask
     {
-        InstallOrUpgradeSinglePackage(OperationType operation, bool allowSelection = false) :
-            WorkflowTask("InstallOrUpgradeSinglePackage"), m_operationType(operation), m_allowSelection(allowSelection) {}
+        InstallOrUpgradeSinglePackage(OperationType operation, PackageSelectionBehavior selectionBehavior = PackageSelectionBehavior::Disabled) :
+            WorkflowTask("InstallOrUpgradeSinglePackage"), m_operationType(operation), m_selectionBehavior(selectionBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         mutable OperationType m_operationType;
-        bool m_allowSelection;
+        PackageSelectionBehavior m_selectionBehavior;
     };
 }

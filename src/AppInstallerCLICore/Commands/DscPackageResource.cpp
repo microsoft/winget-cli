@@ -237,7 +237,7 @@ namespace AppInstaller::CLI
                 }
 
                 *SubContext <<
-                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(Workflow::OperationType::Install, false, allowDowngrade) <<
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(Workflow::OperationType::Install, Workflow::PackageSelectionBehavior::Disabled, allowDowngrade) <<
                     Workflow::InstallSinglePackage;
 
                 if (SubContext->IsTerminated())
