@@ -196,11 +196,19 @@ namespace AppInstaller::CLI::Workflow
                     if (!sourceName.empty() && !sources.empty())
                     {
                         // A bad name was given, try to help.
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
-                        context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
-                        for (const auto& details : sources)
+                        auto message = Resource::String::OpenSourceFailedNoMatch(sourceName);
+                        if (context.Reporter.IsStructuredOutputEnabled())
                         {
-                            context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            context.Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, message.get(), std::string_view{ sourceName });
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << message << std::endl;
+                            context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
+                            for (const auto& details : sources)
+                            {
+                                context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                            }
                         }
 
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
@@ -208,7 +216,15 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         // Even if a name was given, there are no sources
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                        auto message = Resource::String::OpenSourceFailedNoSourceDefined();
+                        if (context.Reporter.IsStructuredOutputEnabled())
+                        {
+                            context.Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, message.get());
+                        }
+                        else
+                        {
+                            context.Reporter.Error() << message << std::endl;
+                        }
                         AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
                     }
                 }
@@ -234,7 +250,15 @@ namespace AppInstaller::CLI::Workflow
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : updateFailures)
                 {
-                    context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
+                    auto message = Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name });
+                    if (context.Reporter.IsStructuredOutputEnabled())
+                    {
+                        context.Reporter.AddStructuredOutputWarning("SourceUpdateFailed", message.get(), s.Name);
+                    }
+                    else
+                    {
+                        context.Reporter.Warn() << message << std::endl;
+                    }
                 }
 
                 // Report sources that may need authentication
@@ -255,9 +279,16 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
-                context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
+                if (!context.Reporter.IsStructuredOutputEnabled())
+                {
+                    context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
+                }
                 if (re.GetErrorCode() == APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES)
                 {
+                    if (context.Reporter.IsStructuredOutputEnabled())
+                    {
+                        context.Reporter.AddStructuredOutputError(re.GetErrorCode(), GetUserPresentableMessage(re), sourceName.empty() ? std::nullopt : std::optional<std::string_view>{ sourceName });
+                    }
                     // Since we know there must have been multiple errors here, just fail the context rather
                     // than trying to get one of the exceptions back out.
                     AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES, {});
@@ -323,8 +354,9 @@ namespace AppInstaller::CLI::Workflow
                 std::shared_ptr<ICompositePackage> package,
                 std::shared_ptr<IPackageVersion> installedVersion,
                 const Utility::LocIndString& availableVersion,
-                const Utility::LocIndString& source)
-                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source)
+                const Utility::LocIndString& source,
+                Execution::StructuredOutput::Package structuredPackage)
+                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source), StructuredPackage(std::move(structuredPackage))
             {
                 Name = InstalledPackageVersion->GetProperty(PackageVersionProperty::Name);
                 Id = Package->GetProperty(PackageProperty::Id);
@@ -339,6 +371,7 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString InstalledVersion;
             Utility::LocIndString AvailableVersion;
             Utility::LocIndString Source;
+            Execution::StructuredOutput::Package StructuredPackage;
         };
 
         void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -597,9 +630,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResultException, re.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(re) << std::endl;
+                auto message = GetUserPresentableMessage(re);
+                if (context->Reporter.IsStructuredOutputEnabled())
+                {
+                    context->Reporter.AddStructuredOutputError(re.GetErrorCode(), message);
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return re.GetErrorCode();
         }
@@ -609,9 +650,16 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::WinrtHResultError, message);
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    message << std::endl;
+                if (context->Reporter.IsStructuredOutputEnabled())
+                {
+                    context->Reporter.AddStructuredOutputError(hre.code(), message);
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return hre.code();
         }
@@ -621,7 +669,15 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
                 auto policyNameId = policy.PolicyName();
-                context->Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
+                auto message = Resource::String::DisabledByGroupPolicy(policyNameId);
+                if (context->Reporter.IsStructuredOutputEnabled())
+                {
+                    context->Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, message.get());
+                }
+                else
+                {
+                    context->Reporter.Error() << message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
@@ -630,9 +686,17 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                    GetUserPresentableMessage(e) << std::endl;
+                auto message = GetUserPresentableMessage(e);
+                if (context->Reporter.IsStructuredOutputEnabled())
+                {
+                    context->Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_COMMAND_FAILED, message);
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
+                        message << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -642,8 +706,15 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::Unknown, {});
             if (context)
             {
-                context->Reporter.Error() <<
-                    Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                if (context->Reporter.IsStructuredOutputEnabled())
+                {
+                    context->Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_COMMAND_FAILED, "Unknown error");
+                }
+                else
+                {
+                    context->Reporter.Error() <<
+                        Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
+                }
             }
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -1010,7 +1081,16 @@ namespace AppInstaller::CLI::Workflow
 
         if (!searchResult.Failures.empty())
         {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
+            if (context.Reporter.IsStructuredOutputEnabled())
+            {
+                for (const auto& failure : searchResult.Failures)
+                {
+                    HRESULT failureHR = HandleException(nullptr, failure.Exception);
+                    auto message = Resource::String::SearchFailureError(Utility::LocIndView{ failure.SourceName });
+                    context.Reporter.AddStructuredOutputError(failureHR, message.get(), failure.SourceName);
+                }
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::TreatSourceFailuresAsWarning))
             {
                 auto warn = context.Reporter.Warn();
                 for (const auto& failure : searchResult.Failures)
@@ -1236,6 +1316,60 @@ namespace AppInstaller::CLI::Workflow
                         }
                     }
 
+                    Execution::StructuredOutput::Package structuredPackage;
+                    if (context.Reporter.IsStructuredOutputEnabled())
+                    {
+                        auto availableVersionKeys = availableVersions->GetVersionKeys();
+                        auto latestAvailableVersion = availableVersions->GetLatestVersion();
+                        auto updateAvailabilityEvaluator = pinningData.CreatePinStateEvaluator(PinBehavior::IgnorePins, installedVersion);
+
+                        structuredPackage.Name = installedVersion->GetProperty(PackageVersionProperty::Name).get();
+                        structuredPackage.Id = match.Package->GetProperty(PackageProperty::Id).get();
+                        structuredPackage.InstalledVersion = installedVersion->GetProperty(PackageVersionProperty::Version).get();
+                        structuredPackage.IsUpdateAvailable = updateAvailabilityEvaluator.IsUpdate(latestAvailableVersion);
+
+                        auto trySetSource = [&](const std::shared_ptr<IPackageVersion>& version)
+                        {
+                            if (!version || version->GetProperty(PackageVersionProperty::Id).get() != structuredPackage.Id)
+                            {
+                                return false;
+                            }
+
+                            auto versionSource = version->GetSource();
+                            if (versionSource && !versionSource.GetDetails().Name.empty())
+                            {
+                                structuredPackage.Source = versionSource.GetDetails().Name;
+                            }
+                            else
+                            {
+                                auto structuredSourceName = version->GetProperty(PackageVersionProperty::SourceName).get();
+                                if (!structuredSourceName.empty())
+                                {
+                                    structuredPackage.Source = std::move(structuredSourceName);
+                                }
+                            }
+
+                            return structuredPackage.Source.has_value();
+                        };
+
+                        bool sourceFound = trySetSource(latestAvailableVersion);
+
+                        for (const auto& versionKey : availableVersionKeys)
+                        {
+                            structuredPackage.AvailableVersions.emplace_back(versionKey.Version);
+
+                            if (!sourceFound)
+                            {
+                                sourceFound = trySetSource(availableVersions->GetVersion(versionKey));
+                            }
+                        }
+
+                        if (structuredPackage.IsUpdateAvailable && latestVersion)
+                        {
+                            structuredPackage.UpgradeVersion = latestVersion->GetProperty(PackageVersionProperty::Version).get();
+                        }
+                    }
+
                     // Output using the local PackageName instead of the name in the manifest, to prevent confusion for packages that add multiple
                     // Add/Remove Programs entries.
                     // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
@@ -1243,7 +1377,8 @@ namespace AppInstaller::CLI::Workflow
                          match.Package,
                          installedVersion,
                          availableVersion,
-                         shouldShowSource ? sourceName : Utility::LocIndString()
+                         shouldShowSource ? sourceName : Utility::LocIndString(),
+                         std::move(structuredPackage)
                     );
 
                     auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
@@ -1261,6 +1396,55 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
             }
+        }
+
+        if (context.Reporter.IsStructuredOutputEnabled())
+        {
+            SortInstalledPackagesTableLines(context, lines);
+            SortInstalledPackagesTableLines(context, linesForExplicitUpgrade);
+            SortInstalledPackagesTableLines(context, linesForPins);
+
+            Execution::StructuredOutput::PackageResult result;
+            result.Truncated = searchResult.Truncated;
+
+            auto appendPackages = [&](const std::vector<InstalledPackagesTableLine>& packageLines)
+            {
+                for (const auto& line : packageLines)
+                {
+                    result.Packages.emplace_back(line.StructuredPackage);
+                }
+            };
+
+            appendPackages(lines);
+            appendPackages(linesForExplicitUpgrade);
+            appendPackages(linesForPins);
+
+            if (searchResult.Truncated)
+            {
+                context.Reporter.AddStructuredOutputWarning("SearchTruncated", Resource::String::SearchTruncated().get());
+            }
+
+            if (packagesWithUnknownVersionSkipped > 0)
+            {
+                context.Reporter.AddStructuredOutputWarning(
+                    "UnknownVersionSkipped",
+                    Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped).get());
+            }
+
+            if (packagesWithUserPinsSkipped > 0)
+            {
+                context.Reporter.AddStructuredOutputWarning(
+                    "PinnedPackageSkipped",
+                    Resource::String::UpgradePinnedByUserCount(packagesWithUserPinsSkipped).get());
+            }
+
+            if (!linesForExplicitUpgrade.empty())
+            {
+                context.Reporter.AddStructuredOutputWarning("ExplicitUpgradeRequired", Resource::String::UpgradeAvailableForPinned().get());
+            }
+
+            context.Reporter.SetStructuredOutputResult(std::move(result));
+            return;
         }
 
         OutputInstalledPackages(context, lines);
@@ -1319,6 +1503,12 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
+
+            if (context.Reporter.IsStructuredOutputEnabled() &&
+                (m_operationType == OperationType::List || m_operationType == OperationType::Upgrade))
+            {
+                return;
+            }
             
             switch (m_operationType)
             {

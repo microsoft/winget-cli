@@ -201,14 +201,24 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
-            context.UpdateForArgs();
             context.SetExecutingCommand(command.get());
+            command->ConfigureOutput(context);
+            context.UpdateForArgs();
             command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)
         {
-            command->OutputHelp(context.Reporter, &ce);
+            command->ConfigureOutput(context);
+            if (context.Reporter.IsStructuredOutputEnabled())
+            {
+                context.Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, ce.Message().get());
+                context.Reporter.FinalizeStructuredOutput();
+            }
+            else
+            {
+                command->OutputHelp(context.Reporter, &ce);
+            }
             AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
@@ -217,12 +227,23 @@ namespace AppInstaller::CLI
             // Report any action blocked by Group Policy.
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             AICLI_LOG(CLI, Error, << "Operation blocked by Group Policy: " << policy.RegValueName());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()) << std::endl;
+            auto message = Resource::String::DisabledByGroupPolicy(policy.PolicyName());
+            if (context.Reporter.IsStructuredOutputEnabled())
+            {
+                context.Reporter.AddStructuredOutputError(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, message.get());
+                context.Reporter.FinalizeStructuredOutput();
+            }
+            else
+            {
+                context.Reporter.Error() << message << std::endl;
+            }
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (...)
         {
-            return Workflow::HandleException(context, std::current_exception());
+            HRESULT result = Workflow::HandleException(context, std::current_exception());
+            context.Reporter.FinalizeStructuredOutput();
+            return result;
         }
 
         return Execute(context, command);

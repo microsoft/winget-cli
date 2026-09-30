@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aka.ms/winget-cli-output.common.1.0.schema.json",
+  "$defs": {
+    "package": {
+      "type": "object",
+      "required": [
+        "Name",
+        "Id",
+        "InstalledVersion",
+        "AvailableVersions",
+        "IsUpdateAvailable",
+        "Source",
+        "UpgradeVersion"
+      ],
+      "properties": {
+        "Name": { "type": "string" },
+        "Id": { "type": "string" },
+        "InstalledVersion": { "type": "string" },
+        "AvailableVersions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "IsUpdateAvailable": { "type": "boolean" },
+        "Source": { "type": ["string", "null"] },
+        "UpgradeVersion": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "packageResult": {
+      "type": "object",
+      "required": ["packages", "truncated"],
+      "properties": {
+        "packages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/package" }
+        },
+        "truncated": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "warning": {
+      "type": "object",
+      "required": ["code", "message", "source"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1 },
+        "message": { "type": "string" },
+        "source": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "source"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^0x[0-9A-F]{8}$" },
+        "message": { "type": "string" },
+        "source": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    }
+  }
+}

@@ -196,6 +196,9 @@ namespace AppInstaller::CLI::Execution
             // Used for demonstration purposes
             ExperimentalArg,
 
+            // Output format selector. Keep new arguments appended to preserve serialized argument ordinals.
+            OutputFormat,
+
             // This should always be at the end
             Max
         };

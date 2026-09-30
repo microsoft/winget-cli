@@ -523,6 +523,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OSVersionDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(OutputFormatArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
@@ -699,6 +700,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SortArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SortAscendingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SortDescendingArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(StructuredOutputUnsupportedOperation);
         WINGET_DEFINE_RESOURCE_STRINGID(SkipDependenciesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesOnlyArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesOnlyMessage);

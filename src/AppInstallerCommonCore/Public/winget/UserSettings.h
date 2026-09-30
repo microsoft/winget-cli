@@ -103,6 +103,7 @@ namespace AppInstaller::Settings
         EFResume,
         EFFonts,
         EFSourcePriority,
+        EFStructuredOutput,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -196,6 +197,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFSourcePriority, bool, bool, false, ".experimentalFeatures.sourcePriority"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFStructuredOutput, bool, bool, false, ".experimentalFeatures.structuredOutput"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

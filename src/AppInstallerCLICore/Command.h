@@ -113,6 +113,12 @@ namespace AppInstaller::CLI
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
         virtual void ValidateArguments(Execution::Args& execArgs) const;
 
+        // Returns the normalized structured output mode when this invocation is supported.
+        virtual std::optional<Execution::StructuredOutput::Mode> GetStructuredOutputMode(const Execution::Args& execArgs) const;
+
+        // Selects JSON output after parsing has recognized --format json.
+        void ConfigureOutput(Execution::Context& context) const;
+
         virtual void Complete(Execution::Context& context) const;
         virtual void Complete(Execution::Context& context, Execution::Args::Type valueType) const;
 

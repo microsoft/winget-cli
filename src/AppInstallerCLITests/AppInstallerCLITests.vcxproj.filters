@@ -302,6 +302,9 @@
     <ClCompile Include="UpdateFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="StructuredOutput.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="UninstallFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
@@ -438,6 +441,18 @@
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\common.1.0.schema.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\error.1.0.schema.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\list.1.0.schema.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(SolutionDir)..\schemas\JSON\cli-output\upgrade.1.0.schema.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestRoot.cer">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

@@ -348,6 +348,11 @@
           "description": "Enable source priority feature",
           "type": "boolean",
           "default": false
+        },
+        "structuredOutput": {
+          "description": "Enable structured command output",
+          "type": "boolean",
+          "default": false
         }
       }
     },

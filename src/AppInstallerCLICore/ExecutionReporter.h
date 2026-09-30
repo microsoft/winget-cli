@@ -4,6 +4,7 @@
 #include "ExecutionProgress.h"
 #include "ChannelStreams.h"
 #include "Resources.h"
+#include "StructuredOutput.h"
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
 #include <winget/LocIndependent.h>
@@ -103,6 +104,25 @@ namespace AppInstaller::CLI::Execution
         // Sets the channel that will be reported to.
         // Only do this once and as soon as the channel is determined.
         void SetChannel(Channel channel);
+
+        // Selects structured output and initializes its command envelope.
+        // A missing mode represents a recognized JSON request for an unsupported operation.
+        void BeginStructuredOutput(std::string_view command, std::optional<StructuredOutput::Mode> mode);
+
+        bool IsStructuredOutputEnabled() const;
+
+        void SetStructuredOutputResult(StructuredOutput::PackageResult result);
+
+        void AddStructuredOutputWarning(std::string_view code, std::string_view message, std::optional<std::string_view> source = std::nullopt);
+
+        void AddStructuredOutputError(HRESULT code, std::string_view message, std::optional<std::string_view> source = std::nullopt);
+
+        bool HasStructuredOutputErrors() const;
+
+        HRESULT GetStructuredOutputError() const;
+
+        // Writes the structured document once. Repeated calls are ignored.
+        void FinalizeStructuredOutput();
 
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
@@ -213,6 +233,9 @@ namespace AppInstaller::CLI::Execution
 
         // Enable all levels by default
         Level m_enabledLevels = Level::All;
+
+        struct StructuredOutputState;
+        std::shared_ptr<StructuredOutputState> m_structuredOutput;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(Reporter::Level);

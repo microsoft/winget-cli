@@ -4,6 +4,7 @@
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
 #include <Commands/InstallCommand.h>
+#include <Commands/ListCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/PathVariable.h>
@@ -304,6 +305,227 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
 
     // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
     REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
+}
+
+TEST_CASE("ListFlow_StructuredOutputPackageContract", "[ListFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto testSource = CreateTestSource({ TSR::TestInstaller_Exe });
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list{ {} };
+    context.SetExecutingCommand(&list);
+    list.ConfigureOutput(context);
+    list.ValidateArguments(context.Args);
+    list.Execute(context);
+    context.Reporter.FinalizeStructuredOutput();
+    INFO(listOutput.str());
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["command"].asString() == "list");
+    REQUIRE(json["mode"].asString() == "installed");
+    REQUIRE(json["result"]["packages"].size() == 1);
+    const auto& package = json["result"]["packages"][0];
+    REQUIRE(package["Name"].asString() == "AppInstaller Test Exe Installer");
+    REQUIRE(package["Id"].asString() == "AppInstallerCliTest.TestExeInstaller");
+    REQUIRE(package["InstalledVersion"].asString() == "1.0.0.0");
+    REQUIRE(package["AvailableVersions"].size() == 3);
+    REQUIRE(package["AvailableVersions"][0].asString() == "3.0.0.0");
+    REQUIRE(package["IsUpdateAvailable"].asBool());
+    REQUIRE(package["Source"].asString() == "TestSource");
+    REQUIRE(package["UpgradeVersion"].asString() == "3.0.0.0");
+    REQUIRE_FALSE(json["result"]["truncated"].asBool());
+    REQUIRE(json["warnings"].empty());
+    REQUIRE(json["errors"].empty());
+    REQUIRE(testSource->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("UpdateFlow_StructuredOutputEmptyResult", "[UpdateFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
+    context.Args.AddArg(Execution::Args::Type::OutputFormat, "json"sv);
+
+    UpgradeCommand update{ {} };
+    context.SetExecutingCommand(&update);
+    update.ConfigureOutput(context);
+    update.ValidateArguments(context.Args);
+    update.Execute(context);
+    context.Reporter.FinalizeStructuredOutput();
+    INFO(updateOutput.str());
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["command"].asString() == "upgrade");
+    REQUIRE(json["mode"].asString() == "availableUpgrades");
+    REQUIRE(json["result"]["packages"].empty());
+    REQUIRE_FALSE(json["result"]["truncated"].asBool());
+    REQUIRE(json["warnings"].empty());
+    REQUIRE(json["errors"].empty());
+    REQUIRE_FALSE(context.IsTerminated());
+}
+
+TEST_CASE("ListFlow_StructuredOutputTruncatedResult", "[ListFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto testSource = CreateTestSource({});
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Override({ Workflow::SearchSourceForMany, [testSource](TestContext& context)
+    {
+        AppInstaller::Repository::SearchResult result;
+        TSR::TestInstaller_Exe.AddResults(result.Matches, testSource);
+        result.Truncated = true;
+        context.Add<Data::SearchResult>(std::move(result));
+    } });
+    context.Args.AddArg(Args::Type::OutputFormat, "json"sv);
+
+    std::unique_ptr<Command> command = std::make_unique<ListCommand>(std::string_view{});
+    context.SetExecutingCommand(command.get());
+    command->ConfigureOutput(context);
+    command->ValidateArguments(context.Args);
+
+    REQUIRE(Execute(context, command) == S_OK);
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["result"]["packages"].size() == 1);
+    REQUIRE(json["result"]["truncated"].asBool());
+    REQUIRE(json["warnings"][0]["code"].asString() == "SearchTruncated");
+    REQUIRE(json["errors"].empty());
+}
+
+TEST_CASE("ListFlow_StructuredOutputPartialSourceFailure", "[ListFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto testSource = CreateTestSource({});
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Override({ Workflow::SearchSourceForMany, [testSource](TestContext& context)
+    {
+        AppInstaller::Repository::SearchResult result;
+        TSR::TestInstaller_Exe.AddResults(result.Matches, testSource);
+        result.Failures.push_back({ "BrokenSource", std::make_exception_ptr(wil::ResultException(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED)) });
+        context.Add<Data::SearchResult>(std::move(result));
+    } });
+    context.Args.AddArg(Args::Type::OutputFormat, "json"sv);
+
+    std::unique_ptr<Command> command = std::make_unique<ListCommand>(std::string_view{});
+    context.SetExecutingCommand(command.get());
+    command->ConfigureOutput(context);
+    command->ValidateArguments(context.Args);
+
+    REQUIRE(Execute(context, command) == APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED);
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["result"]["packages"].size() == 1);
+    REQUIRE(json["errors"].size() == 1);
+    REQUIRE(json["errors"][0]["code"].asString() == "0x8A150045");
+    REQUIRE(json["errors"][0]["source"].asString() == "BrokenSource");
+}
+
+TEST_CASE("ListFlow_StructuredOutputPreservesDuplicateIds", "[ListFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto testSource = CreateTestSource({});
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Override({ Workflow::SearchSourceForMany, [testSource](TestContext& context)
+    {
+        AppInstaller::Repository::SearchResult result;
+        TSR::TestInstaller_Exe.AddResults(result.Matches, testSource);
+        TSR::TestInstaller_Exe.AddResults(result.Matches, testSource);
+        context.Add<Data::SearchResult>(std::move(result));
+    } });
+    context.Args.AddArg(Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list{ {} };
+    context.SetExecutingCommand(&list);
+    list.ConfigureOutput(context);
+    list.ValidateArguments(context.Args);
+    list.Execute(context);
+    context.Reporter.FinalizeStructuredOutput();
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["result"]["packages"].size() == 2);
+    REQUIRE(json["result"]["packages"][0]["Id"] == json["result"]["packages"][1]["Id"]);
+}
+
+TEST_CASE("ListFlow_StructuredOutputMultipleInstalledVersions", "[ListFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto testSource = CreateTestSource({});
+    OverrideForCompositeInstalledSource(context, testSource);
+    context.Override({ Workflow::SearchSourceForMany, [testSource](TestContext& context)
+    {
+        AppInstaller::Repository::SearchResult result;
+        TSR::TestInstaller_Exe.AddResults(result.Matches, testSource);
+
+        auto package = std::static_pointer_cast<TestCompositePackage>(result.Matches[0].Package);
+        auto firstInstalledVersion = std::static_pointer_cast<TestPackageVersion>(package->Installed->Versions[0]);
+        auto secondInstalledManifest = firstInstalledVersion->VersionManifest;
+        secondInstalledManifest.Version = "0.9.0.0";
+        package->Installed->Versions.emplace_back(TestPackageVersion::Make(
+            secondInstalledManifest,
+            firstInstalledVersion->Metadata,
+            testSource));
+
+        context.Add<Data::SearchResult>(std::move(result));
+    } });
+    context.Args.AddArg(Args::Type::OutputFormat, "json"sv);
+
+    ListCommand list{ {} };
+    context.SetExecutingCommand(&list);
+    list.ConfigureOutput(context);
+    list.ValidateArguments(context.Args);
+    list.Execute(context);
+    context.Reporter.FinalizeStructuredOutput();
+
+    Json::Value json = ConvertToJson(listOutput.str());
+    REQUIRE(json["result"]["packages"].size() == 2);
+    for (const auto& package : json["result"]["packages"])
+    {
+        REQUIRE(package["IsUpdateAvailable"].asBool());
+        REQUIRE(package["UpgradeVersion"].asString() == "3.0.0.0");
+    }
+}
+
+TEST_CASE("UpdateFlow_StructuredOutputUnknownVersionWarning", "[UpdateFlow][workflow][StructuredOutput]")
+{
+    TestHook::SetSingleExperimentalFeature_Override featureOverride{ ExperimentalFeature::Feature::StructuredOutput };
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnknownVersion }));
+    context.Args.AddArg(Args::Type::OutputFormat, "json"sv);
+
+    std::unique_ptr<Command> command = std::make_unique<UpgradeCommand>(std::string_view{});
+    context.SetExecutingCommand(command.get());
+    command->ConfigureOutput(context);
+    command->ValidateArguments(context.Args);
+
+    REQUIRE(Execute(context, command) == S_OK);
+
+    Json::Value json = ConvertToJson(updateOutput.str());
+    REQUIRE(json["result"]["packages"].empty());
+    REQUIRE(json["warnings"].size() == 1);
+    REQUIRE(json["warnings"][0]["code"].asString() == "UnknownVersionSkipped");
+    REQUIRE(json["errors"].empty());
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
