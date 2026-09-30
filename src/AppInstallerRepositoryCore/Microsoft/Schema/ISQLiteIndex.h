@@ -15,11 +15,22 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
+    // Contains the database connection and any other data that the owning index might need to pass in,
+    // for operations that do not modify the index.
+    struct SQLiteIndexConstContext
+    {
+        const SQLite::Connection& Connection;
+        const SQLiteIndexContextData& Data;
+    };
+
     // Contains the database connection and any other data that the owning index might need to pass in.
     struct SQLiteIndexContext
     {
         SQLite::Connection& Connection;
         SQLiteIndexContextData& Data;
+
+        // Grants only the access that a read only operation needs.
+        operator SQLiteIndexConstContext() const { return SQLiteIndexConstContext{ Connection, Data }; }
     };
 
     // The common interface used to interact with all schema versions of the index.
@@ -97,6 +108,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Returns true if index is consistent; false if it is not.
         virtual bool CheckConsistency(const SQLite::Connection& connection, bool log) const = 0;
 
+        // Checks the consistency of the index, taking into account any properties that the caller has set.
+        // Returns true if index is consistent; false if it is not.
+        virtual bool CheckConsistency(const SQLiteIndexConstContext& context, bool log) const;
+
         // Performs a search based on the given criteria.
         virtual SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const = 0;
 
@@ -153,11 +168,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual void SetProperty(SQLite::Connection& connection, Property property, const std::string& value);
 
         // Version 2.1
-
-        // Designates this index as a baseline that delta indexes may be generated against, giving
-        // it an identity that a delta can name.
-        // The index must be in its prepared, shipped form, and must not itself be a delta.
-        virtual void MarkAsBaseline(SQLite::Connection& connection);
 
         // Sets this index up to read the combination of a delta and the baseline that it was
         // generated against, so that every subsequent read sees the merged data. Must be called

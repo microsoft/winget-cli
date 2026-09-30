@@ -17,13 +17,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     bool ManifestMetadataTable::Exists(const SQLite::Connection& connection)
     {
-        Builder::StatementBuilder builder;
-        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
-            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_ManifestMetadataTable_Table_Name);
-
-        Statement statement = builder.Prepare(connection);
-        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
-        return statement.GetColumn<int64_t>(0) != 0;
+        return Builder::Schema::TableExists(connection, s_ManifestMetadataTable_Table_Name);
     }
 
     void ManifestMetadataTable::Create(SQLite::Connection& connection)
