@@ -33,7 +33,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
     }
 
     context << PromptForSelection(table, 10, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(10), Resource::String::PackageSelectionInvalid(10));
+        Resource::String::PackageSelectionPrompt(10), Resource::String::PackageSelectionInvalid);
     auto selection = context.Get<Execution::Data::PromptSelection>();
     if (std::string_view{ response } == "0")
     {
@@ -61,10 +61,12 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     table.OutputLine({ "Second" });
 
     context << PromptForSelection(table, 2, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(2), Resource::String::PackageSelectionInvalid(2));
+        Resource::String::PackageSelectionPrompt(2), Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
-    REQUIRE(output.str().find(Resource::String::PackageSelectionInvalid(2).get()) != std::string::npos);
+    const std::string prompt = Resource::String::PackageSelectionPrompt(2).get();
+    const std::string invalid = Resource::LocString{ Resource::String::PackageSelectionInvalid }.get();
+    REQUIRE(output.str().find(prompt + " " + invalid + '\n' + prompt + " ") != std::string::npos);
 }
 
 TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
@@ -123,7 +125,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
     }
 
     context << PromptForSelection(table, 1, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(1), Resource::String::PackageSelectionInvalid(1));
+        Resource::String::PackageSelectionPrompt(1), Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
     REQUIRE(output.str().empty());
@@ -141,7 +143,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     table.OutputLine({ "First" });
     auto count = GENERATE(size_t{0}, size_t{1});
     PromptForSelection prompt(table, count, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(count), Resource::String::PackageSelectionInvalid(count));
+        Resource::String::PackageSelectionPrompt(count), Resource::String::PackageSelectionInvalid);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
     REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());

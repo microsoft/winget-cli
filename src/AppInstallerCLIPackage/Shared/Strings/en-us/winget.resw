@@ -424,8 +424,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} {0} is the number of packages in the list. The input is a numeric choice; 0 cancels the command.</comment>
   </data>
   <data name="PackageSelectionInvalid" xml:space="preserve">
-    <value>Invalid selection. Enter a number from 1 to {0}, or 0 to cancel.</value>
-    <comment>{Locked="{0}"} {0} is the number of packages in the list. Shown after invalid or empty input.</comment>
+    <value>Invalid selection.</value>
+    <comment>Shown after invalid or empty input. The selection prompt repeats the valid range and cancellation option.</comment>
   </data>
   <data name="PackageSelectionSelected" xml:space="preserve">
     <value>Selected: {0} [{1}]</value>

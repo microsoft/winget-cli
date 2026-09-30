@@ -1473,7 +1473,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     context << PromptForSelection(table, searchResult.Matches.size(), title,
                         Resource::String::PackageSelectionPrompt(searchResult.Matches.size()),
-                        Resource::String::PackageSelectionInvalid(searchResult.Matches.size()));
+                        Resource::String::PackageSelectionInvalid);
                     AICLI_RETURN_IF_TERMINATED(context);
                     selection = context.Get<Execution::Data::PromptSelection>();
                 }
