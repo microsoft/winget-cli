@@ -121,6 +121,7 @@ CTL
 ctwgcy
 currentuser
 dacl
+dakehero
 datetimeoffset
 Dbg
 Dcom
@@ -150,6 +151,7 @@ dnld
 Dns
 Dobbeleer
 DONOT
+Doubao
 dsc
 dupenv
 dustojnikhummer
@@ -537,6 +539,7 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+setupcmdline
 sev
 sfs
 sfsclient
@@ -633,6 +636,7 @@ UParse
 upgradable
 upgradeable
 upgradecode
+upvotes
 URLZONE
 USEDEFAULT
 userfilesetting
