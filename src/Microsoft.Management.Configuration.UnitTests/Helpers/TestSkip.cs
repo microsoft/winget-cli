@@ -35,18 +35,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Gets a value indicating whether symbolic links can be created by this process.
         /// Creating them requires developer mode to be enabled or administrator rights.
         /// </summary>
-        public static bool CanCreateSymbolicLinks
-        {
-            get { return CanCreateSymbolicLinksValue.Value; }
-        }
+        public static bool CanCreateSymbolicLinks => CanCreateSymbolicLinksValue.Value;
 
         /// <summary>
         /// Gets a value indicating whether the current process is running elevated.
         /// </summary>
-        public static bool IsElevated
-        {
-            get { return IsElevatedValue.Value; }
-        }
+        public static bool IsElevated => IsElevatedValue.Value;
 
         /// <summary>
         /// Gets a value indicating whether the tests are running in a CI build.
@@ -188,10 +182,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                 {
                     Directory.Delete(probeDirectory, true);
                 }
-                catch (IOException)
-                {
-                }
-                catch (UnauthorizedAccessException)
+                catch (Exception e) when (IsSymbolicLinkPermissionError(e))
                 {
                 }
             }
