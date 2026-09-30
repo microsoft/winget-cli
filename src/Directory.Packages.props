@@ -33,6 +33,9 @@
     <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageVersion Include="xunit" Version="2.4.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <!-- 1.5.x targets xunit v3 reporting; with xunit 2.4.x it silently drops dynamically
+         skipped tests from the results instead of reporting them as skipped. -->
+    <PackageVersion Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 </Project>

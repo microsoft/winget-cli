@@ -125,7 +125,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// package is installed). The regression is detected as Win32 error 1920 on apply.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Fact]
+        [SkippableFact]
         public async Task Apply_FoundProcessorPath_IsAlias_DoesNotFailWithCantAccessFile()
         {
             // wingetdev.exe is an app execution alias registered when the test package is deployed.
@@ -133,7 +133,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 @"Microsoft\WindowsApps\wingetdev.exe");
 
-            Assert.True(File.Exists(wingetdevPath), $"wingetdev.exe not found at '{wingetdevPath}'. The test package must be deployed before running this test.");
+            TestSkip.IfFileNotFound(wingetdevPath, "The test package must be deployed for this test to be able to exercise the app execution alias path.");
 
             // Obtain the factory via the C++ dynamic factory so that SerializeSetProperties,
             // which contains the Lookup("FoundDscExecutablePathIsAlias") → TryGetValue →

@@ -131,7 +131,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// both ends of the link, so that neither the link nor the file it resolves to can be
         /// changed while the processor path is in use.
         /// </summary>
-        [Fact]
+        [SkippableFact]
         public void VerifyAndOpen_SymbolicLink_PinsLinkAndTarget()
         {
             using var tempDirectory = new TempDirectory();
@@ -140,11 +140,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             File.WriteAllText(targetPath, "test content");
 
             string linkPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
-            if (!TryCreateSymbolicLink(linkPath, targetPath))
-            {
-                // Creating symbolic links requires developer mode or administrator rights.
-                return;
-            }
+            TestSkip.CreateSymbolicLinkOrSkip(linkPath, targetPath);
 
             string hash = ProcessorPathIntegrity.ComputeHash(linkPath, out bool isAlias);
 
@@ -181,7 +177,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Verifies that the path used to launch the processor is the path of the file that was
         /// verified, rather than the symbolic link that pointed at it.
         /// </summary>
-        [Fact]
+        [SkippableFact]
         public void ProcessorSettings_SymbolicLink_LaunchesResolvedTarget()
         {
             using var tempDirectory = new TempDirectory();
@@ -190,10 +186,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             File.WriteAllText(targetPath, "test content");
 
             string linkPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
-            if (!TryCreateSymbolicLink(linkPath, targetPath))
-            {
-                return;
-            }
+            TestSkip.CreateSymbolicLinkOrSkip(linkPath, targetPath);
 
             string hash = ProcessorPathIntegrity.ComputeHash(linkPath, out bool isAlias);
 
@@ -366,7 +359,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Verifies that a symbolic link in a directory component of the path is resolved away, so
         /// that the pinned directories are the real ones rather than the link.
         /// </summary>
-        [Fact]
+        [SkippableFact]
         public void ProcessorSettings_DirectoryLinkInPath_PinsResolvedDirectories()
         {
             using var tempDirectory = new TempDirectory();
@@ -378,10 +371,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             File.WriteAllText(processorPath, "test content");
 
             string linkDirectory = Path.Combine(tempDirectory.FullDirectoryPath, "link");
-            if (!TryCreateDirectorySymbolicLink(linkDirectory, realDirectory))
-            {
-                return;
-            }
+            TestSkip.CreateDirectorySymbolicLinkOrSkip(linkDirectory, realDirectory);
 
             string pathThroughLink = Path.Combine(linkDirectory, "dsc.exe");
             string hash = ProcessorPathIntegrity.ComputeHash(pathThroughLink, out bool isAlias);
@@ -415,54 +405,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.NotNull(ex);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH, ex.HResult);
-        }
-
-        /// <summary>
-        /// Creating symbolic links requires developer mode or administrator rights, so the tests
-        /// that use them are skipped when they cannot be created.
-        /// </summary>
-        /// <param name="path">The link to create.</param>
-        /// <param name="target">The target of the link.</param>
-        /// <returns>True if the link was created; false if links cannot be created.</returns>
-        private static bool TryCreateSymbolicLink(string path, string target)
-        {
-            try
-            {
-                File.CreateSymbolicLink(path, target);
-                return true;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Creating symbolic links requires developer mode or administrator rights, so the tests
-        /// that use them are skipped when they cannot be created.
-        /// </summary>
-        /// <param name="path">The link to create.</param>
-        /// <param name="target">The target of the link.</param>
-        /// <returns>True if the link was created; false if links cannot be created.</returns>
-        private static bool TryCreateDirectorySymbolicLink(string path, string target)
-        {
-            try
-            {
-                Directory.CreateSymbolicLink(path, target);
-                return true;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return false;
-            }
         }
     }
 }
