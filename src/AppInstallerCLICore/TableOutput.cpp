@@ -30,6 +30,15 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    size_t TableOutputBase::GetNonEmptyRowCount(size_t column) const
+    {
+        THROW_HR_IF(E_INVALIDARG, column >= m_columns.size());
+        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [column](const auto& line)
+        {
+            return !line[column].empty();
+        }));
+    }
+
     void TableOutputBase::EvaluateAndFlushBuffer()
     {
         for (const auto& line : m_buffer)

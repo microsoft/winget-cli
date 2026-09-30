@@ -1471,8 +1471,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         table.OutputLine(std::move(line));
                     }
-                    context << PromptForSelection(table, searchResult.Matches.size(), title,
-                        Resource::String::PackageSelectionInvalid);
+                    context << PromptForSelection(table, title, Resource::String::PackageSelectionInvalid);
                     AICLI_RETURN_IF_TERMINATED(context);
                     selection = context.Get<Execution::Data::PromptSelection>();
                 }

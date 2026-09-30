@@ -20,6 +20,7 @@ namespace AppInstaller::CLI::Execution
         void OutputLine(std::vector<std::string> line);
         void Complete();
         bool IsEmpty() const { return m_buffer.empty(); }
+        size_t GetNonEmptyRowCount(size_t column) const;
 
     private:
         // A column in the table.

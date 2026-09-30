@@ -54,6 +54,30 @@ TEST_CASE("TableOutput_DynamicInvalidDimensions", "[tableoutput]")
     REQUIRE(output.str().empty());
 }
 
+TEST_CASE("TableOutput_NonEmptyRowCount", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    Reporter reporter(output, input);
+    TableOutput<2> table(reporter, { MakeHeader("Choice"), MakeHeader("Source") });
+    REQUIRE(table.GetNonEmptyRowCount(0) == size_t{0});
+    REQUIRE(table.GetNonEmptyRowCount(1) == size_t{0});
+    REQUIRE_THROWS_HR(table.GetNonEmptyRowCount(2), E_INVALIDARG);
+
+    table.OutputLine({ "1", "FirstSource" });
+    table.OutputLine({ "", "SecondSource" });
+    table.OutputLine({ "2", "ThirdSource" });
+    table.OutputLine({ "", "" });
+    REQUIRE(table.GetNonEmptyRowCount(0) == size_t{2});
+    REQUIRE(table.GetNonEmptyRowCount(1) == size_t{3});
+    REQUIRE(output.str().empty());
+
+    table.Complete();
+    REQUIRE(table.GetNonEmptyRowCount(0) == size_t{2});
+    REQUIRE(table.GetNonEmptyRowCount(1) == size_t{3});
+}
+
 // Test that all rows are buffered and column widths account for values beyond the first 50 rows.
 // In the old sizing-buffer design, a row at position 55 with a longer value than any of the
 // first 50 rows would be truncated. The new design buffers every row so no value is clipped.

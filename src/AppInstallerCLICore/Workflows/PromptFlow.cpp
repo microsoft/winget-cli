@@ -395,7 +395,8 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Add<Data::PromptSelection>(std::optional<size_t>{});
         AICLI_RETURN_IF_TERMINATED(context);
-        THROW_HR_IF(E_INVALIDARG, !m_count);
+        const size_t count = m_table.GetNonEmptyRowCount(0);
+        THROW_HR_IF(E_INVALIDARG, !count);
 
         if (!IsInteractivityAllowed(context) || !context.Reporter.CanPrompt())
         {
@@ -407,7 +408,7 @@ namespace AppInstaller::CLI::Workflow
         m_table.Complete();
         out << std::endl;
 
-        const auto prompt = Resource::String::NumberedSelectionPrompt(m_count);
+        const auto prompt = Resource::String::NumberedSelectionPrompt(count);
         for (;;)
         {
             AICLI_RETURN_IF_TERMINATED(context);
@@ -423,7 +424,7 @@ namespace AppInstaller::CLI::Workflow
             Utility::Trim(*response);
             size_t selection = 0;
             auto result = std::from_chars(response->data(), response->data() + response->size(), selection);
-            if (result.ec == std::errc{} && result.ptr == response->data() + response->size() && selection <= m_count)
+            if (result.ec == std::errc{} && result.ptr == response->data() + response->size() && selection <= count)
             {
                 if (!selection)
                 {

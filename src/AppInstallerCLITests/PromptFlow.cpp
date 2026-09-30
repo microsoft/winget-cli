@@ -32,7 +32,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
         table.OutputLine({ std::to_string(i) });
     }
 
-    context << PromptForSelection(table, 10, Resource::String::PackageSelectionInstall,
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::PackageSelectionInvalid);
     auto selection = context.Get<Execution::Data::PromptSelection>();
     if (std::string_view{ response } == "0")
@@ -56,11 +56,15 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     std::ostringstream output;
     TestContext context{ output, input };
     context.Reporter.SetConsoleStreamsForTest(true);
-    Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
-    table.OutputLine({ "First" });
-    table.OutputLine({ "Second" });
+    Execution::TableOutput<2> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchSource });
+    table.OutputLine({ "First", "FirstSource" });
+    if (GENERATE(false, true))
+    {
+        table.OutputLine({ "", "SecondSource" });
+    }
+    table.OutputLine({ "Second", "FirstSource" });
 
-    context << PromptForSelection(table, 2, Resource::String::PackageSelectionInstall,
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
@@ -85,7 +89,7 @@ TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
     Execution::TableOutput<1> table(context.Reporter, { text("Choice") });
     table.OutputLine({ "1 First" });
     table.OutputLine({ "2 Second" });
-    context << PromptForSelection(table, 2, text("Choose a value"), text("Try again"));
+    context << PromptForSelection(table, text("Choose a value"), text("Try again"));
 
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
@@ -126,7 +130,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
         context.Reporter.SetLevelMask(Execution::Reporter::Level::Info, false);
     }
 
-    context << PromptForSelection(table, 1, Resource::String::PackageSelectionInstall,
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
@@ -142,9 +146,16 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     TestContext context{ output, input };
     context.Reporter.SetConsoleStreamsForTest(true);
     Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
-    table.OutputLine({ "First" });
     auto count = GENERATE(size_t{0}, size_t{1});
-    PromptForSelection prompt(table, count, Resource::String::PackageSelectionInstall,
+    if (count)
+    {
+        table.OutputLine({ "First" });
+    }
+    if (GENERATE(false, true))
+    {
+        table.OutputLine({ "" });
+    }
+    PromptForSelection prompt(table, Resource::String::PackageSelectionInstall,
         Resource::String::PackageSelectionInvalid);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);

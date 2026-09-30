@@ -6,22 +6,19 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Displays numbered choices and reads a selection when prompting is available.
+    // Prompts for a numbered choice; rows with an empty first column are continuations.
     // Required Args: None
     // Inputs: None
     // Outputs: PromptSelection (zero-based index, or nullopt if prompting is unavailable)
     struct PromptForSelection : public WorkflowTask
     {
-        PromptForSelection(Execution::TableOutputBase& table, size_t count, Resource::LocString title,
-            Resource::LocString invalid) :
-            WorkflowTask("PromptForSelection"), m_table(table), m_count(count), m_title(std::move(title)),
-            m_invalid(std::move(invalid)) {}
+        PromptForSelection(Execution::TableOutputBase& table, Resource::LocString title, Resource::LocString invalid) :
+            WorkflowTask("PromptForSelection"), m_table(table), m_title(std::move(title)), m_invalid(std::move(invalid)) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Execution::TableOutputBase& m_table;
-        size_t m_count;
         Resource::LocString m_title;
         Resource::LocString m_invalid;
     };
