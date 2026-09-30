@@ -47,8 +47,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.MsiInstallerV2Path = this.InitializeFileParam(Constants.MsiInstallerV2PathParameter);
             this.FontPath = this.InitializeFileParam(Constants.FontPathParameter);
             this.InprocTestbedPath = this.InitializeFileParam(Constants.InprocTestbedPathParameter);
-            this.WinGetServerPath = this.InitializeFileParam(Constants.WinGetServerPathParameter);
-            this.RpcTestHelperPath = this.InitializeFileParam(Constants.RpcTestHelperPathParameter);
+            this.WinGetServerPath = this.InitializeStringParam(Constants.WinGetServerPathParameter);
+            this.RpcTestHelperPath = this.InitializeStringParam(Constants.RpcTestHelperPathParameter);
 
             this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }

@@ -16,7 +16,7 @@ unsigned char* GetUCharString(const std::string& str)
     return reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str()));
 }
 
-static wil::unique_tokeninfo_ptr<TOKEN_USER> GetCurrentProcessTokenUser()
+wil::unique_tokeninfo_ptr<TOKEN_USER> GetBinaryUserSID()
 {
     // The process token is used rather than the thread's effective token so that the identity
     // does not change if a thread happens to be impersonating.
@@ -27,21 +27,16 @@ static wil::unique_tokeninfo_ptr<TOKEN_USER> GetCurrentProcessTokenUser()
 
 std::string GetUserSID()
 {
-    auto tokenUser = GetCurrentProcessTokenUser();
+    auto tokenUser = GetBinaryUserSID();
     LPSTR pszSID = NULL;
     THROW_LAST_ERROR_IF(!ConvertSidToStringSidA(tokenUser->User.Sid, &pszSID));
     wil::unique_hlocal_ansistring sidPtr{ pszSID };
     return std::string{ pszSID };
 }
 
-wil::unique_tokeninfo_ptr<TOKEN_USER> GetBinaryUserSID()
-{
-    return GetCurrentProcessTokenUser();
-}
-
 static std::wstring GetUserSIDW()
 {
-    auto tokenUser = GetCurrentProcessTokenUser();
+    auto tokenUser = GetBinaryUserSID();
     LPWSTR pszSID = NULL;
     THROW_LAST_ERROR_IF(!ConvertSidToStringSidW(tokenUser->User.Sid, &pszSID));
     wil::unique_hlocal_string sidPtr{ pszSID };
@@ -155,7 +150,7 @@ static bool ObjectSecurityDescriptorMatches(HANDLE object, MandatoryLabelPolicy 
         return false;
     }
 
-    auto tokenUser = GetCurrentProcessTokenUser();
+    auto tokenUser = GetBinaryUserSID();
 
     ACL_SIZE_INFORMATION aclSizeInformation{};
     THROW_IF_WIN32_BOOL_FALSE(GetAclInformation(dacl, &aclSizeInformation, sizeof(aclSizeInformation), AclSizeInformation));
@@ -310,7 +305,7 @@ static wil::unique_boundary_descriptor CreateServerBoundaryDescriptor(DWORD inte
     wil::unique_boundary_descriptor boundary{ CreateBoundaryDescriptorW(s_serverBoundaryName, 0) };
     THROW_LAST_ERROR_IF(!boundary);
 
-    auto tokenUser = GetCurrentProcessTokenUser();
+    auto tokenUser = GetBinaryUserSID();
     AddSidToServerBoundaryDescriptor(boundary, tokenUser->User.Sid);
     AddIntegrityLabelToServerBoundaryDescriptor(boundary, integrityLevel);
 
