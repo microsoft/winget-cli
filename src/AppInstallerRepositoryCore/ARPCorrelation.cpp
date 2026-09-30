@@ -165,27 +165,9 @@ namespace AppInstaller::Repository::Correlation
         // Also attempt to find the entry based on the manifest data
 
         SearchRequest manifestSearchRequest;
-        AppInstaller::Manifest::Manifest::string_t defaultPublisher;
-        if (manifest.DefaultLocalization.Contains(Localization::Publisher))
+        for (const auto& [name, publisher] : manifest.GetNameAndPublisherPairs())
         {
-            defaultPublisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
-        }
-
-        // The default localization must contain the name or we cannot do this lookup
-        if (manifest.DefaultLocalization.Contains(Localization::PackageName))
-        {
-            AppInstaller::Manifest::Manifest::string_t defaultName = manifest.DefaultLocalization.Get<Localization::PackageName>();
-            manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, defaultName, defaultPublisher));
-
-            for (const auto& loc : manifest.Localizations)
-            {
-                if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
-                {
-                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
-                        loc.Contains(Localization::PackageName) ? loc.Get<Localization::PackageName>() : defaultName,
-                        loc.Contains(Localization::Publisher) ? loc.Get<Localization::Publisher>() : defaultPublisher));
-                }
-            }
+            manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, name, publisher));
         }
 
         std::set<std::string> productCodes;
@@ -203,13 +185,6 @@ namespace AppInstaller::Repository::Correlation
 
             for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
             {
-                if (!appsAndFeaturesEntry.DisplayName.empty())
-                {
-                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
-                        appsAndFeaturesEntry.DisplayName,
-                        appsAndFeaturesEntry.Publisher.empty() ? defaultPublisher : appsAndFeaturesEntry.Publisher));
-                }
-
                 // Add each ProductCode and UpgradeCode only once;
                 if (!appsAndFeaturesEntry.ProductCode.empty() && productCodes.insert(appsAndFeaturesEntry.ProductCode).second)
                 {

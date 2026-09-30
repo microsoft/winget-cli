@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<Utility::LocIndString> GetMultiProperty(PackageMultiProperty property) const override;
 
+            std::vector<std::vector<std::string>> GetMatrixProperty(PackageMatrixProperty property) const override;
+
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
@@ -144,6 +146,7 @@ namespace AppInstaller::Repository::Rest
 
                         if (result.Matches.size() == 1)
                         {
+                            m_package.SearchVersions = std::move(m_package.Versions);
                             m_package.Versions = std::move(result.Matches[0].Versions);
                             SortVersionsInternal();
                         }
@@ -269,25 +272,55 @@ namespace AppInstaller::Repository::Rest
             std::scoped_lock versionsLock{ m_packageVersionsLock };
             std::vector<Utility::LocIndString> result;
             PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+            auto addValue = [](std::vector<Utility::LocIndString>& values, Utility::LocIndString&& string)
+            {
+                auto itr = std::lower_bound(values.begin(), values.end(), string);
+
+                if (itr == values.end() || *itr != string)
+                {
+                    values.emplace(itr, std::move(string));
+                }
+            };
+
+            for (const auto& versionInfo : m_package.SearchVersions)
+            {
+                GetMultiPropertyValues(
+                    this, versionInfo, mappedProperty, result, addValue);
+            }
 
             for (const auto& versionInfo : m_package.Versions)
             {
                 GetMultiPropertyValues(
-                    this,
-                    versionInfo,
-                    mappedProperty,
-                    result,
-                    [](std::vector<Utility::LocIndString>& result, Utility::LocIndString&& string)
-                    {
-                        auto itr = std::lower_bound(result.begin(), result.end(), string);
-
-                        if (itr == result.end() || *itr != string)
-                        {
-                            result.emplace(itr, std::move(string));
-                        }
-                    });
+                    this, versionInfo, mappedProperty, result, addValue);
             }
 
+            return result;
+        }
+
+        std::vector<std::vector<std::string>> RestPackage::GetMatrixProperty(PackageMatrixProperty property) const
+        {
+            if (property != PackageMatrixProperty::NormalizedNameAndPublisher)
+            {
+                return IPackage::GetMatrixProperty(property);
+            }
+
+            std::scoped_lock versionsLock{ m_packageVersionsLock };
+            std::vector<std::vector<std::string>> result;
+            result.push_back({ m_package.PackageInformation.PackageName, m_package.PackageInformation.Publisher });
+            for (const auto& version : m_package.Versions)
+            {
+                if (version.Manifest)
+                {
+                    for (auto&& [name, publisher] : version.Manifest->GetNameAndPublisherPairs())
+                    {
+                        std::vector<std::string> row{ std::move(name), std::move(publisher) };
+                        if (std::find(result.begin(), result.end(), row) == result.end())
+                        {
+                            result.emplace_back(std::move(row));
+                        }
+                    }
+                }
+            }
             return result;
         }
 

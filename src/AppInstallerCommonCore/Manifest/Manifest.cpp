@@ -187,10 +187,33 @@ namespace AppInstaller::Manifest
     {
         std::set<string_t> set;
 
-        AddFoldedStringToSetIfNotEmpty(set, DefaultLocalization.Get<Localization::PackageName>());
+        for (const auto& name : GetOriginalPackageNames())
+        {
+            AddFoldedStringToSetIfNotEmpty(set, name);
+        }
+
+        std::vector<Utility::NormalizedString> result(
+            std::make_move_iterator(set.begin()),
+            std::make_move_iterator(set.end()));
+
+        return result;
+    }
+
+    std::vector<string_t> Manifest::GetOriginalPackageNames() const
+    {
+        std::set<string_t> set;
+        auto addName = [&](const string_t& name)
+        {
+            if (!name.empty())
+            {
+                set.emplace(name);
+            }
+        };
+
+        addName(DefaultLocalization.Get<Localization::PackageName>());
         for (const auto& loc : Localizations)
         {
-            AddFoldedStringToSetIfNotEmpty(set, loc.Get<Localization::PackageName>());
+            addName(loc.Get<Localization::PackageName>());
         }
 
         // In addition to the names used for our display, add the display names from the ARP entries
@@ -198,7 +221,7 @@ namespace AppInstaller::Manifest
         {
             for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
             {
-                AddFoldedStringToSetIfNotEmpty(set, appsAndFeaturesEntry.DisplayName);
+                addName(appsAndFeaturesEntry.DisplayName);
             }
         }
 
@@ -232,6 +255,43 @@ namespace AppInstaller::Manifest
             std::make_move_iterator(set.begin()),
             std::make_move_iterator(set.end()));
 
+        return result;
+    }
+
+    std::vector<std::pair<string_t, string_t>> Manifest::GetNameAndPublisherPairs() const
+    {
+        std::vector<std::pair<string_t, string_t>> result;
+        const auto defaultName = DefaultLocalization.Get<Localization::PackageName>();
+        const auto defaultPublisher = DefaultLocalization.Get<Localization::Publisher>();
+        if (!defaultName.empty())
+        {
+            result.emplace_back(defaultName, defaultPublisher);
+        }
+        for (const auto& localization : Localizations)
+        {
+            const auto localizedName = localization.Get<Localization::PackageName>();
+            const auto localizedPublisher = localization.Get<Localization::Publisher>();
+            if (!localizedName.empty() || !localizedPublisher.empty())
+            {
+                const auto& name = localizedName.empty() ? defaultName : localizedName;
+                const auto& publisher = localizedPublisher.empty() ? defaultPublisher : localizedPublisher;
+                if (!name.empty())
+                {
+                    result.emplace_back(name, publisher);
+                }
+            }
+        }
+
+        for (const auto& installer : Installers)
+        {
+            for (const auto& entry : installer.AppsAndFeaturesEntries)
+            {
+                if (!entry.DisplayName.empty())
+                {
+                    result.emplace_back(entry.DisplayName, entry.Publisher.empty() ? defaultPublisher : entry.Publisher);
+                }
+            }
+        }
         return result;
     }
 
