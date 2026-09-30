@@ -423,9 +423,9 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Enter a number (1-{0}), or 0 to cancel:</value>
     <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
   </data>
-  <data name="PackageSelectionInvalid" xml:space="preserve">
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
     <value>Invalid selection.</value>
-    <comment>Shown after invalid or empty input. The selection prompt repeats the valid range and cancellation option.</comment>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
   </data>
   <data name="PackageSelectionSelected" xml:space="preserve">
     <value>Selected: {0} [{1}]</value>

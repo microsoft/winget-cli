@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ExecutionReporter.h"
 #include <AppInstallerErrors.h>
+#include <charconv>
 
 
 namespace AppInstaller::CLI::Execution
@@ -180,14 +181,14 @@ namespace AppInstaller::CLI::Execution
         return m_inStreamFileType == FILE_TYPE_CHAR;
     }
 
-    bool Reporter::CanPrompt()
+    bool Reporter::CanPrompt(Level level)
     {
-        return m_consoleStreams && Info().IsEnabled();
+        return m_consoleStreams && GetOutputStream(level).IsEnabled();
     }
 
     std::optional<std::string> Reporter::ReadLine(std::function<bool()> isCancelled)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !CanPrompt());
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_consoleStreams);
 
         if (isCancelled && isCancelled())
         {
@@ -262,6 +263,42 @@ namespace AppInstaller::CLI::Execution
         }
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR, !readSucceeded);
         return response;
+    }
+
+    std::optional<uint64_t> Reporter::PromptForIntegerResponse(Resource::LocString message, Level level,
+        Resource::LocString invalid, std::function<bool()> isCancelled)
+    {
+        if (!CanPrompt(level))
+        {
+            AICLI_LOG(CLI, Verbose, << "Skipping integer prompt. Console streams or output are unavailable.");
+            return std::nullopt;
+        }
+
+        auto out = GetOutputStream(level);
+        for (;;)
+        {
+            if (isCancelled && isCancelled())
+            {
+                return std::nullopt;
+            }
+
+            out << message << ' ' << std::flush;
+            auto response = ReadLine(isCancelled);
+            if (!response || (isCancelled && isCancelled()))
+            {
+                return std::nullopt;
+            }
+
+            Utility::Trim(*response);
+            uint64_t value = 0;
+            auto result = std::from_chars(response->data(), response->data() + response->size(), value);
+            if (result.ec == std::errc{} && result.ptr == response->data() + response->size())
+            {
+                return value;
+            }
+
+            out << invalid << std::endl;
+        }
     }
 
     bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)

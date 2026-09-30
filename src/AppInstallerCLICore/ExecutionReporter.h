@@ -11,6 +11,7 @@
 #include <wil/resource.h>
 
 #include <atomic>
+#include <cstdint>
 #include <iomanip>
 #include <istream>
 #include <memory>
@@ -113,7 +114,7 @@ namespace AppInstaller::CLI::Execution
         // Check if the input stream is interactive or not.
         bool InputStreamIsInteractive() const;
 
-        bool CanPrompt();
+        bool CanPrompt(Level level = Level::Info);
 
         // Reads one line without output; returns nullopt on cancellation.
         std::optional<std::string> ReadLine(std::function<bool()> isCancelled = {});
@@ -121,6 +122,10 @@ namespace AppInstaller::CLI::Execution
 #ifndef AICLI_DISABLE_TEST_HOOKS
         void SetConsoleStreamsForTest(bool value) { m_consoleStreams = value; }
 #endif
+
+        // Prompts for a non-negative integer; returns nullopt if unavailable or cancelled.
+        std::optional<uint64_t> PromptForIntegerResponse(Resource::LocString message, Level level = Level::Info,
+            Resource::LocString invalid = Resource::String::NumberedSelectionInvalid, std::function<bool()> isCancelled = {});
 
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);

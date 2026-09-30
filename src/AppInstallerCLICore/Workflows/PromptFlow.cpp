@@ -4,7 +4,6 @@
 #include "PromptFlow.h"
 #include "ShowFlow.h"
 #include <winget/UserSettings.h>
-#include <charconv>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Settings;
@@ -412,8 +411,8 @@ namespace AppInstaller::CLI::Workflow
         for (;;)
         {
             AICLI_RETURN_IF_TERMINATED(context);
-            out << prompt << ' ' << std::flush;
-            auto response = context.Reporter.ReadLine([&]() { return context.IsTerminated(); });
+            auto response = context.Reporter.PromptForIntegerResponse(prompt, Reporter::Level::Info, m_invalid,
+                [&]() { return context.IsTerminated(); });
             AICLI_RETURN_IF_TERMINATED(context);
             if (!response)
             {
@@ -421,17 +420,15 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
 
-            Utility::Trim(*response);
-            size_t selection = 0;
-            auto result = std::from_chars(response->data(), response->data() + response->size(), selection);
-            if (result.ec == std::errc{} && result.ptr == response->data() + response->size() && selection <= count)
+            uint64_t selection = *response;
+            if (selection <= count)
             {
                 if (!selection)
                 {
                     out << Resource::String::Cancelled << std::endl;
                     AICLI_TERMINATE_CONTEXT(E_ABORT);
                 }
-                context.Add<Data::PromptSelection>(std::optional<size_t>{ selection - 1 });
+                context.Add<Data::PromptSelection>(std::optional<size_t>{ static_cast<size_t>(selection - 1) });
                 return;
             }
 
