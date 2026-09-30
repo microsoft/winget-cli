@@ -57,6 +57,9 @@ TEST_CASE("Resources_StringIdWithPlaceholders_Arithmetic", "[resources]")
 
 TEST_CASE("Resources_SetLanguageOverride", "[resources]")
 {
+    // Always restore the default language resolution for subsequent tests.
+    auto resetOverride = wil::scope_exit([&]() { AppInstaller::Resource::SetLanguageOverride({}); });
+
     // When running unpackaged without a resources.pri next to the binary, no resource loader is
     // available. Probe for that case so this test is deterministic in both packaged and unpackaged
     // execution.
@@ -70,9 +73,6 @@ TEST_CASE("Resources_SetLanguageOverride", "[resources]")
         REQUIRE(!AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey));
         return;
     }
-
-    // Always restore the default language resolution for subsequent tests.
-    auto resetOverride = wil::scope_exit([&]() { AppInstaller::Resource::SetLanguageOverride({}); });
 
     REQUIRE(AppInstaller::Resource::SetLanguageOverride("de-DE"));
 
