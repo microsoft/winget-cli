@@ -166,7 +166,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         {
             // Whether links can be created depends on the privileges of the process and on
             // developer mode, neither of which can be reliably determined without trying.
-            string probeDirectory = Path.Combine(Path.GetTempPath(), "wingetcfgtests_" + Guid.NewGuid().ToString("N"));
+            string probeDirectory = Path.Combine(Path.GetTempPath(), "winget_tests_" + Guid.NewGuid().ToString("N"));
 
             try
             {
