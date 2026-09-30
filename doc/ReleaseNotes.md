@@ -29,7 +29,6 @@ Because the alias is now created as an executable hardlink in the install locati
 ### Minor Bug Fixes
 * Fixed REST search results bypassing locally verifiable package filters and selectors. Extra manifests are retrieved only for complete source result sets of three or fewer packages. Normalized name/publisher criteria remain unvalidated client-side.
 * Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
-* Preserved installed-package correlation when REST search results are expanded from manifests.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
 * Prevented REST searches from looping indefinitely when continuation tokens repeat.
 * Fixed Unicode case-insensitive prefix matching when case folding changes character lengths.
