@@ -407,10 +407,11 @@ namespace AppInstaller::CLI::Workflow
         m_table.Complete();
         out << std::endl;
 
+        const auto prompt = Resource::String::NumberedSelectionPrompt(m_count);
         for (;;)
         {
             AICLI_RETURN_IF_TERMINATED(context);
-            out << m_prompt << ' ' << std::flush;
+            out << prompt << ' ' << std::flush;
             auto response = context.Reporter.ReadLine([&]() { return context.IsTerminated(); });
             AICLI_RETURN_IF_TERMINATED(context);
             if (!response)

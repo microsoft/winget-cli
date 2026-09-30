@@ -13,9 +13,9 @@ namespace AppInstaller::CLI::Workflow
     struct PromptForSelection : public WorkflowTask
     {
         PromptForSelection(Execution::TableOutputBase& table, size_t count, Resource::LocString title,
-            Resource::LocString prompt, Resource::LocString invalid) :
+            Resource::LocString invalid) :
             WorkflowTask("PromptForSelection"), m_table(table), m_count(count), m_title(std::move(title)),
-            m_prompt(std::move(prompt)), m_invalid(std::move(invalid)) {}
+            m_invalid(std::move(invalid)) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -23,7 +23,6 @@ namespace AppInstaller::CLI::Workflow
         Execution::TableOutputBase& m_table;
         size_t m_count;
         Resource::LocString m_title;
-        Resource::LocString m_prompt;
         Resource::LocString m_invalid;
     };
 

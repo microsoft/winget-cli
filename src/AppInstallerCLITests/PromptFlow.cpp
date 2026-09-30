@@ -33,7 +33,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
     }
 
     context << PromptForSelection(table, 10, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(10), Resource::String::PackageSelectionInvalid);
+        Resource::String::PackageSelectionInvalid);
     auto selection = context.Get<Execution::Data::PromptSelection>();
     if (std::string_view{ response } == "0")
     {
@@ -45,7 +45,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
         REQUIRE_FALSE(context.IsTerminated());
         REQUIRE(selection == static_cast<size_t>(std::stoul(response) - 1));
     }
-    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(10).get()) != std::string::npos);
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(10).get()) != std::string::npos);
 }
 
 TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
@@ -61,10 +61,10 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     table.OutputLine({ "Second" });
 
     context << PromptForSelection(table, 2, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(2), Resource::String::PackageSelectionInvalid);
+        Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
-    const std::string prompt = Resource::String::PackageSelectionPrompt(2).get();
+    const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
     const std::string invalid = Resource::LocString{ Resource::String::PackageSelectionInvalid }.get();
     REQUIRE(output.str().find(prompt + " " + invalid + '\n' + prompt + " ") != std::string::npos);
 }
@@ -85,11 +85,13 @@ TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
     Execution::TableOutput<1> table(context.Reporter, { text("Choice") });
     table.OutputLine({ "1 First" });
     table.OutputLine({ "2 Second" });
-    context << PromptForSelection(table, 2, text("Choose a value"), text("Number:"), text("Try again"));
+    context << PromptForSelection(table, 2, text("Choose a value"), text("Try again"));
 
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
-    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\nNumber: Try again\nNumber: ");
+    const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
+    REQUIRE_FALSE(prompt.empty());
+    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " Try again\n" + prompt + " ");
 }
 
 TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
@@ -125,7 +127,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
     }
 
     context << PromptForSelection(table, 1, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(1), Resource::String::PackageSelectionInvalid);
+        Resource::String::PackageSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
     REQUIRE(output.str().empty());
@@ -143,7 +145,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     table.OutputLine({ "First" });
     auto count = GENERATE(size_t{0}, size_t{1});
     PromptForSelection prompt(table, count, Resource::String::PackageSelectionInstall,
-        Resource::String::PackageSelectionPrompt(count), Resource::String::PackageSelectionInvalid);
+        Resource::String::PackageSelectionInvalid);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
     REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
@@ -364,7 +366,7 @@ TEST_CASE("PackageSelection_CommandCancel", "[PackageSelection][workflow]")
     REQUIRE_TERMINATED_WITH(context, E_ABORT);
     REQUIRE_FALSE(context.Contains(Execution::Data::Package));
     REQUIRE_FALSE(context.Contains(Execution::Data::Manifest));
-    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) != std::string::npos);
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) != std::string::npos);
 }
 
 TEST_CASE("PackageSelection_CommandContinue", "[PackageSelection][workflow]")
@@ -413,7 +415,7 @@ TEST_CASE("PackageSelection_CommandContinue", "[PackageSelection][workflow]")
 
     INFO(output.str());
     REQUIRE_TERMINATED_WITH(context, E_ABORT);
-    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) != std::string::npos);
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) != std::string::npos);
 }
 
 TEST_CASE("PackageSelection_MultipleQueries", "[PackageSelection][workflow][MultiQuery]")
@@ -438,7 +440,7 @@ TEST_CASE("PackageSelection_MultipleQueries", "[PackageSelection][workflow][Mult
     INFO(output.str());
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
     REQUIRE(input.peek() == '1');
-    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) == std::string::npos);
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) == std::string::npos);
 }
 
 TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][workflow]")
@@ -511,7 +513,7 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     INFO(output.str());
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
-    REQUIRE((output.str().find(Resource::String::PackageSelectionPrompt(2).get()) != std::string::npos) == expectPrompt);
+    REQUIRE((output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) != std::string::npos) == expectPrompt);
     if (expectPrompt)
     {
         auto tableStart = output.str().find("\n# ");
@@ -711,7 +713,7 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     REQUIRE_TERMINATED_WITH(context, expectedError);
     REQUIRE_FALSE(context.Contains(Execution::Data::Package));
     REQUIRE(input.peek() == '2');
-    REQUIRE(output.str().find(Resource::String::PackageSelectionPrompt(2).get()) == std::string::npos);
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) == std::string::npos);
 }
 
 TEST_CASE("PromptFlow_InteractivityDisabled", "[PromptFlow][workflow]")
