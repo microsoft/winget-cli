@@ -4,6 +4,8 @@
 #include "TestCommon.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <future>
+#include <set>
 
 using namespace AppInstaller::Logging;
 using namespace AppInstaller::Utility;
@@ -242,4 +244,80 @@ TEST_CASE("FileLogger_MaximumSize_ManyWraps", "[logging]")
     expectedFileContents.push_back(largeStringView.substr(0, initSize));
 
     ValidateFileContents(tempFile, expectedFileContents, maximumSize);
+}
+
+TEST_CASE("FileLogger_ConcurrentWritesPreserveCompleteLines", "[logging]")
+{
+    bool formatted = GENERATE(false, true);
+    std::ofstream::off_type maximumSize = GENERATE(0, 4 * 1024 * 1024);
+    TempFile tempFile{ "FileLogger_ConcurrentWrites", ".log" };
+    constexpr size_t workerCount = 8;
+    constexpr size_t messagesPerWorker = 1000;
+    std::vector<std::vector<std::string>> messages(workerCount);
+    std::set<std::string> expected;
+    for (size_t worker = 0; worker < workerCount; ++worker)
+    {
+        for (size_t message = 0; message < messagesPerWorker; ++message)
+        {
+            auto text = "parallel-log:" + std::to_string(worker) + ":" + std::to_string(message) + ":" + std::string(128, 'x');
+            expected.insert(text);
+            messages[worker].emplace_back(std::move(text));
+        }
+    }
+
+    {
+        FileLogger original{ tempFile };
+        original.SetMaximumSize(maximumSize);
+        FileLogger logger{ std::move(original) };
+        std::promise<void> start;
+        auto started = start.get_future().share();
+        std::vector<std::future<void>> workers;
+        auto releaseOnFailure = wil::scope_exit([&]() { start.set_value(); });
+        for (size_t worker = 0; worker < workerCount; ++worker)
+        {
+            workers.emplace_back(std::async(std::launch::async, [&, worker]()
+                {
+                    started.wait();
+                    for (const auto& message : messages[worker])
+                    {
+                        if (formatted)
+                        {
+                            logger.Write(DefaultChannel, DefaultLevel, message);
+                        }
+                        else
+                        {
+                            logger.WriteDirect(DefaultChannel, DefaultLevel, message);
+                        }
+                    }
+                }));
+        }
+        start.set_value();
+        releaseOnFailure.release();
+        for (auto& worker : workers)
+        {
+            worker.get();
+        }
+    }
+
+    std::ifstream file{ tempFile.GetPath() };
+    REQUIRE(file.is_open());
+    std::string line;
+    size_t lineCount = 0;
+    while (std::getline(file, line))
+    {
+        INFO("Line " << lineCount << ": " << line);
+        std::string message = line;
+        if (formatted)
+        {
+            constexpr std::string_view prefix = " <I> [CORE] ";
+            auto position = line.find(prefix);
+            REQUIRE(position != std::string::npos);
+            message = line.substr(position + prefix.size());
+        }
+        REQUIRE(expected.erase(message) == 1);
+        ++lineCount;
+    }
+    REQUIRE(file.eof());
+    REQUIRE(lineCount == workerCount * messagesPerWorker);
+    REQUIRE(expected.empty());
 }

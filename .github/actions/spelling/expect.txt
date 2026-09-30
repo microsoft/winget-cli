@@ -115,6 +115,7 @@ countryregion
 Cov
 CPIL
 createmanifestmetadata
+createview
 crt
 cswinrt
 ctc
@@ -258,6 +259,7 @@ IHDR
 iid
 img
 inet
+inmemorydb
 innererror
 inproc
 Insta
@@ -403,6 +405,7 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
+nullability
 nsis
 NRVO
 NTFS
@@ -416,6 +419,7 @@ onefuzz
 oop
 opensource
 OPTOUT
+optoverview
 osfhandle
 oss
 outfile
@@ -448,6 +452,7 @@ pidl
 pidlist
 PKCS
 pkgmgr
+pkgs
 pkindex
 pkix
 placeholders
@@ -650,6 +655,7 @@ vcx
 versioned
 VERSIONINFO
 Verzeichnisse
+virtuals
 VIWEC
 vns
 vscodeignore
@@ -684,6 +690,7 @@ winreg
 winrtact
 winstring
 wintrust
+withoutrowid
 WMI
 wmmc
 wnd

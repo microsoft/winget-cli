@@ -67,6 +67,7 @@ namespace AppInstaller::Logging
     FileLogger& FileLogger::SetMaximumSize(std::ofstream::off_type maximumSize)
     {
         THROW_HR_IF(E_INVALIDARG, maximumSize < 0);
+        std::lock_guard<std::mutex> lock{ *m_streamLock };
         m_maximumSize = maximumSize;
         return *this;
     }
@@ -101,6 +102,7 @@ namespace AppInstaller::Logging
 
     void FileLogger::WriteDirect(Channel, Level, std::string_view message) noexcept try
     {
+        std::lock_guard<std::mutex> lock{ *m_streamLock };
         HandleMaximumFileSize(message);
         m_stream << message << std::endl;
     }
@@ -110,6 +112,7 @@ namespace AppInstaller::Logging
     {
         if (tag == Tag::HeadersComplete)
         {
+            std::lock_guard<std::mutex> lock{ *m_streamLock };
             auto currentPosition = m_stream.tellp();
             if (currentPosition != std::ofstream::pos_type{ -1 })
             {
