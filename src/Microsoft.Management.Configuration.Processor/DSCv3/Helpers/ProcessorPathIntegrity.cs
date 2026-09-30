@@ -121,8 +121,8 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// </summary>
         /// <param name="path">The path to hash.</param>
         /// <param name="isAlias">Receives true if the path is an app execution alias reparse point.</param>
-        /// <returns>The SHA256 hash as a lowercase hex string.</returns>
-        public static string ComputeHash(string path, out bool isAlias)
+        /// <returns>The SHA256 hash bytes.</returns>
+        public static byte[] ComputeHashBytes(string path, out bool isAlias)
         {
             // Sharing is permissive here because this is only a measurement of the current
             // content; pinning happens in VerifyAndOpen.
@@ -137,16 +137,28 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 if (GetReparseTag(reparseData) == IoReparseTagAppExecLink)
                 {
                     isAlias = true;
-                    return Convert.ToHexString(SHA256.HashData(reparseData)).ToLowerInvariant();
+                    return SHA256.HashData(reparseData);
                 }
 
                 isAlias = false;
                 using SafeFileHandle targetHandle = Open(path, FileReadData, ShareAll, FileAttributeNormal);
-                return Convert.ToHexString(ComputeSHA256FromHandle(targetHandle)).ToLowerInvariant();
+                return ComputeSHA256FromHandle(targetHandle);
             }
 
             isAlias = false;
-            return Convert.ToHexString(ComputeSHA256FromHandle(nameHandle)).ToLowerInvariant();
+            return ComputeSHA256FromHandle(nameHandle);
+        }
+
+        /// <summary>
+        /// Computes the SHA256 hash of a path, auto-detecting whether it is an app execution alias.
+        /// This is a measurement only; it does not pin the file.
+        /// </summary>
+        /// <param name="path">The path to hash.</param>
+        /// <param name="isAlias">Receives true if the path is an app execution alias reparse point.</param>
+        /// <returns>The SHA256 hash as a lowercase hex string.</returns>
+        public static string ComputeHash(string path, out bool isAlias)
+        {
+            return Convert.ToHexString(ComputeHashBytes(path, out isAlias)).ToLowerInvariant();
         }
 
         /// <summary>

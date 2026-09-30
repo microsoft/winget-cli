@@ -330,6 +330,39 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
+        /// Verifies that copies of the settings share a single pin, and that the pin is released
+        /// when the settings object that owns it is disposed.
+        /// </summary>
+        [Fact]
+        public void ProcessorSettings_Clone_SharesSinglePin_Disposal()
+        {
+            using var tempDirectory = new TempDirectory();
+
+            string processorPath = Path.Combine(tempDirectory.FullDirectoryPath, "dsc.exe");
+            File.WriteAllText(processorPath, "test content");
+
+            string hash = ProcessorPathIntegrity.ComputeHash(processorPath, out bool isAlias);
+
+            var settings = new ProcessorSettings();
+            settings.DscExecutablePath = processorPath;
+            settings.DscExecutablePathHash = hash;
+            settings.DscExecutablePathIsAlias = isAlias;
+
+            ProcessorSettings copy = settings.Clone();
+
+            Assert.Equal(settings.EffectiveDscExecutablePath, copy.EffectiveDscExecutablePath);
+
+            // Disposing the owner releases both the file and the directory pins.
+            settings.Dispose();
+            File.Delete(processorPath);
+            Directory.Move(tempDirectory.FullDirectoryPath, tempDirectory.FullDirectoryPath + "-moved");
+            Directory.Move(tempDirectory.FullDirectoryPath + "-moved", tempDirectory.FullDirectoryPath);
+
+            // The copy can no longer access the pin.
+            Assert.ThrowsAny<ObjectDisposedException>(() => copy.EffectiveDscExecutablePath);
+        }
+
+        /// <summary>
         /// Verifies that a symbolic link in a directory component of the path is resolved away, so
         /// that the pinned directories are the real ones rather than the link.
         /// </summary>

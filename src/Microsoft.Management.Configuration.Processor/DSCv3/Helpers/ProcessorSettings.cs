@@ -62,7 +62,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             {
                 if (this.DscExecutablePath != null)
                 {
-                    return this.EnsureProcessorPathPinned();
+                    return this.GetPinnedProcessorPath();
                 }
 
                 lock (this.defaultPathLock)
@@ -378,7 +378,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
         }
 
-        private string EnsureProcessorPathPinned()
+        private string GetPinnedProcessorPath()
         {
             if (this.DscExecutablePathHash == null)
             {
