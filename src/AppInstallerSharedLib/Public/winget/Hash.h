@@ -43,6 +43,10 @@ namespace AppInstaller::Cryptography {
 
         Hash(HashAlgorithm algorithm);
         ~Hash();
+        Hash(Hash&&) noexcept;
+        Hash& operator=(Hash&&) noexcept;
+        Hash(const Hash&) = delete;
+        Hash& operator=(const Hash&) = delete;
 
         // Adds the next chunk of data to the hash.
         void Add(const uint8_t* buffer, size_t cbBuffer);
@@ -179,12 +183,12 @@ namespace AppInstaller::Cryptography {
     };
 
     template <HashAlgorithm Algorithm>
-    using AlgorithmHash = HashT<Algorithm>;
+    using HashForAlgorithm = HashT<Algorithm>;
 }
 
 // Binds the generic hash implementation to the SHA256 algorithm.
 // This alias is kept for backward compatibility with existing code that uses the SHA256 class.
 namespace AppInstaller::Utility
 {
-    using SHA256 = Cryptography::AlgorithmHash<Cryptography::HashAlgorithm::Sha256>;
+    using SHA256 = Cryptography::HashForAlgorithm<Cryptography::HashAlgorithm::Sha256>;
 }

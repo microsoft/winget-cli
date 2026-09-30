@@ -4,11 +4,17 @@
 #include "TestCommon.h"
 #include "Commands/HashCommand.h"
 #include <winget/Hash.h>
+#include <type_traits>
 
 using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
+
+static_assert(std::is_move_constructible_v<SHA256>);
+static_assert(std::is_move_assignable_v<SHA256>);
+static_assert(!std::is_copy_constructible_v<SHA256>);
+static_assert(!std::is_copy_assignable_v<SHA256>);
 
 TEST_CASE("SHA256_KnownVectors", "[Sha256Hash][Cryptography]")
 {

@@ -52,6 +52,7 @@ namespace
         BCRYPT_HASH_HANDLE hashHandle{};
         DWORD resultLength = 0;
 
+        // Open an algorithm handle.
         THROW_IF_NTSTATUS_FAILED_MSG(
             BCryptOpenAlgorithmProvider(
                 &algHandle,
@@ -62,6 +63,7 @@ namespace
             algorithmInfo.Name);
         m_context->AlgHandle.reset(algHandle);
 
+        // Obtain the length of the hash.
         THROW_IF_NTSTATUS_FAILED_MSG(
             BCryptGetProperty(
                 m_context->AlgHandle.get(),
@@ -78,6 +80,7 @@ namespace
             THROW_HR_MSG(E_UNEXPECTED, "failed getting %hs hash length", algorithmInfo.Name);
         }
 
+        // Create a hash handle.
         THROW_IF_NTSTATUS_FAILED_MSG(
             BCryptCreateHash(
                 m_context->AlgHandle.get(),
@@ -93,6 +96,8 @@ namespace
     }
 
     Hash::~Hash() = default;
+    Hash::Hash(Hash&&) noexcept = default;
+    Hash& Hash::operator=(Hash&&) noexcept = default;
 
     void Hash::Add(const uint8_t* buffer, size_t cbBuffer)
     {
@@ -171,9 +176,10 @@ namespace
     {
         auto excState = in.exceptions();
         auto revertExcState = wil::scope_exit([excState, &in]() { in.exceptions(excState); });
+        // Throw exceptions on badbit.
         in.exceptions(std::ios_base::badbit);
 
-        const int bufferSize = 1024 * 1024;
+        const int bufferSize = 1024 * 1024; // 1 MB
         auto buffer = std::make_unique<uint8_t[]>(bufferSize);
 
         Hash hasher{ algorithm };
