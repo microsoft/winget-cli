@@ -1091,8 +1091,9 @@ TEST_CASE("Search_ManifestResolution_Versions", "[RestSource][Interface_1_0]")
 
 TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
 {
-    bool unknownVersion = GENERATE(false, true);
-    CAPTURE(unknownVersion);
+    auto [unknownVersion, cacheDuringSearch] = GENERATE(
+        std::make_pair(false, true), std::make_pair(true, false), std::make_pair(true, true));
+    CAPTURE(unknownVersion, cacheDuringSearch);
     SearchAndManifestResponses responses;
     if (unknownVersion)
     {
@@ -1111,31 +1112,45 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     auto source = std::make_shared<RestSource>(details, SourceInformation{},
         RestClient::Create(TestRestUriString, {}, {}, helper, information));
     SearchRequest request;
-    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, "Bar");
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Exact, cacheDuringSearch ? "Bar"sv : "Microsoft Teams"sv);
     request.Filters.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, "Search.Product");
-    request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
+    if (cacheDuringSearch)
+    {
+        request.Inclusions.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "bar");
+    }
 
     auto result = source->Search(request);
     REQUIRE(result.Matches.size() == 1);
+    REQUIRE(responses.ManifestRequests == (cacheDuringSearch ? size_t{ 1 } : size_t{ 0 }));
     auto package = result.Matches[0].Package->GetAvailable().at(0);
+    REQUIRE(package->GetLatestVersion()->GetManifest().Moniker == "bar");
     auto keys = package->GetVersionKeys();
     REQUIRE(keys.size() == 1);
     REQUIRE(keys[0].Version == "1.0.0");
     REQUIRE(package->GetVersion(keys[0])->GetManifest().Moniker == "bar");
     REQUIRE(package->GetLatestVersion()->GetManifest().Version == "1.0.0");
     auto references = package->GetMultiProperty(PackageMultiProperty::PackageFamilyName);
+    REQUIRE(references.size() == 1);
+    REQUIRE(references[0].get() == "Search.Reference_123");
+    auto packageProductCodes = package->GetMultiProperty(PackageMultiProperty::ProductCode);
+    REQUIRE(packageProductCodes.size() == 1);
+    REQUIRE(packageProductCodes[0].get() == "Search.Product");
+    auto packageUpgradeCodes = package->GetMultiProperty(PackageMultiProperty::UpgradeCode);
+    REQUIRE(packageUpgradeCodes.size() == 1);
+    REQUIRE(packageUpgradeCodes[0].get() == "Search.Upgrade");
+    auto versionReferences = package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
     auto productCodes = package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
     auto upgradeCodes = package->GetLatestVersion()->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode);
     if (unknownVersion)
     {
-        REQUIRE(references.empty());
+        REQUIRE(versionReferences.empty());
         REQUIRE(productCodes.empty());
         REQUIRE(upgradeCodes.empty());
     }
     else
     {
-        REQUIRE(references.size() == 1);
-        REQUIRE(references[0].get() == "Search.Reference_123");
+        REQUIRE(versionReferences.size() == 1);
+        REQUIRE(versionReferences[0].get() == "Search.Reference_123");
         REQUIRE(productCodes.size() == 1);
         REQUIRE(productCodes[0].get() == "Search.Product");
         REQUIRE(upgradeCodes.size() == 1);
@@ -1163,6 +1178,56 @@ TEST_CASE("Search_ManifestResolution_ReusesPackageCache", "[RestSource]")
     REQUIRE_FALSE(containsPair(searchPackage.at(L"PackageName"), locale.at(L"Publisher")));
     REQUIRE_FALSE(containsPair(locale.at(L"PackageName"), searchPackage.at(L"Publisher")));
     REQUIRE_THROWS_HR(package->GetMatrixProperty(static_cast<PackageMatrixProperty>(-1)), E_UNEXPECTED);
+    REQUIRE(responses.SearchRequests == 1);
+    REQUIRE(responses.ManifestRequests == 1);
+}
+
+TEST_CASE("RestSource_UnknownVersion_PackageReferences", "[RestSource]")
+{
+    bool cacheDuringSearch = GENERATE(false, true);
+    CAPTURE(cacheDuringSearch);
+    const std::string firstCode = "{00000000-0000-0000-0000-000000000001}";
+    const std::string secondCode = "{00000000-0000-0000-0000-000000000002}";
+    const std::string searchOnlyCode = "{00000000-0000-0000-0000-000000000003}";
+    SearchAndManifestResponses responses;
+    auto& searchVersion = responses.SearchResponse[L"Data"][0][L"Versions"][0];
+    searchVersion[L"PackageVersion"] = web::json::value::string(L"Unknown");
+    searchVersion[L"ProductCodes"] = web::json::value::array({
+        web::json::value::string(ConvertToUTF16(firstCode)), web::json::value::string(ConvertToUTF16(searchOnlyCode)) });
+    auto firstManifest = responses.ManifestResponse[L"Data"][L"Versions"][0];
+    firstManifest[L"DefaultLocale"][L"Moniker"] = web::json::value::string(L"bar");
+    firstManifest[L"Installers"][0][L"ProductCode"] = web::json::value::string(ConvertToUTF16(firstCode));
+    auto secondManifest = firstManifest;
+    secondManifest[L"PackageVersion"] = web::json::value::string(L"2.0.0");
+    secondManifest[L"Installers"][0][L"ProductCode"] = web::json::value::string(ConvertToUTF16(secondCode));
+    responses.ManifestResponse[L"Data"][L"Versions"] = web::json::value::array({ firstManifest, secondManifest });
+    HttpClientHelper helper{ responses.GetHandler() };
+    SourceDetails details;
+    details.Identifier = "TestSource";
+    auto source = std::make_shared<RestSource>(details, SourceInformation{},
+        RestClient::Create(TestRestUriString, {}, {}, helper, IRestClient::Information{ details.Identifier, { "1.4.0" } }));
+    SearchRequest request;
+    request.Filters.emplace_back(cacheDuringSearch ? PackageMatchField::Moniker : PackageMatchField::Name,
+        MatchType::Exact, cacheDuringSearch ? "bar"sv : "Microsoft Teams"sv);
+
+    auto result = source->Search(request);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(responses.ManifestRequests == (cacheDuringSearch ? size_t{ 1 } : size_t{ 0 }));
+    auto package = result.Matches[0].Package->GetAvailable().at(0);
+    REQUIRE(package->GetLatestVersion()->GetManifest().Version == "2.0.0");
+    auto productCodes = package->GetMultiProperty(PackageMultiProperty::ProductCode);
+    REQUIRE(productCodes.size() == 3);
+    CHECK(productCodes[0].get() == firstCode);
+    CHECK(productCodes[1].get() == secondCode);
+    CHECK(productCodes[2].get() == searchOnlyCode);
+    auto keys = package->GetVersionKeys();
+    REQUIRE(keys.size() == 2);
+    for (const auto& key : keys)
+    {
+        auto versionCodes = package->GetVersion(key)->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+        REQUIRE(versionCodes.size() == 1);
+        CHECK(versionCodes[0].get() == (key.Version == "1.0.0" ? firstCode : secondCode));
+    }
     REQUIRE(responses.SearchRequests == 1);
     REQUIRE(responses.ManifestRequests == 1);
 }

@@ -159,6 +159,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             if (!manifests.empty() && package.Versions.size() == 1 &&
                 package.Versions[0].VersionAndChannel.GetVersion().IsUnknown())
             {
+                package.SearchVersions = std::move(package.Versions);
                 package.Versions = CreateVersionInfos(std::move(manifests));
             }
             else

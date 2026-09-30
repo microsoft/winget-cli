@@ -146,6 +146,7 @@ namespace AppInstaller::Repository::Rest
 
                         if (result.Matches.size() == 1)
                         {
+                            m_package.SearchVersions = std::move(m_package.Versions);
                             m_package.Versions = std::move(result.Matches[0].Versions);
                             SortVersionsInternal();
                         }
@@ -271,23 +272,26 @@ namespace AppInstaller::Repository::Rest
             std::scoped_lock versionsLock{ m_packageVersionsLock };
             std::vector<Utility::LocIndString> result;
             PackageVersionMultiProperty mappedProperty = PackageMultiPropertyToPackageVersionMultiProperty(property);
+            auto addValue = [](std::vector<Utility::LocIndString>& values, Utility::LocIndString&& string)
+            {
+                auto itr = std::lower_bound(values.begin(), values.end(), string);
+
+                if (itr == values.end() || *itr != string)
+                {
+                    values.emplace(itr, std::move(string));
+                }
+            };
+
+            for (const auto& versionInfo : m_package.SearchVersions)
+            {
+                GetMultiPropertyValues(
+                    this, versionInfo, mappedProperty, result, addValue);
+            }
 
             for (const auto& versionInfo : m_package.Versions)
             {
                 GetMultiPropertyValues(
-                    this,
-                    versionInfo,
-                    mappedProperty,
-                    result,
-                    [](std::vector<Utility::LocIndString>& result, Utility::LocIndString&& string)
-                    {
-                        auto itr = std::lower_bound(result.begin(), result.end(), string);
-
-                        if (itr == result.end() || *itr != string)
-                        {
-                            result.emplace(itr, std::move(string));
-                        }
-                    });
+                    this, versionInfo, mappedProperty, result, addValue);
             }
 
             return result;

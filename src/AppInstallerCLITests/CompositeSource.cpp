@@ -2162,7 +2162,8 @@ TEST_CASE("CompositeSource_RestRetrieval_InstalledVersion", "[RestSource][Compos
 {
     auto [manifestHasArpRanges, onlyLatestVersion] = GENERATE(
         std::make_pair(false, false), std::make_pair(false, true), std::make_pair(true, false));
-    CAPTURE(manifestHasArpRanges, onlyLatestVersion);
+    bool retrieveBeforeCorrelation = GENERATE(false, true);
+    CAPTURE(manifestHasArpRanges, onlyLatestVersion, retrieveBeforeCorrelation);
     RestCorrelationTestSetup setup{ CompositeSearchBehavior::AvailablePackages };
     auto& searchVersion = setup.SearchResponse[L"Data"][0][L"Versions"][0];
     searchVersion[L"ProductCodes"][0] = web::json::value::string(L"search.code");
@@ -2192,7 +2193,8 @@ TEST_CASE("CompositeSource_RestRetrieval_InstalledVersion", "[RestSource][Compos
         return result;
     };
     SearchRequest request;
-    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Exact, "tool");
+    request.Filters.emplace_back(retrieveBeforeCorrelation ? PackageMatchField::Moniker : PackageMatchField::Name,
+        MatchType::Exact, retrieveBeforeCorrelation ? "tool"sv : "Legacy App"sv);
     auto result = setup.Composite.Search(request);
     REQUIRE(result.Failures.empty());
     REQUIRE(result.Matches.size() == 1);
