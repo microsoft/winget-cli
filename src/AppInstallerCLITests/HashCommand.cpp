@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "Commands/HashCommand.h"
 #include <winget/Hash.h>
+#include <limits>
 #include <type_traits>
 
 using namespace std::string_literals;
@@ -15,6 +16,25 @@ static_assert(std::is_move_constructible_v<SHA256>);
 static_assert(std::is_move_assignable_v<SHA256>);
 static_assert(!std::is_copy_constructible_v<SHA256>);
 static_assert(!std::is_copy_assignable_v<SHA256>);
+
+#if defined(_WIN64)
+TEST_CASE("Hash_RejectsOversizedInput", "[Sha256Hash][Cryptography]")
+{
+    constexpr size_t oversizedAddLength = static_cast<size_t>(std::numeric_limits<ULONG>::max()) + 1;
+    uint8_t byte = 0;
+    SHA256 hasher;
+
+    REQUIRE_THROWS_HR(hasher.Add(&byte, oversizedAddLength), HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER));
+
+    std::string_view oversizedString{ reinterpret_cast<const char*>(&byte), static_cast<size_t>(std::numeric_limits<uint32_t>::max()) + 1 };
+    REQUIRE_THROWS_HR(SHA256::ComputeHash(oversizedString), HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER));
+}
+#endif
+
+TEST_CASE("SHA256_HandleReadFailure", "[Sha256Hash][Cryptography]")
+{
+    REQUIRE_THROWS_HR(SHA256::ComputeHashFromHandle(INVALID_HANDLE_VALUE), HRESULT_FROM_WIN32(ERROR_INVALID_HANDLE));
+}
 
 TEST_CASE("SHA256_KnownVectors", "[Sha256Hash][Cryptography]")
 {

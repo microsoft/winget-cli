@@ -102,6 +102,7 @@ namespace
     void Hash::Add(const uint8_t* buffer, size_t cbBuffer)
     {
         EnsureNotFinished();
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), cbBuffer > std::numeric_limits<ULONG>::max());
 
         const HashAlgorithmInfo& algorithmInfo = GetHashAlgorithmInfo(m_algorithm);
         THROW_IF_NTSTATUS_FAILED_MSG(
@@ -164,6 +165,7 @@ namespace
 
     Hash::HashBuffer Hash::ComputeHash(HashAlgorithm algorithm, std::string_view buffer)
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), buffer.size() > std::numeric_limits<uint32_t>::max());
         return ComputeHash(algorithm, reinterpret_cast<const std::uint8_t*>(buffer.data()), static_cast<std::uint32_t>(buffer.size()));
     }
 
@@ -224,8 +226,14 @@ namespace
         Hash hasher{ algorithm };
         DWORD bytesRead = 0;
 
-        while (ReadFile(fileHandle, buffer.get(), bufferSize, &bytesRead, nullptr) && bytesRead > 0)
+        while (true)
         {
+            THROW_LAST_ERROR_IF(!ReadFile(fileHandle, buffer.get(), bufferSize, &bytesRead, nullptr));
+            if (bytesRead == 0)
+            {
+                break;
+            }
+
             hasher.Add(buffer.get(), bytesRead);
         }
 
