@@ -47,6 +47,12 @@ namespace AppInstaller::Filesystem
     // Get expanded file system path.
     std::filesystem::path GetExpandedPath(const std::string& path);
 
+    // Gets the path with its beginning replaced by an environment variable (e.g. %LOCALAPPDATA%)
+    // when it is located under a well known folder; otherwise returns the path unchanged.
+    // When allowUserVariables is false, user profile variables (e.g. %LOCALAPPDATA%, %USERPROFILE%)
+    // are skipped to prevent writing user-scoped variables to system/machine scope.
+    std::filesystem::path GetUnexpandedPath(const std::filesystem::path& path, bool allowUserVariables = true);
+
     // If `source` begins with all of `prefix`, replace that with `replacement`.
     // Returns true if replacement happened, false otherwise.
     bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement);

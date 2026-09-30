@@ -274,7 +274,7 @@ namespace AppInstallerCLIE2ETests
             Assert.That(result.StdOut, Does.Contain("Successfully installed"));
 
             // If no location specified, default behavior is to create a package directory with the name "{packageId}_{sourceId}"
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, false, @"%LOCALAPPDATA%\Microsoft\WinGet\Links;");
         }
 
         /// <summary>
@@ -537,7 +537,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(result.StdOut, Does.Contain("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, false, @"%LOCALAPPDATA%\Microsoft\WinGet\Links;");
         }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(result.StdOut, Does.Contain("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User, true, $@"%LOCALAPPDATA%\Microsoft\WinGet\Packages\{packageDirName};");
         }
 
         /// <summary>
