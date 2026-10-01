@@ -1426,18 +1426,12 @@ namespace AppInstaller::CLI::Workflow
                             });
                         }
                         bool firstSource = true;
-                        std::pair<std::string, std::string> previousIdentity;
                         for (const auto& available : availablePackages)
                         {
-                            std::pair<std::string, std::string> identity{
-                                available->GetProperty(PackageProperty::Name),
-                                available->GetProperty(PackageProperty::Id)
-                            };
-                            bool repeatedIdentity = !firstSource && identity == previousIdentity;
                             Execution::TableOutput<5>::line_t line{
                                 firstSource ? std::to_string(i + 1) : ""s,
-                                repeatedIdentity ? ""s : identity.first,
-                                repeatedIdentity ? ""s : identity.second,
+                                available->GetProperty(PackageProperty::Name),
+                                available->GetProperty(PackageProperty::Id),
                                 unavailable,
                                 unavailable
                             };
@@ -1455,7 +1449,6 @@ namespace AppInstaller::CLI::Workflow
                             }
                             lines.emplace_back(std::move(line));
                             firstSource = false;
-                            previousIdentity = std::move(identity);
                         }
                     }
 

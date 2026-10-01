@@ -1,7 +1,7 @@
 ---
-author: AmelBawa-msft
+author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-09-28
-last updated: 2026-09-29
+last updated: 2026-09-30
 issue id: 5345
 ---
 
@@ -68,7 +68,7 @@ For candidates spanning sources:
 2 Contoso Editor Contoso.Editor 2.4.0   private
 ```
 
-Each source row uses that source's package name, ID, and version. Additional sources within one candidate appear on continuation rows without another selection number; name and ID are omitted only when both match the preceding row. Use action-specific introductory text for viewing or downloading. Do not add another confirmation after selection. Existing consent prompts still apply.
+Each source row always shows that source's package name, ID, and version. Additional sources within one candidate appear on continuation rows without another selection number. Use action-specific introductory text for viewing or downloading. Do not add another confirmation after selection. Existing consent prompts still apply.
 
 When prompting is unavailable, retain the candidate list and explain:
 

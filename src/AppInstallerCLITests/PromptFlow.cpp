@@ -883,9 +883,8 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
     std::vector<std::vector<std::string>> expectedRows{
         { "1", "PublicName", "Public.App", "1.0", "FirstSource" },
-        differentName || differentId ? std::vector<std::string>{ secondName, secondId, "2.0", "SecondSource" } :
-            std::vector<std::string>{ "2.0", "SecondSource" },
-        { missingMetadata ? unavailable : "3.0", missingMetadata ? unavailable : "SecondSource" },
+        { secondName, secondId, "2.0", "SecondSource" },
+        { secondName, secondId, missingMetadata ? unavailable : "3.0", missingMetadata ? unavailable : "SecondSource" },
         { "2", "OtherName", "Other.App", "4.0", "FirstSource" }
     };
     for (const auto& expectedRow : expectedRows)
