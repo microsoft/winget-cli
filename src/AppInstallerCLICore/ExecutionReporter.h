@@ -128,6 +128,10 @@ namespace AppInstaller::CLI::Execution
         std::optional<uint64_t> PromptForIntegerResponse(Resource::LocString message, Level level = Level::Info,
             Resource::LocString invalid = Resource::String::NumberedSelectionInvalid, std::function<bool()> isCancelled = {});
 
+        // Prompts for an integer in [minimum, maximum]; returns nullopt if unavailable or cancelled.
+        std::optional<uint64_t> PromptForIntegerResponseWithinRange(Resource::LocString message, uint64_t minimum, uint64_t maximum,
+            Level level = Level::Info, Resource::LocString invalid = Resource::String::NumberedSelectionInvalid, std::function<bool()> isCancelled = {});
+
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);
 

@@ -11,6 +11,7 @@
 #include <Workflows/InstallFlow.h>
 #include <Workflows/ShowFlow.h>
 #include <winget/ManifestYamlParser.h>
+#include <limits>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -223,6 +224,77 @@ TEST_CASE("ReporterPromptForIntegerResponse_InputFailure", "[PromptFlow]")
         expectedOutput.clear();
     }
     REQUIRE(output.str() == expectedOutput);
+}
+
+TEST_CASE("ReporterPromptForIntegerResponseWithinRange", "[PromptFlow]")
+{
+    const uint64_t minimum = GENERATE(uint64_t{0}, uint64_t{2}, std::numeric_limits<uint64_t>::max() - 2);
+    const uint64_t maximum = minimum + GENERATE(uint64_t{0}, uint64_t{2});
+    const uint64_t response = GENERATE_COPY(minimum, maximum, minimum + (maximum - minimum) / 2);
+    auto level = GENERATE(Execution::Reporter::Level::Info, Execution::Reporter::Level::Warning, Execution::Reporter::Level::Error);
+    std::istringstream input{ std::to_string(response) + "\nnext\n" };
+    std::ostringstream output;
+    Execution::Reporter reporter{ output, input };
+    reporter.SetConsoleStreamsForTest(true);
+    reporter.SetStyle(VisualStyle::NoVT);
+    reporter.SetLevelMask(Execution::Reporter::Level::All, false);
+    reporter.SetLevelMask(level);
+    const Resource::LocString message{ AppInstaller::Utility::LocIndString{ std::string_view{ "Number:" } } };
+
+    auto result = reporter.PromptForIntegerResponseWithinRange(message, minimum, maximum, level);
+    REQUIRE(result.has_value());
+    REQUIRE(*result == response);
+    REQUIRE(input.peek() == 'n');
+    REQUIRE(output.str() == "Number: ");
+}
+
+TEST_CASE("ReporterPromptForIntegerResponseWithinRange_InvalidInput", "[PromptFlow]")
+{
+    auto response = GENERATE("wrong", "0", "1", "5", "18446744073709551615", "18446744073709551616");
+    auto level = GENERATE(Execution::Reporter::Level::Info, Execution::Reporter::Level::Warning, Execution::Reporter::Level::Error);
+    std::istringstream input{ std::string{ response } + "\n3\nnext\n" };
+    std::ostringstream output;
+    Execution::Reporter reporter{ output, input };
+    reporter.SetConsoleStreamsForTest(true);
+    reporter.SetStyle(VisualStyle::NoVT);
+    reporter.SetLevelMask(Execution::Reporter::Level::All, false);
+    reporter.SetLevelMask(level);
+    const Resource::LocString message{ AppInstaller::Utility::LocIndString{ std::string_view{ "Number:" } } };
+    const Resource::LocString invalid{ AppInstaller::Utility::LocIndString{ std::string_view{ "Try again" } } };
+
+    REQUIRE(reporter.PromptForIntegerResponseWithinRange(message, 2, 4, level, invalid) == uint64_t{3});
+    REQUIRE(input.peek() == 'n');
+    REQUIRE(output.str() == "Number: Try again\nNumber: ");
+}
+
+TEST_CASE("ReporterPromptForIntegerResponseWithinRange_CancelRetry", "[PromptFlow]")
+{
+    auto response = GENERATE("1", "5");
+    std::istringstream input{ std::string{ response } + "\n3\n" };
+    std::ostringstream output;
+    Execution::Reporter reporter{ output, input };
+    reporter.SetConsoleStreamsForTest(true);
+    reporter.SetStyle(VisualStyle::NoVT);
+    const Resource::LocString message{ AppInstaller::Utility::LocIndString{ std::string_view{ "Number:" } } };
+    const Resource::LocString invalid{ AppInstaller::Utility::LocIndString{ std::string_view{ "Try again" } } };
+    auto isCancelled = [&]() { return output.str().find("Try again\n") != std::string::npos; };
+
+    REQUIRE_FALSE(reporter.PromptForIntegerResponseWithinRange(message, 2, 4, Execution::Reporter::Level::Info, invalid, isCancelled));
+    REQUIRE(input.peek() == '3');
+    REQUIRE(output.str() == "Number: Try again\n");
+}
+
+TEST_CASE("ReporterPromptForIntegerResponseWithinRange_InvalidRange", "[PromptFlow]")
+{
+    std::istringstream input{ "1\n" };
+    std::ostringstream output;
+    Execution::Reporter reporter{ output, input };
+    reporter.SetConsoleStreamsForTest(GENERATE(false, true));
+    const Resource::LocString message{ AppInstaller::Utility::LocIndString{ std::string_view{ "Number:" } } };
+
+    REQUIRE_THROWS_HR(reporter.PromptForIntegerResponseWithinRange(message, 2, 1), E_INVALIDARG);
+    REQUIRE(input.peek() == '1');
+    REQUIRE(output.str().empty());
 }
 
 TEST_CASE("ReporterReadLine", "[PromptFlow]")
@@ -506,6 +578,7 @@ TEST_CASE("PackageSelection_ReporterUnavailable", "[PackageSelection][PromptFlow
 
     REQUIRE_FALSE(reporter.CanPrompt(level));
     REQUIRE_FALSE(reporter.PromptForIntegerResponse(Resource::String::NumberedSelectionPrompt(2), level));
+    REQUIRE_FALSE(reporter.PromptForIntegerResponseWithinRange(Resource::String::NumberedSelectionPrompt(2), 0, 2, level));
     REQUIRE(input.peek() == '1');
     REQUIRE(output.str().empty());
 }

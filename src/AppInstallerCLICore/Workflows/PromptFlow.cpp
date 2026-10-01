@@ -418,32 +418,17 @@ namespace AppInstaller::CLI::Workflow
         out << std::endl;
 
         const auto prompt = Resource::String::NumberedSelectionPrompt(count);
-        for (;;)
+        AICLI_RETURN_IF_TERMINATED(context);
+        auto response = context.Reporter.PromptForIntegerResponseWithinRange(prompt, 0, count, Reporter::Level::Info, m_invalid,
+            [&]() { return context.IsTerminated(); });
+        AICLI_RETURN_IF_TERMINATED(context);
+        if (!response || *response == 0)
         {
-            AICLI_RETURN_IF_TERMINATED(context);
-            auto response = context.Reporter.PromptForIntegerResponse(prompt, Reporter::Level::Info, m_invalid,
-                [&]() { return context.IsTerminated(); });
-            AICLI_RETURN_IF_TERMINATED(context);
-            if (!response)
-            {
-                out << Resource::String::Cancelled << std::endl;
-                AICLI_TERMINATE_CONTEXT(E_ABORT);
-            }
-
-            uint64_t selection = *response;
-            if (selection <= count)
-            {
-                if (!selection)
-                {
-                    out << Resource::String::Cancelled << std::endl;
-                    AICLI_TERMINATE_CONTEXT(E_ABORT);
-                }
-                context.Add<Data::SelectedIndex>(std::optional<size_t>{ static_cast<size_t>(selection - 1) });
-                return;
-            }
-
-            out << m_invalid << std::endl;
+            out << Resource::String::Cancelled << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
+
+        context.Add<Data::SelectedIndex>(std::optional<size_t>{ static_cast<size_t>(*response - 1) });
     }
 
     void HandleSourceAgreements::operator()(Execution::Context& context) const

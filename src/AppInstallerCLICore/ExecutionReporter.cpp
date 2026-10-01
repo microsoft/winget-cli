@@ -4,6 +4,7 @@
 #include "ExecutionReporter.h"
 #include <AppInstallerErrors.h>
 #include <charconv>
+#include <limits>
 
 
 namespace AppInstaller::CLI::Execution
@@ -300,6 +301,15 @@ namespace AppInstaller::CLI::Execution
     std::optional<uint64_t> Reporter::PromptForIntegerResponse(Resource::LocString message, Level level,
         Resource::LocString invalid, std::function<bool()> isCancelled)
     {
+        return PromptForIntegerResponseWithinRange(std::move(message), 0, std::numeric_limits<uint64_t>::max(),
+            level, std::move(invalid), std::move(isCancelled));
+    }
+
+    std::optional<uint64_t> Reporter::PromptForIntegerResponseWithinRange(Resource::LocString message, uint64_t minimum, uint64_t maximum,
+        Level level, Resource::LocString invalid, std::function<bool()> isCancelled)
+    {
+        THROW_HR_IF(E_INVALIDARG, minimum > maximum);
+
         if (!CanPrompt(level))
         {
             AICLI_LOG(CLI, Verbose, << "Skipping integer prompt. Console streams or output are unavailable.");
@@ -324,7 +334,7 @@ namespace AppInstaller::CLI::Execution
             Utility::Trim(*response);
             uint64_t value = 0;
             auto result = std::from_chars(response->data(), response->data() + response->size(), value);
-            if (result.ec == std::errc{} && result.ptr == response->data() + response->size())
+            if (result.ec == std::errc{} && result.ptr == response->data() + response->size() && value >= minimum && value <= maximum)
             {
                 return value;
             }
