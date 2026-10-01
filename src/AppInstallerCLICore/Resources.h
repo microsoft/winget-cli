@@ -534,11 +534,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageRequiresDependencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionDownload);
-        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefine);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionSelected);
-        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionShow);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);

@@ -1404,10 +1404,7 @@ namespace AppInstaller::CLI::Workflow
                 std::optional<size_t> selection;
                 if (selectionSupported && !searchResult.Truncated)
                 {
-                    auto title = m_operationType == OperationType::Install ? Resource::String::PackageSelectionInstall :
-                        m_operationType == OperationType::Download ? Resource::String::PackageSelectionDownload : Resource::String::PackageSelectionShow;
-
-                    context << PromptForSelection(table, title);
+                    context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
                     AICLI_RETURN_IF_TERMINATED(context);
                     selection = context.Get<Execution::Data::SelectedIndex>();
                 }

@@ -407,17 +407,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
   </data>
-  <data name="PackageSelectionInstall" xml:space="preserve">
-    <value>Multiple packages match. Choose one to install.</value>
-    <comment>Introduces a numbered list of packages. The user must select a package before installation can continue.</comment>
-  </data>
-  <data name="PackageSelectionDownload" xml:space="preserve">
-    <value>Multiple packages match. Choose one to download.</value>
-    <comment>Introduces a numbered list of packages to download, not install.</comment>
-  </data>
-  <data name="PackageSelectionShow" xml:space="preserve">
-    <value>Multiple packages match. Choose one to view.</value>
-    <comment>Introduces a numbered list of packages whose information can be displayed.</comment>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>Multiple packages match. Choose one.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
   </data>
   <data name="NumberedSelectionPrompt" xml:space="preserve">
     <value>Enter a number (1-{0}), or 0 to cancel:</value>

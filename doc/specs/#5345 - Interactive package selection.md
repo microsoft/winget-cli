@@ -59,7 +59,7 @@ Apart from the experimental setting, the prompt adds no command-line flags, grou
 Reuse the existing ambiguity table with a leading selection number. Show Name, Id, and Source, including Source when all candidates use the same source. For example:
 
 ```text
-Multiple packages match. Choose one to install.
+Multiple packages match. Choose one.
 
 # Name           Id                 Source
 ------------------------------------------
@@ -79,7 +79,7 @@ For distinct candidates from different sources:
 2 Contoso Editor Contoso.Editor private
 ```
 
-Each candidate occupies one row, using the existing ambiguity report's package identity and source. Sources grouped within a candidate do not add rows. Use action-specific introductory text for viewing or downloading. Do not add another confirmation after selection. Existing consent prompts still apply.
+Each candidate occupies one row, using the existing ambiguity report's package identity and source. Sources grouped within a candidate do not add rows. Use the same introductory text for every command. Do not add another confirmation after selection. Existing consent prompts still apply.
 
 When prompting is unavailable, retain the candidate list and explain:
 

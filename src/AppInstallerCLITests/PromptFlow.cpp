@@ -33,7 +33,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
         table.OutputLine({ std::to_string(i) });
     }
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
+    context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
     auto selection = context.Get<Execution::Data::SelectedIndex>();
     if (std::string_view{ response } == "0")
     {
@@ -61,7 +61,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     table.OutputLine({ GENERATE("First", ""), "FirstSource" });
     table.OutputLine({ "Second", "FirstSource" });
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
+    context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
@@ -128,7 +128,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
         context.Reporter.SetLevelMask(Execution::Reporter::Level::Info, false);
     }
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
+    context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());
     REQUIRE(output.str().empty());
@@ -148,7 +148,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     {
         table.OutputLine({ "First" });
     }
-    PromptForSelection prompt(table, Resource::String::PackageSelectionInstall);
+    PromptForSelection prompt(table, Resource::String::PackageSelectionTitle);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
     REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());
@@ -808,6 +808,9 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     INFO(output.str());
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
+    const std::string title = Resource::LocString{ Resource::String::PackageSelectionTitle }.get();
+    REQUIRE_FALSE(title.empty());
+    REQUIRE((output.str().find(title + "\n\n") != std::string::npos) == expectPrompt);
     REQUIRE((output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) != std::string::npos) == expectPrompt);
     if (expectPrompt)
     {
@@ -970,7 +973,7 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
     if (prompt)
     {
         header.insert(header.begin(), Resource::LocString{ AppInstaller::Utility::LocIndString{ "#"sv } });
-        expectedReporter.Info() << Resource::String::PackageSelectionShow << std::endl << std::endl;
+        expectedReporter.Info() << Resource::String::PackageSelectionTitle << std::endl << std::endl;
     }
     Execution::TableOutputBase expectedTable{ expectedReporter, std::move(header) };
     SearchResult result;
@@ -1000,7 +1003,7 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
     expectedTable.Complete();
     if (prompt)
     {
-        context << PromptForSelection(table, Resource::String::PackageSelectionShow);
+        context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
         expectedReporter.Info() << std::endl << Resource::String::NumberedSelectionPrompt(2) << ' ';
         REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     }
