@@ -62,7 +62,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     table.OutputLine({ "First", "FirstSource" });
     if (GENERATE(false, true))
     {
-        table.OutputLine({ "", "SecondSource" });
+        table.OutputContinuationLine({ "First", "SecondSource" });
     }
     table.OutputLine({ "Second", "FirstSource" });
 
@@ -152,10 +152,10 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     if (count)
     {
         table.OutputLine({ "First" });
-    }
-    if (GENERATE(false, true))
-    {
-        table.OutputLine({ "" });
+        if (GENERATE(false, true))
+        {
+            table.OutputContinuationLine({ "First" });
+        }
     }
     PromptForSelection prompt(table, Resource::String::PackageSelectionInstall,
         Resource::String::NumberedSelectionInvalid);

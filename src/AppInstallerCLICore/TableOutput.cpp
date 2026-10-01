@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TableOutput.h"
+#include <string_view>
 
 namespace AppInstaller::CLI::Execution
 {
@@ -19,7 +20,14 @@ namespace AppInstaller::CLI::Execution
     void TableOutputBase::OutputLine(std::vector<std::string> line)
     {
         THROW_HR_IF(E_INVALIDARG, line.size() != m_columns.size());
-        m_buffer.emplace_back(std::move(line));
+        m_buffer.push_back({ std::move(line) });
+    }
+
+    void TableOutputBase::OutputContinuationLine(std::vector<std::string> line)
+    {
+        THROW_HR_IF(E_INVALIDARG, m_buffer.empty() || line.empty() || line.front() != m_buffer.back().Values.front());
+        OutputLine(std::move(line));
+        m_buffer.back().IsContinuation = true;
     }
 
     void TableOutputBase::Complete()
@@ -30,22 +38,30 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    size_t TableOutputBase::GetPrimaryRowCount() const
+    {
+        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [](const auto& row)
+        {
+            return !row.IsContinuation;
+        }));
+    }
+
     size_t TableOutputBase::GetNonEmptyRowCount(size_t column) const
     {
         THROW_HR_IF(E_INVALIDARG, column >= m_columns.size());
-        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [column](const auto& line)
+        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [column](const auto& row)
         {
-            return !line[column].empty();
+            return !row.Values[column].empty();
         }));
     }
 
     void TableOutputBase::EvaluateAndFlushBuffer()
     {
-        for (const auto& line : m_buffer)
+        for (const auto& row : m_buffer)
         {
             for (size_t i = 0; i < m_columns.size(); ++i)
             {
-                m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(line[i]));
+                m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(row.Values[i]));
             }
         }
 
@@ -94,14 +110,14 @@ namespace AppInstaller::CLI::Execution
         }
         OutputLineToStream(header);
         m_reporter.Info() << std::string(totalRequired, '-') << std::endl;
-        for (const auto& line : m_buffer)
+        for (const auto& row : m_buffer)
         {
-            OutputLineToStream(line);
+            OutputLineToStream(row.Values, row.IsContinuation);
         }
         m_bufferEvaluated = true;
     }
 
-    void TableOutputBase::OutputLineToStream(const std::vector<std::string>& line)
+    void TableOutputBase::OutputLineToStream(const std::vector<std::string>& line, bool isContinuation)
     {
         auto out = m_reporter.Info();
         for (size_t i = 0; i < m_columns.size(); ++i)
@@ -109,11 +125,12 @@ namespace AppInstaller::CLI::Execution
             const auto& column = m_columns[i];
             if (column.MaxLength)
             {
-                size_t valueLength = Utility::UTF8ColumnWidth(line[i]);
+                std::string_view value = isContinuation && i == 0 ? std::string_view{} : std::string_view{ line[i] };
+                size_t valueLength = Utility::UTF8ColumnWidth(value);
                 if (valueLength > column.MaxLength)
                 {
                     size_t actualWidth;
-                    out << Utility::UTF8TrimRightToColumnWidth(line[i], column.MaxLength - 1, actualWidth) << "\xE2\x80\xA6";
+                    out << Utility::UTF8TrimRightToColumnWidth(value, column.MaxLength - 1, actualWidth) << "\xE2\x80\xA6";
                     // Wide characters can leave one column unused before the ellipsis.
                     if (actualWidth != column.MaxLength - 1)
                     {
@@ -126,7 +143,7 @@ namespace AppInstaller::CLI::Execution
                 }
                 else
                 {
-                    out << line[i];
+                    out << value;
                     if (column.SpaceAfter)
                     {
                         out << std::string(column.MaxLength - valueLength + 1, ' ');

@@ -6,7 +6,7 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Prompts for a numbered choice; rows with an empty first column are continuations.
+    // Prompts for a numbered choice among the table's primary rows.
     // Required Args: None
     // Inputs: None
     // Outputs: SelectedIndex (zero-based index, or nullopt if prompting is unavailable)

@@ -33,10 +33,16 @@ TEST_CASE("TableOutput_DynamicMatchesTyped", "[tableoutput]")
     TableOutputBase dynamic(dynamicReporter, { MakeHeader("Name"), MakeHeader("Empty"), MakeHeader("Id") });
     typed.OutputLine({ "LongPackageName", "", "test.id" });
     dynamic.OutputLine({ "LongPackageName", "", "test.id" });
+    if (GENERATE(false, true))
+    {
+        typed.OutputContinuationLine({ "LongPackageName", "", "other.id" });
+        dynamic.OutputContinuationLine({ "LongPackageName", "", "other.id" });
+    }
     typed.Complete();
     dynamic.Complete();
 
     REQUIRE_FALSE(dynamic.IsEmpty());
+    REQUIRE(dynamic.GetPrimaryRowCount() == size_t{1});
     REQUIRE(dynamicOutput.str() == typedOutput.str());
     dynamic.Complete();
     REQUIRE(dynamicOutput.str() == typedOutput.str());
@@ -61,6 +67,7 @@ TEST_CASE("TableOutput_NonEmptyRowCount", "[tableoutput]")
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     Reporter reporter(output, input);
     TableOutput<2> table(reporter, { MakeHeader("Choice"), MakeHeader("Source") });
+    REQUIRE(table.GetPrimaryRowCount() == size_t{0});
     REQUIRE(table.GetNonEmptyRowCount(0) == size_t{0});
     REQUIRE(table.GetNonEmptyRowCount(1) == size_t{0});
     REQUIRE_THROWS_HR(table.GetNonEmptyRowCount(2), E_INVALIDARG);
@@ -69,13 +76,83 @@ TEST_CASE("TableOutput_NonEmptyRowCount", "[tableoutput]")
     table.OutputLine({ "", "SecondSource" });
     table.OutputLine({ "2", "ThirdSource" });
     table.OutputLine({ "", "" });
+    REQUIRE(table.GetPrimaryRowCount() == size_t{4});
     REQUIRE(table.GetNonEmptyRowCount(0) == size_t{2});
     REQUIRE(table.GetNonEmptyRowCount(1) == size_t{3});
     REQUIRE(output.str().empty());
 
     table.Complete();
+    REQUIRE(table.GetPrimaryRowCount() == size_t{4});
     REQUIRE(table.GetNonEmptyRowCount(0) == size_t{2});
     REQUIRE(table.GetNonEmptyRowCount(1) == size_t{3});
+}
+
+TEST_CASE("TableOutput_ContinuationRows", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::ostringstream expectedOutput;
+    std::istringstream input;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{GENERATE(size_t{20}, size_t{120})} };
+    Reporter reporter(output, input);
+    Reporter expectedReporter(expectedOutput, input);
+    reporter.SetStyle(AppInstaller::Settings::VisualStyle::NoVT);
+    expectedReporter.SetStyle(AppInstaller::Settings::VisualStyle::NoVT);
+    TableOutput<3> table(reporter, { MakeHeader("#"), MakeHeader("Name"), MakeHeader("Source") });
+    TableOutput<3> expected(expectedReporter, { MakeHeader("#"), MakeHeader("Name"), MakeHeader("Source") });
+
+    table.OutputLine({ "1", "FirstName", "FirstSource" });
+    table.OutputContinuationLine({ "1", "FirstName", "SecondSource" });
+    table.OutputContinuationLine({ "1", "AliasName", "ThirdSource" });
+    table.OutputLine({ "2", "SecondName", "FirstSource" });
+    table.OutputContinuationLine({ "2", "SecondName", "SecondSource" });
+    expected.OutputLine({ "1", "FirstName", "FirstSource" });
+    expected.OutputLine({ "", "FirstName", "SecondSource" });
+    expected.OutputLine({ "", "AliasName", "ThirdSource" });
+    expected.OutputLine({ "2", "SecondName", "FirstSource" });
+    expected.OutputLine({ "", "SecondName", "SecondSource" });
+
+    REQUIRE(table.GetPrimaryRowCount() == size_t{2});
+    REQUIRE(table.GetNonEmptyRowCount(0) == size_t{5});
+    REQUIRE(output.str().empty());
+    table.Complete();
+    expected.Complete();
+    REQUIRE(output.str() == expectedOutput.str());
+    REQUIRE(table.GetPrimaryRowCount() == size_t{2});
+    REQUIRE(table.GetNonEmptyRowCount(0) == size_t{5});
+    table.Complete();
+    REQUIRE(output.str() == expectedOutput.str());
+}
+
+TEST_CASE("TableOutput_InvalidContinuation", "[tableoutput]")
+{
+    std::ostringstream output;
+    std::istringstream input;
+    Reporter reporter(output, input);
+    TableOutputBase table(reporter, { MakeHeader("Choice"), MakeHeader("Source") });
+    size_t expectedRows = 0;
+
+    SECTION("Without a primary row")
+    {
+        REQUIRE_THROWS_HR(table.OutputContinuationLine({ "1", "FirstSource" }), E_INVALIDARG);
+    }
+    SECTION("After a primary row")
+    {
+        table.OutputLine({ "1", "FirstSource" });
+        expectedRows = 1;
+        SECTION("Invalid dimensions")
+        {
+            auto columnCount = GENERATE(size_t{0}, size_t{1}, size_t{3});
+            REQUIRE_THROWS_HR(table.OutputContinuationLine(std::vector<std::string>(columnCount, "1")), E_INVALIDARG);
+        }
+        SECTION("Different first-column value")
+        {
+            REQUIRE_THROWS_HR(table.OutputContinuationLine({ "2", "SecondSource" }), E_INVALIDARG);
+        }
+    }
+
+    REQUIRE(table.GetPrimaryRowCount() == expectedRows);
+    REQUIRE(table.GetNonEmptyRowCount(0) == expectedRows);
+    REQUIRE(output.str().empty());
 }
 
 // Test that all rows are buffered and column widths account for values beyond the first 50 rows.

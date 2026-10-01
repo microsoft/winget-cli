@@ -1409,7 +1409,14 @@ namespace AppInstaller::CLI::Workflow
                     auto title = m_operationType == OperationType::Install ? Resource::String::PackageSelectionInstall :
                         m_operationType == OperationType::Download ? Resource::String::PackageSelectionDownload : Resource::String::PackageSelectionShow;
 
-                    std::vector<Execution::TableOutput<5>::line_t> lines;
+                    Execution::TableOutput<5> table(context.Reporter,
+                        {
+                            Resource::LocString{ Utility::LocIndString{ "#"sv } },
+                            Resource::String::SearchName,
+                            Resource::String::SearchId,
+                            Resource::String::SearchVersion,
+                            Resource::String::SearchSource
+                        });
                     const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
                     for (size_t i = 0; i < searchResult.Matches.size(); ++i)
                     {
@@ -1417,7 +1424,7 @@ namespace AppInstaller::CLI::Workflow
                         auto availablePackages = package->GetAvailable();
                         if (availablePackages.empty())
                         {
-                            lines.emplace_back(Execution::TableOutput<5>::line_t{
+                            table.OutputLine({
                                 std::to_string(i + 1),
                                 package->GetProperty(PackageProperty::Name),
                                 package->GetProperty(PackageProperty::Id),
@@ -1429,7 +1436,7 @@ namespace AppInstaller::CLI::Workflow
                         for (const auto& available : availablePackages)
                         {
                             Execution::TableOutput<5>::line_t line{
-                                firstSource ? std::to_string(i + 1) : ""s,
+                                std::to_string(i + 1),
                                 available->GetProperty(PackageProperty::Name),
                                 available->GetProperty(PackageProperty::Id),
                                 unavailable,
@@ -1447,23 +1454,18 @@ namespace AppInstaller::CLI::Workflow
                             {
                                 line[4] = std::move(sourceName);
                             }
-                            lines.emplace_back(std::move(line));
+                            if (firstSource)
+                            {
+                                table.OutputLine(std::move(line));
+                            }
+                            else
+                            {
+                                table.OutputContinuationLine(std::move(line));
+                            }
                             firstSource = false;
                         }
                     }
 
-                    Execution::TableOutput<5> table(context.Reporter,
-                        {
-                            Resource::LocString{ Utility::LocIndString{ "#"sv } },
-                            Resource::String::SearchName,
-                            Resource::String::SearchId,
-                            Resource::String::SearchVersion,
-                            Resource::String::SearchSource
-                        });
-                    for (auto& line : lines)
-                    {
-                        table.OutputLine(std::move(line));
-                    }
                     context << PromptForSelection(table, title, Resource::String::NumberedSelectionInvalid);
                     AICLI_RETURN_IF_TERMINATED(context);
                     selection = context.Get<Execution::Data::SelectedIndex>();

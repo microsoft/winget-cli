@@ -18,11 +18,20 @@ namespace AppInstaller::CLI::Execution
 
         // Buffers rows until Complete() computes column widths and renders the table.
         void OutputLine(std::vector<std::string> line);
+        // Requires the preceding row's first-column value; hides it only when rendered.
+        void OutputContinuationLine(std::vector<std::string> line);
         void Complete();
         bool IsEmpty() const { return m_buffer.empty(); }
+        size_t GetPrimaryRowCount() const;
         size_t GetNonEmptyRowCount(size_t column) const;
 
     private:
+        struct Row
+        {
+            std::vector<std::string> Values;
+            bool IsContinuation = false;
+        };
+
         // A column in the table.
         struct Column
         {
@@ -34,11 +43,11 @@ namespace AppInstaller::CLI::Execution
 
         Reporter& m_reporter;
         std::vector<Column> m_columns;
-        std::vector<std::vector<std::string>> m_buffer;
+        std::vector<Row> m_buffer;
         bool m_bufferEvaluated = false;
 
         void EvaluateAndFlushBuffer();
-        void OutputLineToStream(const std::vector<std::string>& line);
+        void OutputLineToStream(const std::vector<std::string>& line, bool isContinuation = false);
     };
 
     // Retains fixed-size headers and rows for existing table callers.
@@ -54,6 +63,11 @@ namespace AppInstaller::CLI::Execution
         void OutputLine(line_t&& line)
         {
             TableOutputBase::OutputLine({ std::make_move_iterator(line.begin()), std::make_move_iterator(line.end()) });
+        }
+
+        void OutputContinuationLine(line_t&& line)
+        {
+            TableOutputBase::OutputContinuationLine({ std::make_move_iterator(line.begin()), std::make_move_iterator(line.end()) });
         }
     };
 }

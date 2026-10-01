@@ -399,7 +399,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Add<Data::SelectedIndex>(std::optional<size_t>{});
         AICLI_RETURN_IF_TERMINATED(context);
-        const size_t count = m_table.GetNonEmptyRowCount(0);
+        const size_t count = m_table.GetPrimaryRowCount();
         THROW_HR_IF(E_INVALIDARG, !count);
 
         if (!IsInteractivityAllowed(context))
