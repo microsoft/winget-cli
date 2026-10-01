@@ -5,6 +5,7 @@ ABORTIFHUNG
 accepteula
 ACCESSDENIED
 ACCESSTOKEN
+aclapi
 ACL'd
 adjacents
 adminproperties
@@ -163,6 +164,7 @@ ecfr
 ecfrbrowse
 EFGH
 ENDSESSION
+EOP
 EQU
 ERANGE
 errcode
@@ -349,6 +351,7 @@ mdmp
 mdmpto
 MDs
 megamorf
+mgmt
 microsoftentraid
 microsoftentraidforazureblobstorage
 midl
@@ -376,8 +379,10 @@ mta
 Mugiwara
 Multideclaration
 mysource
+namespaceapi
 nativehandle
 NBLGGH
+ncalrpc
 ncreate
 NESTEDINSTALLER
 netlify
@@ -404,10 +409,12 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
-nullability
+NRNW
+NRNWNX
 nsis
 NRVO
 NTFS
+nullability
 objbase
 objidl
 octokitnet
@@ -471,6 +478,7 @@ PROPVARIANT
 proxystub
 psapi
 pscustomobject
+PSECURITY
 pseudocode
 PSHOST
 psobject
@@ -554,6 +562,9 @@ shortguid
 SHOWNORMAL
 sid
 Sideload
+SIDTo
+SIDW
+siex
 SIGNATUREHASH
 silentpreferred
 SINGLETHREADED
@@ -575,11 +586,13 @@ sqlite
 Srinivasan
 SRL
 srs
+STARTUPINFOEX
 STDMETHODCALLTYPE
 storeapps
 storeorigin
 STRRET
 stylecop
+subauthority
 SUBCHAN
 subdir
 subkey
@@ -605,6 +618,7 @@ timespan
 Tlg
 tlhelp
 TLSCAs
+tokeninfo
 tombstoned
 tombstoning
 Toolhelp
@@ -682,6 +696,7 @@ wingetconfigroot
 wingetcreate
 wingetdev
 wingetutil
+WINNT
 winreg
 winrtact
 winstring
@@ -706,6 +721,7 @@ WVT
 wwinmain
 WZDNCRFJ
 xcopy
+XCount
 Xes
 XFile
 XManifest
@@ -717,6 +733,7 @@ XRESOURCEZORO
 xsi
 yamato
 yao
+YCount
 Zabcdefghijklmnopqrstuvwxyz
 Zanollo
 ZIPHASH
