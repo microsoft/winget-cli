@@ -12,6 +12,10 @@ Usage: add `"output": { "locale": "de-DE" }` to `settings.json`.
 
 Added a new `--ignore-unavailable` flag to the `install` command. When installing multiple packages, this flag allows the operation to continue with the remaining packages instead of failing entirely when one or more packages are not found in the configured sources. This brings the same behavior previously available with `import --ignore-unavailable` to direct multi-package installs.
 
+### COM install dependencies-only option
+
+Added the contract version 30 `InstallOptions.InstallDependenciesOnly` property for COM callers that need to install a package's dependencies without installing the requested package.
+
 ## Bug Fixes
 
 ### Portable installer alias handling

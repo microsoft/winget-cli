@@ -598,6 +598,60 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
+        /// Test installing only the package dependencies.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithInstallDependenciesOnly()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+            installOptions.InstallDependenciesOnly = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert that the dependency is installed but the requested package is not.
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.Ok));
+            Assert.That(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir), Is.False);
+
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = $"{Constants.ExeInstaller}.exe";
+            string fileName = $"{Constants.ExeInstaller}.exe";
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        /// <summary>
+        /// Test rejecting mutually exclusive dependency-only install options.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithConflictingDependencyOptions()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.AcceptPackageAgreements = true;
+            installOptions.SkipDependencies = true;
+            installOptions.InstallDependenciesOnly = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.That(installResult.Status, Is.EqualTo(InstallResultStatus.InvalidOptions));
+        }
+
+        /// <summary>
         /// Test installing a package with a specific installer type install option.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
