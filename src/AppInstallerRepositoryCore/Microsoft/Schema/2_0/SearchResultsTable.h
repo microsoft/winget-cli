@@ -53,12 +53,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             std::string_view valueAlias,
             bool useLike) const;
 
+        std::vector<int> BuildNormalizedNameSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view packageAlias,
+            std::string_view valueAlias,
+            bool useLike) const;
+
         static bool MatchUsesLike(MatchType match);
         void BindStatementForMatchType(SQLite::Statement& statement, MatchType match, int bindIndex, std::string_view value);
 
         virtual void BindStatementForMatchType(SQLite::Statement& statement, const PackageMatchFilter& filter, const std::vector<int>& bindIndex);
 
     private:
+        void SearchOnFieldInternal(const PackageMatchFilter& filter, bool normalizedName);
+        void FilterOnFieldInternal(const PackageMatchFilter& filter, bool normalizedName);
+
         const SQLite::Connection& m_connection;
         int m_sortOrdinalValue = 0;
     };
