@@ -33,8 +33,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
         table.OutputLine({ std::to_string(i) });
     }
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
-        Resource::String::NumberedSelectionInvalid);
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
     auto selection = context.Get<Execution::Data::SelectedIndex>();
     if (std::string_view{ response } == "0")
     {
@@ -66,8 +65,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     }
     table.OutputLine({ "Second", "FirstSource" });
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
-        Resource::String::NumberedSelectionInvalid);
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
@@ -75,7 +73,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     REQUIRE(output.str().find(prompt + " " + invalid + '\n' + prompt + " ") != std::string::npos);
 }
 
-TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
+TEST_CASE("PromptFlow_Selection_CustomTitle", "[PromptFlow]")
 {
     TestUserSettings settings;
     std::istringstream input{ "wrong\n2\n" };
@@ -91,13 +89,15 @@ TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
     Execution::TableOutput<1> table(context.Reporter, { text("Choice") });
     table.OutputLine({ "1 First" });
     table.OutputLine({ "2 Second" });
-    context << PromptForSelection(table, text("Choose a value"), text("Try again"));
+    context << PromptForSelection(table, text("Choose a value"));
 
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
+    const std::string invalid = Resource::LocString{ Resource::String::NumberedSelectionInvalid }.get();
     REQUIRE_FALSE(prompt.empty());
-    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " Try again\n" + prompt + " ");
+    REQUIRE_FALSE(invalid.empty());
+    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " " + invalid + '\n' + prompt + " ");
 }
 
 TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
@@ -132,8 +132,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
         context.Reporter.SetLevelMask(Execution::Reporter::Level::Info, false);
     }
 
-    context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
-        Resource::String::NumberedSelectionInvalid);
+    context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());
     REQUIRE(output.str().empty());
@@ -157,8 +156,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
             table.OutputContinuationLine({ "First" });
         }
     }
-    PromptForSelection prompt(table, Resource::String::PackageSelectionInstall,
-        Resource::String::NumberedSelectionInvalid);
+    PromptForSelection prompt(table, Resource::String::PackageSelectionInstall);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
     REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());

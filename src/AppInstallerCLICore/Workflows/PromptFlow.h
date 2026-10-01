@@ -12,15 +12,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: SelectedIndex (zero-based index, or nullopt if prompting is unavailable)
     struct PromptForSelection : public WorkflowTask
     {
-        PromptForSelection(Execution::TableOutputBase& table, Resource::LocString title, Resource::LocString invalid) :
-            WorkflowTask("PromptForSelection"), m_table(table), m_title(std::move(title)), m_invalid(std::move(invalid)) {}
+        PromptForSelection(Execution::TableOutputBase& table, Resource::LocString title) :
+            WorkflowTask("PromptForSelection"), m_table(table), m_title(std::move(title)) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Execution::TableOutputBase& m_table;
         Resource::LocString m_title;
-        Resource::LocString m_invalid;
     };
 
     // Handles all opened source(s) agreements if needed.

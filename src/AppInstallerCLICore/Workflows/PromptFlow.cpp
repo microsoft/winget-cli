@@ -419,8 +419,8 @@ namespace AppInstaller::CLI::Workflow
 
         const auto prompt = Resource::String::NumberedSelectionPrompt(count);
         AICLI_RETURN_IF_TERMINATED(context);
-        auto response = context.Reporter.PromptForIntegerResponseWithinRange(prompt, 0, count, Reporter::Level::Info, m_invalid,
-            [&]() { return context.IsTerminated(); });
+        auto response = context.Reporter.PromptForIntegerResponseWithinRange(prompt, 0, count, Reporter::Level::Info,
+            Resource::String::NumberedSelectionInvalid, [&]() { return context.IsTerminated(); });
         AICLI_RETURN_IF_TERMINATED(context);
         if (!response || *response == 0)
         {

@@ -1467,7 +1467,7 @@ namespace AppInstaller::CLI::Workflow
                         }
                     }
 
-                    context << PromptForSelection(table, title, Resource::String::NumberedSelectionInvalid);
+                    context << PromptForSelection(table, title);
                     AICLI_RETURN_IF_TERMINATED(context);
                     selection = context.Get<Execution::Data::SelectedIndex>();
                 }
