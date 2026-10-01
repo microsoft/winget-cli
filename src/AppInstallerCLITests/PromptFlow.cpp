@@ -232,7 +232,7 @@ TEST_CASE("ReporterPromptForIntegerResponseWithinRange", "[PromptFlow]")
     const uint64_t maximum = minimum + GENERATE(uint64_t{0}, uint64_t{2});
     const uint64_t response = GENERATE_COPY(minimum, maximum, minimum + (maximum - minimum) / 2);
     auto level = GENERATE(Execution::Reporter::Level::Info, Execution::Reporter::Level::Warning, Execution::Reporter::Level::Error);
-    std::istringstream input{ std::to_string(response) + "\nnext\n" };
+    std::istringstream input{ std::to_string(response) + "\n" "next\n" };
     std::ostringstream output;
     Execution::Reporter reporter{ output, input };
     reporter.SetConsoleStreamsForTest(true);
@@ -252,7 +252,7 @@ TEST_CASE("ReporterPromptForIntegerResponseWithinRange_InvalidInput", "[PromptFl
 {
     auto response = GENERATE("wrong", "0", "1", "5", "18446744073709551615", "18446744073709551616");
     auto level = GENERATE(Execution::Reporter::Level::Info, Execution::Reporter::Level::Warning, Execution::Reporter::Level::Error);
-    std::istringstream input{ std::string{ response } + "\n3\nnext\n" };
+    std::istringstream input{ std::string{ response } + "\n3\n" "next\n" };
     std::ostringstream output;
     Execution::Reporter reporter{ output, input };
     reporter.SetConsoleStreamsForTest(true);
