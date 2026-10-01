@@ -74,11 +74,14 @@ TEST_CASE("Resources_SetLanguageOverride", "[resources]")
         return;
     }
 
-    REQUIRE(AppInstaller::Resource::SetLanguageOverride("de-DE"));
+    REQUIRE(AppInstaller::Resource::SetLanguageOverride("en-US"));
+    auto englishValue = AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey);
+    REQUIRE(englishValue.has_value());
 
+    REQUIRE(AppInstaller::Resource::SetLanguageOverride("de-DE"));
     auto overriddenValue = AppInstaller::StringResource::TryResolveString(commandArgumentDescriptionKey);
     REQUIRE(overriddenValue.has_value());
-    REQUIRE(overriddenValue.value().get() != defaultValue.value().get());
+    REQUIRE(overriddenValue.value().get() != englishValue.value().get());
 
     // An empty tag resets back to the default language.
     REQUIRE(AppInstaller::Resource::SetLanguageOverride({}));
