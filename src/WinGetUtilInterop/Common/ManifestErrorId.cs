@@ -78,6 +78,12 @@ namespace Microsoft.WinGetUtil.Common
         /// <summary>Duplicate field found in the manifest.</summary>
         FieldDuplicate,
 
+        /// <summary>The field value must not point to a location outside of its base directory.</summary>
+        FieldEscapesDirectory,
+
+        /// <summary>The field value exceeds the maximum allowed length.</summary>
+        FieldExceedsMaxLength,
+
         /// <summary>Failed to process field.</summary>
         FieldFailedToProcess,
 
@@ -135,6 +141,9 @@ namespace Microsoft.WinGetUtil.Common
         /// <summary>Contains invalid MSI switches.</summary>
         InvalidMsiSwitches,
 
+        /// <summary>The field value contains characters that are not allowed because the value is used to construct a file system path.</summary>
+        InvalidPathCharacters,
+
         /// <summary>Encountered unexpected root node.</summary>
         InvalidRootNode,
 
@@ -164,6 +173,9 @@ namespace Microsoft.WinGetUtil.Common
 
         /// <summary>Relative file path must not point to a location outside of archive directory.</summary>
         RelativeFilePathEscapesDirectory,
+
+        /// <summary>The field value cannot be used to construct a file system path because it is a reserved name.</summary>
+        ReservedPathName,
 
         /// <summary>Required field with empty value.</summary>
         RequiredFieldEmpty,
