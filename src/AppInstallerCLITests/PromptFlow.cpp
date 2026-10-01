@@ -69,7 +69,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::NumberedSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
-    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == 1);
+    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
     const std::string invalid = Resource::LocString{ Resource::String::NumberedSelectionInvalid }.get();
     REQUIRE(output.str().find(prompt + " " + invalid + '\n' + prompt + " ") != std::string::npos);
@@ -94,7 +94,7 @@ TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
     context << PromptForSelection(table, text("Choose a value"), text("Try again"));
 
     REQUIRE_FALSE(context.IsTerminated());
-    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == 1);
+    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
     REQUIRE_FALSE(prompt.empty());
     REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " Try again\n" + prompt + " ");
