@@ -52,26 +52,24 @@ namespace
         BCRYPT_HASH_HANDLE hashHandle{};
         DWORD resultLength = 0;
 
-        // Open an algorithm handle.
-        THROW_IF_NTSTATUS_FAILED_MSG(
-            BCryptOpenAlgorithmProvider(
-                &algHandle,
-                algorithmInfo.CngAlgorithmId,
-                nullptr,
-                0),
+        // Open an algorithm handle
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptOpenAlgorithmProvider(
+            &algHandle,                   // Alg Handle pointer
+            algorithmInfo.CngAlgorithmId, // Cryptographic Algorithm name (null terminated unicode string)
+            nullptr,                      // Provider name; if null, the default provider is loaded
+            0),                           // Flags
             "failed opening %hs algorithm provider",
             algorithmInfo.Name);
         m_context->AlgHandle.reset(algHandle);
 
-        // Obtain the length of the hash.
-        THROW_IF_NTSTATUS_FAILED_MSG(
-            BCryptGetProperty(
-                m_context->AlgHandle.get(),
-                BCRYPT_HASH_LENGTH,
-                reinterpret_cast<PBYTE>(&m_context->HashLength),
-                sizeof(m_context->HashLength),
-                &resultLength,
-                0),
+        // Obtain the length of the hash
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptGetProperty(
+            m_context->AlgHandle.get(),                      // Handle to a CNG object
+            BCRYPT_HASH_LENGTH,                              // Property name (null terminated unicode string)
+            reinterpret_cast<PBYTE>(&m_context->HashLength), // Address of the output buffer which receives the property value
+            sizeof(m_context->HashLength),                   // Size of the buffer in bytes
+            &resultLength,                                   // Number of bytes that were copied into the buffer
+            0),                                              // Flags
             "failed getting %hs hash length",
             algorithmInfo.Name);
 
@@ -80,16 +78,15 @@ namespace
             THROW_HR_MSG(E_UNEXPECTED, "failed getting %hs hash length", algorithmInfo.Name);
         }
 
-        // Create a hash handle.
-        THROW_IF_NTSTATUS_FAILED_MSG(
-            BCryptCreateHash(
-                m_context->AlgHandle.get(),
-                &hashHandle,
-                nullptr,
-                0,
-                nullptr,
-                0,
-                0),
+        // Create a hash handle
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptCreateHash(
+            m_context->AlgHandle.get(), // Handle to an algorithm provider
+            &hashHandle,                // A pointer to a hash handle - can be a hash or hmac object
+            nullptr,                    // Pointer to the buffer that receives the hash/hmac object
+            0,                          // Size of the buffer in bytes
+            nullptr,                    // A pointer to a key to use for the hash or MAC
+            0,                          // Size of the key in bytes
+            0),                         // Flags
             "failed creating %hs hash object",
             algorithmInfo.Name);
         m_context->HashHandle.reset(hashHandle);
@@ -104,6 +101,7 @@ namespace
         EnsureNotFinished();
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), cbBuffer > std::numeric_limits<ULONG>::max());
 
+        // Add the data
         const HashAlgorithmInfo& algorithmInfo = GetHashAlgorithmInfo(m_algorithm);
         THROW_IF_NTSTATUS_FAILED_MSG(
             BCryptHashData(m_context->HashHandle.get(), const_cast<PUCHAR>(buffer), static_cast<ULONG>(cbBuffer), 0),
@@ -116,14 +114,15 @@ namespace
         EnsureNotFinished();
 
         const HashAlgorithmInfo& algorithmInfo = GetHashAlgorithmInfo(m_algorithm);
+        // Size the hash buffer appropriately
         hash.resize(m_context->HashLength);
 
-        THROW_IF_NTSTATUS_FAILED_MSG(
-            BCryptFinishHash(
-                m_context->HashHandle.get(),
-                hash.data(),
-                m_context->HashLength,
-                0),
+        // Obtain the hash of the message(s) into the hash buffer
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptFinishHash(
+            m_context->HashHandle.get(), // Handle to the hash or MAC object
+            hash.data(),                 // A pointer to a buffer that receives the hash or MAC value
+            m_context->HashLength,       // Size of the buffer in bytes
+            0),                          // Flags
             "failed getting %hs hash",
             algorithmInfo.Name);
 
@@ -178,10 +177,10 @@ namespace
     {
         auto excState = in.exceptions();
         auto revertExcState = wil::scope_exit([excState, &in]() { in.exceptions(excState); });
-        // Throw exceptions on badbit.
+        // Throw exceptions on badbit
         in.exceptions(std::ios_base::badbit);
 
-        const int bufferSize = 1024 * 1024; // 1 MB
+        const int bufferSize = 1024 * 1024; // 1MB
         auto buffer = std::make_unique<uint8_t[]>(bufferSize);
 
         Hash hasher{ algorithm };

@@ -25,6 +25,7 @@ namespace AppInstaller::Cryptography {
         constexpr static size_t HashBufferSizeInBytes = 32;
     };
 
+    // Forward declaration of the implementation-specific context.
     struct HashContext;
 
     // Class used to compute hashes over various sets of data.
