@@ -121,6 +121,7 @@ namespace AppInstaller::CLI::Execution
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         void SetConsoleStreamsForTest(bool value) { m_consoleStreams = value; }
+        void SetInputStreamFileTypeForTest(DWORD value) { m_inStreamFileType = value; }
 #endif
 
         // Prompts for a non-negative integer; returns nullopt if unavailable or cancelled.

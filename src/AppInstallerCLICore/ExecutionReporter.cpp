@@ -11,6 +11,16 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    using ReadConsoleFunction = std::function<BOOL(wchar_t*, DWORD, DWORD*)>;
+    static ReadConsoleFunction* s_readConsoleOverride = nullptr;
+
+    void TestHook_SetReadConsole_Override(ReadConsoleFunction* value)
+    {
+        s_readConsoleOverride = value;
+    }
+#endif
+
     const Sequence& HelpCommandEmphasis = TextFormat::Foreground::Bright;
     const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::Bright;
     const Sequence& ManifestInfoEmphasis = TextFormat::Foreground::Bright;
@@ -26,6 +36,17 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
+        BOOL ReadConsoleChunk(wchar_t* buffer, DWORD size, DWORD* charactersRead)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_readConsoleOverride)
+            {
+                return (*s_readConsoleOverride)(buffer, size, charactersRead);
+            }
+#endif
+            return ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), buffer, size, charactersRead, nullptr);
+        }
+
         DWORD GetStdHandleType(DWORD stdHandle)
         {
             DWORD result = FILE_TYPE_UNKNOWN;
@@ -204,6 +225,7 @@ namespace AppInstaller::CLI::Execution
         DWORD readError = ERROR_SUCCESS;
         ProgressCallback progress;
         wil::unique_event readCompleted{ wil::EventOptions::ManualReset };
+        wil::unique_event cancellationCompleted{ wil::EventOptions::ManualReset };
         auto cancellation = progress.SetCancellationFunction([&]()
         {
             // Retry until the read ends to cover cancellation immediately before it starts.
@@ -218,6 +240,7 @@ namespace AppInstaller::CLI::Execution
                     }
                 }
             }
+            cancellationCompleted.SetEvent();
         });
         SetProgressCallback(&progress);
         {
@@ -237,7 +260,7 @@ namespace AppInstaller::CLI::Execution
                         DWORD charactersRead = 0;
                         SetLastError(ERROR_SUCCESS);
                         // The CRT loses ERROR_OPERATION_ABORTED when Ctrl+C ends a console read.
-                        bool succeeded = ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), buffer, ARRAYSIZE(buffer), &charactersRead, nullptr);
+                        bool succeeded = ReadConsoleChunk(buffer, ARRAYSIZE(buffer), &charactersRead);
                         readError = GetLastError();
                         readSucceeded = succeeded && charactersRead != 0;
                         if (!readSucceeded || readError == ERROR_OPERATION_ABORTED)
@@ -246,6 +269,15 @@ namespace AppInstaller::CLI::Execution
                         }
                         consoleResponse.append(buffer, charactersRead);
                     } while (consoleResponse.back() != L'\n');
+                    if (readError == ERROR_OPERATION_ABORTED)
+                    {
+                        readCompleted.SetEvent();
+                        // The console read can end before the Ctrl+C handler records cancellation.
+                        if (!isCancelled || !isCancelled())
+                        {
+                            cancellationCompleted.wait();
+                        }
+                    }
                     response = Utility::ConvertToUTF8(consoleResponse);
                     readSucceeded = readSucceeded && response.find('\x1a') == std::string::npos;
                 }

@@ -260,7 +260,7 @@ TEST_CASE("ReporterReadLine_InputFailure", "[PromptFlow]")
         int checks = 0;
         REQUIRE_FALSE(reporter.ReadLine([&]() { return ++checks == 3; }));
     }
-    SECTION("Console read aborts before the signal handler runs")
+    SECTION("Aborted stream read")
     {
         struct AbortedInputBuffer : std::streambuf
         {
@@ -377,6 +377,96 @@ TEST_CASE("ReporterReadLine_CancelPendingRead", "[PromptFlow]")
     REQUIRE_FALSE(timedOut);
     REQUIRE_TERMINATED_WITH(context, E_ABORT);
     REQUIRE(output.str() == (integerPrompt ? Resource::String::NumberedSelectionPrompt(2).get() + " " : std::string{}));
+}
+
+TEST_CASE("ReporterReadLine_ConsoleCancellationWaitsForHandler", "[PromptFlow]")
+{
+    bool integerPrompt = GENERATE(false, true);
+    BOOL readSucceeded = GENERATE(FALSE, TRUE);
+    std::istringstream input;
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetInputStreamFileTypeForTest(FILE_TYPE_CHAR);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    wil::unique_event readAborted{ wil::EventOptions::ManualReset };
+    wil::unique_event readReturned{ wil::EventOptions::ManualReset };
+    size_t readCount = 0;
+    TestHook::SetReadConsole_Override readConsoleOverride{ [&](wchar_t*, DWORD, DWORD* charactersRead)
+    {
+        ++readCount;
+        *charactersRead = 0;
+        readAborted.SetEvent();
+        SetLastError(ERROR_OPERATION_ABORTED);
+        return readSucceeded;
+    } };
+
+    bool cancelled = false;
+    std::exception_ptr exception;
+    auto isCancelled = [&]() { return context.IsTerminated(); };
+    std::thread reader([&]()
+    {
+        try
+        {
+            if (integerPrompt)
+            {
+                cancelled = !context.Reporter.PromptForIntegerResponse(Resource::String::NumberedSelectionPrompt(2),
+                    Execution::Reporter::Level::Info, Resource::String::NumberedSelectionInvalid, isCancelled);
+            }
+            else
+            {
+                cancelled = !context.Reporter.ReadLine(isCancelled);
+            }
+        }
+        catch (...)
+        {
+            exception = std::current_exception();
+        }
+        readReturned.SetEvent();
+    });
+    auto join = wil::scope_exit([&]()
+    {
+        context.Cancel(AppInstaller::CancelReason::Abort);
+        reader.join();
+    });
+
+    bool aborted = readAborted.wait(5000);
+    bool returnedBeforeCancellation = readReturned.wait(100);
+    context.Cancel(AppInstaller::CancelReason::CtrlCSignal);
+    reader.join();
+    join.release();
+    if (exception)
+    {
+        std::rethrow_exception(exception);
+    }
+
+    REQUIRE(aborted);
+    REQUIRE_FALSE(returnedBeforeCancellation);
+    REQUIRE(cancelled);
+    REQUIRE(readCount == size_t{1});
+    REQUIRE_TERMINATED_WITH(context, E_ABORT);
+    REQUIRE(output.str() == (integerPrompt ? Resource::String::NumberedSelectionPrompt(2).get() + " " : std::string{}));
+}
+
+TEST_CASE("ReporterReadLine_ConsoleCancellationAlreadyRecorded", "[PromptFlow]")
+{
+    BOOL readSucceeded = GENERATE(FALSE, TRUE);
+    std::istringstream input;
+    std::ostringstream output;
+    TestContext context{ output, input };
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetInputStreamFileTypeForTest(FILE_TYPE_CHAR);
+    TestHook::SetReadConsole_Override readConsoleOverride{ [&](wchar_t*, DWORD, DWORD* charactersRead)
+    {
+        context.Terminate(E_ABORT);
+        *charactersRead = 0;
+        SetLastError(ERROR_OPERATION_ABORTED);
+        return readSucceeded;
+    } };
+
+    REQUIRE_FALSE(context.Reporter.ReadLine([&]() { return context.IsTerminated(); }));
+    REQUIRE_TERMINATED_WITH(context, E_ABORT);
+    REQUIRE(output.str().empty());
 }
 
 TEST_CASE("PackageSelection_ConsoleStreams", "[PackageSelection][PromptFlow]")
