@@ -1043,7 +1043,12 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
-                        context << ReportMultiplePackageFoundResultWithSource;
+                        auto table = GetMultiplePackageFoundResultTableWithSource(context);
+                        table.Complete();
+                        if (searchResult.Truncated)
+                        {
+                            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+                        }
                     }
                 }
 
@@ -1052,7 +1057,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ReportMultiplePackageFoundResult(Execution::Context& context)
+    Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -1072,15 +1077,10 @@ namespace AppInstaller::CLI::Workflow
                 });
         }
 
-        table.Complete();
-
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
-        }
+        return table;
     }
 
-    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context)
+    Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -1113,12 +1113,7 @@ namespace AppInstaller::CLI::Workflow
                 });
         }
 
-        table.Complete();
-
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
-        }
+        return table;
     }
 
     void ReportListResult::operator()(Execution::Context& context) const
@@ -1401,6 +1396,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
+                auto table = operationTargetsInstalled ? GetMultiplePackageFoundResultTable(context) :
+                    GetMultiplePackageFoundResultTableWithSource(context);
                 bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
                     (m_operationType == OperationType::Install || m_operationType == OperationType::Show || m_operationType == OperationType::Download) &&
                     Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::InteractivePackageSelection);
@@ -1409,63 +1406,6 @@ namespace AppInstaller::CLI::Workflow
                 {
                     auto title = m_operationType == OperationType::Install ? Resource::String::PackageSelectionInstall :
                         m_operationType == OperationType::Download ? Resource::String::PackageSelectionDownload : Resource::String::PackageSelectionShow;
-
-                    Execution::TableOutput<5> table(context.Reporter,
-                        {
-                            Resource::LocString{ Utility::LocIndString{ "#"sv } },
-                            Resource::String::SearchName,
-                            Resource::String::SearchId,
-                            Resource::String::SearchVersion,
-                            Resource::String::SearchSource
-                        });
-                    const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
-                    for (size_t i = 0; i < searchResult.Matches.size(); ++i)
-                    {
-                        auto package = searchResult.Matches[i].Package;
-                        auto availablePackages = package->GetAvailable();
-                        if (availablePackages.empty())
-                        {
-                            table.OutputLine({
-                                std::to_string(i + 1),
-                                package->GetProperty(PackageProperty::Name),
-                                package->GetProperty(PackageProperty::Id),
-                                unavailable,
-                                unavailable
-                            });
-                        }
-                        bool firstSource = true;
-                        for (const auto& available : availablePackages)
-                        {
-                            Execution::TableOutput<5>::line_t line{
-                                std::to_string(i + 1),
-                                available->GetProperty(PackageProperty::Name),
-                                available->GetProperty(PackageProperty::Id),
-                                unavailable,
-                                unavailable
-                            };
-                            auto version = available->GetLatestVersion();
-                            auto source = available->GetSource();
-                            std::string versionString = version ? version->GetProperty(PackageVersionProperty::Version).get() : std::string{};
-                            std::string sourceName = source ? source.GetDetails().Name : std::string{};
-                            if (!versionString.empty())
-                            {
-                                line[3] = std::move(versionString);
-                            }
-                            if (!sourceName.empty())
-                            {
-                                line[4] = std::move(sourceName);
-                            }
-                            if (firstSource)
-                            {
-                                table.OutputLine(std::move(line));
-                            }
-                            else
-                            {
-                                table.OutputContinuationLine(std::move(line));
-                            }
-                            firstSource = false;
-                        }
-                    }
 
                     context << PromptForSelection(table, title);
                     AICLI_RETURN_IF_TERMINATED(context);
@@ -1479,16 +1419,15 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Info() << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
                         package->GetProperty(PackageProperty::Id)) << std::endl;
                 }
-                else if (operationTargetsInstalled)
-                {
-                    context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
-                    context << ReportMultiplePackageFoundResult;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
-                }
                 else
                 {
-                    context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
-                    context << ReportMultiplePackageFoundResultWithSource;
+                    context.Reporter.Warn() << (operationTargetsInstalled ? Resource::String::MultipleInstalledPackagesFound :
+                        Resource::String::MultiplePackagesFound) << std::endl;
+                    table.Complete();
+                    if (searchResult.Truncated)
+                    {
+                        context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+                    }
                     if (selectionSupported)
                     {
                         context.Reporter.Info() << Resource::String::PackageSelectionRefine << std::endl;

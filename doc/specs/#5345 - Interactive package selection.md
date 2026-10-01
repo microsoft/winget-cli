@@ -56,30 +56,30 @@ Apart from the experimental setting, the prompt adds no command-line flags, grou
 
 ## UI/UX Design
 
-Use the existing search table layout with a leading selection number. Always show the Source column, including when all candidates use the same source. For example:
+Reuse the existing ambiguity table with a leading selection number. Show Name, Id, and Source, including Source when all candidates use the same source. For example:
 
 ```text
 Multiple packages match. Choose one to install.
 
-# Name           Id                 Version Source
---------------------------------------------------
-1 Contoso Editor Contoso.Editor     2.4.0   winget
-2 Contoso Editor Contoso.Editor.Pro 2.4.0   winget
+# Name           Id                 Source
+------------------------------------------
+1 Contoso Editor Contoso.Editor     winget
+2 Contoso Editor Contoso.Editor.Pro winget
 
 Enter a number (1-2), or 0 to cancel: 1
 Selected: Contoso Editor [Contoso.Editor]
 ```
 
-For candidates spanning sources:
+For distinct candidates from different sources:
 
 ```text
-# Name           Id             Version Source
------------------------------------------------
-1 Contoso Editor Contoso.Editor 2.4.0   winget
-2 Contoso Editor Contoso.Editor 2.4.0   private
+# Name           Id             Source
+---------------------------------------
+1 Contoso Editor Contoso.Editor winget
+2 Contoso Editor Contoso.Editor private
 ```
 
-Each source row always shows that source's package name, ID, and version. Additional sources within one candidate appear on continuation rows without another selection number. Use action-specific introductory text for viewing or downloading. Do not add another confirmation after selection. Existing consent prompts still apply.
+Each candidate occupies one row, using the existing ambiguity report's package identity and source. Sources grouped within a candidate do not add rows. Use action-specific introductory text for viewing or downloading. Do not add another confirmation after selection. Existing consent prompts still apply.
 
 When prompting is unavailable, retain the candidate list and explain:
 
@@ -87,7 +87,7 @@ When prompting is unavailable, retain the candidate list and explain:
 Specify a package with --id <ID> --exact --source <SOURCE>.
 ```
 
-Displayed versions are source metadata, not a promise of installer applicability. The original version option remains authoritative.
+The original version option remains authoritative.
 
 ## Capabilities
 

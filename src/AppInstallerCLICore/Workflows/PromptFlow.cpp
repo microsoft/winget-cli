@@ -399,7 +399,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Add<Data::SelectedIndex>(std::optional<size_t>{});
         AICLI_RETURN_IF_TERMINATED(context);
-        const size_t count = m_table.GetPrimaryRowCount();
+        const size_t count = m_table.GetRowCount();
         THROW_HR_IF(E_INVALIDARG, !count);
 
         if (!IsInteractivityAllowed(context))
@@ -414,7 +414,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto out = context.Reporter.Info();
         out << m_title << std::endl << std::endl;
-        m_table.Complete();
+        m_table.Complete(true);
         out << std::endl;
 
         const auto prompt = Resource::String::NumberedSelectionPrompt(count);

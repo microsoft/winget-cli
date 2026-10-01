@@ -58,11 +58,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     TestContext context{ output, input };
     context.Reporter.SetConsoleStreamsForTest(true);
     Execution::TableOutput<2> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchSource });
-    table.OutputLine({ "First", "FirstSource" });
-    if (GENERATE(false, true))
-    {
-        table.OutputContinuationLine({ "First", "SecondSource" });
-    }
+    table.OutputLine({ GENERATE("First", ""), "FirstSource" });
     table.OutputLine({ "Second", "FirstSource" });
 
     context << PromptForSelection(table, Resource::String::PackageSelectionInstall);
@@ -87,8 +83,8 @@ TEST_CASE("PromptFlow_Selection_CustomTitle", "[PromptFlow]")
         return Resource::LocString{ AppInstaller::Utility::LocIndString{ std::move(value) } };
     };
     Execution::TableOutput<1> table(context.Reporter, { text("Choice") });
-    table.OutputLine({ "1 First" });
-    table.OutputLine({ "2 Second" });
+    table.OutputLine({ "First" });
+    table.OutputLine({ "Second" });
     context << PromptForSelection(table, text("Choose a value"));
 
     REQUIRE_FALSE(context.IsTerminated());
@@ -97,7 +93,7 @@ TEST_CASE("PromptFlow_Selection_CustomTitle", "[PromptFlow]")
     const std::string invalid = Resource::LocString{ Resource::String::NumberedSelectionInvalid }.get();
     REQUIRE_FALSE(prompt.empty());
     REQUIRE_FALSE(invalid.empty());
-    REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " " + invalid + '\n' + prompt + " ");
+    REQUIRE(output.str() == "Choose a value\n\n# Choice\n--------\n1 First\n2 Second\n\n" + prompt + " " + invalid + '\n' + prompt + " ");
 }
 
 TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
@@ -147,14 +143,10 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
     TestContext context{ output, input };
     context.Reporter.SetConsoleStreamsForTest(true);
     Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
-    auto count = GENERATE(size_t{0}, size_t{1});
-    if (count)
+    auto count = GENERATE(size_t{0}, size_t{1}, size_t{2});
+    for (size_t i = 0; i < count; ++i)
     {
         table.OutputLine({ "First" });
-        if (GENERATE(false, true))
-        {
-            table.OutputContinuationLine({ "First" });
-        }
     }
     PromptForSelection prompt(table, Resource::String::PackageSelectionInstall);
 
@@ -769,7 +761,6 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     auto expectedPackage = result.Matches[1].Package;
     bool expectPrompt = true;
     bool expectSecondSource = true;
-    size_t expectedRows = 2;
 
     SECTION("Same identity across sources")
     {
@@ -785,7 +776,6 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
         auto package = TestCompositePackage::Make(versions, firstSource);
         package->Available.emplace_back(TestPackage::Make(versions, secondSource));
         result.Matches[0].Package = package;
-        expectedRows = 3;
     }
     SECTION("Unique source priority")
     {
@@ -836,12 +826,13 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
             REQUIRE(AppInstaller::Utility::UTF8ColumnWidth(line) < width);
             ++lineCount;
         }
-        REQUIRE(lineCount == expectedRows + 2);
+        REQUIRE(lineCount == size_t{4});
         if (width == 120)
         {
             REQUIRE(tableText.find(manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>()) != std::string::npos);
             REQUIRE(tableText.find(manifest.Id) != std::string::npos);
-            REQUIRE(tableText.find(manifest.Version) != std::string::npos);
+            REQUIRE(tableText.find(Resource::LocString{ Resource::String::SearchVersion }.get()) == std::string::npos);
+            REQUIRE(tableText.find(manifest.Version) == std::string::npos);
             REQUIRE(tableText.find(Resource::LocString{ Resource::String::SearchSource }.get()) != std::string::npos);
             REQUIRE(tableText.find("FirstSource") != std::string::npos);
             REQUIRE((tableText.find("SecondSource") != std::string::npos) == expectSecondSource);
@@ -859,7 +850,7 @@ TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][w
     REQUIRE(secondSource->CountOfCallsRequiringManifestData == 0);
 }
 
-TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
+TEST_CASE("PackageSelection_CandidateRowIdentity", "[PackageSelection][workflow]")
 {
     struct PrimaryPackage : TestCompositePackage
     {
@@ -877,7 +868,7 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     settings.Set<Setting::EFInteractivePackageSelection>(true);
     bool differentName = GENERATE(false, true);
     bool differentId = GENERATE(false, true);
-    bool missingMetadata = GENERATE(false, true);
+    bool missingSourceName = GENERATE(false, true);
     auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
     manifest.Id = "Public.App";
     manifest.Version = "1.0";
@@ -894,13 +885,10 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     manifest.Version = "2.0";
     manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(secondName);
     package->Available.emplace_back(TestPackage::Make(std::vector{ manifest }, secondSource));
-    manifest.Version = std::string{ missingMetadata ? "" : "3.0" };
-    auto thirdPackage = TestPackage::Make(std::vector{ manifest }, secondSource);
-    if (missingMetadata)
+    if (missingSourceName)
     {
-        thirdPackage->Source.reset();
+        firstSource->Details.Name.clear();
     }
-    package->Available.emplace_back(std::move(thirdPackage));
 
     SearchResult result;
     result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, secondId });
@@ -930,13 +918,15 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     std::string line;
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
-    const std::string unavailable = Resource::LocString{ Resource::String::Unavailable }.get();
     std::vector<std::vector<std::string>> expectedRows{
-        { "1", "PublicName", "Public.App", "1.0", "FirstSource" },
-        { secondName, secondId, "2.0", "SecondSource" },
-        { secondName, secondId, missingMetadata ? unavailable : "3.0", missingMetadata ? unavailable : "SecondSource" },
-        { "2", "OtherName", "Other.App", "4.0", "FirstSource" }
+        { "1", secondName, secondId },
+        { "2", "OtherName", "Other.App" }
     };
+    if (!missingSourceName)
+    {
+        expectedRows[0].emplace_back("FirstSource");
+        expectedRows[1].emplace_back("FirstSource");
+    }
     for (const auto& expectedRow : expectedRows)
     {
         REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
@@ -952,6 +942,160 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     REQUIRE_FALSE(std::getline(tableStream, line));
     REQUIRE(firstSource->CountOfCallsRequiringManifestData == 0);
     REQUIRE(secondSource->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    bool withSource = GENERATE(false, true);
+    bool available = GENERATE(false, true);
+    bool prompt = GENERATE(false, true);
+    auto source = std::make_shared<TestSource>();
+    auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    std::istringstream input{ "2\n" };
+    std::ostringstream output;
+    std::ostringstream expectedOutput;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    Execution::Reporter expectedReporter{ expectedOutput, input };
+    expectedReporter.SetStyle(VisualStyle::NoVT);
+    std::vector<Resource::LocString> header{ Resource::String::SearchName, Resource::String::SearchId };
+    if (withSource)
+    {
+        header.emplace_back(Resource::String::SearchSource);
+    }
+    if (prompt)
+    {
+        header.insert(header.begin(), Resource::LocString{ AppInstaller::Utility::LocIndString{ "#"sv } });
+        expectedReporter.Info() << Resource::String::PackageSelectionShow << std::endl << std::endl;
+    }
+    Execution::TableOutputBase expectedTable{ expectedReporter, std::move(header) };
+    SearchResult result;
+    for (size_t i = 1; i <= 2; ++i)
+    {
+        auto name = "Package" + std::to_string(i);
+        manifest.Id = "Test." + name;
+        manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(name);
+        auto package = available ? TestCompositePackage::Make(std::vector{ manifest }, source) :
+            TestCompositePackage::Make(manifest, TestPackage::MetadataMap{});
+        result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
+        std::vector<std::string> line{ name, manifest.Id };
+        if (withSource)
+        {
+            line.emplace_back(available ? source->Details.Name : "");
+        }
+        if (prompt)
+        {
+            line.insert(line.begin(), std::to_string(i));
+        }
+        expectedTable.OutputLine(std::move(line));
+    }
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    auto table = withSource ? GetMultiplePackageFoundResultTableWithSource(context) : GetMultiplePackageFoundResultTable(context);
+    REQUIRE(table.GetRowCount() == size_t{2});
+    REQUIRE(output.str().empty());
+    expectedTable.Complete();
+    if (prompt)
+    {
+        context << PromptForSelection(table, Resource::String::PackageSelectionShow);
+        expectedReporter.Info() << std::endl << Resource::String::NumberedSelectionPrompt(2) << ' ';
+        REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
+    }
+    else
+    {
+        table.Complete();
+        REQUIRE(input.peek() == '2');
+    }
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(output.str() == expectedOutput.str());
+    REQUIRE(source->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageSelection_AmbiguityOutputUnchanged", "[PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    bool enabled = GENERATE(false, true);
+    settings.Set<Setting::EFInteractivePackageSelection>(bool{ enabled });
+    bool installed = GENERATE(false, true);
+    bool truncated = GENERATE(false, true);
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
+    auto result = source->Search({});
+    result.Truncated = truncated;
+    std::istringstream input{ "2\n" };
+    std::ostringstream output;
+    std::ostringstream expectedOutput;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
+    context.Add<Execution::Data::SearchResult>(result);
+    TestContext expectedContext{ expectedOutput, input };
+    expectedContext.Reporter.SetStyle(VisualStyle::NoVT);
+    expectedContext.Add<Execution::Data::SearchResult>(std::move(result));
+    expectedContext.Reporter.Warn() << (installed ? Resource::String::MultipleInstalledPackagesFound : Resource::String::MultiplePackagesFound) << std::endl;
+    auto table = installed ? GetMultiplePackageFoundResultTable(expectedContext) : GetMultiplePackageFoundResultTableWithSource(expectedContext);
+    table.Complete();
+    if (truncated)
+    {
+        expectedContext.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+    }
+    if (enabled && !installed)
+    {
+        expectedContext.Reporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
+    }
+
+    context << EnsureOneMatchFromSearchResult(installed ? OperationType::Uninstall : OperationType::Install, PackageSelectionBehavior::Prompt);
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+    REQUIRE_FALSE(context.Contains(Execution::Data::Package));
+    REQUIRE(input.peek() == '2');
+    REQUIRE(output.str() == expectedOutput.str());
+}
+
+TEST_CASE("PackageSelection_PartialSearchFailureDoesNotPrompt", "[PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
+    auto result = source->Search({});
+    result.Truncated = GENERATE(false, true);
+    result.Failures.push_back({ "BrokenSource", std::make_exception_ptr(wil::ResultException(E_FAIL)) });
+    std::istringstream input{ "2\n" };
+    std::ostringstream output;
+    std::ostringstream expectedOutput;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    context.SetFlags(Execution::ContextFlag::ShowSearchResultsOnPartialFailure);
+    context.Add<Execution::Data::SearchResult>(result);
+    TestContext expectedContext{ expectedOutput, input };
+    expectedContext.Reporter.SetStyle(VisualStyle::NoVT);
+    expectedContext.Add<Execution::Data::SearchResult>(std::move(result));
+    expectedContext.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
+    auto table = GetMultiplePackageFoundResultTableWithSource(expectedContext);
+    table.Complete();
+    if (expectedContext.Get<Execution::Data::SearchResult>().Truncated)
+    {
+        expectedContext.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+    }
+
+    context << HandleSearchResultFailures;
+
+    REQUIRE(context.GetTerminationHR() == E_FAIL);
+    REQUIRE_FALSE(context.Contains(Execution::Data::SelectedIndex));
+    REQUIRE(input.peek() == '2');
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) == std::string::npos);
+    auto tableStart = output.str().find(expectedOutput.str());
+    REQUIRE(tableStart != std::string::npos);
+    REQUIRE(output.str().substr(tableStart) == expectedOutput.str());
 }
 
 TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")

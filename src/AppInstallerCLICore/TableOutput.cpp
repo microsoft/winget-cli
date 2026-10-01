@@ -20,48 +20,24 @@ namespace AppInstaller::CLI::Execution
     void TableOutputBase::OutputLine(std::vector<std::string> line)
     {
         THROW_HR_IF(E_INVALIDARG, line.size() != m_columns.size());
-        m_buffer.push_back({ std::move(line) });
+        m_buffer.emplace_back(std::move(line));
     }
 
-    void TableOutputBase::OutputContinuationLine(std::vector<std::string> line)
-    {
-        THROW_HR_IF(E_INVALIDARG, m_buffer.empty() || line.empty() || line.front() != m_buffer.back().Values.front());
-        OutputLine(std::move(line));
-        m_buffer.back().IsContinuation = true;
-    }
-
-    void TableOutputBase::Complete()
+    void TableOutputBase::Complete(bool showLineNumbers)
     {
         if (!IsEmpty() && !m_bufferEvaluated)
         {
-            EvaluateAndFlushBuffer();
+            EvaluateAndFlushBuffer(showLineNumbers);
         }
     }
 
-    size_t TableOutputBase::GetPrimaryRowCount() const
-    {
-        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [](const auto& row)
-        {
-            return !row.IsContinuation;
-        }));
-    }
-
-    size_t TableOutputBase::GetNonEmptyRowCount(size_t column) const
-    {
-        THROW_HR_IF(E_INVALIDARG, column >= m_columns.size());
-        return static_cast<size_t>(std::count_if(m_buffer.begin(), m_buffer.end(), [column](const auto& row)
-        {
-            return !row.Values[column].empty();
-        }));
-    }
-
-    void TableOutputBase::EvaluateAndFlushBuffer()
+    void TableOutputBase::EvaluateAndFlushBuffer(bool showLineNumbers)
     {
         for (const auto& row : m_buffer)
         {
             for (size_t i = 0; i < m_columns.size(); ++i)
             {
-                m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(row.Values[i]));
+                m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(row[i]));
             }
         }
 
@@ -83,7 +59,8 @@ namespace AppInstaller::CLI::Execution
             m_columns[i - 1].SpaceAfter = false;
         }
 
-        size_t totalRequired = 0;
+        m_lineNumberWidth = showLineNumbers ? std::to_string(m_buffer.size()).size() : 0;
+        size_t totalRequired = m_lineNumberWidth ? m_lineNumberWidth + 1 : 0;
         for (const auto& column : m_columns)
         {
             totalRequired += column.MaxLength + (column.SpaceAfter ? 1 : 0);
@@ -97,10 +74,14 @@ namespace AppInstaller::CLI::Execution
             {
                 auto widest = std::max_element(m_columns.begin(), m_columns.end(),
                     [](const auto& left, const auto& right) { return left.MaxLength < right.MaxLength; });
+                if (!widest->MaxLength)
+                {
+                    break;
+                }
                 --widest->MaxLength;
+                --totalRequired;
                 --extra;
             }
-            totalRequired = *consoleWidth - 1;
         }
 
         std::vector<std::string> header;
@@ -110,22 +91,28 @@ namespace AppInstaller::CLI::Execution
         }
         OutputLineToStream(header);
         m_reporter.Info() << std::string(totalRequired, '-') << std::endl;
+        size_t lineNumber = 0;
         for (const auto& row : m_buffer)
         {
-            OutputLineToStream(row.Values, row.IsContinuation);
+            OutputLineToStream(row, ++lineNumber);
         }
         m_bufferEvaluated = true;
     }
 
-    void TableOutputBase::OutputLineToStream(const std::vector<std::string>& line, bool isContinuation)
+    void TableOutputBase::OutputLineToStream(const std::vector<std::string>& line, size_t lineNumber)
     {
         auto out = m_reporter.Info();
+        if (m_lineNumberWidth)
+        {
+            const std::string number = lineNumber ? std::to_string(lineNumber) : "#";
+            out << number << std::string(m_lineNumberWidth - number.size() + 1, ' ');
+        }
         for (size_t i = 0; i < m_columns.size(); ++i)
         {
             const auto& column = m_columns[i];
             if (column.MaxLength)
             {
-                std::string_view value = isContinuation && i == 0 ? std::string_view{} : std::string_view{ line[i] };
+                std::string_view value = line[i];
                 size_t valueLength = Utility::UTF8ColumnWidth(value);
                 if (valueLength > column.MaxLength)
                 {

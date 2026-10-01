@@ -6,7 +6,7 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Prompts for a numbered choice among the table's primary rows.
+    // Prompts for a numbered choice among the table's rows.
     // Required Args: None
     // Inputs: None
     // Outputs: SelectedIndex (zero-based index, or nullopt if prompting is unavailable)

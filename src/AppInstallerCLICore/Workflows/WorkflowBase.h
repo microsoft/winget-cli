@@ -15,6 +15,7 @@
 namespace AppInstaller::CLI::Execution
 {
     struct Context;
+    struct TableOutputBase;
 }
 
 namespace AppInstaller::CLI::Workflow
@@ -236,17 +237,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void HandleSearchResultFailures(Execution::Context& context);
 
-    // Outputs the search results when multiple packages found but only one expected.
-    // Required Args: None
-    // Inputs: SearchResult
-    // Outputs: None
-    void ReportMultiplePackageFoundResult(Execution::Context& context);
+    // Builds the ambiguity table for installed-package matches.
+    Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context);
 
-    // Outputs the search results when multiple packages found but only one expected.
-    // Required Args: None
-    // Inputs: SearchResult
-    // Outputs: None
-    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context);
+    // Builds the ambiguity table for available-package matches.
+    Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context);
 
     // Ensures that there is at least one result in the search.
     // Required Args: bool indicating if the search result is from installed source
