@@ -15,6 +15,11 @@ namespace AppInstaller::CLI::Workflow
     {
         bool IsInteractivityAllowed(Execution::Context& context)
         {
+            // Interactivity can be disabled for several reasons:
+            //   * We are running in a non-interactive context (e.g., COM call)
+            //   * It is disabled in the settings
+            //   * It was disabled from the command line
+
             if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DisableInteractivity))
             {
                 AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to non-interactive context.");
