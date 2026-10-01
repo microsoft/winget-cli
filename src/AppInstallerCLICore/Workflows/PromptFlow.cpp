@@ -397,7 +397,7 @@ namespace AppInstaller::CLI::Workflow
 
     void PromptForSelection::operator()(Execution::Context& context) const
     {
-        context.Add<Data::PromptSelection>(std::optional<size_t>{});
+        context.Add<Data::SelectedIndex>(std::optional<size_t>{});
         AICLI_RETURN_IF_TERMINATED(context);
         const size_t count = m_table.GetNonEmptyRowCount(0);
         THROW_HR_IF(E_INVALIDARG, !count);
@@ -438,7 +438,7 @@ namespace AppInstaller::CLI::Workflow
                     out << Resource::String::Cancelled << std::endl;
                     AICLI_TERMINATE_CONTEXT(E_ABORT);
                 }
-                context.Add<Data::PromptSelection>(std::optional<size_t>{ static_cast<size_t>(selection - 1) });
+                context.Add<Data::SelectedIndex>(std::optional<size_t>{ static_cast<size_t>(selection - 1) });
                 return;
             }
 

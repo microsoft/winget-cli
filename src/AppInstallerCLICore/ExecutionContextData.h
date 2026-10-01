@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Execution
         RepairString,
         MsixDigests,
         InstallerDownloadAuthenticators,
-        PromptSelection,
+        SelectedIndex,
         Max
     };
 
@@ -102,7 +102,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::PromptSelection>
+        struct DataMapping<Data::SelectedIndex>
         {
             using value_t = std::optional<size_t>;
         };

@@ -9,7 +9,7 @@ namespace AppInstaller::CLI::Workflow
     // Prompts for a numbered choice; rows with an empty first column are continuations.
     // Required Args: None
     // Inputs: None
-    // Outputs: PromptSelection (zero-based index, or nullopt if prompting is unavailable)
+    // Outputs: SelectedIndex (zero-based index, or nullopt if prompting is unavailable)
     struct PromptForSelection : public WorkflowTask
     {
         PromptForSelection(Execution::TableOutputBase& table, Resource::LocString title, Resource::LocString invalid) :

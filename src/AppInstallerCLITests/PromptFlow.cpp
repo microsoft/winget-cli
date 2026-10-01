@@ -34,7 +34,7 @@ TEST_CASE("PackageSelection_Prompt", "[PackageSelection][PromptFlow]")
 
     context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::NumberedSelectionInvalid);
-    auto selection = context.Get<Execution::Data::PromptSelection>();
+    auto selection = context.Get<Execution::Data::SelectedIndex>();
     if (std::string_view{ response } == "0")
     {
         REQUIRE_FALSE(selection);
@@ -68,7 +68,7 @@ TEST_CASE("PackageSelection_InvalidInput", "[PackageSelection][PromptFlow]")
     context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::NumberedSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
-    REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
+    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == 1);
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
     const std::string invalid = Resource::LocString{ Resource::String::NumberedSelectionInvalid }.get();
     REQUIRE(output.str().find(prompt + " " + invalid + '\n' + prompt + " ") != std::string::npos);
@@ -93,7 +93,7 @@ TEST_CASE("PromptFlow_Selection_CustomStrings", "[PromptFlow]")
     context << PromptForSelection(table, text("Choose a value"), text("Try again"));
 
     REQUIRE_FALSE(context.IsTerminated());
-    REQUIRE(context.Get<Execution::Data::PromptSelection>() == 1);
+    REQUIRE(context.Get<Execution::Data::SelectedIndex>() == 1);
     const std::string prompt = Resource::String::NumberedSelectionPrompt(2).get();
     REQUIRE_FALSE(prompt.empty());
     REQUIRE(output.str() == "Choose a value\n\nChoice\n--------\n1 First\n2 Second\n\n" + prompt + " Try again\n" + prompt + " ");
@@ -106,7 +106,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
     std::ostringstream output;
     TestContext context{ output, input };
     context.Reporter.SetConsoleStreamsForTest(true);
-    context.Add<Execution::Data::PromptSelection>(std::optional<size_t>{0});
+    context.Add<Execution::Data::SelectedIndex>(std::optional<size_t>{0});
     Execution::TableOutput<1> table(context.Reporter, { Resource::String::SearchName });
     table.OutputLine({ "First" });
 
@@ -134,7 +134,7 @@ TEST_CASE("PromptFlow_Selection_Unavailable", "[PromptFlow]")
     context << PromptForSelection(table, Resource::String::PackageSelectionInstall,
         Resource::String::NumberedSelectionInvalid);
     REQUIRE_FALSE(context.IsTerminated());
-    REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
+    REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());
     REQUIRE(output.str().empty());
     REQUIRE(input.peek() == '1');
 }
@@ -160,7 +160,7 @@ TEST_CASE("PromptFlow_Selection_InputFailure", "[PromptFlow]")
         Resource::String::NumberedSelectionInvalid);
 
     REQUIRE_THROWS_HR(prompt(context), count ? APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR : E_INVALIDARG);
-    REQUIRE_FALSE(context.Get<Execution::Data::PromptSelection>());
+    REQUIRE_FALSE(context.Get<Execution::Data::SelectedIndex>());
 }
 
 TEST_CASE("ReporterPromptForIntegerResponse", "[PromptFlow]")
