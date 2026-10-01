@@ -3649,6 +3649,10 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>The DSC processor hash provided does not match hash of the target file.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>The DSC processor path no longer refers to the file that was verified.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
   <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
     <value>The package installed for user scope cannot be uninstalled when running with administrator privileges.</value>
   </data>
