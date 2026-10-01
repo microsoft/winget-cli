@@ -7,8 +7,8 @@
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
+#include <winget/Hash.h>
 #include <winget/ManifestValidation.h>
-#include <AppInstallerSHA256.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Http;

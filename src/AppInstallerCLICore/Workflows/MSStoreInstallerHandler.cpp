@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
-#include <AppInstallerSHA256.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Filesystem.h>
+#include <winget/Hash.h>
 #include <winget/MSStore.h>
 #include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>

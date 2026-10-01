@@ -3,7 +3,7 @@
 #pragma once
 #include "Rest/Schema/IRestClient.h"
 #include <AppInstallerDownloader.h>
-#include <AppInstallerSHA256.h>
+#include <winget/Hash.h>
 #include <winget/Settings.h>
 #include <cpprest/json.h>
 #include <optional>

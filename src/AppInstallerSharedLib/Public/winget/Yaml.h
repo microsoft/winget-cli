@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerSHA256.h>
+#include <winget/Hash.h>
 
 #include <fstream>
 #include <map>
