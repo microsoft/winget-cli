@@ -1402,7 +1402,8 @@ namespace AppInstaller::CLI::Workflow
                 Logging::Telemetry().LogMultiAppMatch();
 
                 bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
-                    (m_operationType == OperationType::Install || m_operationType == OperationType::Show || m_operationType == OperationType::Download);
+                    (m_operationType == OperationType::Install || m_operationType == OperationType::Show || m_operationType == OperationType::Download) &&
+                    Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::InteractivePackageSelection);
                 std::optional<size_t> selection;
                 if (selectionSupported && !searchResult.Truncated)
                 {

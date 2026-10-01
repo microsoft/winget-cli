@@ -2,11 +2,11 @@
 
 ## New Features
 
-### Interactive package selection
+### Interactive package selection (experimental)
 
-When multiple packages match a single-package `install`, `show`, or `download` command, WinGet offers a numbered choice in an interactive terminal. Enter a package number to continue or `0` to cancel.
+Set `experimentalFeatures.interactivePackageSelection` to `true` in settings to enable numbered choices when multiple packages match a single-package `install`, `show`, or `download` command in an interactive terminal. Enter a package number to continue or `0` to cancel.
 
-Scripts and other noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
+This feature is disabled by default. Redirected and noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
 
 ### Source priority
 

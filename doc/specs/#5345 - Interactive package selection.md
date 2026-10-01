@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-09-28
-last updated: 2026-09-30
+last updated: 2026-10-01
 issue id: 5345
 ---
 
@@ -11,7 +11,7 @@ For [#5345](https://github.com/microsoft/winget-cli/issues/5345)
 
 ## Abstract
 
-Let users resolve ambiguous package matches without restarting their command. Single-package `install`, `show`, and `download` offer numbered choices when interactive input and output are available.
+Let users resolve ambiguous package matches without restarting their command. An experimental setting enables numbered choices for single-package `install`, `show`, and `download` when interactive input and output are available.
 
 ## Inspiration
 
@@ -19,12 +19,23 @@ The same query can match multiple packages, including packages from different so
 
 ## Solution Design
 
+This feature is disabled by default. Enable it in settings:
+
+```json
+{
+  "experimentalFeatures": {
+    "interactivePackageSelection": true
+  }
+}
+```
+
 Apply existing search matching and source-priority rules first. If multiple candidates remain, eligible CLI call sites opt into selection. Shared workflows remain noninteractive by default.
 
 Display candidates in their existing order with stable, one-indexed numbers. A valid number selects the existing package object without searching again. Preserve command options and continue normal version selection, applicability checks, and agreement handling.
 
 | Situation | Behavior |
 | --- | --- |
+| Experimental feature disabled (default) | No selection prompts; retain existing ambiguity errors. |
 | No match | Existing no-match error. |
 | One match after existing policy | Continue without prompting. |
 | Multiple matches for single-package `install`, `show`, or `download` | Prompt if eligible, including `show --versions`. |
@@ -41,7 +52,7 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 | Upgrade, uninstall, repair, pin, search, list, or completion | Preserve existing behavior. |
 | COM API, PowerShell cmdlets, or configuration/DSC | No new prompts or API changes. |
 
-The prompt adds no settings, command-line flags, group policies, manifest fields, or schema versions. Existing interactivity settings apply. Package validation pipelines and manifest authoring tools are unchanged; manifest examples and schema snippets are not applicable.
+Apart from the experimental setting, the prompt adds no command-line flags, group policies, manifest fields, or schema versions. Existing interactivity controls and the experimental-features group policy apply. Package validation pipelines and manifest authoring tools are unchanged; manifest examples and schema snippets are not applicable.
 
 ## UI/UX Design
 
@@ -94,7 +105,7 @@ Selection uses the displayed candidate object rather than re-running a potential
 
 ### Compatibility
 
-Only explicitly opted-in, interactive single-package commands change behavior. Scripts retain existing ambiguity errors and can use exact ID and source selectors.
+The feature is disabled by default. After opt-in, scripts can preserve ambiguity errors with `--disable-interactivity`, or avoid ambiguity with exact ID and source selectors.
 
 ### Performance, Power, and Efficiency
 

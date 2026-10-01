@@ -583,9 +583,57 @@ TEST_CASE("PackageSelection_ReporterUnavailable", "[PackageSelection][PromptFlow
     REQUIRE(output.str().empty());
 }
 
+TEST_CASE("PackageSelection_FeatureDisabled", "[PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    if (GENERATE(false, true))
+    {
+        settings.Set<Setting::EFInteractivePackageSelection>(false);
+    }
+    std::istringstream input{ "0\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnTwo.Query);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnTwo }));
+
+    SECTION("Install")
+    {
+        if (GENERATE(false, true))
+        {
+            context.Args.AddArg(Execution::Args::Type::Silent);
+        }
+        context.Args.AddArg(Execution::Args::Type::Force);
+        InstallCommand({}).Execute(context);
+    }
+    SECTION("Show")
+    {
+        ShowCommand({}).Execute(context);
+    }
+    SECTION("Show versions")
+    {
+        context.Args.AddArg(Execution::Args::Type::ListVersions);
+        ShowCommand({}).Execute(context);
+    }
+    SECTION("Download")
+    {
+        DownloadCommand({}).Execute(context);
+    }
+
+    INFO(output.str());
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+    REQUIRE_FALSE(context.Contains(Execution::Data::Package));
+    REQUIRE_FALSE(context.Contains(Execution::Data::Manifest));
+    REQUIRE(input.peek() == '0');
+    REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) == std::string::npos);
+    REQUIRE(output.str().find(Resource::LocString{ Resource::String::PackageSelectionRefine }.get()) == std::string::npos);
+}
+
 TEST_CASE("PackageSelection_CommandCancel", "[PackageSelection][workflow]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     std::istringstream input{ "0\n" };
     std::ostringstream output;
     TestContext context{ output, input };
@@ -628,6 +676,7 @@ TEST_CASE("PackageSelection_CommandCancel", "[PackageSelection][workflow]")
 TEST_CASE("PackageSelection_CommandContinue", "[PackageSelection][workflow]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     std::istringstream input{ "1\n" };
     std::ostringstream output;
     TestContext context{ output, input };
@@ -677,6 +726,7 @@ TEST_CASE("PackageSelection_CommandContinue", "[PackageSelection][workflow]")
 TEST_CASE("PackageSelection_MultipleQueries", "[PackageSelection][workflow][MultiQuery]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     std::istringstream input{ "1\n" };
     std::ostringstream output;
     TestContext context{ output, input };
@@ -702,6 +752,7 @@ TEST_CASE("PackageSelection_MultipleQueries", "[PackageSelection][workflow][Mult
 TEST_CASE("PackageSelection_SearchResult", "[PackageSelection][SourcePriority][workflow]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     auto width = GENERATE(size_t{20}, size_t{120});
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{width} };
     auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download);
@@ -825,6 +876,7 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
     TestUserSettings settings;
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download);
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     bool differentName = GENERATE(false, true);
     bool differentId = GENERATE(false, true);
     bool missingMetadata = GENERATE(false, true);
@@ -907,6 +959,7 @@ TEST_CASE("PackageSelection_SourceRowIdentity", "[PackageSelection][workflow]")
 TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     std::istringstream input{ "2\n" };
     std::ostringstream output;
     TestContext context{ output, input };
