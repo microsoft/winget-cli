@@ -397,8 +397,13 @@ namespace AppInstaller::CLI::Workflow
         const size_t count = m_table.GetNonEmptyRowCount(0);
         THROW_HR_IF(E_INVALIDARG, !count);
 
-        if (!IsInteractivityAllowed(context) || !context.Reporter.CanPrompt())
+        if (!IsInteractivityAllowed(context))
         {
+            return;
+        }
+        if (!context.Reporter.CanPrompt())
+        {
+            AICLI_LOG(CLI, Verbose, << "Skipping selection prompt. Console streams or output are unavailable.");
             return;
         }
 
