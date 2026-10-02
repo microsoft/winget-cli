@@ -48,6 +48,65 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context)
+        {
+            auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+            Execution::TableOutput<2> table(context.Reporter,
+                {
+                    Resource::String::SearchName,
+                    Resource::String::SearchId
+                });
+
+            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            {
+                auto package = searchResult.Matches[i].Package;
+
+                table.OutputLine({
+                    package->GetProperty(PackageProperty::Name),
+                    package->GetProperty(PackageProperty::Id)
+                    });
+            }
+
+            return table;
+        }
+
+        Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context)
+        {
+            auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+            Execution::TableOutput<3> table(context.Reporter,
+                {
+                    Resource::String::SearchName,
+                    Resource::String::SearchId,
+                    Resource::String::SearchSource
+                });
+
+            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            {
+                auto package = searchResult.Matches[i].Package;
+
+                std::string sourceName;
+                auto available = package->GetAvailable();
+                if (!available.empty())
+                {
+                    auto source = available[0]->GetSource();
+                    if (source)
+                    {
+                        sourceName = source.GetDetails().Name;
+                    }
+                }
+
+                table.OutputLine({
+                    package->GetProperty(PackageProperty::Name),
+                    package->GetProperty(PackageProperty::Id),
+                    std::move(sourceName)
+                    });
+            }
+
+            return table;
+        }
+
         void ReportIdentity(
             Execution::Context& context,
             Utility::LocIndView prefix,
@@ -1055,65 +1114,6 @@ namespace AppInstaller::CLI::Workflow
                 context.SetTerminationHR(overallHR);
             }
         }
-    }
-
-    Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context)
-    {
-        auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-        Execution::TableOutput<2> table(context.Reporter,
-            {
-                Resource::String::SearchName,
-                Resource::String::SearchId
-            });
-
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
-        {
-            auto package = searchResult.Matches[i].Package;
-
-            table.OutputLine({
-                package->GetProperty(PackageProperty::Name),
-                package->GetProperty(PackageProperty::Id)
-                });
-        }
-
-        return table;
-    }
-
-    Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context)
-    {
-        auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-        Execution::TableOutput<3> table(context.Reporter,
-            {
-                Resource::String::SearchName,
-                Resource::String::SearchId,
-                Resource::String::SearchSource
-            });
-
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
-        {
-            auto package = searchResult.Matches[i].Package;
-
-            std::string sourceName;
-            auto available = package->GetAvailable();
-            if (!available.empty())
-            {
-                auto source = available[0]->GetSource();
-                if (source)
-                {
-                    sourceName = source.GetDetails().Name;
-                }
-            }
-
-            table.OutputLine({
-                package->GetProperty(PackageProperty::Name),
-                package->GetProperty(PackageProperty::Id),
-                std::move(sourceName)
-                });
-        }
-
-        return table;
     }
 
     void ReportListResult::operator()(Execution::Context& context) const

@@ -950,10 +950,12 @@ TEST_CASE("PackageSelection_CandidateRowIdentity", "[PackageSelection][workflow]
 TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow]")
 {
     TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     bool withSource = GENERATE(false, true);
     bool available = GENERATE(false, true);
-    bool prompt = GENERATE(false, true);
+    bool prompt = withSource && GENERATE(false, true);
+    CAPTURE(withSource, available, prompt);
     auto source = std::make_shared<TestSource>();
     auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
     std::istringstream input{ "2\n" };
@@ -975,6 +977,10 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
         header.insert(header.begin(), Resource::LocString{ AppInstaller::Utility::LocIndString{ "#"sv } });
         expectedReporter.Info() << Resource::String::PackageSelectionTitle << std::endl << std::endl;
     }
+    else
+    {
+        expectedReporter.Warn() << (withSource ? Resource::String::MultiplePackagesFound : Resource::String::MultipleInstalledPackagesFound) << std::endl;
+    }
     Execution::TableOutputBase expectedTable{ expectedReporter, std::move(header) };
     SearchResult result;
     for (size_t i = 1; i <= 2; ++i)
@@ -983,7 +989,7 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
         manifest.Id = "Test." + name;
         manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(name);
         auto package = available ? TestCompositePackage::Make(std::vector{ manifest }, source) :
-            TestCompositePackage::Make(manifest, TestPackage::MetadataMap{});
+            TestCompositePackage::Make(manifest, TestPackage::MetadataMap{}, std::vector<AppInstaller::Manifest::Manifest>{}, source);
         result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
         std::vector<std::string> line{ name, manifest.Id };
         if (withSource)
@@ -996,24 +1002,28 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
         }
         expectedTable.OutputLine(std::move(line));
     }
+    auto expectedPackage = result.Matches[1].Package;
     context.Add<Execution::Data::SearchResult>(std::move(result));
-    auto table = withSource ? GetMultiplePackageFoundResultTableWithSource(context) : GetMultiplePackageFoundResultTable(context);
-    REQUIRE(table.GetRowCount() == size_t{2});
-    REQUIRE(output.str().empty());
+    context << EnsureOneMatchFromSearchResult(withSource ? OperationType::Install : OperationType::Uninstall,
+        prompt ? PackageSelectionBehavior::Prompt : PackageSelectionBehavior::Disabled);
     expectedTable.Complete();
     if (prompt)
     {
-        context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
-        expectedReporter.Info() << std::endl << Resource::String::NumberedSelectionPrompt(2) << ' ';
+        expectedReporter.Info() << std::endl << Resource::String::NumberedSelectionPrompt(2) << ' ' <<
+            Resource::String::PackageSelectionSelected(AppInstaller::Utility::LocIndView{ "Package2"sv },
+                AppInstaller::Utility::LocIndView{ "Test.Package2"sv }) << std::endl;
+        REQUIRE_FALSE(context.IsTerminated());
         REQUIRE(context.Get<Execution::Data::SelectedIndex>() == size_t{1});
+        REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
     }
     else
     {
-        table.Complete();
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+        REQUIRE_FALSE(context.Contains(Execution::Data::Package));
+        REQUIRE_FALSE(context.Contains(Execution::Data::SelectedIndex));
         REQUIRE(input.peek() == '2');
     }
 
-    REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(output.str() == expectedOutput.str());
     REQUIRE(source->CountOfCallsRequiringManifestData == 0);
 }
@@ -1037,20 +1047,30 @@ TEST_CASE("PackageSelection_AmbiguityOutputUnchanged", "[PackageSelection][workf
     context.Reporter.SetConsoleStreamsForTest(true);
     context.Reporter.SetStyle(VisualStyle::NoVT);
     context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
-    context.Add<Execution::Data::SearchResult>(result);
-    TestContext expectedContext{ expectedOutput, input };
-    expectedContext.Reporter.SetStyle(VisualStyle::NoVT);
-    expectedContext.Add<Execution::Data::SearchResult>(std::move(result));
-    expectedContext.Reporter.Warn() << (installed ? Resource::String::MultipleInstalledPackagesFound : Resource::String::MultiplePackagesFound) << std::endl;
-    auto table = installed ? GetMultiplePackageFoundResultTable(expectedContext) : GetMultiplePackageFoundResultTableWithSource(expectedContext);
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    Execution::Reporter expectedReporter{ expectedOutput, input };
+    expectedReporter.SetStyle(VisualStyle::NoVT);
+    expectedReporter.Warn() << (installed ? Resource::String::MultipleInstalledPackagesFound : Resource::String::MultiplePackagesFound) << std::endl;
+    std::vector<Resource::LocString> header{ Resource::String::SearchName, Resource::String::SearchId };
+    std::vector<std::string> firstRow{ "AppInstaller Test Exe Installer", "AppInstallerCliTest.TestExeInstaller" };
+    std::vector<std::string> secondRow{ "MSIX SDK", "microsoft.msixsdk" };
+    if (!installed)
+    {
+        header.emplace_back(Resource::String::SearchSource);
+        firstRow.emplace_back(source->Details.Name);
+        secondRow.emplace_back(source->Details.Name);
+    }
+    Execution::TableOutputBase table{ expectedReporter, std::move(header) };
+    table.OutputLine(std::move(firstRow));
+    table.OutputLine(std::move(secondRow));
     table.Complete();
     if (truncated)
     {
-        expectedContext.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        expectedReporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
     }
     if (enabled && !installed)
     {
-        expectedContext.Reporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
+        expectedReporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
     }
 
     context << EnsureOneMatchFromSearchResult(installed ? OperationType::Uninstall : OperationType::Install, PackageSelectionBehavior::Prompt);
@@ -1068,7 +1088,8 @@ TEST_CASE("PackageSelection_PartialSearchFailureDoesNotPrompt", "[PackageSelecti
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
     auto result = source->Search({});
-    result.Truncated = GENERATE(false, true);
+    bool truncated = GENERATE(false, true);
+    result.Truncated = truncated;
     result.Failures.push_back({ "BrokenSource", std::make_exception_ptr(wil::ResultException(E_FAIL)) });
     std::istringstream input{ "2\n" };
     std::ostringstream output;
@@ -1078,16 +1099,18 @@ TEST_CASE("PackageSelection_PartialSearchFailureDoesNotPrompt", "[PackageSelecti
     context.Reporter.SetConsoleStreamsForTest(true);
     context.Reporter.SetStyle(VisualStyle::NoVT);
     context.SetFlags(Execution::ContextFlag::ShowSearchResultsOnPartialFailure);
-    context.Add<Execution::Data::SearchResult>(result);
-    TestContext expectedContext{ expectedOutput, input };
-    expectedContext.Reporter.SetStyle(VisualStyle::NoVT);
-    expectedContext.Add<Execution::Data::SearchResult>(std::move(result));
-    expectedContext.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
-    auto table = GetMultiplePackageFoundResultTableWithSource(expectedContext);
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    Execution::Reporter expectedReporter{ expectedOutput, input };
+    expectedReporter.SetStyle(VisualStyle::NoVT);
+    expectedReporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
+    Execution::TableOutput<3> table{ expectedReporter,
+        { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchSource } };
+    table.OutputLine({ "AppInstaller Test Exe Installer", "AppInstallerCliTest.TestExeInstaller", source->Details.Name });
+    table.OutputLine({ "MSIX SDK", "microsoft.msixsdk", source->Details.Name });
     table.Complete();
-    if (expectedContext.Get<Execution::Data::SearchResult>().Truncated)
+    if (truncated)
     {
-        expectedContext.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        expectedReporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
     }
 
     context << HandleSearchResultFailures;
