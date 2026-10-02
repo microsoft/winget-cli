@@ -339,6 +339,11 @@
           "type": "boolean",
           "default": false
         },
+        "interactivePackageSelection": {
+          "description": "Enable interactive selection for ambiguous package matches",
+          "type": "boolean",
+          "default": false
+        },
         "resume": {
           "description": "Enable support for some commands to resume",
           "type": "boolean",

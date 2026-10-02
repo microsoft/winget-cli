@@ -453,3 +453,15 @@ This feature enables support for fonts via `winget settings`. The `winget font l
         "fonts": true
   },
 ```
+
+### interactivePackageSelection
+
+Enables numbered choices for ambiguous single-package `install`, `show`, and `download` commands, including `show --versions`. Disabled by default.
+
+```json
+   "experimentalFeatures": {
+       "interactivePackageSelection": true
+   },
+```
+
+`--disable-interactivity` and redirected input or output still prevent prompting.

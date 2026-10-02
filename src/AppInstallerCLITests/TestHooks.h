@@ -79,6 +79,9 @@ namespace AppInstaller
     namespace CLI::Execution
     {
         void TestHook_SetConsoleWidth_Override(std::optional<size_t>* value);
+
+        using ReadConsoleFunction = std::function<BOOL(wchar_t*, DWORD, DWORD*)>;
+        void TestHook_SetReadConsole_Override(ReadConsoleFunction* value);
     }
 
     namespace CLI::Workflow
@@ -386,6 +389,22 @@ namespace TestHook
 
     private:
         std::optional<size_t> m_width;
+    };
+
+    struct SetReadConsole_Override
+    {
+        SetReadConsole_Override(AppInstaller::CLI::Execution::ReadConsoleFunction function) : m_function(std::move(function))
+        {
+            AppInstaller::CLI::Execution::TestHook_SetReadConsole_Override(&m_function);
+        }
+
+        ~SetReadConsole_Override()
+        {
+            AppInstaller::CLI::Execution::TestHook_SetReadConsole_Override(nullptr);
+        }
+
+    private:
+        AppInstaller::CLI::Execution::ReadConsoleFunction m_function;
     };
 
     struct SetGetFontRegistryRoot_Override
