@@ -425,7 +425,11 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="PackageSelectionRefine" xml:space="preserve">
     <value>Specify a package with --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
-    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when interactive selection is unavailable. ID and SOURCE are placeholders.</comment>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>Specify a package with --package-id &lt;ID&gt; --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>

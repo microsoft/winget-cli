@@ -1424,10 +1424,8 @@ namespace AppInstaller::CLI::Workflow
                     {
                         context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
                     }
-                    if (selectionSupported)
-                    {
-                        context.Reporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
-                    }
+                    context.Reporter.Info() << (m_operationType == OperationType::Export ?
+                        Resource::String::PackageSelectionRefineForExport : Resource::String::PackageSelectionRefine) << std::endl;
                     AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
                 }
             }

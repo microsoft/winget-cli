@@ -617,7 +617,9 @@ TEST_CASE("PackageSelection_FeatureDisabled", "[PackageSelection][workflow]")
     REQUIRE_FALSE(context.Contains(Execution::Data::Manifest));
     REQUIRE(input.peek() == '0');
     REQUIRE(output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) == std::string::npos);
-    REQUIRE(output.str().find(Resource::LocString{ Resource::String::PackageSelectionRefine }.get()) == std::string::npos);
+    const std::string refinement = Resource::LocString{ Resource::String::PackageSelectionRefine }.get();
+    REQUIRE_FALSE(refinement.empty());
+    REQUIRE(output.str().find(refinement) != std::string::npos);
 }
 
 TEST_CASE("PackageSelection_CommandCancel", "[PackageSelection][workflow]")
@@ -1018,6 +1020,7 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
     }
     else
     {
+        expectedReporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
         REQUIRE_FALSE(context.Contains(Execution::Data::Package));
         REQUIRE_FALSE(context.Contains(Execution::Data::SelectedIndex));
@@ -1028,13 +1031,16 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
     REQUIRE(source->CountOfCallsRequiringManifestData == 0);
 }
 
-TEST_CASE("PackageSelection_AmbiguityOutputUnchanged", "[PackageSelection][workflow]")
+TEST_CASE("PackageSelection_AmbiguityRefinement", "[PackageSelection][workflow]")
 {
     TestUserSettings settings;
     bool enabled = GENERATE(false, true);
     settings.Set<Setting::EFInteractivePackageSelection>(bool{ enabled });
-    bool installed = GENERATE(false, true);
+    auto operation = GENERATE(OperationType::Install, OperationType::Uninstall, OperationType::Export);
+    auto selectionBehavior = GENERATE(PackageSelectionBehavior::Disabled, PackageSelectionBehavior::Prompt);
+    bool installed = operation != OperationType::Install;
     bool truncated = GENERATE(false, true);
+    CAPTURE(enabled, operation, selectionBehavior, truncated);
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
     auto result = source->Search({});
@@ -1068,12 +1074,25 @@ TEST_CASE("PackageSelection_AmbiguityOutputUnchanged", "[PackageSelection][workf
     {
         expectedReporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
     }
-    if (enabled)
+    auto refinementId = operation == OperationType::Export ?
+        Resource::String::PackageSelectionRefineForExport : Resource::String::PackageSelectionRefine;
+    const std::string refinement = Resource::LocString{ refinementId }.get();
+    REQUIRE_FALSE(refinement.empty());
+    REQUIRE(refinement.find("--source") != std::string::npos);
+    if (operation == OperationType::Export)
     {
-        expectedReporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
+        REQUIRE(refinement.find("--package-id") != std::string::npos);
+        REQUIRE(refinement.find("--id") == std::string::npos);
+        REQUIRE(refinement.find("--exact") == std::string::npos);
     }
+    else
+    {
+        REQUIRE(refinement.find("--id") != std::string::npos);
+        REQUIRE(refinement.find("--exact") != std::string::npos);
+    }
+    expectedReporter.Info() << refinementId << std::endl;
 
-    context << EnsureOneMatchFromSearchResult(installed ? OperationType::Uninstall : OperationType::Install, PackageSelectionBehavior::Prompt);
+    context << EnsureOneMatchFromSearchResult(operation, selectionBehavior);
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
     REQUIRE_FALSE(context.Contains(Execution::Data::Package));

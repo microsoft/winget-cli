@@ -35,7 +35,7 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 
 | Situation | Behavior |
 | --- | --- |
-| Experimental feature disabled (default) | No selection prompts; retain existing ambiguity errors. |
+| Experimental feature disabled (default) | No selection prompts; retain ambiguity errors with refinement guidance. |
 | No match | Existing no-match error. |
 | One match after existing policy | Continue without prompting. |
 | Multiple matches for single-package `install`, `show`, or `download` | Prompt if eligible, including `show --versions`. |
@@ -49,7 +49,7 @@ Display candidates in their existing order with stable, one-indexed numbers. A v
 | Redirected input or output, or disabled informational output | Do not prompt. |
 | `--no-vt` | Use the same text and numeric input without terminal escape sequences. |
 | Multi-package operations, including individual package contexts | No disambiguation prompts, either per package or up front; retain existing ambiguity errors. |
-| Upgrade, uninstall, repair, pin, search, list, or completion | Preserve existing behavior. |
+| Upgrade, uninstall, repair, pin, search, list, or completion | No selection prompts. |
 | COM API, PowerShell cmdlets, or configuration/DSC | No new prompts or API changes. |
 
 Apart from the experimental setting, the prompt adds no command-line flags, group policies, manifest fields, or schema versions. Existing interactivity controls and the experimental-features group policy apply. Package validation pipelines and manifest authoring tools are unchanged; manifest examples and schema snippets are not applicable.
@@ -81,11 +81,13 @@ For distinct candidates from different sources:
 
 Each candidate occupies one row, using the existing ambiguity report's package identity and source. Sources grouped within a candidate do not add rows. Use the same introductory text for every command. Do not add another confirmation after selection. Existing consent prompts still apply.
 
-When prompting is unavailable, retain the candidate list and explain:
+Ambiguity errors include the candidate list and refinement guidance, even when interactive selection is disabled:
 
 ```text
 Specify a package with --id <ID> --exact --source <SOURCE>.
 ```
+
+For `configure export`, use `--package-id <ID> --source <SOURCE>` instead.
 
 The original version option remains authoritative.
 

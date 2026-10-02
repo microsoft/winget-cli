@@ -535,6 +535,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageRequiresDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefine);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefineForExport);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionSelected);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
