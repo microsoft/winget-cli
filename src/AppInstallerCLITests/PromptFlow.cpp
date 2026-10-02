@@ -954,7 +954,7 @@ TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
     bool withSource = GENERATE(false, true);
     bool available = GENERATE(false, true);
-    bool prompt = withSource && GENERATE(false, true);
+    bool prompt = GENERATE(false, true);
     CAPTURE(withSource, available, prompt);
     auto source = std::make_shared<TestSource>();
     auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
@@ -1068,7 +1068,7 @@ TEST_CASE("PackageSelection_AmbiguityOutputUnchanged", "[PackageSelection][workf
     {
         expectedReporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
     }
-    if (enabled && !installed)
+    if (enabled)
     {
         expectedReporter.Info() << Resource::String::PackageSelectionRefine << std::endl;
     }
@@ -1135,13 +1135,15 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     context.Reporter.SetConsoleStreamsForTest(true);
     auto source = CreateTestSource({ TSR::TestQuery_ReturnTwo });
     auto result = source->Search({});
-    auto operation = OperationType::Install;
-    auto selectionBehavior = PackageSelectionBehavior::Prompt;
+    EnsureOneMatchFromSearchResult ensureOneMatch{ OperationType::Install, PackageSelectionBehavior::Prompt };
     HRESULT expectedError = APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND;
 
     SECTION("Default workflow")
     {
-        selectionBehavior = PackageSelectionBehavior::Disabled;
+        auto operation = GENERATE(OperationType::Install, OperationType::Show, OperationType::Download,
+            OperationType::Upgrade, OperationType::Uninstall, OperationType::Repair, OperationType::Export,
+            OperationType::Pin, OperationType::Search, OperationType::List, OperationType::Completion);
+        ensureOneMatch = EnsureOneMatchFromSearchResult(operation);
     }
     SECTION("Context disabled")
     {
@@ -1177,14 +1179,9 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
         result.Matches.clear();
         expectedError = APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND;
     }
-    SECTION("Excluded operation")
-    {
-        operation = GENERATE(OperationType::Upgrade, OperationType::Uninstall, OperationType::Repair,
-            OperationType::Export, OperationType::Pin, OperationType::Search, OperationType::List, OperationType::Completion);
-    }
 
     context.Add<Execution::Data::SearchResult>(std::move(result));
-    context << EnsureOneMatchFromSearchResult(operation, selectionBehavior);
+    context << ensureOneMatch;
     INFO(output.str());
     REQUIRE_TERMINATED_WITH(context, expectedError);
     REQUIRE_FALSE(context.Contains(Execution::Data::Package));
