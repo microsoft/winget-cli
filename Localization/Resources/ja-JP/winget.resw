@@ -894,8 +894,8 @@
     <value>パッケージは既にインストールされています: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
-    <value>使用できないパッケージを無視する</value>
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>利用できないパッケージを無視します</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
     <value>エクスポート ファイルにパッケージ バージョンを含める</value>
@@ -2890,8 +2890,8 @@
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>管理者特権で実行している場合、ユーザー スコープ用にインストールされたパッケージは修復できません。</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>管理者特権を含む修復操作は、ユーザースコープ内にインストールされたパッケージでは許可されていません。</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>要求された操作は、ユーザー スコープ内にインストールされたパッケージの管理者コンテキストからは許可されていません。</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>修復が終了コードで失敗しました: {0}</value>
@@ -3648,5 +3648,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>指定された DSC プロセッサ ハッシュがターゲット ファイルのハッシュと一致しません。</value>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>ユーザー スコープ用にインストールされたパッケージは、管理者特権で実行している場合はアンインストールできません。</value>
   </data>
 </root>
