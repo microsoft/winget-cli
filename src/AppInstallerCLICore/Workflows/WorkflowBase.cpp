@@ -48,6 +48,65 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context)
+        {
+            auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+            Execution::TableOutput<2> table(context.Reporter,
+                {
+                    Resource::String::SearchName,
+                    Resource::String::SearchId
+                });
+
+            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            {
+                auto package = searchResult.Matches[i].Package;
+
+                table.OutputLine({
+                    package->GetProperty(PackageProperty::Name),
+                    package->GetProperty(PackageProperty::Id)
+                    });
+            }
+
+            return table;
+        }
+
+        Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context)
+        {
+            auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+            Execution::TableOutput<3> table(context.Reporter,
+                {
+                    Resource::String::SearchName,
+                    Resource::String::SearchId,
+                    Resource::String::SearchSource
+                });
+
+            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            {
+                auto package = searchResult.Matches[i].Package;
+
+                std::string sourceName;
+                auto available = package->GetAvailable();
+                if (!available.empty())
+                {
+                    auto source = available[0]->GetSource();
+                    if (source)
+                    {
+                        sourceName = source.GetDetails().Name;
+                    }
+                }
+
+                table.OutputLine({
+                    package->GetProperty(PackageProperty::Name),
+                    package->GetProperty(PackageProperty::Id),
+                    std::move(sourceName)
+                    });
+            }
+
+            return table;
+        }
+
         void ReportIdentity(
             Execution::Context& context,
             Utility::LocIndView prefix,
@@ -1043,81 +1102,17 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
-                        context << ReportMultiplePackageFoundResultWithSource;
+                        auto table = GetMultiplePackageFoundResultTableWithSource(context);
+                        table.Complete();
+                        if (searchResult.Truncated)
+                        {
+                            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+                        }
                     }
                 }
 
                 context.SetTerminationHR(overallHR);
             }
-        }
-    }
-
-    void ReportMultiplePackageFoundResult(Execution::Context& context)
-    {
-        auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-        Execution::TableOutput<2> table(context.Reporter,
-            {
-                Resource::String::SearchName,
-                Resource::String::SearchId
-            });
-
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
-        {
-            auto package = searchResult.Matches[i].Package;
-
-            table.OutputLine({
-                package->GetProperty(PackageProperty::Name),
-                package->GetProperty(PackageProperty::Id)
-                });
-        }
-
-        table.Complete();
-
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
-        }
-    }
-
-    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context)
-    {
-        auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-        Execution::TableOutput<3> table(context.Reporter,
-            {
-                Resource::String::SearchName,
-                Resource::String::SearchId,
-                Resource::String::SearchSource
-            });
-
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
-        {
-            auto package = searchResult.Matches[i].Package;
-
-            std::string sourceName;
-            auto available = package->GetAvailable();
-            if (!available.empty())
-            {
-                auto source = available[0]->GetSource();
-                if (source)
-                {
-                    sourceName = source.GetDetails().Name;
-                }
-            }
-
-            table.OutputLine({
-                package->GetProperty(PackageProperty::Name),
-                package->GetProperty(PackageProperty::Id),
-                std::move(sourceName)
-                });
-        }
-
-        table.Complete();
-
-        if (searchResult.Truncated)
-        {
-            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
         }
     }
 
@@ -1396,25 +1391,46 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            size_t selectedIndex = 0;
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (operationTargetsInstalled)
+                auto table = operationTargetsInstalled ? GetMultiplePackageFoundResultTable(context) :
+                    GetMultiplePackageFoundResultTableWithSource(context);
+                bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
+                    Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::InteractivePackageSelection);
+                std::optional<size_t> selection;
+                if (selectionSupported && !searchResult.Truncated)
                 {
-                    context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
-                    context << ReportMultiplePackageFoundResult;
+                    context << PromptForSelection(table, Resource::String::PackageSelectionTitle);
+                    AICLI_RETURN_IF_TERMINATED(context);
+                    selection = context.Get<Execution::Data::SelectedIndex>();
+                }
+
+                if (selection)
+                {
+                    selectedIndex = *selection;
+                    auto package = searchResult.Matches[selectedIndex].Package;
+                    context.Reporter.Info() << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
+                        package->GetProperty(PackageProperty::Id)) << std::endl;
                 }
                 else
                 {
-                    context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
-                    context << ReportMultiplePackageFoundResultWithSource;
+                    context.Reporter.Warn() << (operationTargetsInstalled ? Resource::String::MultipleInstalledPackagesFound :
+                        Resource::String::MultiplePackagesFound) << std::endl;
+                    table.Complete();
+                    if (searchResult.Truncated)
+                    {
+                        context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+                    }
+                    context.Reporter.Info() << (m_operationType == OperationType::Export ?
+                        Resource::String::PackageSelectionRefineForExport : Resource::String::PackageSelectionRefine) << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
                 }
-
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(0).Package;
+            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(selectedIndex).Package;
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));

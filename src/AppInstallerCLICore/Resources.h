@@ -515,6 +515,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NumberedSelectionInvalid);
+        WINGET_DEFINE_RESOURCE_STRINGID(NumberedSelectionPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenLogsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
@@ -532,6 +534,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageRequiresDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefine);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefineForExport);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionSelected);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);

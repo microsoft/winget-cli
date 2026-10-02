@@ -395,6 +395,42 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void PromptForSelection::operator()(Execution::Context& context) const
+    {
+        context.Add<Data::SelectedIndex>(std::optional<size_t>{});
+        AICLI_RETURN_IF_TERMINATED(context);
+        const size_t count = m_table.GetRowCount();
+        THROW_HR_IF(E_INVALIDARG, !count);
+
+        if (!IsInteractivityAllowed(context))
+        {
+            return;
+        }
+        if (!context.Reporter.CanPrompt())
+        {
+            AICLI_LOG(CLI, Verbose, << "Skipping selection prompt. Console streams or output are unavailable.");
+            return;
+        }
+
+        auto out = context.Reporter.Info();
+        out << m_title << std::endl << std::endl;
+        m_table.Complete(true);
+        out << std::endl;
+
+        const auto prompt = Resource::String::NumberedSelectionPrompt(count);
+        AICLI_RETURN_IF_TERMINATED(context);
+        auto response = context.Reporter.PromptForIntegerResponseWithinRange(prompt, 0, count, Reporter::Level::Info,
+            Resource::String::NumberedSelectionInvalid, [&]() { return context.IsTerminated(); });
+        AICLI_RETURN_IF_TERMINATED(context);
+        if (!response || *response == 0)
+        {
+            out << Resource::String::Cancelled << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+
+        context.Add<Data::SelectedIndex>(std::optional<size_t>{ static_cast<size_t>(*response - 1) });
+    }
+
     void HandleSourceAgreements::operator()(Execution::Context& context) const
     {
         bool allAccepted = true;

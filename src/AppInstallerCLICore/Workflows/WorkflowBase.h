@@ -46,6 +46,12 @@ namespace AppInstaller::CLI::Workflow
         Repair,
     };
 
+    enum class PackageSelectionBehavior
+    {
+        Disabled,
+        Prompt,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -230,18 +236,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void HandleSearchResultFailures(Execution::Context& context);
 
-    // Outputs the search results when multiple packages found but only one expected.
-    // Required Args: None
-    // Inputs: SearchResult
-    // Outputs: None
-    void ReportMultiplePackageFoundResult(Execution::Context& context);
-
-    // Outputs the search results when multiple packages found but only one expected.
-    // Required Args: None
-    // Inputs: SearchResult
-    // Outputs: None
-    void ReportMultiplePackageFoundResultWithSource(Execution::Context& context);
-
     // Ensures that there is at least one result in the search.
     // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
@@ -263,13 +257,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(OperationType operation) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
+        EnsureOneMatchFromSearchResult(OperationType operation, PackageSelectionBehavior selectionBehavior = PackageSelectionBehavior::Disabled) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation), m_selectionBehavior(selectionBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         OperationType m_operationType;
+        PackageSelectionBehavior m_selectionBehavior;
     };
 
     // Gets the manifest from package.

@@ -69,6 +69,7 @@ namespace AppInstaller::CLI::Execution
         RepairString,
         MsixDigests,
         InstallerDownloadAuthenticators,
+        SelectedIndex,
         Max
     };
 
@@ -98,6 +99,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SearchResult>
         {
             using value_t = Repository::SearchResult;
+        };
+
+        template <>
+        struct DataMapping<Data::SelectedIndex>
+        {
+            using value_t = std::optional<size_t>;
         };
 
         template <>
