@@ -22,6 +22,7 @@ aspirational
 Authenticode
 AUTOLISTEN
 azureedge
+Bawa
 binlog
 binver
 bstr
@@ -80,6 +81,7 @@ dotnet
 downloaders
 dsx
 DWORDLONG
+EApp
 emoji
 ENDDIALOG
 ensureandinsert

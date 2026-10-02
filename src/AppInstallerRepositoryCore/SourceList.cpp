@@ -759,10 +759,7 @@ namespace AppInstaller::Repository
             }
         }
 
-        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
-        {
-            std::stable_sort(m_sourceList.begin(), m_sourceList.end());
-        }
+        std::stable_sort(m_sourceList.begin(), m_sourceList.end());
     }
 
     void SourceList::OverwriteMetadata()

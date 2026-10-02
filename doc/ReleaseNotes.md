@@ -2,6 +2,16 @@
 
 ## New Features
 
+### Interactive package selection (experimental)
+
+Set `experimentalFeatures.interactivePackageSelection` to `true` in settings to enable numbered choices when multiple packages match a single-package `install`, `show`, or `download` command in an interactive terminal. Enter a package number to continue or `0` to cancel.
+
+This feature is disabled by default. Redirected and noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
+
+### Source priority
+
+Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence; sources with equal priority still require disambiguation when multiple matches remain.
+
 ### `--output-locale` argument
 
 Added a new `--output-locale` argument that overrides the language used for WinGet's own output for a single invocation.
@@ -36,6 +46,11 @@ This change resolves alias failures in non-symlinked scenarios, including cases 
 Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
 
 ### Minor Bug Fixes
+* Fixed REST search results bypassing locally verifiable package filters and selectors. Extra manifests are retrieved only for complete source result sets of three or fewer packages. Normalized name/publisher criteria remain unvalidated client-side.
+* Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
+* Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
+* Prevented REST searches from looping indefinitely when continuation tokens repeat.
+* Fixed Unicode case-insensitive prefix matching when case folding changes character lengths.
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

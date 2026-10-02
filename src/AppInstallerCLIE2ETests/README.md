@@ -54,7 +54,7 @@ Assuming you clone winget-cli in c:\dev, the localhost web server is running in 
             <Parameter name="InprocTestbedUseTestPackage" value="false" />
             <Parameter name="WinGetServerPath" value="c:\dev\winget-cli\src\x64\Debug\WinGetServer\WindowsPackageManagerServer.exe" />
             <Parameter name="RpcTestHelperPath" value="c:\dev\winget-cli\src\x64\Debug\WinGetRpcTestHelper\WinGetRpcTestHelper.exe" />
-            <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts|sourcePriority" />
+            <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts" />
             <Parameter name="SkipTestSource" value="false" />
         </TestRunParameters>
     </RunSettings>

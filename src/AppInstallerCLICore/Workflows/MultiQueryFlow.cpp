@@ -71,7 +71,7 @@ namespace AppInstaller::CLI::Workflow
             {
             case OperationType::Install:
             case OperationType::Upgrade:
-                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_operationType);
+                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_operationType, PackageSelectionBehavior::Disabled);
                 break;
             case OperationType::Uninstall:
                 searchContext <<

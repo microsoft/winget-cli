@@ -5,56 +5,22 @@
 #include "Resources.h"
 
 #include <array>
-#include <ostream>
+#include <iterator>
 #include <string>
 #include <vector>
 
 
 namespace AppInstaller::CLI::Execution
 {
-    // Enables output data in a table format.
-    // TODO: Improve for use with sparse data.
-    template <size_t FieldCount>
-    struct TableOutput
+    struct TableOutputBase
     {
-        using header_t = std::array<Resource::LocString, FieldCount>;
-        using line_t = std::array<std::string, FieldCount>;
+        TableOutputBase(Reporter& reporter, std::vector<Resource::LocString> header);
 
-        TableOutput(Reporter& reporter, header_t&& header) :
-            m_reporter(reporter),
-            m_hasConsole(GetConsoleWidth().has_value())
-        {
-            for (size_t i = 0; i < FieldCount; ++i)
-            {
-                m_columns[i].Name = std::move(header[i]);
-                m_columns[i].MinLength = Utility::UTF8ColumnWidth(m_columns[i].Name.get());
-                m_columns[i].MaxLength = 0;
-            }
-        }
-
-        void OutputLine(line_t&& line)
-        {
-            m_empty = false;
-
-            // Always buffer every row so that column widths are computed from the full dataset
-            // before any output is written. This guarantees that the widest value in any column
-            // is always fully visible and columns are perfectly aligned, whether output goes to
-            // a console or is redirected. Complete() triggers the actual output.
-            m_buffer.emplace_back(std::move(line));
-        }
-
-        void Complete()
-        {
-            if (!m_empty)
-            {
-                EvaluateAndFlushBuffer();
-            }
-        }
-
-        bool IsEmpty()
-        {
-            return m_empty;
-        }
+        // Buffers rows until Complete() computes column widths and renders the table.
+        void OutputLine(std::vector<std::string> line);
+        void Complete(bool showLineNumbers = false);
+        bool IsEmpty() const { return m_buffer.empty(); }
+        size_t GetRowCount() const { return m_buffer.size(); }
 
     private:
         // A column in the table.
@@ -67,152 +33,28 @@ namespace AppInstaller::CLI::Execution
         };
 
         Reporter& m_reporter;
-        std::array<Column, FieldCount> m_columns;
-        std::vector<line_t> m_buffer;
+        std::vector<Column> m_columns;
+        std::vector<std::vector<std::string>> m_buffer;
+        size_t m_lineNumberWidth = 0;
         bool m_bufferEvaluated = false;
-        bool m_empty = true;
-        bool m_hasConsole = false;
 
-        void EvaluateAndFlushBuffer()
+        void EvaluateAndFlushBuffer(bool showLineNumbers);
+        void OutputLineToStream(const std::vector<std::string>& line, size_t lineNumber = 0);
+    };
+
+    // Retains fixed-size headers and rows for existing table callers.
+    template <size_t FieldCount>
+    struct TableOutput : public TableOutputBase
+    {
+        using header_t = std::array<Resource::LocString, FieldCount>;
+        using line_t = std::array<std::string, FieldCount>;
+
+        TableOutput(Reporter& reporter, header_t&& header) :
+            TableOutputBase(reporter, { std::make_move_iterator(header.begin()), std::make_move_iterator(header.end()) }) {}
+
+        void OutputLine(line_t&& line)
         {
-            if (m_bufferEvaluated)
-            {
-                return;
-            }
-
-            // Determine the maximum length for all columns
-            for (const auto& line : m_buffer)
-            {
-                for (size_t i = 0; i < FieldCount; ++i)
-                {
-                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(line[i]));
-                }
-            }
-
-            // If there are actually columns with data, then also bring in the minimum size
-            for (size_t i = 0; i < FieldCount; ++i)
-            {
-                if (m_columns[i].MaxLength)
-                {
-                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, m_columns[i].MinLength);
-                }
-            }
-
-            // Only output the extra space if:
-            // 1. Not the last field
-            m_columns[FieldCount - 1].SpaceAfter = false;
-
-            // 2. Not empty (taken care of by not doing anything if empty)
-            // 3. There are non-empty fields after
-            for (size_t i = FieldCount - 1; i > 0; --i)
-            {
-                if (m_columns[i].MaxLength)
-                {
-                    break;
-                }
-                else
-                {
-                    m_columns[i - 1].SpaceAfter = false;
-                }
-            }
-
-            // Determine the total width required to not truncate any columns
-            size_t totalRequired = 0;
-
-            for (size_t i = 0; i < FieldCount; ++i)
-            {
-                totalRequired += m_columns[i].MaxLength + (m_columns[i].SpaceAfter ? 1 : 0);
-            }
-
-            auto consoleWidthOpt = GetConsoleWidth();
-
-            // If there is a console and the total space would be too big, shrink columns.
-            // We don't want to use the last column, lest we auto-wrap.
-            // When there is no console (e.g. output redirected to a file), skip truncation entirely.
-            if (consoleWidthOpt && totalRequired >= *consoleWidthOpt)
-            {
-                size_t extra = (totalRequired - *consoleWidthOpt) + 1;
-
-                while (extra)
-                {
-                    size_t targetIndex = 0;
-                    size_t targetVal = m_columns[0].MaxLength;
-                    for (size_t j = 1; j < FieldCount; ++j)
-                    {
-                        if (m_columns[j].MaxLength > targetVal)
-                        {
-                            targetIndex = j;
-                            targetVal = m_columns[j].MaxLength;
-                        }
-                    }
-                    m_columns[targetIndex].MaxLength -= 1;
-                    extra -= 1;
-                }
-
-                totalRequired = *consoleWidthOpt - 1;
-            }
-
-            // Header line
-            line_t headerLine;
-
-            for (size_t i = 0; i < FieldCount; ++i)
-            {
-                headerLine[i] = m_columns[i].Name.get();
-            }
-
-            OutputLineToStream(headerLine);
-
-            m_reporter.Info() << std::string(totalRequired, '-') << std::endl;
-
-            for (const auto& line : m_buffer)
-            {
-                OutputLineToStream(line);
-            }
-
-            m_bufferEvaluated = true;
-        }
-
-        void OutputLineToStream(const line_t& line)
-        {
-            auto out = m_reporter.Info();
-
-            for (size_t i = 0; i < FieldCount; ++i)
-            {
-                const auto& col = m_columns[i];
-
-                if (col.MaxLength)
-                {
-                    size_t valueLength = Utility::UTF8ColumnWidth(line[i]);
-
-                    if (valueLength > col.MaxLength)
-                    {
-                        size_t actualWidth;
-                        out << Utility::UTF8TrimRightToColumnWidth(line[i], col.MaxLength - 1, actualWidth) << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
-
-                        // Some characters take 2 unit space, the trimmed string length might be 1 less than the expected length.
-                        if (actualWidth != col.MaxLength - 1)
-                        {
-                            out << ' ';
-                        }
-
-                        if (col.SpaceAfter)
-                        {
-                            out << ' ';
-                        }
-                    }
-                    else
-                    {
-                        out << line[i];
-
-                        if (col.SpaceAfter)
-                        {
-                            out << std::string(col.MaxLength - valueLength + 1, ' ');
-                        }
-                    }
-                }
-            }
-
-            out << std::endl;
+            TableOutputBase::OutputLine({ std::make_move_iterator(line.begin()), std::make_move_iterator(line.end()) });
         }
     };
 }
