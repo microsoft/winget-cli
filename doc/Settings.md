@@ -399,6 +399,9 @@ The `locale` setting selects the language used to resolve winget interface strin
 > [!NOTE]
 > This only affects winget interface strings. It does not change package metadata localization, installer selection behavior, or package-wide language settings.
 
+> [!NOTE]
+> The `--output-locale` argument overrides this setting for a single invocation and accepts the same values.
+
 ```json
     "output": {
         "locale": "en-US"

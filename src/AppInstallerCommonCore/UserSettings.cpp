@@ -12,8 +12,6 @@
 #include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
 
-#include <array>
-
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
@@ -214,34 +212,6 @@ namespace AppInstaller::Settings
             }
 
             return path;
-        }
-
-        static constexpr std::array<std::string_view, 11> s_supportedOutputLocales =
-        {
-            "en-US"sv,
-            "de-DE"sv,
-            "es-ES"sv,
-            "fr-FR"sv,
-            "it-IT"sv,
-            "ja-JP"sv,
-            "ko-KR"sv,
-            "pt-BR"sv,
-            "ru-RU"sv,
-            "zh-CN"sv,
-            "zh-TW"sv,
-        };
-
-        std::optional<std::string_view> NormalizeSupportedLocale(std::string_view localeTag)
-        {
-            for (const auto& supportedLocale : s_supportedOutputLocales)
-            {
-                if (Utility::CaseInsensitiveEquals(localeTag, supportedLocale))
-                {
-                    return supportedLocale;
-                }
-            }
-
-            return {};
         }
     }
 
@@ -594,7 +564,7 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputLocale)
         {
-            auto normalizedLocale = NormalizeSupportedLocale(value);
+            auto normalizedLocale = Locale::NormalizeOutputLocale(value);
             if (normalizedLocale)
             {
                 return std::string{ normalizedLocale.value() };
