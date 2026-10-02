@@ -894,7 +894,7 @@
     <value>패키지가 이미 설치되어 있음: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>사용할 수 없는 패키지 무시</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
@@ -2890,8 +2890,8 @@
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>관리자 권한으로 실행하는 경우 사용자 scope 위해 설치된 패키지를 복구할 수 없습니다.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>사용자 scope 내에 설치된 패키지에서는 관리자 권한과 관련된 복구 작업이 허용되지 않습니다.</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>사용자 범위에 설치된 패키지에서는 관리자 컨텍스트에서 요청한 작업을 수행할 수 없습니다.</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>복구하지 못했습니다. 종료 코드: {0}</value>
@@ -3648,5 +3648,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>DSC 프로세서에서 제공한 해시가 대상 파일의 해시와 일치하지 않습니다.</value>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>관리자 권한으로 실행할 때는 user scope용으로 설치된 패키지를 제거할 수 없습니다.</value>
   </data>
 </root>

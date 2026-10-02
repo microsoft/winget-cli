@@ -894,7 +894,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>El paquete ya está instalado: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Omitir los paquetes no disponibles</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
@@ -2890,8 +2890,8 @@ Especifique uno de ellos con la opción --source para continuar.</value>
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>El paquete instalado para el ámbito de usuario no se puede reparar cuando se ejecuta con privilegios de administrador.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>No se permiten operaciones de reparación que requieran privilegios de administrador en paquetes instalados dentro del ámbito de usuario.</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>No se permite la operación solicitada desde un contexto de administrador en paquetes instalados dentro del ámbito de usuario.</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Error de reparación con el código de salida: {0}</value>
@@ -3648,5 +3648,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>El hash del procesador DSC proporcionado no coincide con el hash del archivo de destino.</value>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>El paquete instalado para el ámbito de usuario no se puede desinstalar cuando se ejecuta con privilegios de administrador.</value>
   </data>
 </root>
