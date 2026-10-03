@@ -3,7 +3,9 @@
 #pragma once
 #include "ISource.h"
 #include "SourceFactory.h"
+#include <winget/MsixManifest.h>
 
+#include <optional>
 #include <string_view>
 
 namespace AppInstaller::Repository::Microsoft
@@ -29,5 +31,12 @@ namespace AppInstaller::Repository::Microsoft
 
         // Creates a source factory for this type.
         static std::unique_ptr<ISourceFactory> Create();
+
+        // A validated local fallback is active only while it is newer than the deployed extension,
+        // or while the extension is missing. A busy source lock always leaves the extension in charge.
+        static bool ShouldPreferDesktopContext(
+            const std::optional<Msix::PackageVersion>& fallbackVersion,
+            const std::optional<Msix::PackageVersion>& extensionVersion,
+            bool sourceLockAcquired);
     };
 }
