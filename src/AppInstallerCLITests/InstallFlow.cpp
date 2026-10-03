@@ -361,6 +361,29 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
+TEST_CASE("VerifyAndSetNestedInstaller_NormalizesRelativePath", "[InstallFlow][workflow]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+    auto installer = manifest.Installers.at(0);
+    installer.NestedInstallerFiles.at(0).RelativeFilePath = "redist/GameInputRedist.msi";
+
+    TestCommon::TempDirectory tempDirectory("NestedInstallerPath", false);
+    const auto archivePath = tempDirectory.GetPath() / "installer.zip";
+    const auto nestedInstallerPath = tempDirectory.GetPath() / "extracted" / "redist" / "GameInputRedist.msi";
+    // VerifyAndSetNestedInstaller checks that the normalized path exists before setting InstallerPath.
+    std::filesystem::create_directories(nestedInstallerPath.parent_path());
+    std::ofstream(nestedInstallerPath).close();
+
+    context.Add<Data::Installer>(std::move(installer));
+    context.Add<Data::InstallerPath>(archivePath);
+    context << VerifyAndSetNestedInstaller;
+
+    REQUIRE(context.Get<Data::InstallerPath>() == nestedInstallerPath);
+}
+
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");

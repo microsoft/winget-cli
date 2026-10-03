@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerStrings.h>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -9,6 +10,98 @@
 #include <shtypes.h>
 
 using namespace std::chrono_literals;
+
+namespace AppInstaller::Utility
+{
+    // Type to hold a UTF16 path with preferred directory separators.
+    // This type can be extended with additional path normalization as needed.
+    struct NormalizedPath : public std::filesystem::path
+    {
+        NormalizedPath() = default;
+
+        template <size_t Size>
+        explicit NormalizedPath(const char(&s)[Size]) { AssignValue(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }); }
+
+        explicit NormalizedPath(std::string_view sv) { AssignValue(sv); }
+        explicit NormalizedPath(const std::string& s) { AssignValue(std::string_view{ s }); }
+
+        template <size_t Size>
+        explicit NormalizedPath(const wchar_t(&s)[Size]) { AssignValue(std::wstring_view{ s, (s[Size - 1] == L'\0' ? Size - 1 : Size) }); }
+
+        explicit NormalizedPath(std::wstring_view sv) { AssignValue(sv); }
+        explicit NormalizedPath(const std::wstring& s) { AssignValue(std::wstring_view{ s }); }
+
+        explicit NormalizedPath(const std::filesystem::path& path) { AssignValue(path); }
+
+        NormalizedPath(const NormalizedPath& other) = default;
+        NormalizedPath& operator=(const NormalizedPath& other) = default;
+
+        NormalizedPath(NormalizedPath&& other) = default;
+        NormalizedPath& operator=(NormalizedPath&& other) = default;
+
+        template <size_t Size>
+        NormalizedPath& operator=(const char(&s)[Size])
+        {
+            AssignValue(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) });
+            return *this;
+        }
+
+        NormalizedPath& operator=(std::string_view sv)
+        {
+            AssignValue(sv);
+            return *this;
+        }
+
+        NormalizedPath& operator=(const std::string& s)
+        {
+            AssignValue(std::string_view{ s });
+            return *this;
+        }
+
+        template <size_t Size>
+        NormalizedPath& operator=(const wchar_t(&s)[Size])
+        {
+            AssignValue(std::wstring_view{ s, (s[Size - 1] == L'\0' ? Size - 1 : Size) });
+            return *this;
+        }
+
+        NormalizedPath& operator=(std::wstring_view sv)
+        {
+            AssignValue(sv);
+            return *this;
+        }
+
+        NormalizedPath& operator=(const std::wstring& s)
+        {
+            AssignValue(std::wstring_view{ s });
+            return *this;
+        }
+
+        NormalizedPath& operator=(const std::filesystem::path& path)
+        {
+            AssignValue(path);
+            return *this;
+        }
+
+    private:
+        void AssignValue(std::string_view sv)
+        {
+            AssignValue(std::filesystem::path{ ConvertToUTF16(sv) });
+        }
+
+        void AssignValue(std::wstring_view sv)
+        {
+            AssignValue(std::filesystem::path{ sv });
+        }
+
+        void AssignValue(const std::filesystem::path& path)
+        {
+            std::filesystem::path::operator=(path);
+            make_preferred();
+        }
+
+    };
+}
 
 namespace AppInstaller::Filesystem
 {

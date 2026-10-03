@@ -228,8 +228,7 @@ namespace AppInstaller::CLI::Workflow
                 EnsurePathIsRelative(context, nestedInstallerFile.PortableCommandAlias, "PortableCommandAlias", ManifestError::PortableCommandAliasEscapesDirectory);
                 AICLI_RETURN_VALUE_IF_TERMINATED(context, {});
 
-                const std::filesystem::path& relativeFilePath = ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                const std::filesystem::path& targetPath = targetInstallDirectory / relativeFilePath;
+                Utility::NormalizedPath targetPath{ targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath) };
                 std::filesystem::path originalFilename = targetPath.filename();
 
                 std::filesystem::path commandAlias;
