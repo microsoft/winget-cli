@@ -83,6 +83,7 @@ casemap
 casemappings
 ccc
 cch
+CDNs
 centralus
 certmgr
 certs
@@ -205,7 +206,7 @@ FULLWIDTH
 fundraiser
 fuzzer
 fzanollo
-gbit
+Gbit
 gcpi
 GDK
 GES
@@ -346,7 +347,7 @@ MAXLENGTH
 maxvalue
 maybenull
 MBH
-mbit
+Mbit
 MBs
 mcr
 mday
@@ -674,6 +675,7 @@ VERSIONINFO
 Verzeichnisse
 virtuals
 VIWEC
+VMs
 vns
 vscodeignore
 vsconfig
