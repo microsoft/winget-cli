@@ -407,6 +407,30 @@
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Обнаружено несколько пакетов, совпадающих с введенными условиями. Уточните условия.</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>Найдено несколько подходящих пакетов. Выберите один из них.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>Введите число (1–{0}) или 0 для отмены:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>Недопустимый выбор.</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>Выбрано: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>Укажите пакет с помощью --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>Укажите пакет с помощью --package-id &lt;ID&gt; --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по имени</value>
   </data>
@@ -858,6 +882,10 @@
   </data>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>Файл, в который будет записан результат</value>
+  </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>Локаль, используемая для вывода этой команды (формат BCP47)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
   </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>Файл с описанием устанавливаемых пакетов</value>
@@ -3648,6 +3676,10 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>Предоставленный хэш обработчика DSC не совпадает с хэшем целевого файла.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>Путь к обработчику DSC больше не указывает на файл, который прошел проверку.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
   </data>
   <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
     <value>Пакет, установленный для пользовательской области, невозможно удалить при запуске с правами администратора.</value>
