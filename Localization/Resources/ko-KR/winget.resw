@@ -407,6 +407,30 @@
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>입력 조건과 일치하는 패키지가 여러 개 있습니다. 입력을 구체화하십시오.</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>일치하는 패키지가 여러 개 있습니다. 하나를 선택합니다.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>숫자를 입력하거나(1-{0}) 취소하려면 0을 입력하세요:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>선택이 잘못되었습니다.</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>선택됨: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>--id &lt;ID&gt; --exact --source &lt;SOURCE&gt;를 사용해 패키지를 지정하세요.</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>--package-id &lt;ID&gt; --source &lt;SOURCE&gt;를 사용해 패키지를 지정하세요.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>이름을 기준으로 결과 필터링</value>
   </data>
@@ -858,6 +882,10 @@
   </data>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>결과를 기록할 파일</value>
+  </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>이 명령의 출력에 사용할 로캘(BCP47 형식)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
   </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>설치할 패키지를 설명하는 파일</value>
@@ -3648,6 +3676,10 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>DSC 프로세서에서 제공한 해시가 대상 파일의 해시와 일치하지 않습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>DSC 프로세서 경로가 확인된 파일을 더 이상 가리키지 않습니다.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
   </data>
   <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
     <value>관리자 권한으로 실행할 때는 user scope용으로 설치된 패키지를 제거할 수 없습니다.</value>
