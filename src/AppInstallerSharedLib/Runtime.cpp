@@ -214,24 +214,9 @@ namespace AppInstaller::Runtime
         return IsRunningAsAdmin() || IsRunningAsSystem();
     }
 
-    bool IsRunningInInteractiveSession()
+    bool IsRunningAsInteractiveUser()
     {
-        static bool result = []()
-            {
-                DWORD sessionId = 0;
-                if (!ProcessIdToSessionId(GetCurrentProcessId(), &sessionId))
-                {
-                    LOG_LAST_ERROR();
-                    // Assume that an unknown session is interactive, since that is what the vast
-                    // majority of processes are and it preserves the behavior of every caller
-                    // that existed before this was asked.
-                    return true;
-                }
-
-                return sessionId != 0;
-            }();
-
-        return result;
+        return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_INTERACTIVE_RID);
     }
 
     bool IsRunningWithLimitedToken()

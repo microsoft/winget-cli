@@ -176,8 +176,13 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         SourceTrustLevel m_trustLevel = SourceTrustLevel::None;
     };
 
-    // Creates the store for a source.
+    // Creates the store that this process should maintain a source in.
     std::unique_ptr<IPackageStore> CreateStore(const SourceDetails& details);
+
+    // Creates a store over every store that this process can reach a source's packages through.
+    // Reading answers from whichever of them holds the most recently published copy, and removing
+    // clears all of them.
+    std::unique_ptr<IPackageStore> CreateCompositeStore(const SourceDetails& details);
 
     // The individual mechanisms.
     std::unique_ptr<IPackageStore> CreateDeployedPackageStore(const SourceDetails& details);

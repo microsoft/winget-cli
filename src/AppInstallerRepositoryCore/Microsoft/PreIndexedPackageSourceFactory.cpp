@@ -60,7 +60,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
             {
-                auto store = CreateStore(m_details);
+                auto store = CreateCompositeStore(m_details);
                 auto form = CreateFullIndexForm(m_details);
                 auto currentVersion = form->GetHeldVersion(*store);
 
@@ -94,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 SourceOpenTimer openTimer{ m_details.Name };
 
-                auto store = CreateStore(m_details);
+                auto store = CreateCompositeStore(m_details);
                 auto form = CreateFullIndexForm(m_details);
 
                 std::optional<SQLiteIndex> index;
@@ -223,7 +223,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                auto store = CreateStore(details);
+                auto store = CreateCompositeStore(details);
 
                 auto lock = store->Lock(progress);
                 if (!lock)

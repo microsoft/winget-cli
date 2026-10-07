@@ -169,11 +169,140 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
     bool CanUseDeployedPackage()
     {
-        return Runtime::IsRunningInPackagedContext() && Runtime::IsRunningInInteractiveSession();
+        return Runtime::IsRunningInPackagedContext() && Runtime::IsRunningAsInteractiveUser();
+    }
+
+    namespace anon
+    {
+        // A store over every store that this process can reach a source's packages through.
+        //
+        // Reading answers from whichever of them holds the most recently published copy, and
+        // removing clears all of them. Acquiring and persisting throw: a store that spans
+        // mechanisms has no single place to put a package, and that decision belongs to
+        // CreateStore.
+        struct CompositePackageStore : public IPackageStore
+        {
+            CompositePackageStore(const SourceDetails& details)
+            {
+                // The store that this process would write to comes first, so that an equally
+                // recent copy keeps a read on the store that it maintains itself.
+                if (CanUseDeployedPackage())
+                {
+                    m_stores.emplace_back(CreateDeployedPackageStore(details));
+                    m_stores.emplace_back(CreateLocalFilePackageStore(details));
+                }
+                else
+                {
+                    m_stores.emplace_back(CreateLocalFilePackageStore(details));
+                    if (Runtime::IsRunningInPackagedContext())
+                    {
+                        m_stores.emplace_back(CreateDeployedPackageStore(details));
+                    }
+                }
+            }
+
+            std::optional<AcquiredPackage> Acquire(const PackageKey&, const std::string&, IProgressCallback&) override
+            {
+                THROW_WIN32(ERROR_NOT_SUPPORTED);
+            }
+
+            void Persist(AcquiredPackage&&, IProgressCallback&) override
+            {
+                THROW_WIN32(ERROR_NOT_SUPPORTED);
+            }
+
+            std::optional<Msix::PackageVersion> GetVersion(const PackageKey& package) const override
+            {
+                return Resolve(package).GetVersion(package);
+            }
+
+            std::optional<ExtractedIndex> GetIndex(const PackageKey& package, IProgressCallback& progress) override
+            {
+                return Resolve(package).GetIndex(package, progress);
+            }
+
+            void Remove(const std::vector<PackageKey>& packages, IProgressCallback& progress) override
+            {
+                HRESULT firstStoreFailure = S_OK;
+                bool firstStore = true;
+
+                for (auto& store : m_stores)
+                {
+                    try
+                    {
+                        store->Remove(packages, progress);
+                    }
+                    catch (...)
+                    {
+                        HRESULT hr = LOG_CAUGHT_EXCEPTION();
+
+                        // Only throw if the primary (first) store fails to remove.
+                        if (firstStore)
+                        {
+                            firstStoreFailure = hr;
+                        }
+                    }
+
+                    firstStore = false;
+                }
+
+                THROW_IF_FAILED(firstStoreFailure);
+            }
+
+            Synchronization::CrossProcessLock Lock(IProgressCallback& progress, bool isBackground = false) override
+            {
+                // The lock is named from the source rather than from the mechanism, so every store
+                // for a source shares one and any of them can take it.
+                return m_stores.front()->Lock(progress, isBackground);
+            }
+
+            bool AllowsUnlockedRead() const override
+            {
+                // Before anything has been asked about, the store this process maintains is the
+                // one most likely to answer, and deferring to it keeps this identical to what a
+                // single store would have reported. A later read that resolves elsewhere and
+                // cannot be served unlocked fails, which the caller already retries under the
+                // lock.
+                return (m_resolved ? m_resolved : m_stores.front().get())->AllowsUnlockedRead();
+            }
+
+        private:
+            IPackageStore& Resolve(const PackageKey& package) const
+            {
+                if (!m_resolved)
+                {
+                    m_resolved = m_stores.front().get();
+                    std::optional<Msix::PackageVersion> bestVersion = m_resolved->GetVersion(package);
+
+                    for (auto itr = m_stores.begin() + 1; itr != m_stores.end(); ++itr)
+                    {
+                        std::optional<Msix::PackageVersion> version = (*itr)->GetVersion(package);
+
+                        // The store this process would write to is first, so only a strictly more
+                        // recent copy moves it off the store that it maintains itself.
+                        if (version && (!bestVersion || bestVersion.value() < version.value()))
+                        {
+                            bestVersion = std::move(version);
+                            m_resolved = itr->get();
+                        }
+                    }
+                }
+
+                return *m_resolved;
+            }
+
+            std::vector<std::unique_ptr<IPackageStore>> m_stores;
+            mutable IPackageStore* m_resolved = nullptr;
+        };
     }
 
     std::unique_ptr<IPackageStore> CreateStore(const SourceDetails& details)
     {
         return CanUseDeployedPackage() ? CreateDeployedPackageStore(details) : CreateLocalFilePackageStore(details);
+    }
+
+    std::unique_ptr<IPackageStore> CreateCompositeStore(const SourceDetails& details)
+    {
+        return std::make_unique<anon::CompositePackageStore>(details);
     }
 }
