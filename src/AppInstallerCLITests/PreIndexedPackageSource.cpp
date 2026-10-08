@@ -6,6 +6,7 @@
 #include "TestSettings.h"
 #include <winget/RepositorySource.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerMsixInfo.h>
 #include <AppInstallerStrings.h>
 #include <Microsoft/PreIndexedPackageSourceFactory.h>
 #include <winget/Settings.h>
@@ -59,6 +60,24 @@ void CleanSources()
     RemoveSetting(Stream::UserSources);
     RemoveSetting(Stream::SourcesMetadata);
     fs::remove_all(GetPathToFileDir());
+}
+
+TEST_CASE("PIPS_PackagedFallbackPrecedence", "[pips]")
+{
+    using Factory = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory;
+
+    const std::optional<AppInstaller::Msix::PackageVersion> older{ AppInstaller::Msix::PackageVersion{ "1.0.0.0" } };
+    const std::optional<AppInstaller::Msix::PackageVersion> newer{ AppInstaller::Msix::PackageVersion{ "2.0.0.0" } };
+
+    // A validated fallback is active while the extension is missing or older.
+    REQUIRE(Factory::ShouldPreferDesktopContext(newer, std::nullopt, true));
+    REQUIRE(Factory::ShouldPreferDesktopContext(newer, older, true));
+
+    // The extension wins when it catches up, or when we cannot safely inspect the fallback.
+    REQUIRE_FALSE(Factory::ShouldPreferDesktopContext(newer, newer, true));
+    REQUIRE_FALSE(Factory::ShouldPreferDesktopContext(older, newer, true));
+    REQUIRE_FALSE(Factory::ShouldPreferDesktopContext(newer, older, false));
+    REQUIRE_FALSE(Factory::ShouldPreferDesktopContext(std::nullopt, older, true));
 }
 
 TEST_CASE("PIPS_Add", "[pips]")
@@ -225,4 +244,70 @@ TEST_CASE("PIPS_Remove", "[pips]")
     {
         UninstallCertFromSignedPackage(index);
     }
+}
+
+TEST_CASE("PIPS_RejectsDifferentFamilyCachedPackage", "[pips]")
+{
+    if (Runtime::IsRunningInPackagedContext())
+    {
+        WARN("Test exercises the desktop source implementation. Skipped in packaged context.");
+        return;
+    }
+
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    CleanSources();
+
+    TempDirectory dir("pipssource");
+    TestDataFile index(s_MsixFile_1);
+    CopyIndexFileToDirectory(index, dir);
+
+    bool shouldCleanCert = InstallCertFromSignedPackage(index);
+    bool shouldCleanOtherCert = false;
+    TestDataFile otherPackage("TestSignedApp.msix");
+    auto cleanup = wil::scope_exit([&]()
+        {
+            try
+            {
+                CleanSources();
+                if (shouldCleanOtherCert)
+                {
+                    UninstallCertFromSignedPackage(otherPackage);
+                }
+                if (shouldCleanCert)
+                {
+                    UninstallCertFromSignedPackage(index);
+                }
+            }
+            CATCH_LOG();
+        });
+
+    SourceDetails details;
+    details.Name = "TestName";
+    details.Type = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Type();
+    details.Arg = dir;
+    ProgressCallback callback;
+
+    AddSource(details, callback);
+
+    Repository::Source configuredSource{ details.Name };
+    auto factory = AppInstaller::Repository::Microsoft::PreIndexedPackageSourceFactory::Create();
+    auto reference = factory->Create(configuredSource.GetDetails());
+
+    // Both desktop opens and packaged fallback opens use OpenDesktopContextIndex.
+    // Trust must pass so that this test reaches the family-name check.
+    shouldCleanOtherCert = InstallCertFromSignedPackage(otherPackage);
+    {
+        AppInstaller::Msix::WriteLockedMsixFile trustedOtherPackage{ otherPackage.GetPath() };
+        REQUIRE(trustedOtherPackage.ValidateTrustInfo(false));
+        AppInstaller::Msix::MsixInfo otherInfo{ otherPackage.GetPath() };
+        REQUIRE(AppInstaller::Msix::GetPackageFamilyNameFromFullName(otherInfo.GetPackageFullName()) != std::string{ s_Msix_FamilyName });
+    }
+    CopyIndexFileToDirectory(otherPackage, GetPathToFileDir());
+    REQUIRE_THROWS_HR(reference->Open(callback), APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+
 }
