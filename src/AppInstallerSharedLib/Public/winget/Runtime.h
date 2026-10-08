@@ -43,6 +43,9 @@ namespace AppInstaller::Runtime
     // Determines whether the process is running with administrator or system privileges.
     bool IsRunningAsAdminOrSystem();
 
+    // Determines whether the process is running for an interactively logged on user.
+    bool IsRunningAsInteractiveUser();
+
     // Determines whether the current token can be elevated.
     // This only returns true for tokens that are TokenElevationTypeLimited.
     // Thus, it will only be true if:
