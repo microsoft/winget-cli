@@ -112,8 +112,11 @@ TEST_CASE("NameNorm_Architecture", "[name_norm]")
     REQUIRE(normer.Normalize("Name x86_64", {}).Architecture() == Architecture::X64);
     REQUIRE(normer.Normalize("Name (64 bit)", {}).Architecture() == Architecture::X64);
     REQUIRE(normer.Normalize("Name arm", {}).Architecture() == Architecture::Arm);
+    REQUIRE(normer.Normalize("Name arm32", {}).Architecture() == Architecture::Arm);
     REQUIRE(normer.Normalize("Name arm64", {}).Architecture() == Architecture::Arm64);
     REQUIRE(normer.Normalize("Name aarch64", {}).Architecture() == Architecture::Arm64);
+    REQUIRE(normer.Normalize("Name armadillo", {}).Architecture() == Architecture::Unknown);
+    REQUIRE(normer.Normalize("Name armadillo", {}).Name() == "Name armadillo");
     REQUIRE(normer.Normalize("Name 32/64 bit", {}).Architecture() == Architecture::Unknown);
     REQUIRE(normer.Normalize("Fox86", {}).Architecture() == Architecture::Unknown);
 }

@@ -251,7 +251,7 @@ namespace AppInstaller::Utility
             Regex::Expression ArchitectureX32{ R"((?<=^|[^\p{L}\p{Nd}])(X32|X86)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
             Regex::Expression ArchitectureX64{ R"((?<=^|[^\p{L}\p{Nd}])(X64|AMD64|X86([\p{Pd}\p{Pc}]64))(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
             Regex::Expression ArchitectureArm64{ R"((?<=^|[^\p{L}\p{Nd}])(ARM64|AARCH64)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
-            Regex::Expression ArchitectureArm{ R"((?<=^|[^\p{L}\p{Nd}])(ARM)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
+            Regex::Expression ArchitectureArm{ R"((?<=^|[^\p{L}\p{Nd}])(ARM32(?=\P{Nd}|$)|ARM(?=[^\p{L}\p{Nd}]|$))(?:\sEDITION)?)", reOptions };
             Regex::Expression Architecture32Bit{ R"((?<=^|[^\p{L}\p{Nd}])(32[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
             Regex::Expression Architecture64Bit{ R"((?<=^|[^\p{L}\p{Nd}])(64[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
             Regex::Expression Architecture32Or64Bit{ R"((?<=^|[^\p{L}\p{Nd}])((64[\\\/]32|32[\\\/]64)[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
