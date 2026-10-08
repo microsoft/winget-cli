@@ -132,6 +132,12 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 Msix::MsixInfo packageInfo{ packagePath };
                 packageInfo.WriteToFileHandle(s_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
 
+                if (progress.IsCancelledBy(CancelReason::Any))
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling index extraction upon request");
+                    return std::nullopt;
+                }
+
                 ExtractedIndex result;
                 result.Path = tempIndexFile.GetFilePath();
                 result.TemporaryFile = std::move(tempIndexFile);

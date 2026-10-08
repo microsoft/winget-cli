@@ -130,6 +130,11 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             {
                 auto extracted = store.GetIndex(GetKey(), progress);
 
+                if (progress.IsCancelledBy(CancelReason::Any))
+                {
+                    THROW_WIN32(ERROR_CANCELLED);
+                }
+
                 if (!extracted)
                 {
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
