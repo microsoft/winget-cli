@@ -369,6 +369,7 @@ TEST_CASE("VerifyAndSetNestedInstaller_NormalizesRelativePath", "[InstallFlow][w
     auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
     auto installer = manifest.Installers.at(0);
     installer.NestedInstallerFiles.at(0).RelativeFilePath = "redist/GameInputRedist.msi";
+    REQUIRE(installer.NestedInstallerFiles.at(0).RelativeFilePath.u8string() == "redist\\GameInputRedist.msi");
 
     TestCommon::TempDirectory tempDirectory("NestedInstallerPath", false);
     const auto archivePath = tempDirectory.GetPath() / "installer.zip";

@@ -224,7 +224,7 @@ namespace AppInstaller::CLI::Workflow
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
                 for (const auto& nestedInstallerFile : nestedInstallerFiles)
                 {
-                    Utility::NormalizedPath nestedInstallerPath{ installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath) };
+                    std::filesystem::path nestedInstallerPath = installerPath / nestedInstallerFile.RelativeFilePath.u16string();
                     fontContext.AddPackageFile(nestedInstallerPath);
                 }
             }

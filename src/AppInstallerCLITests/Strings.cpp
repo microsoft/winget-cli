@@ -111,13 +111,16 @@ TEST_CASE("NormalizedPath", "[strings]")
 {
     NormalizedPath path{ u8"directory/subdirectory/\xC3\xA4.exe" };
 
-    REQUIRE(path.native() == L"directory\\subdirectory\\\xE4.exe");
+    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\xC3\xA4.exe");
+    REQUIRE(path.u16string() == u"directory\\subdirectory\\\u00E4.exe");
 
-    const std::filesystem::path& filesystemPath = path;
-    REQUIRE(filesystemPath == std::filesystem::path{ L"directory\\subdirectory\\\xE4.exe" });
+    path = u8"directory/subdirectory/\U0001F600.exe";
+    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\U0001F600.exe");
+    REQUIRE(path.u16string() == u"directory\\subdirectory\\\U0001F600.exe");
 
     path = std::string{ "other/path.exe" };
-    REQUIRE(path.native() == L"other\\path.exe");
+    REQUIRE(path.u8string() == "other\\path.exe");
+    REQUIRE(path.u16string() == u"other\\path.exe");
 }
 
 TEST_CASE("Trim", "[strings]")

@@ -455,20 +455,23 @@ namespace AppInstaller::Manifest
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
-                    if (nestedInstallerFile.RelativeFilePath.empty())
+                    const std::filesystem::path relativeFilePath{ nestedInstallerFile.RelativeFilePath.u16string() };
+                    const std::string relativeFilePathUtf8 = nestedInstallerFile.RelativeFilePath.u8string();
+
+                    if (relativeFilePath.empty())
                     {
                         resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "RelativeFilePath");
                         break;
                     }
 
                     // Check that the relative file path does not escape base directory.
-                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.RelativeFilePath))
+                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(relativeFilePathUtf8))
                     {
                         resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
                     }
 
                     // Check for duplicate relative filepath values.
-                    if (!relativeFilePathSet.insert(Utility::ToLower(nestedInstallerFile.RelativeFilePath)).second)
+                    if (!relativeFilePathSet.insert(Utility::ToLower(relativeFilePathUtf8)).second)
                     {
                         resultErrors.emplace_back(ManifestError::DuplicateRelativeFilePath, "RelativeFilePath");
                     }
@@ -493,7 +496,6 @@ namespace AppInstaller::Manifest
                     // If running full validation, check filetype
                     if (options.FullValidation)
                     {
-                        std::filesystem::path relativeFilePath{ Utility::ConvertToUTF16(nestedInstallerFile.RelativeFilePath) };
                         if (relativeFilePath.has_extension())
                         {
                             const std::wstring lowerExtension = Utility::ToLower(relativeFilePath.extension().wstring());
@@ -502,7 +504,7 @@ namespace AppInstaller::Manifest
                             {
                                 if (std::find(s_AllowedPortableFiletypes.begin(), s_AllowedPortableFiletypes.end(), lowerExtension) == s_AllowedPortableFiletypes.end())
                                 {
-                                    resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                    resultErrors.emplace_back(ManifestError::InvalidPortableFiletype, "RelativeFilePath", relativeFilePathUtf8);
                                 }
                             }
 
@@ -510,7 +512,7 @@ namespace AppInstaller::Manifest
                             {
                                 if (std::find(s_AllowedFontFiletypes.begin(), s_AllowedFontFiletypes.end(), lowerExtension) == s_AllowedFontFiletypes.end())
                                 {
-                                    resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", nestedInstallerFile.RelativeFilePath);
+                                    resultErrors.emplace_back(ManifestError::InvalidFontFiletype, "RelativeFilePath", relativeFilePathUtf8);
                                 }
                             }
                         }
