@@ -70,13 +70,13 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerSynchronization.h>
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerVersions.h>
 #include <winget/ExtensionCatalog.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/Locale.h>
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>

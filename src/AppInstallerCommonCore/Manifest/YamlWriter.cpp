@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerStrings.h"
-#include "AppInstallerSHA256.h"
+#include "winget/Hash.h"
 #include "winget/Yaml.h"
 #include "winget/ManifestYamlWriter.h"
 

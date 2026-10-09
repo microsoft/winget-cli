@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerStrings.h>
-#include <AppInstallerSHA256.h>
 #include <AppInstallerVersions.h>
+#include <winget/Hash.h>
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
