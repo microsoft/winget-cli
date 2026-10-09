@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
+#include <winget/Filesystem.h>
 #include <functional>
 #include <map>
 #include <set>
@@ -359,7 +360,7 @@ namespace AppInstaller::Manifest
 
     struct NestedInstallerFile
     {
-        string_t RelativeFilePath;
+        Utility::NormalizedPath RelativeFilePath;
         string_t PortableCommandAlias;
     };
 

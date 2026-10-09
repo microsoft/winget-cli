@@ -465,7 +465,7 @@ namespace AppInstaller::Manifest::YamlWriter
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
                 out << YAML::BeginMap;
-                WRITE_PROPERTY(out, NestedInstallerFileRelativeFilePath, nestedInstallerFile.RelativeFilePath);
+                WRITE_PROPERTY(out, NestedInstallerFileRelativeFilePath, nestedInstallerFile.RelativeFilePath.u8string());
                 WRITE_PROPERTY_IF_EXISTS(out, PortableCommandAlias, nestedInstallerFile.PortableCommandAlias);
                 out << YAML::EndMap;
             }

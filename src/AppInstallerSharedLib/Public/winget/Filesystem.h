@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerStrings.h>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -9,6 +10,34 @@
 #include <shtypes.h>
 
 using namespace std::chrono_literals;
+
+namespace AppInstaller::Utility
+{
+    // Type to hold a UTF16 path with preferred directory separators.
+    struct NormalizedPath
+    {
+        NormalizedPath() = default;
+
+        NormalizedPath(const char* value) : NormalizedPath(std::string_view{ value }) {}
+        NormalizedPath(std::string_view value) { *this = value; }
+
+        NormalizedPath& operator=(const char* value) { return *this = std::string_view{ value }; }
+
+        NormalizedPath& operator=(std::string_view value)
+        {
+            m_path = AppInstaller::Utility::ConvertToUTF16(value);
+            m_path.make_preferred();
+            return *this;
+        }
+
+        std::string u8string() const { return m_path.u8string(); }
+        std::u16string u16string() const { return m_path.u16string(); }
+        const std::filesystem::path& get() const { return m_path; }
+
+    private:
+        std::filesystem::path m_path;
+    };
+}
 
 namespace AppInstaller::Filesystem
 {

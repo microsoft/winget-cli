@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "FontFlow.h"
 #include "TableOutput.h"
+#include <winget/Filesystem.h>
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
 using namespace AppInstaller::Utility;
@@ -223,7 +224,8 @@ namespace AppInstaller::CLI::Workflow
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
                 for (const auto& nestedInstallerFile : nestedInstallerFiles)
                 {
-                    fontContext.AddPackageFile(installerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath));
+                    std::filesystem::path nestedInstallerPath = installerPath / nestedInstallerFile.RelativeFilePath.u16string();
+                    fontContext.AddPackageFile(nestedInstallerPath);
                 }
             }
             else

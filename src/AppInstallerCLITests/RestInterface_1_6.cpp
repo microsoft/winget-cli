@@ -371,7 +371,7 @@ namespace
             REQUIRE(actualInstaller.UnsupportedArguments.size() == 1);
             REQUIRE(actualInstaller.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
             REQUIRE(actualInstaller.NestedInstallerFiles.size() == 1);
-            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).RelativeFilePath == "test\\app.exe");
+            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).RelativeFilePath.u8string() == "test\\app.exe");
             REQUIRE(actualInstaller.NestedInstallerFiles.at(0).PortableCommandAlias == "test.exe");
             REQUIRE(actualInstaller.InstallationMetadata.DefaultInstallLocation == "%TEMP%\\DefaultInstallLocation");
             REQUIRE(actualInstaller.InstallationMetadata.Files.size() == 1);

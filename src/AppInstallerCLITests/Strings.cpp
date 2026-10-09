@@ -5,6 +5,7 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
+#include <winget/Filesystem.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -104,6 +105,22 @@ TEST_CASE("NormalizedString", "[strings]")
     // Embedded null
     std::string_view input3{ "Test\0Case", 9 };
     REQUIRE(NormalizedString(input3) == "Test Case");
+}
+
+TEST_CASE("NormalizedPath", "[strings]")
+{
+    NormalizedPath path{ u8"directory/subdirectory/\xC3\xA4.exe" };
+
+    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\xC3\xA4.exe");
+    REQUIRE(path.u16string() == u"directory\\subdirectory\\\u00E4.exe");
+
+    path = u8"directory/subdirectory/\U0001F600.exe";
+    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\U0001F600.exe");
+    REQUIRE(path.u16string() == u"directory\\subdirectory\\\U0001F600.exe");
+
+    path = std::string{ "other/path.exe" };
+    REQUIRE(path.u8string() == "other\\path.exe");
+    REQUIRE(path.u16string() == u"other\\path.exe");
 }
 
 TEST_CASE("Trim", "[strings]")
