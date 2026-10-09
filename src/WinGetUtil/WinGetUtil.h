@@ -143,6 +143,16 @@ extern "C"
     {
         WinGetSQLiteIndexProperty_PackageUpdateTrackingBaseTime = 0,
         WinGetSQLiteIndexProperty_IntermediateFileOutputPath = 1,
+        WinGetSQLiteIndexProperty_DeltaBaselineIndexPath = 2,
+        WinGetSQLiteIndexProperty_DeltaOutputPath = 3,
+        WinGetSQLiteIndexProperty_DeltaBaselineRelativeSourcePath = 4,
+        WinGetSQLiteIndexProperty_DeltaBaselinePackageVersion = 5,
+        WinGetSQLiteIndexProperty_DeltaMarkAsBaseline = 6,
+        // Names an index that the database being checked must present the same data as. For a
+        // delta that has also been given DeltaBaselineIndexPath, the merged result of the pair is
+        // what must match; for any other index, the index itself is.
+        // Note that equivalence includes package identity, so the two must share lineage.
+        WinGetSQLiteIndexProperty_DeltaComparisonIndexPath = 7,
     };
 
     // Sets the given property on the index.

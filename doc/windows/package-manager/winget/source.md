@@ -35,6 +35,7 @@ Source supports the following sub-commands for manipulating the sources.
 | Sub-command  | Description |
 |--------------|-------------|
 |  **add** |  Adds a new source. |
+|  **edit** | Edits an existing source. |
 |  **list** | Enumerates the list of enabled sources. |
 |  **update** | Updates a source. |
 |  **remove** | Removes a source. |
@@ -52,6 +53,7 @@ The **source** command supports the following options.
 |  **-n, --name** | The name to identify the source by. |
 |  **-a, --arg** | The URL or UNC of the source. |
 |  **-t, --type** | The type of source. |
+| **-p, --priority** | Sets the source priority for **add** or **edit**. Higher values take precedence; new sources default to `0`. |
 | **-?, --help** |  Gets additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
@@ -72,6 +74,16 @@ The **add** sub-command also supports the optional **type** parameter. The **typ
 |--------------|-------------|
 | **Microsoft.PreIndexed.Package** | The type of source \<default>. |
 | **Microsoft.Rest** | A Microsoft REST API source. |
+
+## Source priority
+
+To prefer a source when installing packages, set its priority from an elevated terminal:
+
+```powershell
+winget source edit --name winget --priority 1
+```
+
+If multiple matches remain at the highest priority, refine the search or specify `--source`.
 
 ## list
 

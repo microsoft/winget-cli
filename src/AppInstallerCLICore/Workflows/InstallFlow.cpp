@@ -151,16 +151,6 @@ namespace AppInstaller::CLI::Workflow
             HRESULT HResult;
             Resource::StringId Message;
         };
-
-        void CheckForOnlyDependencies(Execution::Context& context)
-        {
-            if (context.Args.Contains(Execution::Args::Type::DependenciesOnly))
-            {
-                context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
-                // We want the context to terminate, but successfully.
-                context.SetTerminationHR(S_OK);
-            }
-        }
     }
 
     namespace details
@@ -647,6 +637,16 @@ namespace AppInstaller::CLI::Workflow
             ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
             ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, Flags::IgnoreDependencies | Flags::StopOnFailure | Flags::DownloadOnly);
+    }
+
+    void CheckForOnlyDependencies(Execution::Context& context)
+    {
+        if (context.Args.Contains(Execution::Args::Type::DependenciesOnly))
+        {
+            context.Reporter.Info() << Resource::String::DependenciesOnlyMessage << std::endl;
+            // We want the context to terminate, but successfully.
+            context.SetTerminationHR(S_OK);
+        }
     }
 
     void InstallSinglePackage(Execution::Context& context)

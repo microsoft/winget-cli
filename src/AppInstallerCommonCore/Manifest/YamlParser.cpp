@@ -488,6 +488,13 @@ namespace AppInstaller::Manifest::YamlParser
                     std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
                 }
             }
+            else
+            {
+                // PackageIdentifier and PackageVersion are used to construct file system paths, so the schema
+                // restrictions on them are enforced even when the full semantic validation is not requested.
+                errors = ValidateFieldsUsedInPathConstruction(manifest);
+                std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            }
 
             if (validateOption.InstallerValidation)
             {

@@ -407,6 +407,30 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multipli pacchetti hanno trovato criteri di input corrispondenti. Ridefinisci l'input.</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>Corrispondono più pacchetti. Scegline uno.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>Immetti un numero (1-{0}) o 0 per annullare:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>Selezione non valida.</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>Selezionato: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>Specifica un pacchetto con --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>Specifica un pacchetto con --package-id &lt;ID&gt; --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per nome</value>
   </data>
@@ -859,6 +883,10 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>File in cui deve essere scritto il risultato</value>
   </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>Impostazioni locali da usare per l'output di questo comando (formato BCP47)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>File che descrive i pacchetti da installare</value>
   </data>
@@ -894,7 +922,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Il pacchetto è già installato: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignora pacchetti non disponibili</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
@@ -2890,8 +2918,8 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>Impossibile ripristinare il pacchetto installato per l'ambito utente durante l'esecuzione con privilegi di amministratore.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>Le operazioni di ripristino che richiedono privilegi di amministratore non sono consentite nei pacchetti installati nell'ambito utente.</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>L'operazione richiesta non è consentita da un contesto amministratore nei pacchetti installati nell'ambito utente.</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Ripristino non riuscito con codice di uscita: {0}</value>
@@ -3648,5 +3676,12 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>L'hash del processore DSC specificato non corrisponde all'hash del file di destinazione.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>Il percorso del processore DSC non fa più riferimento al file verificato.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>Il pacchetto installato per l'ambito utente non può essere disinstallato quando viene eseguito con privilegi di amministratore.</value>
   </data>
 </root>

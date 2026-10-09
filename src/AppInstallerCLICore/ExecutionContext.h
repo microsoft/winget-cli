@@ -202,7 +202,7 @@ namespace AppInstaller::CLI::Execution
 
     private:
         DestructionToken m_disableSignalTerminationHandlerOnExit = false;
-        bool m_isTerminated = false;
+        std::atomic<bool> m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;

@@ -5,6 +5,8 @@
 #include "AppInstallerStrings.h"
 #include "AppInstallerLogging.h"
 
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Locale
 {
     namespace
@@ -77,6 +79,41 @@ namespace AppInstaller::Locale
 
         // Should not reach here.
         return TRUE;
+    }
+
+    const std::vector<std::string_view>& GetSupportedOutputLocales()
+    {
+        // Keep in sync with the `output.locale` enum in schemas/JSON/settings/settings.schema.0.2.json
+        // and the localized resource folders under Localization\Resources.
+        static const std::vector<std::string_view> s_supportedOutputLocales =
+        {
+            "en-US"sv,
+            "de-DE"sv,
+            "es-ES"sv,
+            "fr-FR"sv,
+            "it-IT"sv,
+            "ja-JP"sv,
+            "ko-KR"sv,
+            "pt-BR"sv,
+            "ru-RU"sv,
+            "zh-CN"sv,
+            "zh-TW"sv,
+        };
+
+        return s_supportedOutputLocales;
+    }
+
+    std::optional<std::string_view> NormalizeOutputLocale(std::string_view localeTag)
+    {
+        for (const auto& supportedLocale : GetSupportedOutputLocales())
+        {
+            if (Utility::CaseInsensitiveEquals(localeTag, supportedLocale))
+            {
+                return supportedLocale;
+            }
+        }
+
+        return {};
     }
 
     double GetDistanceOfLanguage(std::string_view target, std::string_view available)

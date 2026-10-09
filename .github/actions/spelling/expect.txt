@@ -5,6 +5,7 @@ ABORTIFHUNG
 accepteula
 ACCESSDENIED
 ACCESSTOKEN
+aclapi
 ACL'd
 adjacents
 adminproperties
@@ -115,6 +116,7 @@ countryregion
 Cov
 CPIL
 createmanifestmetadata
+createview
 crt
 cswinrt
 ctc
@@ -162,6 +164,7 @@ ecfr
 ecfrbrowse
 EFGH
 ENDSESSION
+EOP
 EQU
 ERANGE
 errcode
@@ -228,6 +231,7 @@ Hackathon
 hashtables
 helplib
 helplibrary
+Herausgeber
 hhx
 highcontrast
 HINSTANCE
@@ -253,9 +257,11 @@ idl
 IDSC
 idx
 IFACEMETHODIMP
+IHDR
 iid
 img
 inet
+inmemorydb
 innererror
 inproc
 Insta
@@ -346,6 +352,7 @@ mdmp
 mdmpto
 MDs
 megamorf
+mgmt
 microsoftentraid
 microsoftentraidforazureblobstorage
 midl
@@ -373,8 +380,10 @@ mta
 Mugiwara
 Multideclaration
 mysource
+namespaceapi
 nativehandle
 NBLGGH
+ncalrpc
 ncreate
 NESTEDINSTALLER
 netlify
@@ -401,9 +410,12 @@ NOTRACK
 NOUPDATE
 nowarn
 npmjs
+NRNW
+NRNWNX
 nsis
 NRVO
 NTFS
+nullability
 objbase
 objidl
 octokitnet
@@ -414,6 +426,7 @@ onefuzz
 oop
 opensource
 OPTOUT
+optoverview
 osfhandle
 oss
 outfile
@@ -446,6 +459,7 @@ pidl
 pidlist
 PKCS
 pkgmgr
+pkgs
 pkindex
 pkix
 placeholders
@@ -465,6 +479,7 @@ PROPVARIANT
 proxystub
 psapi
 pscustomobject
+PSECURITY
 pseudocode
 PSHOST
 psobject
@@ -548,6 +563,9 @@ shortguid
 SHOWNORMAL
 sid
 Sideload
+SIDTo
+SIDW
+siex
 SIGNATUREHASH
 silentpreferred
 SINGLETHREADED
@@ -569,19 +587,23 @@ sqlite
 Srinivasan
 SRL
 srs
+STARTUPINFOEX
 STDMETHODCALLTYPE
 storeapps
 storeorigin
 STRRET
 stylecop
+subauthority
 SUBCHAN
 subdir
 subkey
+subtags
 Sudarshan
 superstring
 swgus
 SYD
 SYG
+Systemarchitektur
 systemnotsupported
 tableoutput
 Tagit
@@ -599,6 +621,7 @@ timespan
 Tlg
 tlhelp
 TLSCAs
+tokeninfo
 tombstoned
 tombstoning
 Toolhelp
@@ -645,6 +668,8 @@ vcredist
 vcx
 versioned
 VERSIONINFO
+Verzeichnisse
+virtuals
 VIWEC
 vns
 vscodeignore
@@ -675,10 +700,12 @@ wingetconfigroot
 wingetcreate
 wingetdev
 wingetutil
+WINNT
 winreg
 winrtact
 winstring
 wintrust
+withoutrowid
 WMI
 wmmc
 wnd
@@ -698,6 +725,7 @@ WVT
 wwinmain
 WZDNCRFJ
 xcopy
+XCount
 Xes
 XFile
 XManifest
@@ -709,6 +737,7 @@ XRESOURCEZORO
 xsi
 yamato
 yao
+YCount
 Zabcdefghijklmnopqrstuvwxyz
 Zanollo
 ZIPHASH

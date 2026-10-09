@@ -300,6 +300,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     void Generate(
         const SQLite::Connection& sourceConnection,
         const SQLite::Connection& baselineConnection,
+        const BaselineReference& baselineReference,
         const std::filesystem::path& deltaOutputPath,
         const SQLite::Version& version,
         const std::vector<V2_0::PackageUpdateTrackingTable::PackageData>& changedPackages,
@@ -307,6 +308,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     {
         AICLI_LOG(Repo, Info, << "Generating delta index at [" << deltaOutputPath << "] for " << changedPackages.size() <<
             " changed and " << removedPackages.size() << " removed packages");
+
+        // A client that holds only the delta has to be able to find the baseline, so it must be named.
+        THROW_HR_IF(E_INVALIDARG, baselineReference.RelativeSourcePath.empty() || baselineReference.PackageVersion.empty());
 
         // A delta is only meaningful alongside the exact baseline it was computed from, so the
         // baseline has to be one that was designated as such and can therefore be named.
@@ -351,7 +355,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(deltaConnection, "delta_generate_v2_1");
 
+            // The delta belongs to the lineage it was computed from, so it takes that lineage's
+            // identity rather than the fresh one it was created with. Every index in a lineage is a
+            // prepared copy of one working index and so carries its identifier; the check above has
+            // already required the baseline to agree. Without this the merged form would report a
+            // different source identifier than the standard index built from the same data, and a
+            // new one with every delta published.
+            SQLite::MetadataTable::SetNamedValue(deltaConnection, SQLite::s_MetadataValueName_DatabaseIdentifier,
+                SQLite::MetadataTable::GetNamedValue<std::string>(sourceConnection, SQLite::s_MetadataValueName_DatabaseIdentifier));
+
             SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineIdentifier, baselineIdentifier.value());
+            SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselineRelativeSourcePath, baselineReference.RelativeSourcePath);
+            SQLite::MetadataTable::SetNamedValue(deltaConnection, s_MetadataValueName_DeltaBaselinePackageVersion, baselineReference.PackageVersion);
 
             std::map<std::string_view, SQLite::rowid_t> nextValueRowIds;
 

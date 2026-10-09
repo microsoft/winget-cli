@@ -19,6 +19,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     static constexpr std::string_view s_PUTT_WriteTime = "write_time"sv;
     static constexpr std::string_view s_PUTT_Manifest = "manifest"sv;
     static constexpr std::string_view s_PUTT_Hash = "hash"sv;
+    // Only ever written as 0 or 1, but read as 0 versus not-0 so that the live and removed
+    // predicates partition every row. The partial live-row index below depends on the live
+    // half staying an equality test against 0.
     static constexpr std::string_view s_PUTT_IsRemoved = "is_removed"sv;
     static constexpr std::string_view s_PUTT_PackageRowId = "package_rowid"sv;
     static constexpr std::string_view s_PUTT_ChangeSequence = "change_seq"sv;
@@ -46,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             Builder::StatementBuilder builder;
             builder.Select({ s_PUTT_Package, s_PUTT_PackageRowId }).From(s_PUTT_Table_Name).
-                Where(s_PUTT_IsRemoved).Equals(1);
+                Where(s_PUTT_IsRemoved).NotEqualsLiteral(0);
 
             Statement statement = builder.Prepare(connection);
 
@@ -158,7 +161,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 builder.IsGreaterThanOrEqualTo(boundaryValue);
             }
 
-            builder.And(s_PUTT_IsRemoved).Equals(1);
+            builder.And(s_PUTT_IsRemoved).NotEqualsLiteral(0);
 
             Statement select = builder.Prepare(connection);
 
@@ -262,13 +265,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     bool PackageUpdateTrackingTable::Exists(const SQLite::Connection& connection)
     {
-        Builder::StatementBuilder builder;
-        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
-            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_PUTT_Table_Name);
-
-        Statement statement = builder.Prepare(connection);
-        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
-        return statement.GetColumn<int64_t>(0) != 0;
+        return Builder::Schema::TableExists(connection, s_PUTT_Table_Name);
     }
 
     void PackageUpdateTrackingTable::Update(SQLite::Connection& connection, const ISQLiteIndex* internalIndex, const std::string& packageIdentifier, RemovalBehavior removals, bool ensureTable, std::optional<SQLite::rowid_t> removedPackageRowId)

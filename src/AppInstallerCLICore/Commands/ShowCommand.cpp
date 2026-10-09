@@ -93,7 +93,7 @@ namespace AppInstaller::CLI
                     Workflow::OpenSource() <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Show) <<
+                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Prompt) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::ShowAppVersions;
             }
@@ -101,7 +101,7 @@ namespace AppInstaller::CLI
         else
         {
             context <<
-                GetManifest( /* considerPins */ false) <<
+                GetManifest( /* considerPins */ false, PackageSelectionBehavior::Prompt) <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SelectInstaller <<
                 Workflow::ShowManifestInfo;

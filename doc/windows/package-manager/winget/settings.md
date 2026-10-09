@@ -111,6 +111,9 @@ Supported values: `en-US`, `de-DE`, `es-ES`, `fr-FR`, `it-IT`, `ja-JP`, `ko-KR`,
 > [!NOTE]
 > This setting only affects winget interface strings and does not affect package metadata localization, installer locale selection, or package-wide language settings.
 
+> [!NOTE]
+> The `--output-locale` argument overrides this setting for a single invocation and accepts the same supported values.
+
 ```json
     "output": {
         "locale": "en-US"

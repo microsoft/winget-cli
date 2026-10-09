@@ -28,8 +28,16 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::SetDownloadDirectory <<
-            Workflow::DownloadPackageDependencies <<
-            Workflow::DownloadInstaller;
+            Workflow::DownloadPackageDependencies;
+
+        // When only the dependencies are being installed, the package's own installer is never used,
+        // so avoid downloading it. The context cannot be terminated here because the termination state
+        // persists into COMInstallCommand, which still needs to install the dependencies.
+        if (!context.Args.Contains(Execution::Args::Type::DependenciesOnly))
+        {
+            context <<
+                Workflow::DownloadInstaller;
+        }
     }
 
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
@@ -37,6 +45,7 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::InstallDependencies <<
+            Workflow::CheckForOnlyDependencies <<
             Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }

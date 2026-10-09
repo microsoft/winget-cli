@@ -557,9 +557,18 @@ namespace AppInstaller::CLI::Portable
                 if (!targetFullPath.empty() && targetFullPath.filename() != symlinkFullPath.filename())
                 {
                     std::filesystem::path hardlinkPath = InstallLocation / symlinkFullPath.filename();
-                    if (hardlinkPath != targetFullPath && std::filesystem::exists(hardlinkPath))
+
+                    // The symlink can live in the install location, in which case it is not a hardlink alias.
+                    if (hardlinkPath != targetFullPath && hardlinkPath != symlinkFullPath)
                     {
-                        m_expectedEntries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256));
+                        // Use symlink_status so that the path is not traversed; a hardlink alias is always a regular file.
+                        std::error_code hardlinkStatusError;
+                        std::filesystem::file_status hardlinkStatus = std::filesystem::symlink_status(hardlinkPath, hardlinkStatusError);
+
+                        if (!hardlinkStatusError && std::filesystem::is_regular_file(hardlinkStatus))
+                        {
+                            m_expectedEntries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, SHA256));
+                        }
                     }
                 }
                 m_expectedEntries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath));

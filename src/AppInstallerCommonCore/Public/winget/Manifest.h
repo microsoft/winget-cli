@@ -7,6 +7,8 @@
 #include <winget/ManifestInstaller.h>
 #include <winget/ManifestLocalization.h>
 
+#include <filesystem>
+#include <utility>
 #include <vector>
 
 namespace AppInstaller::Manifest
@@ -61,8 +63,14 @@ namespace AppInstaller::Manifest
         // Get package names across localizations and installers, Case folded.
         std::vector<string_t> GetPackageNames() const;
 
+        // Get unique, non-empty package names across localizations and installers, preserving case.
+        std::vector<string_t> GetOriginalPackageNames() const;
+
         // Get publishers across localizations and installers, Case folded.
         std::vector<string_t> GetPublishers() const;
+
+        // Gets name/publisher pairs with non-empty names and default fallbacks, preserving case.
+        std::vector<std::pair<string_t, string_t>> GetNameAndPublisherPairs() const;
 
         // If not empty, the SHA256 hash of the manifest stream itself.
         Utility::SHA256::HashBuffer StreamSha256;
@@ -72,4 +80,11 @@ namespace AppInstaller::Manifest
             std::function<const string_t& (const ManifestInstaller&)> extractStringFromInstaller = {},
             std::function<const string_t& (const AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {}) const;
     };
+
+    // Creates a file system path part for the manifest in the form `<PackageIdentifier><separator><PackageVersion>`,
+    // or just `<PackageIdentifier>` when the version is unknown and the drop is requested.
+    // Manifest validation rejects values that are not safe to use in a path, but the values can also come from
+    // sources that do not go through it (for instance, installed package data), so they are sanitized here as
+    // well. Throws if the result would point outside of the directory that it is used in.
+    std::filesystem::path GetPathPart(const Manifest& manifest, char separator = '.', bool dropUnknownVersion = false);
 }
