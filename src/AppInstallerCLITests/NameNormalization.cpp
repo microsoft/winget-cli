@@ -115,7 +115,7 @@ TEST_CASE("NameNorm_Architecture", "[name_norm]")
     REQUIRE(normer.Normalize("Name arm64", {}).Architecture() == Architecture::Arm64);
     REQUIRE(normer.Normalize("Name aarch64", {}).Architecture() == Architecture::Arm64);
     REQUIRE(normer.Normalize("Name armadillo", {}).Architecture() == Architecture::Unknown);
-    REQUIRE(normer.Normalize("Name armadillo", {}).Name() == "Name armadillo");
+    REQUIRE(normer.Normalize("Name armadillo", {}).Name() == "Namearmadillo");
     REQUIRE(normer.Normalize("ARM Compiler (x64)", {}).Architecture() == Architecture::X64);
     REQUIRE(normer.Normalize("ARM Compiler (x64)", {}).Name() == "ARMCompiler");
     REQUIRE(normer.Normalize("Name 32/64 bit", {}).Architecture() == Architecture::Unknown);
