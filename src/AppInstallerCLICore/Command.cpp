@@ -779,6 +779,21 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::OutputLocale))
+        {
+            if (!Locale::NormalizeOutputLocale(execArgs.GetArg(Execution::Args::Type::OutputLocale)))
+            {
+                std::vector<Utility::LocIndString> supportedLocales;
+                for (const auto& supportedLocale : Locale::GetSupportedOutputLocales())
+                {
+                    supportedLocales.emplace_back(supportedLocale);
+                }
+
+                auto validOptions = Utility::Join(", "_liv, supportedLocales);
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::OutputLocale).Name(), validOptions));
+            }
+        }
+
         if (execArgs.Contains(Execution::Args::Type::InstallScope))
         {
             if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)

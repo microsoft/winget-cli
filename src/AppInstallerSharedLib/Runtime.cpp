@@ -214,6 +214,11 @@ namespace AppInstaller::Runtime
         return IsRunningAsAdmin() || IsRunningAsSystem();
     }
 
+    bool IsRunningAsInteractiveUser()
+    {
+        return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_INTERACTIVE_RID);
+    }
+
     bool IsRunningWithLimitedToken()
     {
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeLimited;

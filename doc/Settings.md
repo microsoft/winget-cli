@@ -399,6 +399,9 @@ The `locale` setting selects the language used to resolve winget interface strin
 > [!NOTE]
 > This only affects winget interface strings. It does not change package metadata localization, installer selection behavior, or package-wide language settings.
 
+> [!NOTE]
+> The `--output-locale` argument overrides this setting for a single invocation and accepts the same values.
+
 ```json
     "output": {
         "locale": "en-US"
@@ -451,14 +454,14 @@ This feature enables support for fonts via `winget settings`. The `winget font l
   },
 ```
 
-### sourcePriority
+### interactivePackageSelection
 
-This feature enables sources to have a priority value assigned. Sources with a higher priority will appear earlier in search results and will be selected for installing new packages when multiple sources have a matching package.
-
-Note that search result ordering is dependent on several factors, and source priority is the lowest field in that currently (match quality and field are more important).
+Enables numbered choices for ambiguous single-package `install`, `show`, and `download` commands, including `show --versions`. Disabled by default.
 
 ```json
-  "experimentalFeatures": {
-        "sourcePriority": true
-  },
+   "experimentalFeatures": {
+       "interactivePackageSelection": true
+   },
 ```
+
+`--disable-interactivity` and redirected input or output still prevent prompting.

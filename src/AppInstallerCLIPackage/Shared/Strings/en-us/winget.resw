@@ -407,6 +407,30 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>Multiple packages match. Choose one.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>Enter a number (1-{0}), or 0 to cancel:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>Invalid selection.</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>Selected: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>Specify a package with --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>Specify a package with --package-id &lt;ID&gt; --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
   </data>
@@ -858,6 +882,10 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>File where the result is to be written</value>
+  </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>Locale to use for the output of this command (BCP47 format)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
   </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>File describing the packages to install</value>
@@ -3648,6 +3676,10 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>The DSC processor hash provided does not match hash of the target file.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>The DSC processor path no longer refers to the file that was verified.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
   </data>
   <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
     <value>The package installed for user scope cannot be uninstalled when running with administrator privileges.</value>

@@ -407,6 +407,30 @@
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>找到多个与输入条件匹配的程序包。请修改输入。</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>多个包匹配。选择一个。</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>请输入数字(1-{0})，或输入 0 取消:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>选择无效。</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>已选择: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>请使用 --id &lt;ID&gt; --exact --source &lt;SOURCE&gt; 指定包。</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>请使用 --package-id &lt;ID&gt; --source &lt;SOURCE&gt; 指定包。</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>按名称筛选结果</value>
   </data>
@@ -859,6 +883,10 @@
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>将在其中写入结果的文件</value>
   </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>用于此命令输出的区域设置(BCP47 格式)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>描述要安装的程序包的文件</value>
   </data>
@@ -894,7 +922,7 @@
     <value>已安装程序包: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>忽略不可用的程序包</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
@@ -2890,8 +2918,8 @@
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>使用管理员权限运行时，无法修复为用户范围安装的包。</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>不允许对用户范围内安装的包执行涉及管理员特权的修复操作。</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>对于安装在用户范围内的包，不允许从管理员上下文执行所请求的操作。</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>修复失败，退出代码为: {0}</value>
@@ -3648,5 +3676,12 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>提供的 DSC 处理器哈希与目标文件的哈希不匹配。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>DSC 处理器路径不再引用已验证的文件。</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>使用管理员权限运行时，无法卸载为用户范围安装的包。</value>
   </data>
 </root>

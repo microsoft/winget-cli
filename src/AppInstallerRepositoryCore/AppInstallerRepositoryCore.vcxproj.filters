@@ -16,6 +16,9 @@
     <Filter Include="Microsoft">
       <UniqueIdentifier>{2d97761a-4967-4ece-b5fd-d96f346731ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\PreIndexed">
+      <UniqueIdentifier>{5c051a95-47d9-4501-a17b-4f2320e69c2d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Microsoft\Schema">
       <UniqueIdentifier>{7996cf09-4e36-4009-b48d-53ffc3bfa956}</UniqueIdentifier>
     </Filter>
@@ -179,6 +182,15 @@
     </ClInclude>
     <ClInclude Include="SourceFactory.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PreIndexed\IndexForm.h">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PreIndexed\PackageStore.h">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PreIndexed\RemotePackage.h">
+      <Filter>Microsoft\PreIndexed</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h">
       <Filter>Microsoft</Filter>
@@ -522,6 +534,9 @@
     <ClInclude Include="MatchCriteriaResolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_1\DeltaConsistency.h">
+      <Filter>Microsoft\Schema\2_1</Filter>
+    </ClInclude>
     <ClInclude Include="Microsoft\Schema\2_1\DeltaGeneration.h">
       <Filter>Microsoft\Schema\2_1</Filter>
     </ClInclude>
@@ -556,6 +571,21 @@
     </ClCompile>
     <ClCompile Include="RepositorySource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexed\DeployedPackageStore.cpp">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexed\FullIndexForm.cpp">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexed\LocalFilePackageStore.cpp">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexed\PackageStore.cpp">
+      <Filter>Microsoft\PreIndexed</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexed\RemotePackage.cpp">
+      <Filter>Microsoft\PreIndexed</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp">
       <Filter>Microsoft</Filter>
@@ -826,6 +856,9 @@
     </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_1\DeltaConsistency.cpp">
+      <Filter>Microsoft\Schema\2_1</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\2_1\DeltaGeneration.cpp">
       <Filter>Microsoft\Schema\2_1</Filter>

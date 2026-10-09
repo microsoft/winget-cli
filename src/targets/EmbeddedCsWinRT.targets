@@ -4,24 +4,52 @@
     <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
   </PropertyGroup>
 
-  <!-- Disable warnings from embedded/generated CsWinRT files. -->
-  <!-- Runs after the last target from https://github.com/microsoft/CsWinRT/blob/master/nuget/Microsoft.Windows.CsWinRT.Embedded.targets -->
-  <Target Name="DisableCsWinRTWarnings" AfterTargets="CsWinRTAddEmbeddedRuntime_Net5Sources">
+  <!--
+    The embedded CsWinRT sources and the generated projection produce warnings that we do not want to
+    see, and that would break the projects which enable TreatWarningsAsErrors. A copy of each file is
+    compiled instead, prefixed with a pragma that disables warnings for it.
+
+    The copies are written to a separate directory rather than modifying the files in
+    $(CsWinRTGeneratedFilesDir) in place. CsWinRT copies its embedded runtime sources into that
+    directory using the Copy task with SkipUnchangedFiles="true", which only skips a file when the
+    destination matches the source in *both* timestamp and size. Prefixing a file in place guarantees
+    a size mismatch, so every build re-copied all of the embedded sources and the prefix was then
+    reapplied, restarting the cycle. That rewrote the timestamp of ~85 compiler inputs on every build,
+    which forced a recompile and left the project permanently out of date for the Visual Studio
+    up-to-date check. Leaving the copied files untouched lets SkipUnchangedFiles do its job.
+  -->
+  <Target Name="WinGetCollectCsWinRTCompileFiles" AfterTargets="CsWinRTIncludeProjection">
+    <PropertyGroup>
+      <WinGetCsWinRTPragmaDir Condition="'$(WinGetCsWinRTPragmaDir)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'Generated Files', 'CsWinRTPragma'))</WinGetCsWinRTPragmaDir>
+    </PropertyGroup>
+
     <ItemGroup>
-      <WinGetCsWinRTGeneratedFiles Include="$(CsWinRTGeneratedFilesDir)*.cs" />
+      <!-- Module.cs contains an unversioned SupportedOSPlatform attribute, so it is never compiled. -->
+      <WinGetCsWinRTGeneratedFiles Include="$(CsWinRTGeneratedFilesDir)*.cs" Exclude="$(CsWinRTGeneratedFilesDir)Module.cs" />
+      <WinGetCsWinRTGeneratedFiles>
+        <PragmaFile>$(WinGetCsWinRTPragmaDir)%(Filename)%(Extension)</PragmaFile>
+      </WinGetCsWinRTGeneratedFiles>
+
+      <!-- Compile the prefixed copies in place of the originals that CsWinRTIncludeProjection added. -->
+      <Compile Remove="$(CsWinRTGeneratedFilesDir)*.cs" />
+      <Compile Include="@(WinGetCsWinRTGeneratedFiles->'%(PragmaFile)')" />
+
+      <FileWrites Include="@(WinGetCsWinRTGeneratedFiles->'%(PragmaFile)')" />
     </ItemGroup>
-    <WriteLinesToFile File="%(WinGetCsWinRTGeneratedFiles.FullPath)"
-        Condition="$([System.IO.File]::Exists(%(WinGetCsWinRTGeneratedFiles.FullPath))) AND !$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)).StartsWith(&quot;// &lt;auto-generated /&gt;&quot;))"
+  </Target>
+
+  <!--
+    Inputs/Outputs let MSBuild compare the timestamps, so only the files that actually changed are
+    rewritten and the rest keep the timestamps they had on the previous build.
+  -->
+  <Target Name="WinGetWriteCsWinRTPragmaFiles"
+          AfterTargets="WinGetCollectCsWinRTCompileFiles"
+          Inputs="@(WinGetCsWinRTGeneratedFiles)"
+          Outputs="@(WinGetCsWinRTGeneratedFiles->'%(PragmaFile)')">
+    <WriteLinesToFile File="%(WinGetCsWinRTGeneratedFiles.PragmaFile)"
         Lines="$([System.String]::Concat(&quot;// &lt;auto-generated /&gt;&#xA;#pragma warning disable&#xA;&#xA;&quot;,$([System.IO.File]::ReadAllText(%(WinGetCsWinRTGeneratedFiles.FullPath)))))"
         Overwrite="true"
         Encoding="Unicode" />
-  </Target>
-
-  <!-- Remove the embedded module file that contains an unversioned SupportedOSPlatform attribute. -->
-  <Target Name="WinGetRemoveCsWinRTModuleFile" AfterTargets="CsWinRTIncludeProjection">
-    <ItemGroup>
-      <Compile Remove="$(CsWinRTGeneratedFilesDir)Module.cs" />
-    </ItemGroup>
   </Target>
 
   <!-- Remove any items from ReferenceCopyLocalPaths that have CopyLocal set to false. -->

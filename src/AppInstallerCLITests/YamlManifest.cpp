@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSettings.h"
+#include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
 #include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
@@ -40,19 +41,46 @@ namespace
     void ValidateError(
         const ValidationError& error,
         ValidationError::Level level,
-        AppInstaller::StringResource::StringId message,
-        std::string field,
-        std::string value)
+        std::optional<AppInstaller::StringResource::StringId> message,
+        std::optional<std::string> field,
+        std::optional<std::string> value)
     {
         REQUIRE(level == error.ErrorLevel);
-        REQUIRE(message == error.Message);
-        REQUIRE(field == error.Context);
-        REQUIRE(value == error.Value);
+        if (message)
+        {
+            REQUIRE(message.value() == error.Message);
+        }
+        if (field)
+        {
+            REQUIRE(field.value() == error.Context);
+        }
+        if (value)
+        {
+            REQUIRE(value.value() == error.Value);
+        }
     }
 
     void ValidateError(const ValidationError& error, ValidationError::Level level, AppInstaller::StringResource::StringId message)
     {
         ValidateError(error, level, message, std::string(), std::string());
+    }
+
+    void RequireSingleError(
+        const std::vector<ValidationError>& errors,
+        std::optional<AppInstaller::StringResource::StringId> message = std::nullopt,
+        std::optional<std::string> field = std::nullopt,
+        std::optional<std::string> value = std::nullopt)
+    {
+        REQUIRE(errors.size() == 1);
+        ValidateError(errors[0], ValidationError::Level::Error, message, field, value);
+    }
+
+    bool ContainsError(const std::vector<ValidationError>& errors, AppInstaller::StringResource::StringId message)
+    {
+        return std::any_of(errors.begin(), errors.end(), [&](const ValidationError& error)
+            {
+                return error.Message == message && error.ErrorLevel == ValidationError::Level::Error;
+            });
     }
 
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
@@ -710,6 +738,110 @@ namespace
             REQUIRE(foundfrFrLocale);
         }
     }
+}
+
+TEST_CASE("Manifest_PackageNames", "[ManifestValidation]")
+{
+    std::string_view defaultNameState = GENERATE("Missing", "Empty", "Present");
+    CAPTURE(defaultNameState);
+    Manifest manifest;
+    REQUIRE(manifest.GetPackageNames().empty());
+    REQUIRE(manifest.GetOriginalPackageNames().empty());
+    if (defaultNameState != "Missing")
+    {
+        const std::string_view defaultName = defaultNameState == "Present" ? "Default Name" : "";
+        manifest.DefaultLocalization.Add<Localization::PackageName>(defaultName);
+    }
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Localized Name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("localized name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("Localized Name");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>(u8"Caf\u00E9");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>(u8"Cafe\u0301");
+    manifest.Localizations.emplace_back().Add<Localization::PackageName>("");
+    manifest.Localizations.emplace_back();
+    auto& installer = manifest.Installers.emplace_back();
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Installed Name";
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Localized Name";
+    installer.AppsAndFeaturesEntries.emplace_back().Publisher = "Unused Publisher";
+    manifest.Installers.emplace_back().AppsAndFeaturesEntries.emplace_back().DisplayName = "Other Installed Name";
+    manifest.CurrentLocalization.Add<Localization::PackageName>("Current Name");
+
+    std::vector<Manifest::string_t> expected{ u8"caf\u00E9" };
+    if (defaultNameState == "Present")
+    {
+        expected.emplace_back("default name");
+    }
+    expected.insert(expected.end(), { "installed name", "localized name", "other installed name" });
+    REQUIRE(manifest.GetPackageNames() == expected);
+
+    std::vector<Manifest::string_t> expectedOriginal{ u8"Caf\u00E9" };
+    if (defaultNameState == "Present")
+    {
+        expectedOriginal.emplace_back("Default Name");
+    }
+    expectedOriginal.insert(expectedOriginal.end(), { "Installed Name", "Localized Name", "Other Installed Name", "localized name" });
+    REQUIRE(manifest.GetOriginalPackageNames() == expectedOriginal);
+}
+
+TEST_CASE("Manifest_NameAndPublisherPairs", "[ManifestValidation]")
+{
+    std::string_view defaultNameState = GENERATE("Missing", "Empty", "Present");
+    std::string_view defaultPublisherState = GENERATE("Missing", "Empty", "Present");
+    bool emptyLocalizationValues = GENERATE(false, true);
+    CAPTURE(defaultNameState, defaultPublisherState, emptyLocalizationValues);
+    Manifest manifest;
+    const std::string defaultName = defaultNameState == "Present" ? "Default Name" : "";
+    const std::string defaultPublisher = defaultPublisherState == "Present" ? "Default Publisher" : "";
+    if (defaultNameState != "Missing")
+    {
+        manifest.DefaultLocalization.Add<Localization::PackageName>(defaultName);
+    }
+    if (defaultPublisherState != "Missing")
+    {
+        manifest.DefaultLocalization.Add<Localization::Publisher>(defaultPublisher);
+    }
+    auto& localization = manifest.Localizations.emplace_back();
+    localization.Add<Localization::PackageName>("Localized Name");
+    localization.Add<Localization::Publisher>("Localized Publisher");
+    auto& nameOnly = manifest.Localizations.emplace_back();
+    nameOnly.Add<Localization::PackageName>("Name Only");
+    if (emptyLocalizationValues)
+    {
+        nameOnly.Add<Localization::Publisher>("");
+    }
+    auto& publisherOnly = manifest.Localizations.emplace_back();
+    publisherOnly.Add<Localization::Publisher>("Publisher Only");
+    if (emptyLocalizationValues)
+    {
+        publisherOnly.Add<Localization::PackageName>("");
+    }
+    auto& emptyLocalization = manifest.Localizations.emplace_back();
+    if (emptyLocalizationValues)
+    {
+        emptyLocalization.Add<Localization::PackageName>("");
+        emptyLocalization.Add<Localization::Publisher>("");
+    }
+    auto& installer = manifest.Installers.emplace_back();
+    auto& entry = installer.AppsAndFeaturesEntries.emplace_back();
+    entry.DisplayName = "Installed Name";
+    entry.Publisher = "Installed Publisher";
+    installer.AppsAndFeaturesEntries.emplace_back().DisplayName = "Fallback Name";
+    installer.AppsAndFeaturesEntries.emplace_back().Publisher = "Unused Publisher";
+
+    std::vector<std::pair<Manifest::string_t, Manifest::string_t>> expected;
+    if (!defaultName.empty())
+    {
+        expected.emplace_back(defaultName, defaultPublisher);
+    }
+    expected.emplace_back("Localized Name", "Localized Publisher");
+    expected.emplace_back("Name Only", defaultPublisher);
+    if (!defaultName.empty())
+    {
+        expected.emplace_back(defaultName, "Publisher Only");
+    }
+    expected.emplace_back("Installed Name", "Installed Publisher");
+    expected.emplace_back("Fallback Name", defaultPublisher);
+    REQUIRE(manifest.GetNameAndPublisherPairs() == expected);
 }
 
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
@@ -1388,14 +1520,160 @@ TEST_CASE("ManifestLocalizationValidation", "[ManifestValidation]")
     manifest.Localizations.at(0).Locale = "Invalid";
 
     // Full validation should detect as error
-    auto errors = ValidateManifest(manifest, true);
-    REQUIRE(errors.size() == 1);
-    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+    RequireSingleError(ValidateManifest(manifest, true));
 
     // Not full validation should detect as warning
-    errors = ValidateManifest(manifest, false);
+    auto errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 1);
     REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Warning);
+}
+
+TEST_CASE("PathFieldValueValidation", "[ManifestValidation]")
+{
+    // Valid values produce no errors.
+    REQUIRE(ValidatePackageVersion("1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0 beta").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar").empty());
+    REQUIRE(ValidatePackageIdentifier("Foo.Bar.Baz.Qux").empty());
+
+    // Whitespace is only excluded for the fields that require it.
+    auto errors = ValidatePackageIdentifier("Foo Bar");
+    RequireSingleError(errors, ManifestError::InvalidPathCharacters, "PackageIdentifier", "Foo Bar");
+
+    // Empty values are covered by the required field validation.
+    REQUIRE(ValidatePackageVersion("").empty());
+
+    // Characters excluded by the schema because the values are used to construct paths.
+    for (const auto& value : { "ab\\c", "ab/c", "ab:c", "ab*c", "ab?c", "ab\"c", "ab<c", "ab>c", "ab|c", "ab\tc" })
+    {
+        REQUIRE(ContainsError(ValidatePackageVersion(value), ManifestError::InvalidPathCharacters));
+        REQUIRE(ContainsError(ValidatePackageIdentifier(value), ManifestError::InvalidPathCharacters));
+    }
+
+    // An embedded null would truncate any path that the value is used in.
+    RequireSingleError(ValidatePackageVersion("ab\0c"sv), ManifestError::InvalidPathCharacters);
+    RequireSingleError(ValidatePackageIdentifier("ab\0c"sv), ManifestError::InvalidPathCharacters);
+
+    // Values that exceed the maximum length declared by the schema.
+    REQUIRE(ValidatePackageVersion(std::string(128, '1')).empty());
+    RequireSingleError(ValidatePackageVersion(std::string(129, '1')), ManifestError::FieldExceedsMaxLength);
+
+    // The schema limit is expressed in characters, so the length is measured in grapheme clusters rather than
+    // in UTF-8 code units. Each of these characters encodes to more than one byte.
+    {
+        // U+00E9, two bytes each.
+        std::string twoByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            twoByteCharacters += "\xC3\xA9";
+        }
+
+        REQUIRE(twoByteCharacters.size() == 256);
+        REQUIRE(ValidatePackageVersion(twoByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(twoByteCharacters + "\xC3\xA9"), ManifestError::FieldExceedsMaxLength);
+
+        // U+1F600, four bytes each.
+        std::string fourByteCharacters;
+        for (size_t i = 0; i < 128; ++i)
+        {
+            fourByteCharacters += "\xF0\x9F\x98\x80";
+        }
+
+        REQUIRE(fourByteCharacters.size() == 512);
+        REQUIRE(ValidatePackageVersion(fourByteCharacters).empty());
+        RequireSingleError(ValidatePackageVersion(fourByteCharacters + "\xF0\x9F\x98\x80"), ManifestError::FieldExceedsMaxLength);
+    }
+
+    // Values consisting solely of relative path specifiers.
+    RequireSingleError(ValidatePackageVersion(".."), ManifestError::FieldEscapesDirectory);
+    REQUIRE(ContainsError(ValidatePackageVersion("..\\.."), ManifestError::FieldEscapesDirectory));
+
+    // Reserved names cannot be used to construct a path part, so they must fail here rather than at the point of use.
+    for (const auto& value : { "CON", "con", "NUL.txt", "COM1", "LPT9.1.0", "COM\xC2\xB9", "com\xC2\xB2", "LPT\xC2\xB3.txt" })
+    {
+        RequireSingleError(ValidatePackageVersion(value), ManifestError::ReservedPathName);
+        RequireSingleError(ValidatePackageIdentifier(value), ManifestError::ReservedPathName);
+    }
+
+    // Values that merely contain a reserved name are fine.
+    REQUIRE(ValidatePackageIdentifier("Contoso.NULL").empty());
+    REQUIRE(ValidatePackageVersion("1.0-com1").empty());
+
+    // The schema permits whitespace anywhere in PackageVersion, so it is not an error here; parsing trims the
+    // surrounding whitespace instead. PackageIdentifier excludes whitespace entirely.
+    REQUIRE(ValidatePackageVersion("1.0.0 ").empty());
+    REQUIRE(ValidatePackageVersion(" 1.0.0").empty());
+    REQUIRE(ValidatePackageVersion("1.0.0 beta").empty());
+    REQUIRE(ContainsError(ValidatePackageIdentifier("1.0.0 "), ManifestError::InvalidPathCharacters));
+}
+
+TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+
+    // A valid manifest has no path related errors.
+    REQUIRE(ValidateManifest(manifest, false).size() == 0);
+
+    // These are enforced regardless of the full validation option, as manifests that are not validated
+    // against the schema (for example, those from a REST source) are only checked here.
+    manifest.Id = "Foo\\Bar";
+    auto errors = ValidateManifest(manifest, false);
+    RequireSingleError(errors, ManifestError::InvalidPathCharacters, "PackageIdentifier", manifest.Id);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "1.0:0";
+    errors = ValidateManifest(manifest, false);
+    RequireSingleError(errors, ManifestError::InvalidPathCharacters, "PackageVersion", manifest.Version);
+
+    manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
+    manifest.Version = "..";
+    errors = ValidateManifest(manifest, false);
+    RequireSingleError(errors, ManifestError::FieldEscapesDirectory, "PackageVersion", manifest.Version);
+}
+
+TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
+{
+    Manifest manifest;
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "1.0.0";
+
+    // The common case must not alter the value, as the resulting paths are persisted.
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
+
+    // An unknown version is only dropped when the caller asks for it.
+    manifest.Version = "Unknown";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.Unknown" });
+    REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_Unknown" });
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_', true) == std::filesystem::path{ L"Foo.Bar" });
+
+    // A known version is kept regardless of the drop request.
+    manifest.Version = "1.0.0";
+    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+
+    // Values that validation would have rejected are sanitized rather than used as given.
+    manifest.Id = "a\\b";
+    manifest.Version = "c/d";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"a_b.c_d" });
+
+    manifest.Id = "Foo.Bar";
+    manifest.Version = "C:";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.C_" });
+
+    // A trailing dot is not allowed at the end of a path part.
+    manifest.Version = "1.0.";
+    REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0_" });
+
+    // Values that cannot be made into a usable path part are reported as a manifest problem rather than
+    // surfacing the raw E_INVALIDARG from the conversion.
+    manifest.Version = "1.0.0";
+
+    for (const std::string_view id : { "..", "..\\..", "../../foo", "CON", "NUL" })
+    {
+        manifest.Id = id;
+        REQUIRE_THROWS_HR(GetPathPart(manifest), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+    }
 }
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
@@ -1405,16 +1683,12 @@ TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
     Manifest uppercaseManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml"));
 
     // Regular validation should detect as error
-    auto errors = ValidateManifest(installerManifest, true);
-    REQUIRE(errors.size() == 1);
-    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+    RequireSingleError(ValidateManifest(installerManifest, true));
 
-    errors = ValidateManifest(rootManifest, true);
-    REQUIRE(errors.size() == 1);
-    REQUIRE(errors.at(0).ErrorLevel == ValidationError::Level::Error);
+    RequireSingleError(ValidateManifest(rootManifest, true));
 
     // Should not error when full validation is set to false
-    errors = ValidateManifest(installerManifest, false);
+    auto errors = ValidateManifest(installerManifest, false);
     REQUIRE(errors.size() == 0);
 
     errors = ValidateManifest(rootManifest, false);
@@ -1431,12 +1705,10 @@ TEST_CASE("WindowsFeatureNameValidation", "[ManifestValidation][111981]")
     Manifest invalidManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidWindowsFeatureName.yaml"));
 
     auto errors = ValidateManifest(invalidManifest, true);
-    REQUIRE(errors.size() == 1);
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+    RequireSingleError(errors, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
 
     errors = ValidateManifest(invalidManifest, false);
-    REQUIRE(errors.size() == 1);
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
+    RequireSingleError(errors, ManifestError::InvalidWindowsFeatureName, "Invalid@Feature", "");
 }
 
 TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation][111981]")
@@ -1450,8 +1722,7 @@ TEST_CASE("NetworkAddressInSwitchesValidation", "[ManifestValidation][111981]")
     ManifestValidateOption options{ true };
     options.ErrorOnNetworkAddressInSwitches = true;
     errors = ValidateManifest(manifest, options);
-    REQUIRE(errors.size() == 1);
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
+    RequireSingleError(errors, ManifestError::ContainsNetworkAddress, "http://evil.example.com", "");
 
     errors = ValidateManifest(manifest, false);
     REQUIRE(errors.size() == 0);
@@ -1464,8 +1735,7 @@ TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation][111981]")
         Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-BlockedMsiProperty.yaml"));
 
         auto errors = ValidateManifest(manifest, true);
-        REQUIRE(errors.size() == 1);
-        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::BlockedMsiProperty, "TRANSFORMS", "");
+        RequireSingleError(errors, ManifestError::BlockedMsiProperty, "TRANSFORMS", "");
 
         // Not checked when fullValidation is false
         errors = ValidateManifest(manifest, false);
@@ -1477,8 +1747,7 @@ TEST_CASE("BlockedMsiPropertyValidation", "[ManifestValidation][111981]")
         Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-InvalidMsiSwitches.yaml"));
 
         auto errors = ValidateManifest(manifest, true);
-        REQUIRE(errors.size() == 1);
-        ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InvalidMsiSwitches);
+        RequireSingleError(errors, ManifestError::InvalidMsiSwitches, "", "");
 
         // Not checked when fullValidation is false
         errors = ValidateManifest(manifest, false);
@@ -1531,9 +1800,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[Manife
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     auto errors = ValidateManifestInstallers(manifest);
-    REQUIRE(1 == errors.size());
-
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::NoSupportedPlatforms, "InstallerUrl", manifest.Installers.front().Url);
+    RequireSingleError(errors, ManifestError::NoSupportedPlatforms, "InstallerUrl", manifest.Installers.front().Url);
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_PackageVersionNotUINT64", "[ManifestValidation]")
@@ -1546,9 +1813,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_PackageVersionNotUINT64", "[Man
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
     auto errors = ValidateManifestInstallers(manifest);
-    REQUIRE(1 == errors.size());
-
-    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InstallerMsixInconsistencies, "PackageVersion", "43690.48059.52428.56797");
+    RequireSingleError(errors, ManifestError::InstallerMsixInconsistencies, "PackageVersion", "43690.48059.52428.56797");
 }
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace AppInstaller::Locale
@@ -12,6 +14,14 @@ namespace AppInstaller::Locale
 
     // Check if a bcp47 language tag is well formed
     bool IsWellFormedBcp47Tag(std::string_view bcp47Tag);
+
+    // Gets the set of locales that winget can use for its own output strings.
+    // These are the locales for which localized resources are shipped with the client.
+    const std::vector<std::string_view>& GetSupportedOutputLocales();
+
+    // Normalizes the given tag to one of the supported output locales, ignoring case.
+    // Returns an empty optional if the tag is not a supported output locale.
+    std::optional<std::string_view> NormalizeOutputLocale(std::string_view localeTag);
 
     // Get a score of language distance between target and available. The return value range is 0 to 1.
     // With 1 meaning perfect match and 0 meaning no match.
