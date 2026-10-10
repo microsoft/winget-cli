@@ -46,6 +46,7 @@ This change resolves alias failures in non-symlinked scenarios, including cases 
 Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
 
 ### Minor Bug Fixes
+* Fixed MSIX uninstall reporting success when package-family resolution finds no installed package.
 * Fixed REST search results bypassing locally verifiable package filters and selectors. Extra manifests are retrieved only for complete source result sets of three or fewer packages. Normalized name/publisher criteria remain unvalidated client-side.
 * Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.

@@ -395,6 +395,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
+        bool packageFound = false;
         for (const auto& packageFamilyName : packageFamilyNames)
         {
             auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
@@ -404,6 +405,7 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
+            packageFound = true;
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
@@ -434,6 +436,12 @@ namespace AppInstaller::CLI::Workflow
                 context << ReportUninstallerResult("MSIXUninstall"sv, re.GetErrorCode(), /* isHResult */ true);
                 return;
             }
+        }
+
+        if (!packageFound)
+        {
+            context.Reporter.Error() << Resource::String::NoInstalledPackageFound << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
