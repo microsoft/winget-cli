@@ -502,13 +502,12 @@ namespace Microsoft.WinGet.Common.Command
         /// <returns>If the operation should continue.</returns>
         internal bool ShouldProcess(string target)
         {
-            // If not on the main thread just continue.
-            if (this.pwshThread != Thread.CurrentThread)
+            bool shouldProcess = false;
+            this.ExecuteInPowerShellThread(() =>
             {
-                return true;
-            }
-
-            return this.psCmdlet.ShouldProcess(target);
+                shouldProcess = this.psCmdlet.ShouldProcess(target);
+            });
+            return shouldProcess;
         }
 
         private void Complete()
