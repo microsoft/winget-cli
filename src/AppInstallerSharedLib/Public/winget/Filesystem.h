@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::Utility
 {
-    // Type to hold a UTF16 path with preferred directory separators.
+    // Holds a UTF16 path with preferred directory separators; string() returns UTF8, wstring() returns UTF16.
     struct NormalizedPath
     {
         NormalizedPath() = default;
@@ -30,8 +30,8 @@ namespace AppInstaller::Utility
             return *this;
         }
 
-        std::string u8string() const { return m_path.u8string(); }
-        std::u16string u16string() const { return m_path.u16string(); }
+        std::string string() const { return m_path.u8string(); }
+        std::wstring wstring() const { return m_path.wstring(); }
         const std::filesystem::path& get() const { return m_path; }
 
     private:

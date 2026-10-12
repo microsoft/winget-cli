@@ -109,18 +109,23 @@ TEST_CASE("NormalizedString", "[strings]")
 
 TEST_CASE("NormalizedPath", "[strings]")
 {
-    NormalizedPath path{ u8"directory/subdirectory/\xC3\xA4.exe" };
+    NormalizedPath path{ u8"directory/subdirectory/\u00E4.exe" };
 
-    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\xC3\xA4.exe");
-    REQUIRE(path.u16string() == u"directory\\subdirectory\\\u00E4.exe");
+    REQUIRE(path.string() == "directory\\subdirectory\\\xC3\xA4.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\u00E4.exe"s);
 
     path = u8"directory/subdirectory/\U0001F600.exe";
-    REQUIRE(path.u8string() == u8"directory\\subdirectory\\\U0001F600.exe");
-    REQUIRE(path.u16string() == u"directory\\subdirectory\\\U0001F600.exe");
+    REQUIRE(path.string() == "directory\\subdirectory\\\xF0\x9F\x98\x80.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\U0001F600.exe"s);
+
+    // An overlong UTF8 encoding of '/' must not become a path separator.
+    path = "directory\xC0\xAF" "subdirectory/file.exe";
+    REQUIRE(path.string() == "directory\xEF\xBF\xBD\xEF\xBF\xBD" "subdirectory\\file.exe");
+    REQUIRE(path.wstring() == L"directory\uFFFD\uFFFDsubdirectory\\file.exe"s);
 
     path = std::string{ "other/path.exe" };
-    REQUIRE(path.u8string() == "other\\path.exe");
-    REQUIRE(path.u16string() == u"other\\path.exe");
+    REQUIRE(path.string() == "other\\path.exe");
+    REQUIRE(path.wstring() == L"other\\path.exe"s);
 }
 
 TEST_CASE("Trim", "[strings]")

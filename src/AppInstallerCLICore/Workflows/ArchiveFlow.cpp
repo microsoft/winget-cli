@@ -90,9 +90,9 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
         {
-            std::filesystem::path nestedInstallerPath = targetInstallerPath / nestedInstallerFile.RelativeFilePath.u16string();
+            std::filesystem::path nestedInstallerPath = targetInstallerPath / nestedInstallerFile.RelativeFilePath.wstring();
 
-            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.RelativeFilePath.u8string()))
+            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerFile.RelativeFilePath.string()))
             {
                 AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
                 context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
