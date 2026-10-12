@@ -599,9 +599,10 @@ TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package->GetAvailable()[0]->GetVersionKeys().size() == 1);
 }
 
-TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
+TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource][PackageDeduplication]")
 {
     std::string pfn = "sortof_apfn";
+    bool correlationTruncated = GENERATE(false, true);
 
     CompositeTestSetup setup;
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
@@ -610,6 +611,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
 
         SearchResult result;
         result.Matches.emplace_back(setup.MakeInstalled().WithPFN(pfn), Criteria(PackageMatchField::PackageFamilyName));
+        result.Truncated = correlationTruncated;
         return result;
     };
 
@@ -626,6 +628,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
 
     SearchResult result = setup.Search();
 
+    REQUIRE_FALSE(result.Truncated);
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(GetInstalledVersion(result.Matches[0].Package));
     REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);
@@ -935,6 +938,88 @@ TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
 
     REQUIRE(result1.Matches[0].Package->GetInstalled());
     REQUIRE(result1.Matches[0].Package->GetInstalled()->IsSame(result1.Matches[0].Package->GetInstalled().get()));
+}
+
+TEST_CASE("CompositeSource_AvailableSearchTruncation", "[CompositeSource][PackageDeduplication]")
+{
+    auto behavior = GENERATE(CompositeSearchBehavior::AvailablePackages, CompositeSearchBehavior::AllPackages,
+        CompositeSearchBehavior::Installed);
+    bool hasInstalledSource = GENERATE(false, true);
+    bool firstTruncated = GENERATE(false, true);
+    bool secondTruncated = GENERATE(false, true);
+    size_t maximumResults = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 });
+    CAPTURE(behavior, hasInstalledSource, firstTruncated, secondTruncated, maximumResults);
+
+    CompositeTestSetup setup{ behavior };
+    auto secondAvailable = std::make_shared<ComponentTestSource>("AvailableTestSource2");
+    setup.Available->Everything.Matches.emplace_back(setup.MakeAvailable().WithId("First"), Criteria());
+    setup.Available->Everything.Truncated = firstTruncated;
+    secondAvailable->Everything.Matches.emplace_back(setup.MakeAvailable(secondAvailable).WithId("Second"), Criteria());
+    secondAvailable->Everything.Truncated = secondTruncated;
+
+    CompositeSource availableOnly{ "*AvailableTruncation" };
+    availableOnly.AddAvailableSource(Source{ setup.Available });
+    availableOnly.AddAvailableSource(Source{ secondAvailable });
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
+
+    SearchRequest request;
+    request.Query = RequestMatch{ MatchType::Exact, s_Everything_Query };
+    request.MaximumResults = maximumResults;
+    auto result = hasInstalledSource ? setup.Composite.Search(request) : availableOnly.Search(request);
+
+    size_t expectedMatches = hasInstalledSource && behavior == CompositeSearchBehavior::Installed ? size_t{ 0 } : size_t{ 2 };
+    bool limited = maximumResults && expectedMatches > maximumResults;
+    REQUIRE(result.Truncated == (firstTruncated || secondTruncated || limited));
+    REQUIRE(result.Matches.size() == (limited ? maximumResults : expectedMatches));
+    REQUIRE(result.Failures.empty());
+}
+
+TEST_CASE("CompositeSource_InstalledSearchTruncation", "[CompositeSource][PackageDeduplication]")
+{
+    auto behavior = GENERATE(CompositeSearchBehavior::Installed, CompositeSearchBehavior::AllPackages);
+    bool installedTruncated = GENERATE(false, true);
+    bool correlationTruncated = GENERATE(false, true);
+    bool searchEverything = GENERATE(false, true);
+    CAPTURE(behavior, installedTruncated, correlationTruncated, searchEverything);
+
+    CompositeTestSetup setup{ behavior };
+    auto installed = setup.MakeInstalled().WithPFN("test_pfn").ToPackage();
+    auto available = setup.MakeAvailable().WithPFN("test_pfn").ToPackage();
+    setup.Installed->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(installed, Criteria());
+        result.Truncated = installedTruncated;
+        return result;
+    };
+    size_t correlationSearches = 0;
+    setup.Available->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.IsForEverything())
+        {
+            return setup.Available->Everything;
+        }
+        REQUIRE(request.Purpose == SearchPurpose::CorrelationToAvailable);
+        ++correlationSearches;
+        SearchResult result;
+        result.Matches.emplace_back(available, Criteria(PackageMatchField::PackageFamilyName));
+        result.Truncated = correlationTruncated;
+        return result;
+    };
+    setup.Installed->Everything = setup.Installed->SearchFunction({});
+    setup.Available->Everything.Matches.emplace_back(available, Criteria());
+
+    SearchRequest request;
+    if (!searchEverything)
+    {
+        request.Query = RequestMatch{ MatchType::Exact, s_Everything_Query };
+    }
+    auto result = setup.Composite.Search(request);
+    REQUIRE(correlationSearches == 1);
+    REQUIRE(result.Truncated == installedTruncated);
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].Package->GetInstalled());
+    REQUIRE(result.Matches[0].Package->GetAvailable().size() == 1);
 }
 
 TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
