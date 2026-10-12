@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-10-06
-last updated: 2026-10-06
+last updated: 2026-10-09
 issue id: 5345
 ---
 
@@ -131,13 +131,13 @@ Assume eligible candidates with matching version/channel/hash and all other chec
 On selection, emit localized text, then continue normal command output:
 
 ```text
-Equivalent installers found. Selected: Contoso Editor [Contoso.Editor] from source 'Alpha'.
+Equivalent installers found. Selected Contoso Editor [Contoso.Editor] from source Alpha.
 ```
 
 For expected manifest retrieval/parsing failures:
 
 ```text
-Could not compare installers from all matching sources. Automatic selection was skipped.
+Could not compare packages across sources. Refine the search or choose a package.
 ```
 
 Unresolved cases retain the existing prompt/error, candidate table, and refinement guidance:

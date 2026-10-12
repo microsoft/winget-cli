@@ -2,15 +2,21 @@
 
 ## New Features
 
+### Cross-source package deduplication (experimental)
+
+Set `experimentalFeatures.packageDeduplication` to `true` in settings to automatically resolve equivalent installers across two or three sources for single-package `install`, `download`, and ordinary `show` commands. WinGet compares resolved versions, installer SHA256 hashes, and supported behavior checks after applying source priority. If all candidates pass, it selects the first participating source in the opened source order, reports that source, and reuses the checked installer.
+
+This feature is disabled by default and independent of interactive package selection. It also works with redirected input or `--disable-interactivity`; unresolved matches retain the existing prompt/error behavior. Installed-package associations, local manifests, multi-package operations, and `show --versions` are excluded. Use `--source` to choose a source explicitly. See [settings](Settings.md#packagededuplication).
+
 ### Interactive package selection (experimental)
 
 Set `experimentalFeatures.interactivePackageSelection` to `true` in settings to enable numbered choices when multiple packages match a single-package `install`, `show`, or `download` command in an interactive terminal. Enter a package number to continue or `0` to cancel.
 
-This feature is disabled by default. Redirected and noninteractive callers retain the existing ambiguity error. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
+This feature is disabled by default. Matches not resolved by deduplication retain the existing ambiguity error for redirected and noninteractive callers. Use `--id <ID> --exact --source <SOURCE>` to select a package explicitly, or `--disable-interactivity` to prevent prompts.
 
 ### Source priority
 
-Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence; sources with equal priority still require disambiguation when multiple matches remain.
+Source priority is now available without enabling an experimental feature. Use `winget source add --priority <value>` or `winget source edit --name <source> --priority <value>` to configure it. Higher values take precedence. Multiple matches at equal priority require disambiguation unless the experimental deduplication checks resolve them.
 
 ### `--output-locale` argument
 
@@ -46,6 +52,7 @@ This change resolves alias failures in non-symlinked scenarios, including cases 
 Because the alias is now created as an executable hardlink in the install location, command aliases remain available and consistent even when symlink creation is skipped.
 
 ### Minor Bug Fixes
+* Preserved source-reported truncation in composite searches so incomplete results are not used for automatic or interactive package selection.
 * Fixed REST search results bypassing locally verifiable package filters and selectors. Extra manifests are retrieved only for complete source result sets of three or fewer packages. Normalized name/publisher criteria remain unvalidated client-side.
 * Fixed installed-package matching incorrectly combining names and publishers from different manifest entries.
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.

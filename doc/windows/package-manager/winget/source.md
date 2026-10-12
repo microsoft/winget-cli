@@ -85,6 +85,10 @@ winget source edit --name winget --priority 1
 
 If multiple matches remain at the highest priority, refine the search or specify `--source`.
 
+The optional [packageDeduplication setting](../../../Settings.md#packagededuplication) can resolve equivalent installers across two or three sources for single-package `install`, `download`, and ordinary `show`. It runs after source-priority filtering and chooses the first participating source in the opened source order only when all candidates pass the comparison checks. Lower-priority sources are not compared.
+
+Deduplication is disabled by default and does not merge search results. When enabled, it can select a package without prompting even with `--disable-interactivity`. Use `--source` to choose a source explicitly; source trust, agreements, and installer verification still apply.
+
 ## list
 
 the **list** sub-command enumerates the currently enabled sources. This sub-command also provides details on a specific source.

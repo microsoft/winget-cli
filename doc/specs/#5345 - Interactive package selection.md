@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-09-28
-last updated: 2026-10-01
+last updated: 2026-10-09
 issue id: 5345
 ---
 
@@ -30,6 +30,8 @@ This feature is disabled by default. Enable it in settings:
 ```
 
 Apply existing search matching and source-priority rules first. If multiple candidates remain, eligible CLI call sites opt into selection. Shared workflows remain noninteractive by default.
+
+The independent [package deduplication feature](%235345%20-%20Cross-source%20package%20deduplication.md) runs before the prompt for eligible commands. If it resolves equivalent installers, no selection prompt is needed. Otherwise, keep the candidate set and follow the rules below. `show --versions` remains prompt-only.
 
 Display candidates in their existing order with stable, one-indexed numbers. A valid number selects the existing package object without searching again. Preserve command options and continue normal version selection, applicability checks, and agreement handling.
 
@@ -99,7 +101,7 @@ Numeric, line-oriented input works without color, cursor navigation, or arrow ke
 
 ### Security
 
-There is no default selection or inferred equivalence. Choosing a package does not accept agreements or bypass existing source, trust, or installer checks.
+The prompt has no default choice and does not infer equivalence. Choosing a package does not accept agreements or bypass existing source, trust, or installer checks.
 
 ### Reliability
 
@@ -107,7 +109,7 @@ Selection uses the displayed candidate object rather than re-running a potential
 
 ### Compatibility
 
-The feature is disabled by default. After opt-in, scripts can preserve ambiguity errors with `--disable-interactivity`, or avoid ambiguity with exact ID and source selectors.
+The feature is disabled by default. `--disable-interactivity` suppresses prompts but not independently enabled package deduplication. Scripts can use exact ID and source selectors to choose explicitly, or disable `packageDeduplication` as well to preserve ambiguity errors.
 
 ### Performance, Power, and Efficiency
 
@@ -119,9 +121,10 @@ Long candidate lists require scrolling. Narrow terminals truncate table cells us
 
 ## Future Considerations
 
-Cross-source equivalence heuristics, arrow-key navigation, and selection for installed-package operations are separate changes.
+Arrow-key navigation and selection for installed-package operations remain separate changes.
 
 ## Resources
 
 - [Package matching background](%23292%20-%20winget%20should%20install%20an%20app%20if%20there%20is%20an%20exact%20match.md)
+- [Cross-source package deduplication](%235345%20-%20Cross-source%20package%20deduplication.md)
 - [Settings reference](../Settings.md)
