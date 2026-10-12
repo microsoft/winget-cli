@@ -182,6 +182,8 @@ experimentalfeatures
 XPRESS
 fdw
 fdwgp
+FEATUREA
+featureb
 FECAFEB
 fedorapeople
 fileinuse
@@ -434,6 +436,7 @@ OUTOFMEMORY
 Outptr
 OVERLAPPEDWINDOW
 OWC
+packagededuplication
 packageinuse
 packageinusebyapplication
 PACL

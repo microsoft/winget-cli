@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-10-06
-last updated: 2026-10-09
+last updated: 2026-10-12
 issue id: 5345
 ---
 
@@ -65,7 +65,7 @@ If every candidate passes, choose the participating source earliest in the exist
 
 Reuse that result for this invocation: if Alpha publishes 2.5 after comparing Alpha/Bravo 2.4, continue with the checked 2.4 result. Do not fetch another manifest or select "latest" again.
 
-A failed or unevaluable check preserves all candidates and existing command state. Expected manifest retrieval/parsing failures warn and log; cancellation stops; unexpected failures propagate. Authentication, agreement, or installer failures never trigger fallback to another source.
+If a check fails or cannot be evaluated, preserve all candidates and existing command state. Expected manifest retrieval/parsing failures warn and log; cancellation stops; unexpected failures propagate. Authentication, agreement, or installer failures never trigger fallback to another source.
 
 ### Settings and behavior matrix
 
@@ -168,7 +168,7 @@ Default-off and excluded-call behavior stays unchanged. `--disable-interactivity
 
 ### Performance, Power, and Efficiency
 
-Evaluate at most one target manifest per candidate, at most three total, excluding pre-existing search/correlation traffic. No historical probing or persistent cache.
+Evaluate at most one target manifest per candidate, at most three total, excluding preexisting search/correlation traffic. No historical probing or persistent cache.
 
 ## Potential Issues
 
