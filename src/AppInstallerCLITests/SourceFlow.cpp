@@ -13,6 +13,7 @@
 #include <Workflows/PromptFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/SourceFlow.h>
+#include <Workflows/UpdateFlow.h>
 #include <winget/Runtime.h>
 
 using namespace TestCommon;
@@ -63,6 +64,84 @@ namespace
             REQUIRE_FALSE(Context.Contains(Execution::Data::Installer));
             REQUIRE(Output.str().empty());
             return result;
+        }
+    };
+
+    struct DeduplicationTestVersion : TestPackageVersion
+    {
+        using TestPackageVersion::TestPackageVersion;
+        std::optional<std::string> SearchVersion;
+        std::function<void()> OnManifest;
+
+        LocIndString GetProperty(PackageVersionProperty property) const override
+        {
+            return property == PackageVersionProperty::Version && SearchVersion ?
+                LocIndString{ *SearchVersion } : TestPackageVersion::GetProperty(property);
+        }
+
+        Manifest GetManifest() override
+        {
+            auto manifest = TestPackageVersion::GetManifest();
+            if (OnManifest) { OnManifest(); }
+            return manifest;
+        }
+    };
+
+    struct PackageDeduplicationTestSetup : InstallerEquivalenceTestSetup
+    {
+        std::vector<std::shared_ptr<TestSource>> Sources;
+        std::vector<std::shared_ptr<TestCompositePackage>> Packages;
+        std::vector<std::shared_ptr<DeduplicationTestVersion>> Versions;
+
+        PackageDeduplicationTestSetup(size_t count = 2) : InstallerEquivalenceTestSetup(count)
+        {
+            SearchResult result;
+            for (size_t i = 0; i < count; ++i)
+            {
+                auto source = std::make_shared<TestSource>();
+                source->Details.Identifier = "Source" + std::to_string(i);
+                source->Details.Name = source->Details.Identifier;
+                auto package = TestCompositePackage::Make(std::vector<Manifest>{ Manifests[i] }, source);
+                auto version = std::make_shared<DeduplicationTestVersion>(Manifests[i], source);
+                package->Available[0]->Versions = { version };
+                result.Matches.emplace_back(package, PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, Manifests[i].Id });
+                Sources.emplace_back(source);
+                Packages.emplace_back(package);
+                Versions.emplace_back(version);
+            }
+            Context.Add<Execution::Data::SearchResult>(std::move(result));
+            SetSourceOrder();
+        }
+
+        void SetSourceOrder(bool reverse = false)
+        {
+            std::vector<Source> sources;
+            for (const auto& source : Sources) { sources.emplace_back(source); }
+            if (reverse) { std::reverse(sources.begin(), sources.end()); }
+            Context.Add<Execution::Data::Source>(Source{ sources });
+        }
+
+        auto Prepare(OperationType operation = OperationType::Install)
+        {
+            auto flags = Context.GetFlags();
+            auto matches = Context.Get<Execution::Data::SearchResult>().Matches;
+            auto result = PreparePackageDeduplication(Context, operation);
+            REQUIRE_FALSE(Context.IsTerminated());
+            REQUIRE(Context.GetFlags() == flags);
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Package));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::PackageVersion));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Manifest));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Installer));
+            REQUIRE(Output.str().empty());
+            const auto& remaining = Context.Get<Execution::Data::SearchResult>().Matches;
+            REQUIRE(remaining.size() == matches.size());
+            for (size_t i = 0; i < matches.size(); ++i) { REQUIRE(remaining[i].Package == matches[i].Package); }
+            return result;
+        }
+
+        void RequireManifestCalls(size_t count)
+        {
+            for (const auto& source : Sources) { REQUIRE(source->CountOfCallsRequiringManifestData == count); }
         }
     };
 }
@@ -401,6 +480,325 @@ TEST_CASE("PackageDeduplication_ComparisonBounds", "[PackageDeduplication][Sourc
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
     bool supported = operation == OperationType::Install || operation == OperationType::Download || operation == OperationType::Show;
     REQUIRE(setup.Compare(operation).has_value() == (supported && count >= 2 && count <= 3));
+}
+
+TEST_CASE("PackageDeduplication_PrepareSourceOrder", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto count = GENERATE(size_t{ 2 }, size_t{ 3 });
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    bool reverseResults = GENERATE(false, true);
+    bool reverseSources = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup{ count };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    if (reverseResults)
+    {
+        auto& matches = setup.Context.Get<Execution::Data::SearchResult>().Matches;
+        std::reverse(matches.begin(), matches.end());
+    }
+    setup.SetSourceOrder(reverseSources);
+    auto result = setup.Prepare(operation);
+    size_t selected = reverseSources ? count - 1 : 0;
+    REQUIRE(result);
+    REQUIRE(result->Operation == operation);
+    REQUIRE(result->Package == setup.Packages[selected]);
+    REQUIRE(result->PackageVersion == setup.Versions[selected]);
+    REQUIRE(result->Manifest.Id == setup.Manifests[selected].Id);
+    REQUIRE(result->Installer.Url == setup.Manifests[selected].Installers[0].Url);
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_PrepareBounds", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto count = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 }, size_t{ 3 }, size_t{ 4 });
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show, OperationType::Upgrade,
+        OperationType::Uninstall, OperationType::Repair, OperationType::Export, OperationType::Pin, OperationType::List,
+        OperationType::Search, OperationType::Completion);
+    PackageDeduplicationTestSetup setup{ count };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    bool supported = (count == 2 || count == 3) &&
+        (operation == OperationType::Install || operation == OperationType::Download || operation == OperationType::Show);
+    REQUIRE(setup.Prepare(operation).has_value() == supported);
+    setup.RequireManifestCalls(supported ? size_t{ 1 } : size_t{ 0 });
+}
+
+TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto index = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 });
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto& result = setup.Context.Get<Execution::Data::SearchResult>();
+    auto& package = setup.Packages[index];
+    SECTION("Truncated") { result.Truncated = true; }
+    SECTION("Search failure") { result.Failures.push_back({ "FailedSource", std::make_exception_ptr(std::runtime_error("failed")) }); }
+    SECTION("Null package") { result.Matches[index].Package.reset(); }
+    SECTION("Installed association") { package->Installed = TestPackage::Make(setup.Manifests[index], TestPackage::MetadataMap{}); }
+    SECTION("Empty installed association") { package->Installed = TestPackage::Make(std::vector<AppInstaller::Manifest::Manifest>{}); }
+    SECTION("No available identity") { package->Available.clear(); }
+    SECTION("Null available identity") { package->Available[0].reset(); }
+    SECTION("Composite identity") { package->Available.emplace_back(setup.Packages[(index + 1) % 3]->Available[0]); }
+    SECTION("Repeated candidate source") { package->Available[0]->Source = setup.Sources[(index + 1) % 3]; }
+    SECTION("No candidate source") { package->Available[0]->Source.reset(); }
+    SECTION("Empty source ID") { setup.Sources[index]->Details.Identifier.clear(); }
+    SECTION("Repeated opened source") { setup.Sources[index]->Details.Identifier = setup.Sources[(index + 1) % 3]->Details.Identifier; }
+    SECTION("Unopened source")
+    {
+        setup.Context.Add<Execution::Data::Source>(Source{ std::vector<Source>{ Source{ setup.Sources[(index + 1) % 3] }, Source{ setup.Sources[(index + 2) % 3] } } });
+    }
+    SECTION("Different priorities") { setup.Sources[index]->Details.Priority = 10; }
+    SECTION("Noncomposite source") { setup.Context.Add<Execution::Data::Source>(Source{ setup.Sources[0] }); }
+    SECTION("Empty source") { setup.Context.Add<Execution::Data::Source>(Source{}); }
+    SECTION("Local manifest") { setup.Context.Args.AddArg(Execution::Args::Type::Manifest, "unused.yaml"sv); }
+    SECTION("Show versions") { setup.Context.Args.AddArg(Execution::Args::Type::ListVersions); }
+    SECTION("Multiple queries")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::MultiQuery, "first"sv);
+        setup.Context.Args.AddArg(Execution::Args::Type::MultiQuery, "second"sv);
+    }
+    SECTION("Multiple packages") { setup.Context.Add<Execution::Data::PackageSubContexts>(std::vector<std::unique_ptr<Execution::Context>>{}); }
+    SECTION("Dependency source") { setup.Context.Add<Execution::Data::DependencySource>(Source{ setup.Sources[0] }); }
+    SECTION("Upgrade context") { setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate); }
+    SECTION("Repair context") { setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseRepair); }
+    SECTION("Installed version in context") { setup.Context.Add<Execution::Data::InstalledPackageVersion>(setup.Versions[0]); }
+    REQUIRE_FALSE(setup.Prepare());
+    setup.RequireManifestCalls(0);
+    for (const auto& source : setup.Sources) { REQUIRE(source->CountOfCallsRequiringVersionData == 0); }
+}
+
+TEST_CASE("PackageDeduplication_PrepareMissingInput", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    SECTION("No source or results") {}
+    SECTION("No source") { setup.Context.Add<Execution::Data::SearchResult>(SearchResult{}); }
+    SECTION("No results") { setup.Context.Add<Execution::Data::Source>(Source{}); }
+    REQUIRE_FALSE(PreparePackageDeduplication(setup.Context, OperationType::Install));
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+}
+
+TEST_CASE("PackageDeduplication_PrepareTargetVersion", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    bool expected = true;
+    std::string expectedVersion = "2.4";
+    size_t firstManifestCalls = 1;
+    size_t secondManifestCalls = 1;
+    for (size_t i = 0; i < setup.Packages.size(); ++i)
+    {
+        auto older = setup.Manifests[i];
+        older.Version = "1.0";
+        older.Channel = "Preview";
+        setup.Packages[i]->Available[0]->Versions.emplace_back(TestPackageVersion::Make(older, setup.Sources[i]));
+    }
+    SECTION("Latest") {}
+    SECTION("Explicit version")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Version, "1.0"sv);
+        expectedVersion = "1.0";
+    }
+    SECTION("Explicit version and channel")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Version, "1.0"sv);
+        setup.Context.Args.AddArg(Execution::Args::Type::Channel, "Preview"sv);
+        expectedVersion = "1.0";
+    }
+    SECTION("Channel only follows existing command rules")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Channel, "Preview"sv);
+        expectedVersion = operation == OperationType::Install ? "2.4" : "1.0";
+    }
+    SECTION("Requested version missing from one source")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Version, "1.0"sv);
+        setup.Packages[1]->Available[0]->Versions.pop_back();
+        expected = false;
+        secondManifestCalls = 0;
+    }
+    SECTION("No versions")
+    {
+        setup.Packages[1]->Available[0]->Versions.clear();
+        expected = false;
+        secondManifestCalls = 0;
+    }
+    SECTION("Missing channel")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Version, "1.0"sv);
+        setup.Context.Args.AddArg(Execution::Args::Type::Channel, "Missing"sv);
+        expected = false;
+        firstManifestCalls = secondManifestCalls = 0;
+    }
+    SECTION("Unknown search version resolves")
+    {
+        for (auto& version : setup.Versions) { version->SearchVersion = "Unknown"; }
+    }
+    SECTION("Latest has no applicable installer")
+    {
+        setup.Versions[1]->VersionManifest.Installers.clear();
+        expected = false;
+    }
+    SECTION("Only older version matches")
+    {
+        setup.Versions[1]->VersionManifest.Installers[0].Sha256.back() ^= 1;
+        expected = false;
+    }
+    auto result = setup.Prepare(operation);
+    REQUIRE(result.has_value() == expected);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == firstManifestCalls);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == secondManifestCalls);
+    if (result)
+    {
+        REQUIRE(result->Manifest.Version == expectedVersion);
+        setup.RequireManifestCalls(1);
+
+        std::ostringstream output;
+        TestContext normal{ output, std::cin };
+        auto normalThreadGlobals = normal.SetForCurrentThread();
+        normal.Args = setup.Context.Args;
+        normal.Add<Execution::Data::Package>(setup.Packages[0]);
+        normal.Add<Execution::Data::InstalledPackageVersion>(std::shared_ptr<IPackageVersion>{});
+        if (operation == OperationType::Install && !normal.Args.Contains(Execution::Args::Type::Version))
+        {
+            normal << SelectLatestApplicableVersion(true);
+        }
+        else
+        {
+            normal << GetManifestFromPackage(operation == OperationType::Install) << SelectInstaller;
+        }
+        REQUIRE_FALSE(normal.IsTerminated());
+        REQUIRE(normal.Get<Execution::Data::PackageVersion>() == result->PackageVersion);
+        REQUIRE(normal.Get<Execution::Data::Manifest>().Version == result->Manifest.Version);
+        REQUIRE(normal.Get<Execution::Data::Installer>()->Url == result->Installer.Url);
+    }
+}
+
+TEST_CASE("PackageDeduplication_PrepareIgnoresPinsWithoutInstalledVersion", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Pinning;
+    auto type = GENERATE(PinType::Pinning, PinType::Blocking, PinType::Gating);
+    bool force = GENERATE(false, true);
+    bool explicitVersion = GENERATE(false, true);
+    TempFile indexFile{ "dedupPinning", ".db" };
+    TestHook::SetPinningIndex_Override pinningIndexOverride{ indexFile.GetPath() };
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    if (force) { setup.Context.Args.AddArg(Execution::Args::Type::Force); }
+    if (explicitVersion) { setup.Context.Args.AddArg(Execution::Args::Type::Version, "2.4"sv); }
+    {
+        PinningData pins{ PinningData::Disposition::ReadWrite };
+        PinKey key{ setup.Manifests[0].Id, setup.Sources[0]->Details.Identifier };
+        if (type == PinType::Pinning) { pins.AddOrUpdatePin(Pin::CreatePinningPin(key)); }
+        if (type == PinType::Blocking) { pins.AddOrUpdatePin(Pin::CreateBlockingPin(key)); }
+        if (type == PinType::Gating) { pins.AddOrUpdatePin(Pin::CreateGatingPin(key, AppInstaller::Utility::GatedVersion{ "1.*"sv })); }
+    }
+    auto result = setup.Prepare();
+    REQUIRE(result);
+    setup.RequireManifestCalls(1);
+
+    setup.Context.Add<Execution::Data::Package>(setup.Packages[0]);
+    setup.Context.Add<Execution::Data::InstalledPackageVersion>(std::shared_ptr<IPackageVersion>{});
+    if (explicitVersion) { setup.Context << GetManifestFromPackage(true) << SelectInstaller; }
+    else { setup.Context << SelectLatestApplicableVersion(true); }
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == result->PackageVersion);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Version == result->Manifest.Version);
+}
+
+TEST_CASE("PackageDeduplication_PrepareOnlyParticipatingSources", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Sources[0]->Details.Priority = -1;
+    auto& matches = setup.Context.Get<Execution::Data::SearchResult>().Matches;
+    matches.erase(matches.begin());
+    std::reverse(matches.begin(), matches.end());
+    auto result = setup.Prepare();
+    REQUIRE(result);
+    REQUIRE(result->Package == setup.Packages[1]);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringVersionData == 0);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 1);
+}
+
+TEST_CASE("PackageDeduplication_PrepareSnapshot", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Versions[1]->OnManifest = [&]()
+    {
+        auto newer = setup.Manifests[0];
+        newer.Version = "2.5";
+        newer.Installers[0].Url = "https://example.com/new.exe";
+        setup.Packages[0]->Available[0]->Versions.insert(setup.Packages[0]->Available[0]->Versions.begin(),
+            TestPackageVersion::Make(newer, setup.Sources[0]));
+    };
+    auto result = setup.Prepare(operation);
+    REQUIRE(result);
+    REQUIRE(result->Package == setup.Packages[0]);
+    REQUIRE(result->PackageVersion == setup.Versions[0]);
+    REQUIRE(result->Manifest.Version == "2.4");
+    REQUIRE(result->Installer.Url == setup.Manifests[0].Installers[0].Url);
+    REQUIRE(setup.Packages[0]->Available[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) == "2.5");
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_PreparePreservesContext", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    bool equivalent = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Context.Add<Execution::Data::Package>(setup.Packages[1]);
+    setup.Context.Add<Execution::Data::PackageVersion>(setup.Versions[1]);
+    auto manifest = setup.Manifests[1];
+    manifest.Version = "Unrelated";
+    setup.Context.Add<Execution::Data::Manifest>(manifest);
+    setup.Context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    if (!equivalent) { setup.Versions[1]->VersionManifest.Installers[0].Sha256.back() ^= 1; }
+    REQUIRE(PreparePackageDeduplication(setup.Context, OperationType::Install).has_value() == equivalent);
+    REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[1]);
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[1]);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Version == "Unrelated");
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == manifest.Installers[0].Url);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+}
+
+TEST_CASE("PackageDeduplication_PrepareCancellation", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    size_t firstCalls = 0;
+    SECTION("Already canceled") { setup.Context.Terminate(E_ABORT); }
+    SECTION("Canceled during retrieval")
+    {
+        setup.Versions[0]->OnManifest = [&]() { setup.Context.Terminate(E_ABORT); };
+        firstCalls = 1;
+    }
+    REQUIRE_FALSE(PreparePackageDeduplication(setup.Context, OperationType::Install));
+    REQUIRE(setup.Context.GetTerminationHR() == E_ABORT);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == firstCalls);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+}
+
+TEST_CASE("PackageDeduplication_PreparePropagatesFailures", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto hr = GENERATE(E_ABORT, E_UNEXPECTED, HRESULT_FROM_WIN32(ERROR_TIMEOUT), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Versions[1]->OnManifest = [hr]() { THROW_HR(hr); };
+    REQUIRE_THROWS_HR(PreparePackageDeduplication(setup.Context, OperationType::Install), hr);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
 }
 
 TEST_CASE("SourcePriority_Arguments", "[SourcePriority][workflow]")

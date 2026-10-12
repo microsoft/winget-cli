@@ -899,6 +899,145 @@ namespace AppInstaller::CLI::Workflow
         return installers;
     }
 
+    std::optional<PreparedPackageMatch> PreparePackageDeduplication(Execution::Context& context, OperationType operation)
+    {
+        AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+
+        auto skip = [](std::string_view reason) -> std::optional<PreparedPackageMatch>
+        {
+            AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+            return std::nullopt;
+        };
+
+        if ((operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show) ||
+            context.Args.Contains(Execution::Args::Type::Manifest) || context.Args.Contains(Execution::Args::Type::ListVersions) ||
+            context.Args.GetCount(Execution::Args::Type::MultiQuery) > 1 ||
+            context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
+            WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
+            (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>()))
+        {
+            return skip("unsupported operation or context");
+        }
+
+        if (!context.Contains(Execution::Data::SearchResult) || !context.Contains(Execution::Data::Source))
+        {
+            return skip("missing search results or opened sources");
+        }
+
+        const auto& result = context.Get<Execution::Data::SearchResult>();
+        const auto& source = context.Get<Execution::Data::Source>();
+        if (result.Truncated || !result.Failures.empty() || result.Matches.size() < 2 || result.Matches.size() > 3 ||
+            !source || !source.IsComposite())
+        {
+            return skip("incomplete results, unsupported candidate count, or no composite source");
+        }
+
+        auto sources = source.GetAvailableSources();
+        std::set<std::string> openedIdentifiers;
+        for (const auto& opened : sources)
+        {
+            if (opened.GetIdentifier().empty() || !openedIdentifiers.emplace(opened.GetIdentifier()).second)
+            {
+                return skip("missing or repeated opened source identity");
+            }
+        }
+
+        std::set<std::string> candidateIdentifiers;
+        std::optional<int32_t> priority;
+        size_t selectedIndex = 0;
+        size_t selectedSourceIndex = sources.size();
+        for (size_t i = 0; i < result.Matches.size(); ++i)
+        {
+            const auto& package = result.Matches[i].Package;
+            if (!package || package->GetInstalled())
+            {
+                return skip("missing package or installed association");
+            }
+
+            auto available = package->GetAvailable();
+            if (available.size() != 1 || !available.front())
+            {
+                return skip("ambiguous available package identity");
+            }
+
+            auto candidateSource = available.front()->GetSource();
+            if (!candidateSource || candidateSource.IsComposite())
+            {
+                return skip("missing individual source");
+            }
+
+            auto identifier = candidateSource.GetIdentifier();
+            auto opened = std::find_if(sources.begin(), sources.end(), [&](const Source& value) { return value.GetIdentifier() == identifier; });
+            if (identifier.empty() || opened == sources.end() || !candidateIdentifiers.emplace(identifier).second)
+            {
+                return skip("missing, unopened, or repeated candidate source identity");
+            }
+
+            if (priority && *priority != opened->GetDetails().Priority)
+            {
+                return skip("results have not been filtered by source priority");
+            }
+            priority = opened->GetDetails().Priority;
+
+            size_t sourceIndex = static_cast<size_t>(std::distance(sources.begin(), opened));
+            if (sourceIndex < selectedSourceIndex)
+            {
+                selectedIndex = i;
+                selectedSourceIndex = sourceIndex;
+            }
+        }
+
+        std::vector<std::shared_ptr<IPackageVersion>> versions;
+        std::vector<Manifest::Manifest> manifests;
+        for (const auto& match : result.Matches)
+        {
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            auto availableVersions = GetAllAvailableVersions(match.Package);
+            std::shared_ptr<IPackageVersion> version;
+            if (operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version))
+            {
+                PinningData pinningData{ PinningData::Disposition::ReadOnly };
+                auto evaluator = pinningData.CreatePinStateEvaluator(
+                    context.Args.Contains(Execution::Args::Type::Force) ? PinBehavior::IgnorePins : PinBehavior::IncludePinned, nullptr);
+                for (const auto& key : availableVersions->GetVersionKeys())
+                {
+                    AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+                    version = availableVersions->GetVersion(key);
+                    if (!version || evaluator.EvaluatePinType(version) == PinType::Unknown)
+                    {
+                        break;
+                    }
+                    version.reset();
+                }
+            }
+            else
+            {
+                // Pins do not restrict packages without an installed version.
+                version = availableVersions->GetVersion({ "", context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel) });
+            }
+
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            if (!version)
+            {
+                return skip("target version not found");
+            }
+
+            manifests.emplace_back(version->GetManifest());
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            versions.emplace_back(std::move(version));
+        }
+
+        auto installers = GetEquivalentInstallers(context, operation, manifests);
+        AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+        if (!installers)
+        {
+            return std::nullopt;
+        }
+
+        return PreparedPackageMatch{ operation, result.Matches[selectedIndex].Package, std::move(versions[selectedIndex]),
+            std::move(manifests[selectedIndex]), std::move(installers->at(selectedIndex)) };
+    }
+
     void OpenSource::operator()(Execution::Context& context) const
     {
         std::string_view sourceName;

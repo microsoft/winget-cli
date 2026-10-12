@@ -105,6 +105,18 @@ namespace AppInstaller::CLI::Workflow
     std::optional<std::vector<Manifest::ManifestInstaller>> GetEquivalentInstallers(
         Execution::Context& context, OperationType operation, const std::vector<Manifest::Manifest>& manifests);
 
+    struct PreparedPackageMatch
+    {
+        OperationType Operation;
+        std::shared_ptr<Repository::ICompositePackage> Package;
+        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        Manifest::Manifest Manifest;
+        Manifest::ManifestInstaller Installer;
+    };
+
+    // Prepares an equivalent match from priority-filtered results without changing the context.
+    std::optional<PreparedPackageMatch> PreparePackageDeduplication(Execution::Context& context, OperationType operation);
+
     // Creates the source object.
     // Required Args: None
     // Inputs: None
