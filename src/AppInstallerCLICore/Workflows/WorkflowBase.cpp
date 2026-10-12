@@ -110,6 +110,179 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         }
 
+        std::optional<Utility::Version> GetDeduplicationVersion(const Manifest::Manifest& manifest,
+            const std::optional<Utility::Version>& referenceVersion, std::string_view referenceChannel)
+        {
+            Utility::Version version;
+            try
+            {
+                version = Utility::Version{ manifest.Version };
+            }
+            catch (const wil::ResultException& exception)
+            {
+                if (exception.GetErrorCode() != E_INVALIDARG)
+                {
+                    throw;
+                }
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: invalid resolved version");
+                return std::nullopt;
+            }
+
+            if (version.IsEmpty() || version.IsUnknown() || version.IsLatest() || version.IsApproximate() ||
+                (referenceVersion && version != *referenceVersion) || !Utility::ICUCaseInsensitiveEquals(manifest.Channel, referenceChannel))
+            {
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: unusable or different resolved version/channel");
+                return std::nullopt;
+            }
+
+            return version;
+        }
+
+        std::optional<std::string_view> GetDeduplicationOperationRestriction(
+            Execution::Context& context, OperationType operation, const Manifest::ManifestInstaller& installer)
+        {
+            if (operation == OperationType::Download && installer.DownloadCommandProhibited)
+            {
+                return "download is prohibited";
+            }
+
+            if (operation == OperationType::Install &&
+                ((installer.ElevationRequirement == Manifest::ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin()) ||
+                    HasUnsupportedArgumentError(context, installer)))
+            {
+                return "installation is blocked by elevation or a supplied argument";
+            }
+
+            return std::nullopt;
+        }
+
+        std::optional<std::string_view> GetDeduplicationDependencyMismatch(OperationType operation,
+            const Manifest::ManifestInstaller& installer, const Manifest::ManifestInstaller* referenceInstaller)
+        {
+            using namespace AppInstaller::Manifest;
+
+            if (installer.Dependencies.HasAnyOf(DependencyType::Package))
+            {
+                return "automatic package dependencies";
+            }
+
+            if (operation == OperationType::Install && referenceInstaller)
+            {
+                auto getWindowsFeatures = [](const ManifestInstaller& value)
+                {
+                    std::set<std::string> result;
+                    value.Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                    {
+                        result.emplace(Utility::FoldCase(dependency.Id()));
+                    });
+                    return result;
+                };
+
+                if (getWindowsFeatures(installer) != getWindowsFeatures(*referenceInstaller))
+                {
+                    return "different Windows feature dependencies";
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        std::optional<size_t> GetDeduplicationCandidateIndex(const SearchResult& result, const Source& source)
+        {
+            auto skip = [](std::string_view reason) -> std::optional<size_t>
+            {
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+                return std::nullopt;
+            };
+
+            auto sources = source.GetAvailableSources();
+            std::set<std::string> openedIdentifiers;
+            for (const auto& opened : sources)
+            {
+                if (opened.GetIdentifier().empty() || !openedIdentifiers.emplace(opened.GetIdentifier()).second)
+                {
+                    return skip("missing or repeated opened source identity");
+                }
+            }
+
+            std::set<std::string> candidateIdentifiers;
+            std::optional<int32_t> priority;
+            size_t selectedIndex = 0;
+            size_t selectedSourceIndex = sources.size();
+            for (size_t i = 0; i < result.Matches.size(); ++i)
+            {
+                const auto& package = result.Matches[i].Package;
+                if (!package || package->GetInstalled())
+                {
+                    return skip("missing package or installed association");
+                }
+
+                auto available = package->GetAvailable();
+                if (available.size() != 1 || !available.front())
+                {
+                    return skip("ambiguous available package identity");
+                }
+
+                auto candidateSource = available.front()->GetSource();
+                if (!candidateSource || candidateSource.IsComposite())
+                {
+                    return skip("missing individual source");
+                }
+
+                auto identifier = candidateSource.GetIdentifier();
+                auto opened = std::find_if(sources.begin(), sources.end(), [&](const Source& value) { return value.GetIdentifier() == identifier; });
+                if (identifier.empty() || opened == sources.end() || !candidateIdentifiers.emplace(identifier).second)
+                {
+                    return skip("missing, unopened, or repeated candidate source identity");
+                }
+
+                if (priority && *priority != opened->GetDetails().Priority)
+                {
+                    return skip("results have not been filtered by source priority");
+                }
+                priority = opened->GetDetails().Priority;
+
+                size_t sourceIndex = static_cast<size_t>(std::distance(sources.begin(), opened));
+                if (sourceIndex < selectedSourceIndex)
+                {
+                    selectedIndex = i;
+                    selectedSourceIndex = sourceIndex;
+                }
+            }
+
+            return selectedIndex;
+        }
+
+        std::shared_ptr<IPackageVersion> GetDeduplicationTargetVersion(
+            Execution::Context& context, OperationType operation, const std::shared_ptr<ICompositePackage>& package)
+        {
+            auto availableVersions = GetAllAvailableVersions(package);
+            std::shared_ptr<IPackageVersion> version;
+            if (operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version))
+            {
+                PinningData pinningData{ PinningData::Disposition::ReadOnly };
+                auto evaluator = pinningData.CreatePinStateEvaluator(
+                    context.Args.Contains(Execution::Args::Type::Force) ? PinBehavior::IgnorePins : PinBehavior::IncludePinned, nullptr);
+                for (const auto& key : availableVersions->GetVersionKeys())
+                {
+                    AICLI_RETURN_VALUE_IF_TERMINATED(context, nullptr);
+                    version = availableVersions->GetVersion(key);
+                    if (!version || evaluator.EvaluatePinType(version) == PinType::Unknown)
+                    {
+                        break;
+                    }
+                    version.reset();
+                }
+            }
+            else
+            {
+                // Pins do not restrict packages without an installed version.
+                version = availableVersions->GetVersion({ "", context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel) });
+            }
+
+            return version;
+        }
+
         std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
         {
             if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name)
@@ -865,29 +1038,15 @@ namespace AppInstaller::CLI::Workflow
         ManifestComparator comparator{ GetManifestComparatorOptions(context, {}) };
         std::optional<Utility::Version> firstVersion;
         std::vector<ManifestInstaller> installers;
-        std::set<std::string> firstWindowsFeatures;
         bool hasUserScope = false;
         bool hasMachineScope = false;
 
         for (const auto& manifest : manifests)
         {
-            Utility::Version version;
-            try
+            auto version = GetDeduplicationVersion(manifest, firstVersion, manifests.front().Channel);
+            if (!version)
             {
-                version = Utility::Version{ manifest.Version };
-            }
-            catch (const wil::ResultException& exception)
-            {
-                if (exception.GetErrorCode() != E_INVALIDARG)
-                {
-                    throw;
-                }
-                return skip("invalid resolved version");
-            }
-            if (version.IsEmpty() || version.IsUnknown() || version.IsLatest() || version.IsApproximate() ||
-                (firstVersion && version != *firstVersion) || !Utility::ICUCaseInsensitiveEquals(manifest.Channel, manifests.front().Channel))
-            {
-                return skip("unusable or different resolved version/channel");
+                return std::nullopt;
             }
             firstVersion = std::move(version);
 
@@ -934,37 +1093,16 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (operation == OperationType::Download && installer->DownloadCommandProhibited)
+            if (auto restriction = GetDeduplicationOperationRestriction(context, operation, *installer))
             {
-                return skip("download is prohibited");
-            }
-
-            if (operation == OperationType::Install &&
-                ((installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin()) ||
-                    HasUnsupportedArgumentError(context, *installer)))
-            {
-                return skip("installation is blocked by elevation or a supplied argument");
+                return skip(*restriction);
             }
 
             if (processDependencies)
             {
-                if (installer->Dependencies.HasAnyOf(DependencyType::Package))
+                if (auto mismatch = GetDeduplicationDependencyMismatch(operation, *installer, installers.empty() ? nullptr : &installers.front()))
                 {
-                    return skip("automatic package dependencies");
-                }
-
-                if (operation == OperationType::Install)
-                {
-                    std::set<std::string> windowsFeatures;
-                    installer->Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
-                    {
-                        windowsFeatures.emplace(Utility::FoldCase(dependency.Id()));
-                    });
-                    if (!installers.empty() && windowsFeatures != firstWindowsFeatures)
-                    {
-                        return skip("different Windows feature dependencies");
-                    }
-                    firstWindowsFeatures = std::move(windowsFeatures);
+                    return skip(*mismatch);
                 }
             }
 
@@ -1007,59 +1145,10 @@ namespace AppInstaller::CLI::Workflow
             return skip("incomplete results, unsupported candidate count, or no composite source");
         }
 
-        auto sources = source.GetAvailableSources();
-        std::set<std::string> openedIdentifiers;
-        for (const auto& opened : sources)
+        auto selectedIndex = GetDeduplicationCandidateIndex(result, source);
+        if (!selectedIndex)
         {
-            if (opened.GetIdentifier().empty() || !openedIdentifiers.emplace(opened.GetIdentifier()).second)
-            {
-                return skip("missing or repeated opened source identity");
-            }
-        }
-
-        std::set<std::string> candidateIdentifiers;
-        std::optional<int32_t> priority;
-        size_t selectedIndex = 0;
-        size_t selectedSourceIndex = sources.size();
-        for (size_t i = 0; i < result.Matches.size(); ++i)
-        {
-            const auto& package = result.Matches[i].Package;
-            if (!package || package->GetInstalled())
-            {
-                return skip("missing package or installed association");
-            }
-
-            auto available = package->GetAvailable();
-            if (available.size() != 1 || !available.front())
-            {
-                return skip("ambiguous available package identity");
-            }
-
-            auto candidateSource = available.front()->GetSource();
-            if (!candidateSource || candidateSource.IsComposite())
-            {
-                return skip("missing individual source");
-            }
-
-            auto identifier = candidateSource.GetIdentifier();
-            auto opened = std::find_if(sources.begin(), sources.end(), [&](const Source& value) { return value.GetIdentifier() == identifier; });
-            if (identifier.empty() || opened == sources.end() || !candidateIdentifiers.emplace(identifier).second)
-            {
-                return skip("missing, unopened, or repeated candidate source identity");
-            }
-
-            if (priority && *priority != opened->GetDetails().Priority)
-            {
-                return skip("results have not been filtered by source priority");
-            }
-            priority = opened->GetDetails().Priority;
-
-            size_t sourceIndex = static_cast<size_t>(std::distance(sources.begin(), opened));
-            if (sourceIndex < selectedSourceIndex)
-            {
-                selectedIndex = i;
-                selectedSourceIndex = sourceIndex;
-            }
+            return std::nullopt;
         }
 
         std::vector<std::shared_ptr<IPackageVersion>> versions;
@@ -1067,30 +1156,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& match : result.Matches)
         {
             AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
-            auto availableVersions = GetAllAvailableVersions(match.Package);
-            std::shared_ptr<IPackageVersion> version;
-            if (operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version))
-            {
-                PinningData pinningData{ PinningData::Disposition::ReadOnly };
-                auto evaluator = pinningData.CreatePinStateEvaluator(
-                    context.Args.Contains(Execution::Args::Type::Force) ? PinBehavior::IgnorePins : PinBehavior::IncludePinned, nullptr);
-                for (const auto& key : availableVersions->GetVersionKeys())
-                {
-                    AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
-                    version = availableVersions->GetVersion(key);
-                    if (!version || evaluator.EvaluatePinType(version) == PinType::Unknown)
-                    {
-                        break;
-                    }
-                    version.reset();
-                }
-            }
-            else
-            {
-                // Pins do not restrict packages without an installed version.
-                version = availableVersions->GetVersion({ "", context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel) });
-            }
-
+            auto version = GetDeduplicationTargetVersion(context, operation, match.Package);
             AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
             if (!version)
             {
@@ -1109,8 +1175,8 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         }
 
-        return PreparedPackageMatch{ operation, result.Matches[selectedIndex].Package, std::move(versions[selectedIndex]),
-            std::move(manifests[selectedIndex]), std::move(installers->at(selectedIndex)) };
+        return PreparedPackageMatch{ operation, result.Matches[*selectedIndex].Package, std::move(versions[*selectedIndex]),
+            std::move(manifests[*selectedIndex]), std::move(installers->at(*selectedIndex)) };
     }
 
     void OpenSource::operator()(Execution::Context& context) const
