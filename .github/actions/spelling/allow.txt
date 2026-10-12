@@ -279,6 +279,7 @@ REBOOTPROMPT
 redist
 Redistributable
 REFCLSID
+RELATIVEFILEPATH
 removemanifest
 removepin
 removeportablefile
