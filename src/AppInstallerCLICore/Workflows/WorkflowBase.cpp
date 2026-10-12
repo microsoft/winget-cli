@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
+#include "InstallFlow.h"
 #include "PackageTableSortHelper.h"
 #include "PromptFlow.h"
 #include "ShowFlow.h"
@@ -19,6 +20,7 @@
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 #include <winget/IconExtraction.h>
+#include <set>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -764,6 +766,137 @@ namespace AppInstaller::CLI::Workflow
         Repository::GetManifestComparatorOptionsFromMetadata(options, metadata, getAllowedArchitecturesFromMetadata);
 
         return options;
+    }
+
+    std::optional<std::vector<Manifest::ManifestInstaller>> GetEquivalentInstallers(
+        Execution::Context& context, OperationType operation, const std::vector<Manifest::Manifest>& manifests)
+    {
+        using namespace AppInstaller::Manifest;
+
+        auto skip = [](std::string_view reason) -> std::optional<std::vector<ManifestInstaller>>
+        {
+            AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+            return std::nullopt;
+        };
+
+        if (manifests.size() < 2 || manifests.size() > 3 ||
+            (operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show))
+        {
+            return skip("unsupported candidate count or operation");
+        }
+
+        bool processDependencies = operation != OperationType::Show &&
+            !Settings::User().Get<Setting::InstallSkipDependencies>() && !context.Args.Contains(Execution::Args::Type::SkipDependencies);
+        ManifestComparator comparator{ GetManifestComparatorOptions(context, {}) };
+        std::optional<Utility::Version> firstVersion;
+        std::vector<ManifestInstaller> installers;
+        std::set<std::string> firstWindowsFeatures;
+        bool hasUserScope = false;
+        bool hasMachineScope = false;
+
+        for (const auto& manifest : manifests)
+        {
+            Utility::Version version;
+            try
+            {
+                version = Utility::Version{ manifest.Version };
+            }
+            catch (const wil::ResultException& exception)
+            {
+                if (exception.GetErrorCode() != E_INVALIDARG)
+                {
+                    throw;
+                }
+                return skip("invalid resolved version");
+            }
+            if (version.IsEmpty() || version.IsUnknown() || version.IsLatest() || version.IsApproximate() ||
+                (firstVersion && version != *firstVersion) || !Utility::ICUCaseInsensitiveEquals(manifest.Channel, manifests.front().Channel))
+            {
+                return skip("unusable or different resolved version/channel");
+            }
+            firstVersion = std::move(version);
+
+            auto [installer, inapplicabilities] = comparator.GetPreferredInstaller(manifest);
+            if (!installer)
+            {
+                return skip("no applicable installer");
+            }
+
+            switch (installer->BaseInstallerType)
+            {
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Msix:
+                break;
+            default:
+                return skip("unsupported installer type");
+            }
+
+            if (installer->NestedInstallerType != InstallerTypeEnum::Unknown ||
+                (!installers.empty() && !IsInstallerTypeCompatible(installers.front().BaseInstallerType, installer->BaseInstallerType)))
+            {
+                return skip("nested installer or different execution family");
+            }
+
+            if (installer->Sha256.size() != Utility::SHA256::HashBufferSizeInBytes ||
+                std::all_of(installer->Sha256.begin(), installer->Sha256.end(), [](BYTE value) { return value == 0; }) ||
+                (!installers.empty() && installer->Sha256 != installers.front().Sha256))
+            {
+                return skip("missing, invalid, or different installer hash");
+            }
+
+            if (!DoesInstallerTypeIgnoreScopeFromManifest(installer->BaseInstallerType))
+            {
+                hasUserScope = hasUserScope || installer->Scope == ScopeEnum::User;
+                hasMachineScope = hasMachineScope || installer->Scope == ScopeEnum::Machine;
+                if (hasUserScope && hasMachineScope)
+                {
+                    return skip("conflicting explicit installation scopes");
+                }
+            }
+
+            if (operation == OperationType::Download && installer->DownloadCommandProhibited)
+            {
+                return skip("download is prohibited");
+            }
+
+            if (operation == OperationType::Install &&
+                ((installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin()) ||
+                    HasUnsupportedArgumentError(context, *installer)))
+            {
+                return skip("installation is blocked by elevation or a supplied argument");
+            }
+
+            if (processDependencies)
+            {
+                if (installer->Dependencies.HasAnyOf(DependencyType::Package))
+                {
+                    return skip("automatic package dependencies");
+                }
+
+                if (operation == OperationType::Install)
+                {
+                    std::set<std::string> windowsFeatures;
+                    installer->Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                    {
+                        windowsFeatures.emplace(Utility::FoldCase(dependency.Id()));
+                    });
+                    if (!installers.empty() && windowsFeatures != firstWindowsFeatures)
+                    {
+                        return skip("different Windows feature dependencies");
+                    }
+                    firstWindowsFeatures = std::move(windowsFeatures);
+                }
+            }
+
+            installers.emplace_back(std::move(*installer));
+        }
+
+        return installers;
     }
 
     void OpenSource::operator()(Execution::Context& context) const

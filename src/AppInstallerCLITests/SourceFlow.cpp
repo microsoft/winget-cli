@@ -8,15 +8,400 @@
 #include <Rest/RestSource.h>
 #include <winget/ManifestYamlParser.h>
 #include <Commands/DscSourceResource.h>
+#include <Commands/InstallCommand.h>
 #include <Commands/SourceCommand.h>
 #include <Workflows/PromptFlow.h>
+#include <Workflows/InstallFlow.h>
 #include <Workflows/SourceFlow.h>
+#include <winget/Runtime.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
+
+namespace
+{
+    using namespace AppInstaller::Manifest;
+
+    struct InstallerEquivalenceTestSetup
+    {
+        TestUserSettings Settings;
+        std::ostringstream Output;
+        TestContext Context{ Output, std::cin };
+        std::vector<Manifest> Manifests;
+
+        InstallerEquivalenceTestSetup(size_t count = 2)
+        {
+            Manifest manifest;
+            manifest.Version = "2.4";
+            ManifestInstaller installer;
+            installer.BaseInstallerType = InstallerTypeEnum::Exe;
+            installer.Arch = AppInstaller::Utility::Architecture::X86;
+            installer.Scope = ScopeEnum::User;
+            installer.Sha256.assign(32, 0x42);
+            manifest.Installers.emplace_back(installer);
+            for (size_t i = 0; i < count; ++i)
+            {
+                manifest.Id = "Contoso.Editor" + std::to_string(i);
+                manifest.DefaultLocalization.Add<Localization::PackageName>("Editor " + std::to_string(i));
+                manifest.Installers[0].Url = "https://example.com/editor" + std::to_string(i) + ".exe";
+                Manifests.emplace_back(manifest);
+            }
+        }
+
+        auto Compare(OperationType operation = OperationType::Install)
+        {
+            auto flags = Context.GetFlags();
+            auto result = GetEquivalentInstallers(Context, operation, Manifests);
+            REQUIRE_FALSE(Context.IsTerminated());
+            REQUIRE(Context.GetFlags() == flags);
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Package));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::PackageVersion));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Manifest));
+            REQUIRE_FALSE(Context.Contains(Execution::Data::Installer));
+            REQUIRE(Output.str().empty());
+            return result;
+        }
+    };
+}
+
+TEST_CASE("PackageDeduplication_EquivalentInstallers", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto count = GENERATE(size_t{ 2 }, size_t{ 3 });
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    InstallerEquivalenceTestSetup setup{ count };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Manifests[0].Channel = "Stable";
+
+    for (size_t i = 1; i < count; ++i)
+    {
+        setup.Manifests[i].Version = "2.4.0";
+        setup.Manifests[i].Channel = "stable";
+        auto& installer = setup.Manifests[i].Installers[0];
+        installer.Switches[InstallerSwitchType::Silent] = "/different-silent";
+        installer.Switches[InstallerSwitchType::Update] = "/different-update";
+        installer.Switches[InstallerSwitchType::Log] = "/different-log";
+        installer.InstallerSuccessCodes = { 42 };
+        installer.ExpectedReturnCodes[43] = { ExpectedReturnCodeEnum::RebootRequiredToFinish, "https://example.com/help" };
+        installer.AuthInfo.Type = AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId;
+        installer.AuthInfo.MicrosoftEntraIdInfo = AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo{ "https://example.com", "scope" };
+    }
+
+    auto result = setup.Compare(operation);
+    REQUIRE(result);
+    REQUIRE(result->size() == count);
+    REQUIRE(setup.Manifests[0].Version == "2.4");
+    REQUIRE(setup.Manifests[1].Version == "2.4.0");
+    for (size_t i = 0; i < count; ++i)
+    {
+        const auto& expected = setup.Manifests[i].Installers[0];
+        REQUIRE(result->at(i).Url == expected.Url);
+        REQUIRE(result->at(i).Sha256 == expected.Sha256);
+        REQUIRE(result->at(i).Switches == expected.Switches);
+        REQUIRE(result->at(i).InstallerSuccessCodes == expected.InstallerSuccessCodes);
+        REQUIRE(result->at(i).ExpectedReturnCodes.size() == expected.ExpectedReturnCodes.size());
+        REQUIRE(result->at(i).AuthInfo.Type == expected.AuthInfo.Type);
+        if (i > 0)
+        {
+            REQUIRE(result->at(i).ExpectedReturnCodes.at(43).ReturnResponseEnum == expected.ExpectedReturnCodes.at(43).ReturnResponseEnum);
+            REQUIRE(result->at(i).ExpectedReturnCodes.at(43).ReturnResponseUrl == expected.ExpectedReturnCodes.at(43).ReturnResponseUrl);
+            REQUIRE(result->at(i).AuthInfo.MicrosoftEntraIdInfo);
+            REQUIRE(result->at(i).AuthInfo.MicrosoftEntraIdInfo->Resource == expected.AuthInfo.MicrosoftEntraIdInfo->Resource);
+            REQUIRE(result->at(i).AuthInfo.MicrosoftEntraIdInfo->Scope == expected.AuthInfo.MicrosoftEntraIdInfo->Scope);
+        }
+    }
+}
+
+TEST_CASE("PackageDeduplication_InvalidResolvedVersion", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto version = GENERATE("", " ", "Unknown", "unknown", "Latest", "latest", "< 2.4", "> 2.4", "< Unknown", "> Unknown");
+    CAPTURE(version);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    for (auto& manifest : setup.Manifests)
+    {
+        manifest.Version = std::string{ version };
+    }
+    REQUIRE_FALSE(setup.Compare());
+}
+
+TEST_CASE("PackageDeduplication_IdentityMismatch", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto index = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 });
+    InstallerEquivalenceTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto& manifest = setup.Manifests[index];
+    SECTION("Version") { manifest.Version = "2.5"; }
+    SECTION("Channel") { manifest.Channel = "Preview"; }
+    SECTION("Last hash byte") { manifest.Installers[0].Sha256.back() ^= 1; }
+    REQUIRE_FALSE(setup.Compare());
+}
+
+TEST_CASE("PackageDeduplication_InvalidHash", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto length = GENERATE(size_t{ 0 }, size_t{ 31 }, size_t{ 32 }, size_t{ 33 });
+    auto value = GENERATE(BYTE{ 0 }, BYTE{ 0x42 });
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    for (auto& manifest : setup.Manifests)
+    {
+        manifest.Installers[0].Sha256.assign(length, value);
+    }
+    REQUIRE(setup.Compare().has_value() == (length == 32 && value != 0));
+}
+
+TEST_CASE("PackageDeduplication_ExecutionFamily", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto first = GENERATE(InstallerTypeEnum::Exe, InstallerTypeEnum::Burn, InstallerTypeEnum::Inno, InstallerTypeEnum::Nullsoft,
+        InstallerTypeEnum::Msi, InstallerTypeEnum::Wix, InstallerTypeEnum::Msix);
+    auto second = GENERATE(InstallerTypeEnum::Exe, InstallerTypeEnum::Burn, InstallerTypeEnum::Inno, InstallerTypeEnum::Nullsoft,
+        InstallerTypeEnum::Msi, InstallerTypeEnum::Wix, InstallerTypeEnum::Msix);
+    CAPTURE(first, second);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Manifests[0].Installers[0].BaseInstallerType = first;
+    setup.Manifests[1].Installers[0].BaseInstallerType = second;
+    auto family = [](InstallerTypeEnum type)
+    {
+        if (type == InstallerTypeEnum::Msix) { return 0; }
+        if (type == InstallerTypeEnum::Msi || type == InstallerTypeEnum::Wix) { return 1; }
+        return 2;
+    };
+    REQUIRE(setup.Compare().has_value() == (family(first) == family(second)));
+}
+
+TEST_CASE("PackageDeduplication_UnsupportedInstaller", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto type = GENERATE(InstallerTypeEnum::Unknown, InstallerTypeEnum::MSStore, InstallerTypeEnum::Zip,
+        InstallerTypeEnum::Portable, InstallerTypeEnum::Font, InstallerTypeEnum::Exe);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    for (auto& manifest : setup.Manifests)
+    {
+        manifest.Installers[0].BaseInstallerType = type;
+        manifest.Installers[0].NestedInstallerType = InstallerTypeEnum::Exe;
+    }
+    REQUIRE_FALSE(setup.Compare());
+}
+
+TEST_CASE("PackageDeduplication_WholeSetScope", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto first = GENERATE(ScopeEnum::Unknown, ScopeEnum::User, ScopeEnum::Machine);
+    auto second = GENERATE(ScopeEnum::Unknown, ScopeEnum::User, ScopeEnum::Machine);
+    auto third = GENERATE(ScopeEnum::Unknown, ScopeEnum::User, ScopeEnum::Machine);
+    auto type = GENERATE(InstallerTypeEnum::Exe, InstallerTypeEnum::Msix);
+    CAPTURE(first, second, third, type);
+    InstallerEquivalenceTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Manifests[0].Installers[0].Scope = first;
+    setup.Manifests[1].Installers[0].Scope = second;
+    setup.Manifests[2].Installers[0].Scope = third;
+    for (auto& manifest : setup.Manifests)
+    {
+        manifest.Installers[0].BaseInstallerType = type;
+    }
+    bool user = first == ScopeEnum::User || second == ScopeEnum::User || third == ScopeEnum::User;
+    bool machine = first == ScopeEnum::Machine || second == ScopeEnum::Machine || third == ScopeEnum::Machine;
+    REQUIRE(setup.Compare().has_value() == (type == InstallerTypeEnum::Msix || !user || !machine));
+}
+
+TEST_CASE("PackageDeduplication_InstallerApplicability", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto& installer = setup.Manifests[1].Installers[0];
+    SECTION("No installers") { setup.Manifests[1].Installers.clear(); }
+    SECTION("OS version") { installer.MinOSVersion = "99.0.0.0"; }
+    SECTION("Architecture")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::InstallArchitecture, "x86"sv);
+        installer.Arch = AppInstaller::Utility::Architecture::X64;
+    }
+    SECTION("Scope")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+        installer.Scope = AppInstaller::Manifest::ScopeEnum::Machine;
+    }
+    SECTION("Locale")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
+        setup.Manifests[0].Installers[0].Locale = "en-US";
+        installer.Locale = "fr-FR";
+    }
+    SECTION("Type")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::InstallerType, "exe"sv);
+        installer.BaseInstallerType = AppInstaller::Manifest::InstallerTypeEnum::Msi;
+    }
+    REQUIRE_FALSE(setup.Compare());
+}
+
+TEST_CASE("PackageDeduplication_OnlyPreferredInstaller", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    bool reverse = GENERATE(false, true);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::InstallScopePreference>(ScopeEnum::User);
+    auto& installers = setup.Manifests[1].Installers;
+    auto alternate = installers[0];
+    alternate.Scope = ScopeEnum::Machine;
+    installers[0].Sha256.back() ^= 1;
+    installers.emplace_back(alternate);
+    if (reverse)
+    {
+        std::reverse(installers.begin(), installers.end());
+    }
+    REQUIRE_FALSE(setup.Compare());
+}
+
+TEST_CASE("PackageDeduplication_ApplicableMetadataDifferences", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Manifests[0].Installers[0].Locale = "en-US";
+    setup.Manifests[1].Installers[0].Locale = "fr-FR";
+    setup.Manifests[1].Installers[0].Arch = AppInstaller::Utility::Architecture::Neutral;
+    auto result = setup.Compare();
+    REQUIRE(result);
+    REQUIRE(result->at(0).Locale == "en-US");
+    REQUIRE(result->at(1).Locale == "fr-FR");
+    REQUIRE(result->at(0).Arch == AppInstaller::Utility::Architecture::X86);
+    REQUIRE(result->at(1).Arch == AppInstaller::Utility::Architecture::Neutral);
+}
+
+TEST_CASE("PackageDeduplication_DependencySideEffects", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    auto type = GENERATE(DependencyType::Package, DependencyType::WindowsFeature, DependencyType::WindowsLibrary, DependencyType::External);
+    bool skipArg = GENERATE(false, true);
+    bool skipSetting = GENERATE(false, true);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::InstallSkipDependencies>(bool{ skipSetting });
+    if (skipArg) { setup.Context.Args.AddArg(Execution::Args::Type::SkipDependencies); }
+    setup.Manifests[1].Installers[0].Dependencies.Add(Dependency{ type, "Contoso.Dependency" });
+    bool processes = !skipArg && !skipSetting && operation != OperationType::Show;
+    bool blocked = processes && (type == DependencyType::Package || (type == DependencyType::WindowsFeature && operation == OperationType::Install));
+    REQUIRE(setup.Compare(operation).has_value() == !blocked);
+}
+
+TEST_CASE("PackageDeduplication_MatchingDependencies", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    bool expected = true;
+    SECTION("Feature order and case")
+    {
+        setup.Manifests[0].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "FeatureA" });
+        setup.Manifests[0].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "FeatureB" });
+        setup.Manifests[1].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "featureb" });
+        setup.Manifests[1].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "FEATUREA" });
+    }
+    SECTION("Identical package IDs still depend on their sources")
+    {
+        for (auto& manifest : setup.Manifests)
+        {
+            manifest.Installers[0].Dependencies.Add(Dependency{ DependencyType::Package, "Contoso.Dependency" });
+        }
+        expected = false;
+    }
+    SECTION("Different feature IDs with the same count")
+    {
+        setup.Manifests[0].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "FeatureA" });
+        setup.Manifests[1].Installers[0].Dependencies.Add(Dependency{ DependencyType::WindowsFeature, "FeatureB" });
+        expected = false;
+    }
+    REQUIRE(setup.Compare().has_value() == expected);
+}
+
+TEST_CASE("PackageDeduplication_OperationRestrictions", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto& installer = setup.Manifests[1].Installers[0];
+    bool expected = true;
+    SECTION("Download prohibited")
+    {
+        installer.DownloadCommandProhibited = true;
+        expected = operation != OperationType::Download;
+    }
+    SECTION("Elevation prohibited")
+    {
+        installer.ElevationRequirement = ElevationRequirementEnum::ElevationProhibited;
+        expected = operation != OperationType::Install || !AppInstaller::Runtime::IsRunningAsAdmin();
+    }
+    REQUIRE(setup.Compare(operation).has_value() == expected);
+}
+
+TEST_CASE("PackageDeduplication_UnsupportedArguments", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    auto argument = GENERATE(UnsupportedArgumentEnum::Location, UnsupportedArgumentEnum::Log);
+    bool supplied = GENERATE(false, true);
+    bool hasCommand = GENERATE(false, true);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    InstallCommand command{ {} };
+    if (hasCommand) { setup.Context.SetExecutingCommand(&command); }
+    setup.Manifests[1].Installers[0].UnsupportedArguments.emplace_back(argument);
+    if (supplied)
+    {
+        setup.Context.Args.AddArg(argument == UnsupportedArgumentEnum::Location ?
+            Execution::Args::Type::InstallLocation : Execution::Args::Type::Log, "C:\\unused"sv);
+    }
+    bool blocked = operation == OperationType::Install && argument == UnsupportedArgumentEnum::Location && supplied && hasCommand;
+    REQUIRE(setup.Compare(operation).has_value() == !blocked);
+    setup.Context.Add<Execution::Data::Installer>(setup.Manifests[1].Installers[0]);
+    setup.Context << CheckForUnsupportedArgs;
+    bool installBlocked = argument == UnsupportedArgumentEnum::Location && supplied && hasCommand;
+    REQUIRE(setup.Context.GetTerminationHR() == (installBlocked ? APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT : S_OK));
+}
+
+TEST_CASE("PackageDeduplication_PreservesExistingContext", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    bool equivalent = GENERATE(false, true);
+    InstallerEquivalenceTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto existingManifest = setup.Manifests[0];
+    existingManifest.Id = "Contoso.Unrelated";
+    existingManifest.Version = "1.0";
+    setup.Context.Add<Execution::Data::Manifest>(existingManifest);
+    setup.Context.Add<Execution::Data::Installer>(existingManifest.Installers[0]);
+    if (!equivalent)
+    {
+        setup.Manifests[1].Installers[0].Sha256.back() ^= 1;
+    }
+    REQUIRE(GetEquivalentInstallers(setup.Context, OperationType::Install, setup.Manifests).has_value() == equivalent);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Id == existingManifest.Id);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Version == existingManifest.Version);
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == existingManifest.Installers[0].Url);
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Sha256 == existingManifest.Installers[0].Sha256);
+}
+
+TEST_CASE("PackageDeduplication_ComparisonBounds", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto count = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 }, size_t{ 3 }, size_t{ 4 });
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show, OperationType::Upgrade,
+        OperationType::Uninstall, OperationType::Repair, OperationType::Export, OperationType::Pin, OperationType::List,
+        OperationType::Search, OperationType::Completion);
+    InstallerEquivalenceTestSetup setup{ count };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    bool supported = operation == OperationType::Install || operation == OperationType::Download || operation == OperationType::Show;
+    REQUIRE(setup.Compare(operation).has_value() == (supported && count >= 2 && count <= 3));
+}
 
 TEST_CASE("SourcePriority_Arguments", "[SourcePriority][workflow]")
 {

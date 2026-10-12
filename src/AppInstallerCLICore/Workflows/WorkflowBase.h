@@ -101,6 +101,10 @@ namespace AppInstaller::CLI::Workflow
     // Fills the options from the given context and metadata.
     AppInstaller::Manifest::ManifestComparator::Options GetManifestComparatorOptions(const Execution::Context& context, const Repository::IPackageVersion::Metadata& metadata);
 
+    // Returns each manifest's preferred installer only when the entire set is equivalent.
+    std::optional<std::vector<Manifest::ManifestInstaller>> GetEquivalentInstallers(
+        Execution::Context& context, OperationType operation, const std::vector<Manifest::Manifest>& manifests);
+
     // Creates the source object.
     // Required Args: None
     // Inputs: None
