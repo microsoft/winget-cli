@@ -126,8 +126,8 @@ namespace AppInstaller::CLI
                 Workflow::OpenSource() <<
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureOneMatchFromSearchResult(OperationType::Download, PackageSelectionBehavior::Prompt) <<
-                Workflow::GetManifestFromPackage(false);
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Download, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate) <<
+                Workflow::GetManifestFromPackage(false, OperationType::Download);
         }
 
         context <<

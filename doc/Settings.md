@@ -465,3 +465,17 @@ Enables numbered choices for ambiguous single-package `install`, `show`, and `do
 ```
 
 `--disable-interactivity` and redirected input or output still prevent prompting.
+
+### packageDeduplication
+
+Automatically selects equivalent installers across two or three sources for single-package `install`, `download`, and ordinary `show` commands. Disabled by default and independent of `interactivePackageSelection`.
+
+```json
+   "experimentalFeatures": {
+       "packageDeduplication": true
+   },
+```
+
+Source priority applies first. When the resolved versions, installer hashes, and supported behavior checks match, WinGet selects the first participating source in the opened source order and reports its name. This also works with redirected input or `--disable-interactivity`. Otherwise, normal package selection or ambiguity errors apply.
+
+Installed packages, local manifests, multi-package operations, and `show --versions` are excluded. Use `--source` to select a source explicitly.

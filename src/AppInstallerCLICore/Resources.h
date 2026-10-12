@@ -538,6 +538,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefine);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionRefineForExport);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionSelected);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageDeduplicationSelected);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageDeduplicationFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);

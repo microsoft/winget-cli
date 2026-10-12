@@ -103,6 +103,7 @@ namespace AppInstaller::Settings
         EFResume,
         EFFonts,
         EFInteractivePackageSelection,
+        EFPackageDeduplication,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -196,6 +197,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFInteractivePackageSelection, bool, bool, false, ".experimentalFeatures.interactivePackageSelection"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFPackageDeduplication, bool, bool, false, ".experimentalFeatures.packageDeduplication"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

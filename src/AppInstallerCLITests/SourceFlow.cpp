@@ -9,9 +9,12 @@
 #include <winget/ManifestYamlParser.h>
 #include <Commands/DscSourceResource.h>
 #include <Commands/InstallCommand.h>
+#include <Commands/DownloadCommand.h>
+#include <Commands/ShowCommand.h>
 #include <Commands/SourceCommand.h>
 #include <Workflows/PromptFlow.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/DownloadFlow.h>
 #include <Workflows/SourceFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <winget/Runtime.h>
@@ -30,7 +33,8 @@ namespace
     {
         TestUserSettings Settings;
         std::ostringstream Output;
-        TestContext Context{ Output, std::cin };
+        std::istringstream Input{ "2\n" };
+        TestContext Context{ Output, Input };
         std::vector<Manifest> Manifests;
 
         InstallerEquivalenceTestSetup(size_t count = 2)
@@ -799,6 +803,439 @@ TEST_CASE("PackageDeduplication_PreparePropagatesFailures", "[PackageDeduplicati
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
+}
+
+TEST_CASE("PackageDeduplication_SelectionOptIn", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    auto behavior = GENERATE(PackageSelectionBehavior::Disabled, PackageSelectionBehavior::Prompt,
+        PackageSelectionBehavior::Deduplicate, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    bool enabled = GENERATE(false, true);
+    bool promptEnabled = GENERATE(false, true);
+    bool policyEnabled = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::ExperimentalFeatures, policyEnabled ? PolicyState::Enabled : PolicyState::Disabled);
+    setup.Settings.Set<Setting::EFPackageDeduplication>(bool{ enabled });
+    setup.Settings.Set<Setting::EFInteractivePackageSelection>(bool{ promptEnabled });
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
+    setup.Context << EnsureOneMatchFromSearchResult(operation, behavior);
+
+    bool resolved = enabled && policyEnabled && WI_IsFlagSet(behavior, PackageSelectionBehavior::Deduplicate);
+    REQUIRE(setup.Context.IsTerminated() == !resolved);
+    REQUIRE(setup.Context.Contains(Execution::Data::PreparedPackageMatch) == resolved);
+    REQUIRE(setup.Context.Get<Execution::Data::SearchResult>().Matches.size() == 2);
+    REQUIRE(setup.Input.peek() == '2');
+    setup.RequireManifestCalls(resolved ? size_t{ 1 } : size_t{ 0 });
+    if (resolved)
+    {
+        REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
+        REQUIRE(setup.Output.str().find(Resource::String::PackageDeduplicationSelected(
+            setup.Packages[0]->GetProperty(PackageProperty::Name), setup.Packages[0]->GetProperty(PackageProperty::Id),
+            AppInstaller::Utility::LocIndView{ setup.Sources[0]->Details.Name }).get()) != std::string::npos);
+    }
+    else
+    {
+        REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+    }
+}
+
+TEST_CASE("PackageDeduplication_SelectionWithoutPrompt", "[PackageDeduplication][PackageSelection][workflow]")
+{
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(true);
+    setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
+    SECTION("Console") {}
+    SECTION("Redirected") { setup.Context.Reporter.SetConsoleStreamsForTest(false); }
+    SECTION("Disabled interactivity") { setup.Context.Args.AddArg(Execution::Args::Type::DisableInteractivity); }
+    SECTION("Silent") { setup.Context.Args.AddArg(Execution::Args::Type::Silent); }
+    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Install,
+        PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
+    REQUIRE(setup.Input.peek() == '2');
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_SelectionFallback", "[PackageDeduplication][PackageSelection][workflow]")
+{
+    bool canPrompt = GENERATE(false, true);
+    bool retrievalFailure = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(canPrompt);
+    setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
+    if (retrievalFailure)
+    {
+        setup.Versions[1]->OnManifest = []() { THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST); };
+    }
+    else
+    {
+        setup.Versions[1]->VersionManifest.Installers[0].Sha256.back() ^= 1;
+    }
+    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show,
+        PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    REQUIRE(setup.Context.IsTerminated() == !canPrompt);
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE(setup.Context.Get<Execution::Data::SearchResult>().Matches.size() == 2);
+    setup.RequireManifestCalls(1);
+    if (canPrompt)
+    {
+        REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[1]);
+        REQUIRE(setup.Output.str().find(Resource::String::NumberedSelectionPrompt(2).get()) != std::string::npos);
+    }
+    else
+    {
+        REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+        REQUIRE(setup.Input.peek() == '2');
+    }
+    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == retrievalFailure);
+}
+
+TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][SourcePriority][workflow]")
+{
+    bool tied = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Sources[0]->Details.Priority = 10;
+    setup.Sources[1]->Details.Priority = tied ? 10 : 0;
+    setup.Sources[2]->Details.Priority = -1;
+    std::reverse(setup.Context.Get<Execution::Data::SearchResult>().Matches.begin(), setup.Context.Get<Execution::Data::SearchResult>().Matches.end());
+    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
+    REQUIRE(setup.Context.Contains(Execution::Data::PreparedPackageMatch) == tied);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == (tied ? size_t{ 1 } : size_t{ 0 }));
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == (tied ? size_t{ 1 } : size_t{ 0 }));
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageDeduplication_SelectionFailures", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto hr = GENERATE(E_ABORT, HRESULT_FROM_WIN32(ERROR_CANCELLED), HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED),
+        E_UNEXPECTED, E_OUTOFMEMORY, E_INVALIDARG, HRESULT_FROM_WIN32(ERROR_TIMEOUT),
+        HRESULT_FROM_WIN32(ERROR_INTERNET_TIMEOUT), HTTP_E_STATUS_NOT_FOUND, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST,
+        APPINSTALLER_CLI_ERROR_LIBYAML_ERROR, APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA,
+        APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+    bool winrtException = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Versions[1]->OnManifest = [=]()
+    {
+        if (winrtException) { throw winrt::hresult_error(hr); }
+        THROW_HR(hr);
+    };
+    auto select = EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    bool unexpected = hr == E_UNEXPECTED || hr == E_OUTOFMEMORY || hr == E_INVALIDARG;
+    bool canceled = hr == E_ABORT || hr == HRESULT_FROM_WIN32(ERROR_CANCELLED) || hr == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED);
+    if (unexpected)
+    {
+        REQUIRE_THROWS(select(setup.Context));
+        REQUIRE_FALSE(setup.Context.IsTerminated());
+    }
+    else
+    {
+        REQUIRE_NOTHROW(select(setup.Context));
+        REQUIRE(setup.Context.GetTerminationHR() == (canceled ? hr : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
+    }
+    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == (!unexpected && !canceled));
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(setup.Input.peek() == '2');
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
+}
+
+TEST_CASE("PackageDeduplication_CommandSnapshot", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    bool explicitVersion = GENERATE(false, true);
+    bool reverse = GENERATE(false, true);
+    bool requestedLocale = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
+    setup.Context.Args.AddArg(Execution::Args::Type::Query, "Editor"sv);
+    if (explicitVersion) { setup.Context.Args.AddArg(Execution::Args::Type::Version, "2.4"sv); }
+    if (requestedLocale) { setup.Context.Args.AddArg(Execution::Args::Type::Locale, "fr-FR"sv); }
+    for (size_t i = 0; i < setup.Manifests.size(); ++i)
+    {
+        auto& manifest = setup.Manifests[i];
+        manifest.DefaultLocalization.Locale = "en-US";
+        ManifestLocalization localization;
+        localization.Locale = "fr-FR";
+        localization.Add<Localization::PackageName>("Localized editor");
+        manifest.Localizations.emplace_back(std::move(localization));
+        manifest.Installers[0].Locale = "fr-FR";
+        setup.Versions[i]->VersionManifest = manifest;
+    }
+    setup.SetSourceOrder(reverse);
+    size_t selected = reverse ? 1 : 0;
+    setup.Versions[1]->OnManifest = [&]()
+    {
+        auto newer = setup.Manifests[selected];
+        newer.Version = "2.5";
+        newer.DefaultLocalization.Add<Localization::PackageName>("Changed package name");
+        newer.Installers[0].Url = "https://example.com/new.exe";
+        setup.Packages[selected]->Available[0]->Versions.insert(setup.Packages[selected]->Available[0]->Versions.begin(),
+            std::make_shared<TestPackageVersion>(newer, setup.Sources[selected]));
+        setup.Versions[selected]->VersionManifest.Installers[0].Url = "https://example.com/changed.exe";
+    };
+    setup.Context.Override({ "OpenSource", [](TestContext&) {} });
+    setup.Context.Override({ SearchSourceForSingle, [](TestContext&) {} });
+    if (operation == OperationType::Install)
+    {
+        setup.Context.Override({ "OpenCompositeSource", [](TestContext&) {} });
+        setup.Context.Override({ InstallSinglePackage, [](TestContext&) {}, 1 });
+        InstallCommand({}).Execute(setup.Context);
+    }
+    else if (operation == OperationType::Download)
+    {
+        setup.Context.Override({ SetDownloadDirectory, [](TestContext&) {} });
+        setup.Context.Override({ DownloadInstaller, [](TestContext&) {}, 1 });
+        DownloadCommand({}).Execute(setup.Context);
+    }
+    else
+    {
+        ShowCommand({}).Execute(setup.Context);
+        REQUIRE(setup.Output.str().find(setup.Manifests[selected].Installers[0].Url) != std::string::npos);
+    }
+    INFO(setup.Output.str());
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[selected]);
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[selected]);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Id == setup.Manifests[selected].Id);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Version == "2.4");
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Installers[0].Url == setup.Manifests[selected].Installers[0].Url);
+    auto expectedManifest = setup.Manifests[selected];
+    expectedManifest.ApplyLocale(requestedLocale || (operation == OperationType::Install && !explicitVersion) ? "fr-FR" : "");
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().CurrentLocalization.Get<Localization::PackageName>() ==
+        expectedManifest.CurrentLocalization.Get<Localization::PackageName>());
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == setup.Manifests[selected].Installers[0].Url);
+    REQUIRE(setup.Output.str().find("Changed package name") == std::string::npos);
+    REQUIRE_FALSE(setup.Context.Get<Execution::Data::PreparedPackageMatch>());
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_ParsingAndCancellation", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    PackageDeduplicationTestSetup setup{ 3 };
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    bool canceled = true;
+    SECTION("Context cancellation")
+    {
+        setup.Versions[0]->OnManifest = [&]() { setup.Context.Terminate(E_ABORT); };
+    }
+    SECTION("Task cancellation")
+    {
+        setup.Versions[0]->OnManifest = []() { throw pplx::task_canceled{}; };
+    }
+    SECTION("Invalid JSON")
+    {
+        canceled = false;
+        setup.Versions[0]->OnManifest = []() { web::json::value::parse(L"{"); };
+    }
+    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show,
+        PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    REQUIRE(setup.Context.GetTerminationHR() == (canceled ? E_ABORT : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
+    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == !canceled);
+    REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
+    REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
+    REQUIRE(setup.Input.peek() == '2');
+}
+
+TEST_CASE("PackageDeduplication_PreparedIdentityGuard", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    SECTION("Wrong operation")
+    {
+        REQUIRE_THROWS_HR(GetManifestFromPackage(false, OperationType::Download)(setup.Context), E_UNEXPECTED);
+    }
+    SECTION("Caller not opted in")
+    {
+        REQUIRE_THROWS_HR(GetManifestFromPackage(false)(setup.Context), E_UNEXPECTED);
+    }
+    SECTION("Wrong package")
+    {
+        setup.Context.Add<Execution::Data::Package>(setup.Packages[1]);
+        REQUIRE_THROWS_HR(GetManifestFromPackage(false, OperationType::Show)(setup.Context), E_UNEXPECTED);
+    }
+    SECTION("Wrong version at installer handoff")
+    {
+        setup.Context << GetManifestFromPackage(false, OperationType::Show);
+        setup.Context.Add<Execution::Data::PackageVersion>(setup.Versions[1]);
+        REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
+    }
+    SECTION("Operation changed to upgrade")
+    {
+        setup.Context << GetManifestFromPackage(false, OperationType::Show);
+        setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+        REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
+    }
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_ShowVersionsExcluded", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Context.Args.AddArg(Execution::Args::Type::Query, "Editor"sv);
+    setup.Context.Args.AddArg(Execution::Args::Type::ListVersions);
+    setup.Context.Override({ "OpenSource", [](TestContext&) {} });
+    setup.Context.Override({ SearchSourceForSingle, [](TestContext&) {} });
+    ShowCommand({}).Execute(setup.Context);
+    REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    setup.RequireManifestCalls(0);
+}
+
+TEST_CASE("PackageDeduplication_CommandFailureDoesNotChangeSource", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto operation = GENERATE(OperationType::Install, OperationType::Download);
+    bool hashMismatch = GENERATE(false, true);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Context.Args.AddArg(Execution::Args::Type::Query, "Editor"sv);
+    setup.Context.Override({ "OpenSource", [](TestContext&) {} });
+    setup.Context.Override({ SearchSourceForSingle, [](TestContext&) {} });
+    setup.Context.Override({ CheckForExistingInstaller, [](TestContext&) {}, 1 });
+    setup.Context.Override({ DownloadInstallerFile, [&](TestContext& context)
+    {
+        REQUIRE(context.Get<Execution::Data::Package>() == setup.Packages[0]);
+        REQUIRE(context.Get<Execution::Data::Installer>()->Url == setup.Manifests[0].Installers[0].Url);
+        if (hashMismatch)
+        {
+            AppInstaller::Utility::DownloadResult result;
+            result.Sha256Hash.assign(32, 0x43);
+            result.SizeInBytes = 100;
+            context.Add<Execution::Data::DownloadHashInfo>({ context.Get<Execution::Data::Installer>()->Sha256, std::move(result) });
+        }
+        else
+        {
+            context.Terminate(APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED);
+        }
+    }, 1 });
+    if (operation == OperationType::Install)
+    {
+        setup.Context.Override({ "OpenCompositeSource", [](TestContext&) {} });
+        InstallCommand({}).Execute(setup.Context);
+    }
+    else
+    {
+        setup.Context.Override({ SetDownloadDirectory, [](TestContext&) {} });
+        DownloadCommand({}).Execute(setup.Context);
+    }
+    INFO(setup.Output.str());
+    REQUIRE(setup.Context.GetTerminationHR() ==
+        (hashMismatch ? APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH : APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED));
+    REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[0]);
+    REQUIRE_FALSE(WI_IsFlagSet(setup.Context.GetFlags(), Execution::ContextFlag::InstallerHashMatched));
+    REQUIRE_FALSE(WI_IsFlagSet(setup.Context.GetFlags(), Execution::ContextFlag::InstallerTrusted));
+    REQUIRE(setup.Input.peek() == '2');
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_PreservesAgreementsAndTrust", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    auto operation = GENERATE(OperationType::Install, OperationType::Download);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context.Args.AddArg(Execution::Args::Type::DisableInteractivity);
+    setup.Sources[1]->Details.TrustLevel = SourceTrustLevel::Trusted;
+    bool agreements = false;
+    SECTION("Selected package agreements")
+    {
+        agreements = true;
+        setup.Versions[0]->VersionManifest.DefaultLocalization.Add<Localization::Agreements>(
+            std::vector<Agreement>{ { "License", "Terms for the selected source", "https://example.com/terms" } });
+    }
+    SECTION("Selected source untrusted") {}
+    SECTION("Selected source trusted") { setup.Sources[0]->Details.TrustLevel = SourceTrustLevel::Trusted; }
+    setup.Context <<
+        EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Deduplicate) <<
+        GetManifestFromPackage(operation == OperationType::Install, operation) <<
+        SelectInstaller <<
+        ShowPromptsForSinglePackage(true);
+    if (agreements)
+    {
+        REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
+        REQUIRE_FALSE(setup.Context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements));
+    }
+    else
+    {
+        REQUIRE_FALSE(setup.Context.IsTerminated());
+        auto hash = setup.Context.Get<Execution::Data::Installer>()->Sha256;
+        setup.Context.Add<Execution::Data::DownloadHashInfo>({ hash, AppInstaller::Utility::DownloadResult{ hash } });
+        setup.Context << VerifyInstallerHash;
+        REQUIRE_FALSE(setup.Context.IsTerminated());
+        REQUIRE(WI_IsFlagSet(setup.Context.GetFlags(), Execution::ContextFlag::InstallerHashMatched));
+        REQUIRE(WI_IsFlagSet(setup.Context.GetFlags(), Execution::ContextFlag::InstallerTrusted) ==
+            WI_IsFlagSet(setup.Sources[0]->Details.TrustLevel, SourceTrustLevel::Trusted));
+    }
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[0]);
+    setup.RequireManifestCalls(1);
+}
+
+TEST_CASE("PackageDeduplication_LocalManifestExcluded", "[PackageDeduplication][SourceFlow][workflow]")
+{
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    setup.Settings.Set<Setting::EFPackageDeduplication>(true);
+    setup.Context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+    if (operation == OperationType::Install)
+    {
+        setup.Context.Override({ InstallSinglePackage, [](TestContext&) {}, 1 });
+        InstallCommand({}).Execute(setup.Context);
+    }
+    else if (operation == OperationType::Download)
+    {
+        setup.Context.Override({ SetDownloadDirectory, [](TestContext&) {} });
+        setup.Context.Override({ DownloadInstaller, [](TestContext&) {}, 1 });
+        DownloadCommand({}).Execute(setup.Context);
+    }
+    else
+    {
+        ShowCommand({}).Execute(setup.Context);
+    }
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    setup.RequireManifestCalls(0);
 }
 
 TEST_CASE("SourcePriority_Arguments", "[SourcePriority][workflow]")

@@ -67,6 +67,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFFonts>();
             case ExperimentalFeature::Feature::InteractivePackageSelection:
                 return userSettings.Get<Setting::EFInteractivePackageSelection>();
+            case ExperimentalFeature::Feature::PackageDeduplication:
+                return userSettings.Get<Setting::EFPackageDeduplication>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -102,6 +104,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Font", "fonts", "https://aka.ms/winget-settings", Feature::Font };
         case Feature::InteractivePackageSelection:
             return ExperimentalFeature{ "Interactive Package Selection", "interactivePackageSelection", "https://aka.ms/winget-settings", Feature::InteractivePackageSelection };
+        case Feature::PackageDeduplication:
+            return ExperimentalFeature{ "Package Deduplication", "packageDeduplication", "https://aka.ms/winget-settings", Feature::PackageDeduplication };
         default:
             THROW_HR(E_UNEXPECTED);
         }
