@@ -23,7 +23,7 @@ namespace
         HashAlgorithm::Sha256,
         BCRYPT_SHA256_ALGORITHM,
         "SHA256",
-        32,
+        HashAlgorithmTraits<HashAlgorithm::Sha256>::HashBufferSizeInBytes,
     };
 
     const HashAlgorithmInfo& GetHashAlgorithmInfo(HashAlgorithm algorithm)
