@@ -47,6 +47,19 @@ namespace AppInstaller::Manifest::YamlParser
             return YamlScalarType::String;
         }
 
+        // YAML block scalars with clip/keep chomping retain a trailing line break.
+        // Schema patterns anchored with `$` fail against that break under current
+        // MSVC std::regex ECMAScript semantics (LWG-2503), so strip it before validation.
+        std::string TrimTrailingLineBreaks(std::string value)
+        {
+            while (!value.empty() && (value.back() == '\n' || value.back() == '\r'))
+            {
+                value.pop_back();
+            }
+
+            return value;
+        }
+
         Json::Value YamlScalarNodeToJson(const YAML::Node& scalarNode, YamlScalarType scalarType)
         {
             if (scalarType == YamlScalarType::Int)
@@ -59,7 +72,7 @@ namespace AppInstaller::Manifest::YamlParser
             }
             else
             {
-                return Json::Value(scalarNode.as<std::string>());
+                return Json::Value(TrimTrailingLineBreaks(scalarNode.as<std::string>()));
             }
         }
 
