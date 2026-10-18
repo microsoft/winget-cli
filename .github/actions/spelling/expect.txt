@@ -310,6 +310,7 @@ liwpx
 localizationpriority
 localsource
 Logon
+logon
 LONGLONG
 LOWORD
 LPARAM
@@ -587,7 +588,9 @@ sqlite
 Srinivasan
 SRL
 srs
+STARTF
 STARTUPINFOEX
+STARTUPINFOW
 STDMETHODCALLTYPE
 storeapps
 storeorigin
@@ -658,6 +661,7 @@ upgradeable
 upgradecode
 URLZONE
 USEDEFAULT
+USESHOWWINDOW
 userfilesetting
 userprofile
 uswgp
