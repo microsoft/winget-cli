@@ -264,6 +264,44 @@ namespace AppInstaller::Deployment
         return registrationDeferred;
     }
 
+    bool RemovePackageUnpackaged(std::string_view packageFullName)
+    {
+        AICLI_LOG(Core, Info, << "Attempting unpackaged Remove-AppxPackage fallback for: " << packageFullName);
+
+        std::wstring commandLine = L"powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command \"Remove-AppxPackage -Package '" + Utility::ConvertToUTF16(packageFullName) + L"'\"";
+
+        STARTUPINFOW startupInfo = { sizeof(startupInfo) };
+        startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+        startupInfo.wShowWindow = SW_HIDE;
+        wil::unique_process_information processInfo;
+
+        if (!CreateProcessW(nullptr, &commandLine[0], nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, nullptr, &startupInfo, &processInfo))
+        {
+            AICLI_LOG(Core, Warning, << "Failed to create PowerShell process for Remove-AppxPackage fallback: " << GetLastError());
+            return false;
+        }
+
+        DWORD waitResult = WaitForSingleObject(processInfo.hProcess, 60000);
+        if (waitResult == WAIT_OBJECT_0)
+        {
+            DWORD exitCode = 0;
+            if (GetExitCodeProcess(processInfo.hProcess, &exitCode) && exitCode == 0)
+            {
+                AICLI_LOG(Core, Info, << "Unpackaged Remove-AppxPackage succeeded for: " << packageFullName);
+                return true;
+            }
+            AICLI_LOG(Core, Warning, << "Unpackaged Remove-AppxPackage returned non-zero exit code: " << exitCode);
+        }
+        else
+        {
+            AICLI_LOG(Core, Warning, << "Unpackaged Remove-AppxPackage wait failed or timed out: " << waitResult);
+            TerminateProcess(processInfo.hProcess, 1);
+        }
+
+        return false;
+    }
+    }
+
     void RemovePackage(
         std::string_view packageFullName,
         RemovalOptions options,
@@ -276,7 +314,39 @@ namespace AppInstaller::Deployment
         winrt::hstring fullName = Utility::ConvertToUTF16(packageFullName).c_str();
         auto deployOperation = packageManager.RemovePackageAsync(fullName, options);
 
-        WaitForDeployment(deployOperation, id, callback);
+        HRESULT hr = WaitForDeployment(deployOperation, id, callback, false);
+        if (!SUCCEEDED(hr))
+        {
+            if (hr == HRESULT_FROM_WIN32(ERROR_NO_SUCH_LOGON_SESSION))
+            {
+                AICLI_LOG(Core, Warning, << "RemovePackage operation #" << id << " received ERROR_NO_SUCH_LOGON_SESSION (0x80070520) in non-interactive session for " << packageFullName);
+
+                std::string packageFamilyName = Msix::GetPackageFamilyNameFromFullName(std::string{ packageFullName });
+                if (!packageFamilyName.empty() && !IsRegistered(packageFamilyName))
+                {
+                    AICLI_LOG(Core, Info, << "Package " << packageFamilyName << " is not registered for current user, treating as successful removal");
+                    return;
+                }
+
+                // If running in packaged context or non-interactive session, fall back to unpackaged removal
+                if (!Runtime::IsRunningAsInteractiveUser() || Runtime::IsRunningInPackagedContext())
+                {
+                    if (RemovePackageUnpackaged(packageFullName))
+                    {
+                        return;
+                    }
+
+                    // Check again if the package registration was removed
+                    if (!packageFamilyName.empty() && !IsRegistered(packageFamilyName))
+                    {
+                        AICLI_LOG(Core, Info, << "Package " << packageFamilyName << " is no longer registered after fallback attempt");
+                        return;
+                    }
+                }
+            }
+
+            THROW_IF_FAILED(hr);
+        }
     }
 
     bool AddPackageMachineScope(

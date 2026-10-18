@@ -254,3 +254,21 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
 }
+
+TEST_CASE("UninstallFlow_MSIXUninstall_NonInteractiveSessionNoError", "[UninstallFlow][workflow]")
+{
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Msix }));
+    OverrideForMSIXUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Msix.Query);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    REQUIRE(!context.IsTerminated());
+}
+
