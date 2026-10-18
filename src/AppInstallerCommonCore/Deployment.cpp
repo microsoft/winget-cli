@@ -300,7 +300,6 @@ namespace AppInstaller::Deployment
 
         return false;
     }
-    }
 
     void RemovePackage(
         std::string_view packageFullName,
