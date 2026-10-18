@@ -88,6 +88,16 @@ The `disableInstallNotes` behavior affects whether installation notes are shown 
     },
 ```
 
+### Disable License Disclaimer
+
+The `disableLicenseDisclaimer` behavior affects whether the license disclaimer ("This application is licensed to you by its owner. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.") is shown before a package is installed. The notice shown for packages provided through Microsoft Store is not affected. Defaults to `false` if value is not set or is invalid.
+
+```json
+    "installBehavior": {
+        "disableLicenseDisclaimer": true
+    },
+```
+
 ### Portable Package User Root
 
 The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.

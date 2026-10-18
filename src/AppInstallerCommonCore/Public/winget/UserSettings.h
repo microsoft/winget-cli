@@ -118,6 +118,7 @@ namespace AppInstaller::Settings
         InstallSkipDependencies,
         ArchiveExtractionMethod,
         DisableInstallNotes,
+        DisableLicenseDisclaimer,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
         MaxResumes,
@@ -210,6 +211,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::ArchiveExtractionMethod, std::string, Archive::ExtractionMethod, Archive::ExtractionMethod::ShellApi, ".installBehavior.archiveExtractionMethod"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::DisableLicenseDisclaimer, bool, bool, false, ".installBehavior.disableLicenseDisclaimer"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);

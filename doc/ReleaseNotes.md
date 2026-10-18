@@ -35,6 +35,10 @@ Added a new `--ignore-unavailable` flag to the `install` command. When installin
 
 Added the contract version 30 `InstallOptions.InstallDependenciesOnly` property for COM callers that need to install a package's dependencies without installing the requested package.
 
+### `installBehavior.disableLicenseDisclaimer` setting
+
+Added a new `installBehavior.disableLicenseDisclaimer` setting that hides the license disclaimer ("This application is licensed to you by its owner. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.") shown before a package is installed. Defaults to `false`.
+
 ## Bug Fixes
 
 ### Portable installer alias handling

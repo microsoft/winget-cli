@@ -681,6 +681,27 @@ TEST_CASE("SettingsMaxResumes", "[settings]")
     }
 }
 
+TEST_CASE("SettingsDisableLicenseDisclaimer", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE_FALSE(userSettingTest.Get<Setting::DisableLicenseDisclaimer>());
+    }
+
+    SECTION("Enabled")
+    {
+        std::string_view json = R"({ "installBehavior": { "disableLicenseDisclaimer": true } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::DisableLicenseDisclaimer>());
+    }
+}
+
 TEST_CASE("LoggingChannels", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();

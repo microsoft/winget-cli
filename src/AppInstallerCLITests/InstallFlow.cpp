@@ -176,6 +176,33 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_LicenseDisclaimer", "[InstallFlow][workflow]")
+{
+    bool disableDisclaimer = GENERATE(false, true);
+
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::DisableLicenseDisclaimer>(bool{ disableDisclaimer });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // The install must succeed either way; only the disclaimer changes.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+
+    bool disclaimerShown = installOutput.str().find(Resource::LocString(Resource::String::InstallationDisclaimer1).get()) != std::string::npos;
+    REQUIRE(disclaimerShown == !disableDisclaimer);
+}
+
 TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
