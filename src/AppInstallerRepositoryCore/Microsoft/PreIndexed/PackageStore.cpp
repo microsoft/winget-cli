@@ -11,6 +11,10 @@
 
 using namespace std::string_literals;
 
+// Set this to true when test hooks are enabled to force the use of
+// the local file package store and disable signing enforcement.
+#define WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE false
+
 namespace AppInstaller::Repository::Microsoft::PreIndexed
 {
     std::string_view GetSlotName(PackageSlot slot)
@@ -112,9 +116,15 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         {
             return *s_SourcePackageTrustValidation_TestHook_Override;
         }
+        else if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+        {
+            return true;
+        }
+        else
 #endif
-
-        return package.ValidateTrustInfo(RequireStoreOrigin());
+        {
+            return package.ValidateTrustInfo(RequireStoreOrigin());
+        }
     }
 
     std::optional<AcquiredPackage> PackageStoreBase::Acquire(const PackageKey& package, const std::string& location, IProgressCallback& progress)
@@ -207,9 +217,15 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             {
                 return true;
             }
+            else if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+            {
+                return false;
+            }
+            else
 #endif
-
-            return Runtime::IsRunningInPackagedContext();
+            {
+                return Runtime::IsRunningInPackagedContext();
+            }
         }
 
         std::unique_ptr<IPackageStore> CreateDeployedStore(const SourceDetails& details)
@@ -364,7 +380,16 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
     bool CanUseDeployedPackage()
     {
-        return anon::CanReachDeployedPackage() && Runtime::IsRunningAsInteractiveUser();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+        {
+            return false;
+        }
+        else
+#endif
+        {
+            return anon::CanReachDeployedPackage() && Runtime::IsRunningAsInteractiveUser();
+        }
     }
 
     std::unique_ptr<IPackageStore> CreateStore(const SourceDetails& details)
