@@ -39,6 +39,20 @@ namespace AppInstaller::SQLite
         }
     }
 
+    SQLiteStorageBase& SQLiteStorageBase::operator=(SQLiteStorageBase&& other) noexcept
+    {
+        if (this != &other)
+        {
+            // Release the old connection before deleting any of its backing files.
+            m_dbconn = std::move(other.m_dbconn);
+            m_files = std::move(other.m_files);
+            m_version = std::move(other.m_version);
+            m_interfaceLock = std::move(other.m_interfaceLock);
+        }
+
+        return *this;
+    }
+
     void SQLiteStorageBase::SetLastWriteTime()
     {
         MetadataTable::SetNamedValue(m_dbconn, s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
@@ -94,7 +108,12 @@ namespace AppInstaller::SQLite
     }
 
     SQLiteStorageBase::SQLiteStorageBase(const DatabaseSpecifier& specifier, Utility::ManagedFile&& file) :
-        m_indexFile(std::move(file))
+        SQLiteStorageBase(specifier, std::vector<Utility::ManagedFile>{ std::move(file) })
+    {
+    }
+
+    SQLiteStorageBase::SQLiteStorageBase(const DatabaseSpecifier& specifier, std::vector<Utility::ManagedFile>&& files) :
+        m_files(std::move(files))
     {
         AICLI_LOG(Repo, Info, << "Opening database for " << GetOpenDispositionString(specifier.Disposition()) << " at '" << specifier.Path() << "'");
 

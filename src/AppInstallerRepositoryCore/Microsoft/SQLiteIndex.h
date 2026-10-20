@@ -221,7 +221,7 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
-        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
+        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, std::vector<Utility::ManagedFile>&& files);
 
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);
@@ -238,12 +238,5 @@ namespace AppInstaller::Repository::Microsoft
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         Schema::SQLiteIndexContextData m_contextData;
-
-        // The baseline of a combined index, when the caller extracted it to a temporary location.
-        //
-        // SQLiteStorageBase holds one such file, which the combined form gives to the delta since
-        // that is its main connection. The baseline is attached rather than opened, so there is no
-        // second storage base to hold it and it lives here instead.
-        Utility::ManagedFile m_baselineFile;
     };
 }

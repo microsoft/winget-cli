@@ -61,11 +61,11 @@ namespace AppInstaller::Repository::Microsoft
         std::filesystem::path baselinePath{ Utility::ConvertToUTF16(baselineFilePath) };
         THROW_HR_IF(E_INVALIDARG, baselinePath.empty() || baselinePath.is_relative());
 
-        SQLiteIndex result{ SQLite::DatabaseSpecifier{ deltaFilePath, disposition }, std::move(deltaFile) };
-
-        // Taken before the attach, so that the file is held for as long as the connection that
-        // will reference it exists -- including if establishing the combined view throws.
-        result.m_baselineFile = std::move(baselineFile);
+        std::vector<Utility::ManagedFile> files;
+        files.reserve(2);
+        files.emplace_back(std::move(deltaFile));
+        files.emplace_back(std::move(baselineFile));
+        SQLiteIndex result{ SQLite::DatabaseSpecifier{ deltaFilePath, disposition }, std::move(files) };
 
         // The interface for the delta's schema version establishes the combined view.
         result.m_interface->SetupDeltaReadMode(result.m_dbconn, SQLite::DatabaseSpecifier{ baselineFilePath, disposition });
@@ -94,12 +94,12 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteIndex(SQLite::DatabaseSpecifier{ target, disposition }, std::move(indexFile))
+        SQLiteIndex(SQLite::DatabaseSpecifier{ target, disposition }, std::vector<Utility::ManagedFile>{ std::move(indexFile) })
     {
     }
 
-    SQLiteIndex::SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(specifier, std::move(indexFile))
+    SQLiteIndex::SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, std::vector<Utility::ManagedFile>&& files) :
+        SQLiteStorageBase(specifier, std::move(files))
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
