@@ -15,16 +15,13 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // A source composed of a single package holding the complete index.
         struct FullIndexForm : public IIndexForm
         {
-            FullIndexForm(const SourceDetails& details) : m_details(details)
-            {
-                m_identity = SourceData{ details.Data }.FullIdentity();
-            }
+            FullIndexForm(const SourceDetails& details) : m_details(details), m_data(details.Data) {}
 
             std::optional<std::string> DiscoverIdentities(IProgressCallback&) override
             {
-                if (!m_identity.empty())
+                if (m_data.HasFullIdentity())
                 {
-                    return m_identity;
+                    return m_data.Serialize();
                 }
 
                 PreIndexedPackageInfo packageInfo(GetFullIndexPackageLocations(m_details), [](const std::string& packageLocation)
@@ -39,9 +36,9 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 auto fullName = packageInfo.MsixInfo().GetPackageFullName();
                 AICLI_LOG(Repo, Info, << "Found package full name: " << m_details.Name << " => " << fullName);
 
-                m_identity = Msix::GetPackageFamilyNameFromFullName(fullName);
+                m_data.FullIdentity(Msix::GetPackageFamilyNameFromFullName(fullName));
 
-                return m_identity;
+                return m_data.Serialize();
             }
 
             std::vector<PackageKey> GetPackages() const override
@@ -51,7 +48,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
             bool HasIdentities() const override
             {
-                return !m_identity.empty();
+                return m_data.HasFullIdentity();
             }
 
             bool IsHeld(const IPackageStore& store) const override
@@ -153,12 +150,12 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         private:
             PackageKey GetKey() const
             {
-                THROW_HR_IF(E_NOT_VALID_STATE, m_identity.empty());
-                return PackageKey{ PackageSlot::FullIndex, m_identity };
+                THROW_HR_IF(E_NOT_VALID_STATE, !m_data.HasFullIdentity());
+                return PackageKey{ PackageSlot::FullIndex, m_data.FullIdentity() };
             }
 
             SourceDetails m_details;
-            std::string m_identity;
+            SourceData m_data;
         };
     }
 

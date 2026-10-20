@@ -233,9 +233,8 @@ namespace AppInstaller::Repository::Microsoft
 
                             if (report.LearnedIdentities)
                             {
-                                // The update found the rest of what the source is made of. The
-                                // identity the source is keyed on does not move, since it is
-                                // derived from the delta and that was known from the first call.
+                                // The update learned the baseline identity. The full identity
+                                // that the source is keyed on was already known.
                                 WriteDiscoveredIdentities(details, report.LearnedIdentities.value());
                             }
 
@@ -243,9 +242,8 @@ namespace AppInstaller::Repository::Microsoft
                             {
                                 // The source is about to settle on the full index instead, and a
                                 // form that was given up on is not something the source will ever
-                                // come back to. Whatever the attempt left behind is keyed on the
-                                // delta rather than on the full index, so nothing the full index
-                                // does afterwards would displace it.
+                                // come back to. Acquiring the full index would not displace the
+                                // delta and baseline packages, so discard them first.
                                 DiscardPackagesOf(details, *store, *form, progress);
                             }
                         }
@@ -384,8 +382,7 @@ namespace AppInstaller::Repository::Microsoft
                         return;
                     }
 
-                    // The store is keyed on this form's own identity, so clearing it clears exactly
-                    // what the attempt created and nothing the source goes on to use.
+                    // Only the failed form's packages have been acquired at this point.
                     store.Remove(form.GetPackages(), progress);
                 }
                 catch (...)

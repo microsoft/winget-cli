@@ -128,6 +128,45 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Disabling delta after adding a source acquires the full index and keeps it usable.
+        /// </summary>
+        /// <param name="updateSource">Whether to explicitly update before searching.</param>
+        [TestCase(false)]
+        [TestCase(true)]
+        public void DeltaSourceFeatureDisabled(bool updateSource)
+        {
+            AddDeltaSource();
+
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.True);
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceBaselineIdentityName), Is.True);
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceIdentityName), Is.False);
+            RequireFound(Constants.DeltaOnlyPackageIdentifier);
+            RequireFound(BaselinePackageIdentifier);
+
+            WinGetSettingsHelper.ConfigureFeature(DeltaFeatureName, false);
+
+            if (updateSource)
+            {
+                var updateResult = TestCommon.RunAICLICommand("source update", $"-n {Constants.DeltaTestSourceName}");
+                Assert.That(updateResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+                Assert.That(updateResult.StdOut, Does.Contain("Done"));
+            }
+
+            RequireFound(Constants.DeltaOnlyPackageIdentifier);
+            RequireFound(BaselinePackageIdentifier);
+            Assert.That(
+                GetDeployedPackageVersion(Constants.DeltaTestSourceIdentityName),
+                Is.EqualTo(Constants.DeltaTestSourceVersion),
+                "The source should be served by the full index with delta disabled");
+
+            var removeResult = TestCommon.RunAICLICommand("source remove", $"-n {Constants.DeltaTestSourceName}");
+            Assert.That(removeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceIdentityName), Is.False);
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.False);
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceBaselineIdentityName), Is.False);
+        }
+
+        /// <summary>
         /// Removing the source takes both deployed packages with it. A delta source leaves more
         /// behind than an ordinary one, so there is more to get wrong.
         /// </summary>

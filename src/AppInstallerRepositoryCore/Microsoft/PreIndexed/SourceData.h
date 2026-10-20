@@ -11,8 +11,8 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
     // SourceDetails::Data.
     //
     // Data held exactly one package family name for as long as a source had exactly one package.
-    // A delta capable source has two, each published under an identity of its own: the delta, and
-    // the baseline that it names. Both have to be known before any network access, because a
+    // A delta capable source uses a delta and the baseline that it names, each published under an
+    // identity of its own. Each identity must be known before acquiring that package, because a
     // package is validated against the identity it was asked for.
     //
     // Two syntaxes are therefore accepted:
@@ -20,19 +20,19 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
     //   Microsoft.Winget.Source_8wekyb3d8bbwe
     //   {"fullIdentity":"Microsoft.Winget.Source_8wekyb3d8bbwe"}
     //   {"deltaIdentity":"...","baselineIdentity":"..."}
+    //   {"fullIdentity":"...","deltaIdentity":"...","baselineIdentity":"..."}
     //
     // The first is what every client written to date has stored, and remains what is written back
     // for a source with no delta. The two are told apart by the leading brace, which a package
     // family name cannot contain.
     //
-    // All three identities can be named at once. Nothing produces that today -- adding a source
-    // settles on either the full index or the delta pair -- but a source that can fall back from
-    // the delta to the full index has to name all three, and the format is defined so that
-    // introducing fallback does not change it again.
+    // Adding a delta capable source records all three identities, even though it acquires only
+    // the delta and baseline. The full identity lets the source remain usable when delta is
+    // disabled, without needing to discover an identity during an update or open.
     //
-    // There is deliberately no migration between the forms. A source whose Data names only a full
-    // index identity uses the full index, which is exactly what it did before deltas existed, and
-    // a third party source that begins publishing a delta can be re-added.
+    // Enabling delta does not migrate a source whose Data names only a full index identity. It
+    // keeps using the full index, and a third party source that begins publishing a delta can be
+    // re-added.
     struct SourceData
     {
         SourceData() = default;

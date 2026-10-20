@@ -15,19 +15,13 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // A source composed of a delta and the baseline that the delta names.
         struct DeltaIndexForm : public IIndexForm
         {
-            DeltaIndexForm(const SourceDetails& details) : m_details(details)
-            {
-                SourceData data{ details.Data };
-                m_fullIndexIdentity = data.FullIdentity();
-                m_deltaIdentity = data.DeltaIdentity();
-                m_baselineIdentity = data.BaselineIdentity();
-            }
+            DeltaIndexForm(const SourceDetails& details) : m_details(details), m_data(details.Data) {}
 
             std::optional<std::string> DiscoverIdentities(IProgressCallback& progress) override
             {
-                if (m_deltaIdentity.empty())
+                if (!m_data.HasDeltaIdentity())
                 {
-                    if (!m_fullIndexIdentity.empty())
+                    if (m_data.HasFullIdentity())
                     {
                         // The source is already configured, and what it is configured with names
                         // no delta. Probing here would be a migration, which is deliberately not
@@ -49,21 +43,33 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                         return std::nullopt;
                     }
 
-                    m_deltaIdentity = deltaIdentity.value();
+                    m_data.DeltaIdentity(std::move(deltaIdentity.value()));
+                }
+
+                if (!m_data.HasFullIdentity())
+                {
+                    // Record the full identity before acquisition so disabling delta can use it
+                    // without changing the source's identity or probing during an update.
+                    auto fullForm = CreateFullIndexForm(m_details);
+                    auto fullData = fullForm->DiscoverIdentities(progress);
+                    if (fullData)
+                    {
+                        m_data.FullIdentity(SourceData{ fullData.value() }.FullIdentity());
+                    }
                 }
 
                 // The baseline is deliberately not probed for here. Where it is published is
                 // recorded in the delta, so finding it means acquiring and reading one, and the
                 // update that immediately follows is going to do that anyway. What it learns is
                 // reported back through UpdateReport::LearnedIdentities.
-                return SerializeIdentities();
+                return m_data.Serialize();
             }
 
             std::vector<PackageKey> GetPackages() const override
             {
                 std::vector<PackageKey> result{ GetDeltaKey() };
 
-                if (!m_baselineIdentity.empty())
+                if (m_data.HasBaselineIdentity())
                 {
                     result.emplace_back(GetBaselineKey());
                 }
@@ -73,19 +79,19 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
             bool HasIdentities() const override
             {
-                return !m_deltaIdentity.empty() && !m_baselineIdentity.empty();
+                return m_data.HasDeltaIdentity() && m_data.HasBaselineIdentity();
             }
 
             bool IsHeld(const IPackageStore& store) const override
             {
-                return !m_baselineIdentity.empty() &&
+                return m_data.HasBaselineIdentity() &&
                     store.GetVersion(GetDeltaKey()).has_value() &&
                     store.GetVersion(GetBaselineKey()).has_value();
             }
 
             bool IsUsable(IPackageStore& store, IProgressCallback& progress) override
             {
-                if (m_baselineIdentity.empty())
+                if (!m_data.HasBaselineIdentity())
                 {
                     // Which baseline this source uses has never been learned, so there is nothing
                     // held that could be paired with the delta.
@@ -217,7 +223,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
                 std::vector<std::string> baselineLocations = GetBaselinePackageLocations(m_details, locator->RelativeSourcePath);
 
-                if (m_baselineIdentity.empty())
+                if (!m_data.HasBaselineIdentity())
                 {
                     // The source is being added. Only now, with a delta in hand to say where the
                     // baseline is published, can the identity to acquire it under be read.
@@ -226,7 +232,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                         return UpdateResult::Unusable;
                     }
 
-                    report.LearnedIdentities = SerializeIdentities();
+                    report.LearnedIdentities = m_data.Serialize();
                 }
 
                 Msix::PackageVersion requiredBaselineVersion{ locator->PackageVersion };
@@ -304,30 +310,21 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         private:
             PackageKey GetDeltaKey() const
             {
-                THROW_HR_IF(E_NOT_VALID_STATE, m_deltaIdentity.empty());
-                return PackageKey{ PackageSlot::Delta, m_deltaIdentity };
+                THROW_HR_IF(E_NOT_VALID_STATE, !m_data.HasDeltaIdentity());
+                return PackageKey{ PackageSlot::Delta, m_data.DeltaIdentity() };
             }
 
             PackageKey GetBaselineKey() const
             {
-                THROW_HR_IF(E_NOT_VALID_STATE, m_baselineIdentity.empty());
-                return PackageKey{ PackageSlot::Baseline, m_baselineIdentity };
-            }
-
-            std::string SerializeIdentities() const
-            {
-                SourceData data;
-                data.FullIdentity(m_fullIndexIdentity);
-                data.DeltaIdentity(m_deltaIdentity);
-                data.BaselineIdentity(m_baselineIdentity);
-                return data.Serialize();
+                THROW_HR_IF(E_NOT_VALID_STATE, !m_data.HasBaselineIdentity());
+                return PackageKey{ PackageSlot::Baseline, m_data.BaselineIdentity() };
             }
 
             // The version of the baseline that the store holds, or nothing when there is none --
             // including when which baseline this source uses has never been learned.
             std::optional<Msix::PackageVersion> GetHeldBaselineVersion(const IPackageStore& store) const
             {
-                return m_baselineIdentity.empty() ? std::nullopt : store.GetVersion(GetBaselineKey());
+                return m_data.HasBaselineIdentity() ? store.GetVersion(GetBaselineKey()) : std::nullopt;
             }
 
             // Learns the identity to acquire the baseline under by reading the published package.
@@ -345,9 +342,9 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
 
-                    m_baselineIdentity = Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName());
+                    m_data.BaselineIdentity(Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName()));
 
-                    AICLI_LOG(Repo, Info, << "Baseline for source `" << m_details.Name << "` has identity " << m_baselineIdentity);
+                    AICLI_LOG(Repo, Info, << "Baseline for source `" << m_details.Name << "` has identity " << m_data.BaselineIdentity());
                     return true;
                 }
                 catch (...)
@@ -372,7 +369,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             {
                 try
                 {
-                    store.RemovePackage(PackageKey{ PackageSlot::FullIndex, m_fullIndexIdentity }, progress);
+                    store.RemovePackage(PackageKey{ PackageSlot::FullIndex, m_data.FullIdentity() }, progress);
                 }
                 CATCH_LOG();
             }
@@ -431,9 +428,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             }
 
             SourceDetails m_details;
-            std::string m_fullIndexIdentity;
-            std::string m_deltaIdentity;
-            std::string m_baselineIdentity;
+            SourceData m_data;
         };
     }
 

@@ -290,8 +290,7 @@ TEST_CASE("PreIndexedSourceData_RoundTrip", "[pips][source_data]")
 
 TEST_CASE("PreIndexedSourceData_DeltaPairRoundTrip", "[pips][source_data]")
 {
-    // What adding a delta capable source produces: the two packages it actually has, and no full
-    // index to fall back to.
+    // Older delta source data can name only the delta pair, without a full index to fall back to.
     SourceData original;
     original.DeltaIdentity(std::string{ s_DeltaIdentity });
     original.BaselineIdentity(std::string{ s_BaselineIdentity });
@@ -630,16 +629,6 @@ namespace
             return GetStatePathFor(FullIndexFamilyName);
         }
 
-        // Where the local file store keeps a source that settled on the delta pair.
-        //
-        // A source is keyed on the identity of its first package, and a delta pair has no full
-        // index to be keyed on, so the two forms do not share a state directory.
-        fs::path DeltaStatePath() const
-        {
-            REQUIRE(!DeltaFamilyName.empty());
-            return GetStatePathFor(DeltaFamilyName);
-        }
-
         // Clears every trace of this source, whichever form it settles on.
         void CleanSources() const
         {
@@ -837,23 +826,20 @@ TEST_CASE("PIPS_LocalFile_Delta_Add", "[pips][local_file][delta]")
 
     SourceDetails stored = GetStoredDetails(details.Name);
 
-    // Adding is the only operation that can learn what a source's packages are, so it is the only
-    // one that records them. A source that settled on the delta pair names the two packages it
-    // actually has and no full index.
+    // Record every identity while adding, including the full index that can serve the source
+    // when delta is disabled, without acquiring the full index.
     SourceData data{ stored.Data };
-    REQUIRE(!data.HasFullIdentity());
+    REQUIRE(data.FullIdentity() == source.FullIndexFamilyName);
     REQUIRE(data.DeltaIdentity() == source.DeltaFamilyName);
     REQUIRE(data.BaselineIdentity() == source.BaselineFamilyName);
 
     // The baseline is a package in its own right, not the full index under another name.
     REQUIRE(source.BaselineFamilyName != source.FullIndexFamilyName);
 
-    // With no full index to be known by, the source is keyed on its delta. That is the package
-    // published at a fixed name, so it is the one that cannot move out from under the local state
-    // directory and the cross process lock.
-    REQUIRE(stored.Identifier == source.DeltaFamilyName);
+    // Both forms use the same source identity, so disabling delta preserves its state and lock.
+    REQUIRE(stored.Identifier == source.FullIndexFamilyName);
 
-    fs::path state = source.DeltaStatePath();
+    fs::path state = source.StatePath();
     REQUIRE(fs::exists(state / s_DeltaMsixName));
     REQUIRE(fs::exists(state / s_BaselineMsixName));
 
@@ -863,6 +849,45 @@ TEST_CASE("PIPS_LocalFile_Delta_Add", "[pips][local_file][delta]")
     // The package added after the baseline was captured is only in the delta, so finding it proves
     // that the two were merged rather than that either was read on its own.
     REQUIRE(GetSourcePackageIds(details.Name) == std::set<std::string>{ s_Package1Id, s_Package2Id, s_Package3Id });
+}
+
+TEST_CASE("PIPS_LocalFile_Delta_FeatureDisabledUsesFullIndex", "[pips][local_file][delta]")
+{
+    bool explicitUpdate = GENERATE(false, true);
+    TestHook::SetSourcePackageTrustValidation_Override trustOverride;
+
+    TestPreIndexedSource source{ { MakeIndexFields(s_Package1Id) } };
+    source.PublishBaseline();
+    source.AddPackage(MakeIndexFields(s_Package2Id));
+    source.Publish(s_SecondVersion, true);
+    source.CleanSources();
+
+    SourceDetails details = source.MakeDetails();
+    TestProgress callback;
+    {
+        TestHook::SetSingleExperimentalFeature_Override deltaEnabled{ ExperimentalFeature::Feature::DeltaIndex };
+        REQUIRE(AddSource(details, callback));
+    }
+
+    SourceDetails stored = GetStoredDetails(details.Name);
+    fs::path state = source.StatePath();
+    REQUIRE(fs::exists(state / s_DeltaMsixName));
+    REQUIRE(fs::exists(state / s_BaselineMsixName));
+    REQUIRE(!fs::exists(state / s_IndexMsixName));
+
+    TestHook::SetSingleExperimentalFeature_Override deltaDisabled{ ExperimentalFeature::Feature::DeltaIndex, false };
+    if (explicitUpdate)
+    {
+        REQUIRE(UpdateSource(details.Name, callback));
+    }
+
+    REQUIRE(GetSourcePackageIds(details.Name) == std::set<std::string>{ s_Package1Id, s_Package2Id });
+    REQUIRE(fs::exists(state / s_IndexMsixName));
+    REQUIRE(GetStoredDetails(details.Name).Data == stored.Data);
+    REQUIRE(GetStoredDetails(details.Name).Identifier == stored.Identifier);
+
+    REQUIRE(RemoveSource(details.Name, callback));
+    REQUIRE(!fs::exists(state));
 }
 
 TEST_CASE("PIPS_LocalFile_Delta_UpdateKeepsBaseline", "[pips][local_file][delta]")
@@ -883,7 +908,7 @@ TEST_CASE("PIPS_LocalFile_Delta_UpdateKeepsBaseline", "[pips][local_file][delta]
 
     REQUIRE(AddSource(details, callback));
 
-    fs::path baselinePackage = source.DeltaStatePath() / s_BaselineMsixName;
+    fs::path baselinePackage = source.StatePath() / s_BaselineMsixName;
     REQUIRE(fs::exists(baselinePackage));
     auto baselineWriteTime = fs::last_write_time(baselinePackage);
 
@@ -978,7 +1003,7 @@ TEST_CASE("PIPS_LocalFile_Delta_RemoveClearsEverySlot", "[pips][local_file][delt
 
     REQUIRE(AddSource(details, callback));
 
-    fs::path state = source.DeltaStatePath();
+    fs::path state = source.StatePath();
     REQUIRE(fs::exists(state / s_DeltaMsixName));
     REQUIRE(fs::exists(state / s_BaselineMsixName));
 
@@ -1009,11 +1034,12 @@ TEST_CASE("PIPS_LocalFile_Delta_FallbackLeavesNothingOfTheDeltaAttempt", "[pips]
 
     REQUIRE(AddSource(details, callback));
 
-    // Nothing displaces what the attempt held: the two forms are keyed on different identities, so
-    // the delta would have sat in a state directory of its own for as long as the source existed.
+    // Acquiring the full index must not leave the unused delta attempt in any state directory.
     REQUIRE(!fs::exists(GetStatePathFor(source.DeltaFamilyName)));
 
     REQUIRE(fs::exists(source.StatePath() / s_IndexMsixName));
+    REQUIRE(!fs::exists(source.StatePath() / s_DeltaMsixName));
+    REQUIRE(!fs::exists(source.StatePath() / s_BaselineMsixName));
 }
 
 TEST_CASE("PIPS_LocalFile_Delta_UpdateDiscardsTheFullIndex", "[pips][local_file][delta]")
@@ -1034,11 +1060,9 @@ TEST_CASE("PIPS_LocalFile_Delta_UpdateDiscardsTheFullIndex", "[pips][local_file]
 
     REQUIRE(AddSource(details, callback));
 
-    // Stands in for a full index that the source acquired before it had a delta to use instead.
-    // Nothing produces one today -- a source settles on a form when it is added -- but the two are
-    // separate packages, so once a source does hold both, nothing the delta does displaces the
-    // full index and it would be kept at full size for as long as the source existed.
-    fs::path fullIndex = source.DeltaStatePath() / s_IndexMsixName;
+    // Stands in for a full index acquired while delta was disabled. The two are separate packages,
+    // so nothing about acquiring a delta would otherwise displace the full index.
+    fs::path fullIndex = source.StatePath() / s_IndexMsixName;
     fs::copy_file(source.Remote.GetPath() / std::string{ s_RemoteIndexMsixName }, fullIndex);
     REQUIRE(fs::exists(fullIndex));
 
@@ -1050,8 +1074,8 @@ TEST_CASE("PIPS_LocalFile_Delta_UpdateDiscardsTheFullIndex", "[pips][local_file]
     REQUIRE(!fs::exists(fullIndex));
 
     // The packages the source is actually made of are untouched by the housekeeping.
-    REQUIRE(fs::exists(source.DeltaStatePath() / s_DeltaMsixName));
-    REQUIRE(fs::exists(source.DeltaStatePath() / s_BaselineMsixName));
+    REQUIRE(fs::exists(source.StatePath() / s_DeltaMsixName));
+    REQUIRE(fs::exists(source.StatePath() / s_BaselineMsixName));
 
     REQUIRE(GetSourcePackageIds(details.Name) == std::set<std::string>{ s_Package1Id, s_Package2Id, s_Package3Id });
 }
@@ -1146,7 +1170,7 @@ namespace
 
         fs::path BaselinePackage() const
         {
-            return Source.DeltaStatePath() / s_BaselineMsixName;
+            return Source.StatePath() / s_BaselineMsixName;
         }
     };
 }
