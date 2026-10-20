@@ -61,11 +61,9 @@ namespace AppInstaller::Repository::Microsoft
         std::filesystem::path baselinePath{ Utility::ConvertToUTF16(baselineFilePath) };
         THROW_HR_IF(E_INVALIDARG, baselinePath.empty() || baselinePath.is_relative());
 
-        std::vector<Utility::ManagedFile> files;
-        files.reserve(2);
-        files.emplace_back(std::move(deltaFile));
-        files.emplace_back(std::move(baselineFile));
-        SQLiteIndex result{ SQLite::DatabaseSpecifier{ deltaFilePath, disposition }, std::move(files) };
+        SQLiteIndex result{
+            SQLite::DatabaseSpecifier{ deltaFilePath, disposition },
+            InitializeFromMoveOnly<std::vector<Utility::ManagedFile>>({ std::move(deltaFile), std::move(baselineFile) }) };
 
         // The interface for the delta's schema version establishes the combined view.
         result.m_interface->SetupDeltaReadMode(result.m_dbconn, SQLite::DatabaseSpecifier{ baselineFilePath, disposition });
@@ -94,7 +92,7 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteIndex(SQLite::DatabaseSpecifier{ target, disposition }, std::vector<Utility::ManagedFile>{ std::move(indexFile) })
+        SQLiteIndex(SQLite::DatabaseSpecifier{ target, disposition }, InitializeFromMoveOnly<std::vector<Utility::ManagedFile>>({ std::move(indexFile) }))
     {
     }
 

@@ -4,6 +4,7 @@
 #include "Public/winget/SQLiteStorageBase.h"
 #include "Public/winget/SQLiteMetadataTable.h"
 #include "AppInstallerDateTime.h"
+#include "AppInstallerLanguageUtilities.h"
 
 namespace AppInstaller::SQLite
 {
@@ -108,7 +109,7 @@ namespace AppInstaller::SQLite
     }
 
     SQLiteStorageBase::SQLiteStorageBase(const DatabaseSpecifier& specifier, Utility::ManagedFile&& file) :
-        SQLiteStorageBase(specifier, std::vector<Utility::ManagedFile>{ std::move(file) })
+        SQLiteStorageBase(specifier, InitializeFromMoveOnly<std::vector<Utility::ManagedFile>>({ std::move(file) }))
     {
     }
 
