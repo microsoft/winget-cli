@@ -60,11 +60,13 @@ namespace AppInstallerCLIE2ETests
         public const string DeltaTestSourceUrl = @"https://localhost:5001/TestKit/" + DeltaTestSourceDirectory;
         public const string DeltaTestSourceIdentityName = @"WingetE2EDelta.Tests";
         public const string DeltaTestSourceDeltaIdentityName = @"WingetE2EDelta.Tests.Delta";
+        public const string DeltaTestSourceBaselineIdentityName = @"WingetE2EDelta.Tests.Baseline";
         public const string DeltaTestSourceIdentifier = DeltaTestSourceIdentityName + "_" + AICLIPackagePublisherHash;
         public const string DeltaTestSourceDeltaIdentifier = DeltaTestSourceDeltaIdentityName + "_" + AICLIPackagePublisherHash;
+        public const string DeltaTestSourceBaselineIdentifier = DeltaTestSourceBaselineIdentityName + "_" + AICLIPackagePublisherHash;
 
-        // The baseline is published older than the full index, so that a client that already holds
-        // the full index has to move backward to pick the baseline up.
+        // The baseline is published older than the full index, because a baseline is captured once
+        // and then described by a succession of deltas.
         public const string DeltaTestSourceVersion = @"2020.805.713.335";
         public const string DeltaTestSourceBaselineVersion = @"2020.805.713.334";
         public const string DeltaTestSourceBaselineRelativePath = @"baseline/source2.msix";

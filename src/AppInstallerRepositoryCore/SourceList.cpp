@@ -39,16 +39,25 @@ namespace AppInstaller::Repository
 
         constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
-        constexpr std::string_view s_Source_WingetCommunityDefault_MainIdentity = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+        constexpr std::string_view s_Source_WingetCommunityDefault_FullIdentity = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_DeltaIdentity = "Microsoft.Winget.Source.Delta_8wekyb3d8bbwe"sv;
+        constexpr std::string_view s_Source_WingetCommunityDefault_BaselineIdentity = "Microsoft.Winget.Source.Baseline_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
-        // The Data of the built in winget source, which names its delta as well as its base.
+        // The Data of the built in winget source, which names its delta and baseline as well as
+        // its full index.
+        //
+        // This is the one source that names all three. A source that is added settles on one form
+        // or the other, but this one is declared rather than discovered, and naming the full index
+        // is what keeps it known by the identity it has always had: the local state directory and
+        // the cross process lock are derived from that, and every machine the client has ever run
+        // on already has state under it.
         std::string GetWingetCommunityDefaultData()
         {
             Microsoft::PreIndexed::SourceData data;
-            data.BaseIdentity(std::string{ s_Source_WingetCommunityDefault_MainIdentity });
+            data.FullIdentity(std::string{ s_Source_WingetCommunityDefault_FullIdentity });
             data.DeltaIdentity(std::string{ s_Source_WingetCommunityDefault_DeltaIdentity });
+            data.BaselineIdentity(std::string{ s_Source_WingetCommunityDefault_BaselineIdentity });
             return data.Serialize();
         }
 

@@ -197,6 +197,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                     RelativeDirectory = Constants.DeltaTestSourceDirectory,
                     IdentityName = Constants.DeltaTestSourceIdentityName,
                     DeltaIdentityName = Constants.DeltaTestSourceDeltaIdentityName,
+                    BaselineIdentityName = Constants.DeltaTestSourceBaselineIdentityName,
                     Version = Constants.DeltaTestSourceVersion,
                     BaselineVersion = Constants.DeltaTestSourceBaselineVersion,
                     BaselineRelativePath = Constants.DeltaTestSourceBaselineRelativePath,

@@ -9,8 +9,9 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
     namespace
     {
-        constexpr std::string_view s_SourceData_BaseIdentity = "baseIdentity"sv;
+        constexpr std::string_view s_SourceData_FullIdentity = "fullIdentity"sv;
         constexpr std::string_view s_SourceData_DeltaIdentity = "deltaIdentity"sv;
+        constexpr std::string_view s_SourceData_BaselineIdentity = "baselineIdentity"sv;
 
         // Reads an optional string member, requiring that it be a string when present.
         std::string ReadStringMember(const Json::Value& root, std::string_view name)
@@ -45,7 +46,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         if (data[firstNonSpace] != '{')
         {
             // The original syntax: the whole value is the one identity that the source has.
-            m_baseIdentity = data;
+            m_fullIdentity = data;
             return;
         }
 
@@ -68,26 +69,44 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
         // Unrecognized members are ignored, so that a newer client can add to this value without
         // an older one refusing to read the source at all.
-        m_baseIdentity = ReadStringMember(root, s_SourceData_BaseIdentity);
+        m_fullIdentity = ReadStringMember(root, s_SourceData_FullIdentity);
         m_deltaIdentity = ReadStringMember(root, s_SourceData_DeltaIdentity);
+        m_baselineIdentity = ReadStringMember(root, s_SourceData_BaselineIdentity);
 
-        if (m_baseIdentity.empty())
+        // A value that names no package at all identifies nothing, and every path from here needs
+        // something to key the source on.
+        if (m_fullIdentity.empty() && m_deltaIdentity.empty())
         {
-            AICLI_LOG(Repo, Error, << "Source data did not contain a base identity: " << data);
+            AICLI_LOG(Repo, Error, << "Source data did not contain an identity for the source: " << data);
             THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
         }
     }
 
     std::string SourceData::Serialize() const
     {
-        if (m_deltaIdentity.empty())
+        if (m_deltaIdentity.empty() && m_baselineIdentity.empty())
         {
-            return m_baseIdentity;
+            return m_fullIdentity;
         }
 
         Json::Value root{ Json::objectValue };
-        root[std::string{ s_SourceData_BaseIdentity }] = m_baseIdentity;
-        root[std::string{ s_SourceData_DeltaIdentity }] = m_deltaIdentity;
+
+        // Only what the source actually has is written, so that the value says what it means
+        // rather than carrying empty members that a reader would have to interpret.
+        if (!m_fullIdentity.empty())
+        {
+            root[std::string{ s_SourceData_FullIdentity }] = m_fullIdentity;
+        }
+
+        if (!m_deltaIdentity.empty())
+        {
+            root[std::string{ s_SourceData_DeltaIdentity }] = m_deltaIdentity;
+        }
+
+        if (!m_baselineIdentity.empty())
+        {
+            root[std::string{ s_SourceData_BaselineIdentity }] = m_baselineIdentity;
+        }
 
         Json::StreamWriterBuilder writer;
         // The value is stored as a single line in the sources settings file.

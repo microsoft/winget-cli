@@ -13,21 +13,25 @@ namespace WinGetSourceCreator.Model
         // This is also what a client is pointed at, so everything the source offers lives below it.
         public string RelativeDirectory { get; set; } = "deltaSource";
 
-        // Identity name carried by both the full index and the baseline. MSIX forbids publishing
-        // different content under one identity and version, so they are separated by version
-        // instead: a baseline is simply the full index as it stood when it was captured.
+        // Identity name carried by the full index.
         public string IdentityName { get; set; } = string.Empty;
 
         // Identity name carried by the delta, which has to differ from the above so that a client
         // can acquire one without the other.
         public string DeltaIdentityName { get; set; } = string.Empty;
 
+        // Identity name carried by the baseline. A baseline is a full index in content, but it is
+        // published as a package in its own right: a client on the delta holds a baseline and no
+        // full index, while one that is not holds the opposite, and a store that addresses packages
+        // by identity could not tell the two apart if they shared one.
+        public string BaselineIdentityName { get; set; } = string.Empty;
+
         // The version of the full index and of the delta that describes it.
         public string Version { get; set; } = string.Empty;
 
-        // The baseline is published at an older version than the full index, so that a client
-        // already holding the full index has to move backward to pick the baseline up. That is the
-        // ordinary state of a real source, and it is worth having the tests live in it.
+        // The baseline is published at an older version than the full index, because a baseline is
+        // captured once and then described by a succession of deltas. The two no longer share an
+        // identity, so this is realism rather than a constraint the client depends on.
         public string BaselineVersion { get; set; } = string.Empty;
 
         // Where the baseline is published, relative to the source's own location. The delta records
@@ -55,9 +59,20 @@ namespace WinGetSourceCreator.Model
                 throw new ArgumentNullException(nameof(this.DeltaIdentityName));
             }
 
-            if (this.IdentityName == this.DeltaIdentityName)
+            if (string.IsNullOrEmpty(this.BaselineIdentityName))
             {
-                throw new ArgumentException("The delta must have an identity of its own", nameof(this.DeltaIdentityName));
+                throw new ArgumentNullException(nameof(this.BaselineIdentityName));
+            }
+
+            // All three are addressed independently by a client, so any two of them sharing a name
+            // would make the source untestable rather than merely unrealistic.
+            var identities = new HashSet<string>(
+                new[] { this.IdentityName, this.DeltaIdentityName, this.BaselineIdentityName },
+                StringComparer.Ordinal);
+
+            if (identities.Count != 3)
+            {
+                throw new ArgumentException("The full index, the delta and the baseline must each have an identity of their own", nameof(this.IdentityName));
             }
 
             if (string.IsNullOrEmpty(this.Version))

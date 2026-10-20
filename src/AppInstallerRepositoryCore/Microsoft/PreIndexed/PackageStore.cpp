@@ -78,7 +78,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // 
         // The fallback exists because Identifier was not always stored; a source written by an old
         // enough client has only Data, which is the value such a client would have put there.
-        m_sourceIdentity = details.Identifier.empty() ? SourceData{ details.Data }.BaseIdentity() : details.Identifier;
+        m_sourceIdentity = details.Identifier.empty() ? SourceData{ details.Data }.SourceIdentity() : details.Identifier;
         THROW_HR_IF(E_UNEXPECTED, m_sourceIdentity.empty());
     }
 
@@ -299,7 +299,23 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 THROW_IF_FAILED(firstStoreFailure);
             }
 
+            void RemovePackage(const PackageKey& package, IProgressCallback& progress) override
+            {
+                // Every store that could hold it drops it. A package the source has stopped
+                // needing is unwanted wherever it is, and unlike a read there is no single store
+                // that holds the answer.
+                for (auto& store : m_stores)
+                {
+                    try
+                    {
+                        store->RemovePackage(package, progress);
+                    }
+                    CATCH_LOG();
+                }
+            }
+
             Synchronization::CrossProcessLock Lock(IProgressCallback& progress, bool isBackground = false) override
+
             {
                 // The lock is named from the source rather than from the mechanism, so every store
                 // for a source shares one and any of them can take it.

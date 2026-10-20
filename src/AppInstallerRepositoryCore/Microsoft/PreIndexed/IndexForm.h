@@ -27,7 +27,18 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
         // Whether this update is one that should be reported.
         bool Reportable = false;
+
+        // What the update learned about the source's packages, when that is more than the details
+        // it was given already said.
+        //
+        // A delta names the location of its baseline, so the baseline's identity cannot be known
+        // until a delta has been acquired and read. An update is therefore the first operation
+        // that can learn it, and the value to store back into SourceDetails::Data is reported
+        // here rather than discovered a second time. Only the add path can act on it; every other
+        // caller is given a const SourceDetails and has nowhere to put it.
+        std::optional<std::string> LearnedIdentities;
     };
+
 
     // What an attempt to update a form concluded.
     enum class UpdateResult
@@ -59,13 +70,17 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // learns. A form whose details are already populated reports what they say, so a source
         // configured before this form existed is not silently migrated onto it.
         //
+        // What is discovered here has to be enough to identify the source and to begin acquiring
+        // its packages, but need not be all of them: see UpdateReport::LearnedIdentities.
+        //
         // Returns the value that should be written to SourceDetails::Data, or nothing when the
         // source does not publish the packages that this form needs.
         virtual std::optional<std::string> DiscoverIdentities(IProgressCallback& progress) = 0;
 
-        // The packages that make up this form.
-        // Throws when the identities are not yet known; see DiscoverIdentities.
+        // The packages that make up this form, as far as their identities are known.
+        // Throws when nothing is known at all; see DiscoverIdentities.
         virtual std::vector<PackageKey> GetPackages() const = 0;
+
 
         // Whether the identities of this form's packages are already known, so that GetPackages
         // can be called and no probe is needed.

@@ -76,7 +76,7 @@ namespace AppInstaller::Repository::Microsoft
                 {
                     // We didn't use to store the source identifier, so we compute it here in case
                     // it's missing from the details.
-                    m_details.Identifier = SourceData{ m_details.Data }.BaseIdentity();
+                    m_details.Identifier = SourceData{ m_details.Data }.SourceIdentity();
                 }
 
                 m_form = SelectFormForOpen(m_details);
@@ -230,6 +230,24 @@ namespace AppInstaller::Repository::Microsoft
 
                             auto store = CreateStore(details);
                             result = form->Update(*store, false, progress, report);
+
+                            if (report.LearnedIdentities)
+                            {
+                                // The update found the rest of what the source is made of. The
+                                // identity the source is keyed on does not move, since it is
+                                // derived from the delta and that was known from the first call.
+                                WriteDiscoveredIdentities(details, report.LearnedIdentities.value());
+                            }
+
+                            if (result != UpdateResult::Success)
+                            {
+                                // The source is about to settle on the full index instead, and a
+                                // form that was given up on is not something the source will ever
+                                // come back to. Whatever the attempt left behind is keyed on the
+                                // delta rather than on the full index, so nothing the full index
+                                // does afterwards would displace it.
+                                DiscardPackagesOf(details, *store, *form, progress);
+                            }
                         }
                     }
                     catch (...)
@@ -249,6 +267,11 @@ namespace AppInstaller::Repository::Microsoft
                     // Either the source publishes no delta, or the one it publishes cannot serve
                     // it. Adding must still succeed, so the full index is acquired instead.
                     report = {};
+
+                    // Nothing of the delta attempt is kept: the source is settling on the full
+                    // index, and Data naming a delta is what would send it back to the other form.
+                    details.Data.clear();
+                    details.Identifier.clear();
 
                     auto form = CreateFullIndexForm(details);
                     auto data = form->DiscoverIdentities(progress);
@@ -339,13 +362,40 @@ namespace AppInstaller::Repository::Microsoft
             {
                 details.Data = data;
 
-                // The source's own identity is the one it has always been known by, not the
-                // delta's; it has to stay stable across a source becoming delta capable, since
-                // the local state directory and the cross process lock are derived from it.
-                details.Identifier = SourceData{ data }.BaseIdentity();
+                // The identity of the source itself is derived from what it is made of rather
+                // than chosen, so that it is the same every time it is computed. The local state
+                // directory and the cross process lock are both derived from it, which is why it
+                // must not depend on how much has been learned so far; see
+                // SourceData::SourceIdentity.
+                details.Identifier = SourceData{ data }.SourceIdentity();
+            }
+
+            // Drops everything a form left behind, for a form that the source is not going to use.
+            //
+            // Best effort: the source is still going to be added, and leaving a package behind is
+            // not a reason to refuse it.
+            static void DiscardPackagesOf(const SourceDetails& details, IPackageStore& store, IIndexForm& form, IProgressCallback& progress)
+            {
+                try
+                {
+                    auto lock = store.Lock(progress);
+                    if (!lock)
+                    {
+                        return;
+                    }
+
+                    // The store is keyed on this form's own identity, so clearing it clears exactly
+                    // what the attempt created and nothing the source goes on to use.
+                    store.Remove(form.GetPackages(), progress);
+                }
+                catch (...)
+                {
+                    LOG_CAUGHT_EXCEPTION_MSG("Could not discard the packages of an unused form for source: %hs", details.Name.c_str());
+                }
             }
 
             bool UpdateBase(const SourceDetails& details, bool isBackground, IProgressCallback& progress)
+
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
@@ -359,8 +409,8 @@ namespace AppInstaller::Repository::Microsoft
                     auto form = CreateDeltaIndexForm(details);
 
                     // An update never probes for a delta: the details say whether the source
-                    // has one. A source configured with only a base identity names no delta
-                    // and uses the full index, which is what it did before deltas existed.
+                    // has one. A source configured with only a full index identity names no
+                    // delta and uses the full index, which is what it did before deltas existed.
                     if (form->HasIdentities())
                     {
                         result = form->Update(*store, isBackground, progress, report);

@@ -17,7 +17,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         {
             FullIndexForm(const SourceDetails& details) : m_details(details)
             {
-                m_identity = SourceData{ details.Data }.BaseIdentity();
+                m_identity = SourceData{ details.Data }.FullIdentity();
             }
 
             std::optional<std::string> DiscoverIdentities(IProgressCallback&) override

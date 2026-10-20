@@ -241,16 +241,19 @@ namespace
     constexpr std::string_view s_WinGetSourceIdentity = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
     // Stand in identities for the data format cases, which care only that a value survives.
-    constexpr std::string_view s_BaseIdentity = "Base_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_FullIdentity = "Base_8wekyb3d8bbwe"sv;
     constexpr std::string_view s_DeltaIdentity = "Delta_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_BaselineIdentity = "Baseline_8wekyb3d8bbwe"sv;
 }
 
 TEST_CASE("PreIndexedSourceData_BareIdentity", "[pips][source_data]")
 {
     SourceData data{ s_WinGetSourceIdentity };
 
-    REQUIRE(data.BaseIdentity() == s_WinGetSourceIdentity);
+    REQUIRE(data.FullIdentity() == s_WinGetSourceIdentity);
     REQUIRE(!data.HasDeltaIdentity());
+    REQUIRE(!data.HasBaselineIdentity());
+    REQUIRE(data.SourceIdentity() == s_WinGetSourceIdentity);
 
     // A source with no delta round trips to exactly what it was read from, so that the stored
     // value does not churn for sources that are not delta capable.
@@ -261,47 +264,83 @@ TEST_CASE("PreIndexedSourceData_Empty", "[pips][source_data]")
 {
     SourceData data{ ""sv };
 
-    REQUIRE(!data.HasBaseIdentity());
+    REQUIRE(!data.HasFullIdentity());
     REQUIRE(!data.HasDeltaIdentity());
+    REQUIRE(!data.HasBaselineIdentity());
     REQUIRE(data.Serialize().empty());
 }
 
 TEST_CASE("PreIndexedSourceData_RoundTrip", "[pips][source_data]")
 {
     SourceData original;
-    original.BaseIdentity(std::string{ s_BaseIdentity });
+    original.FullIdentity(std::string{ s_FullIdentity });
     original.DeltaIdentity(std::string{ s_DeltaIdentity });
+    original.BaselineIdentity(std::string{ s_BaselineIdentity });
 
     std::string serialized = original.Serialize();
     INFO(serialized);
 
     SourceData parsed{ serialized };
 
-    REQUIRE(parsed.BaseIdentity() == s_BaseIdentity);
+    REQUIRE(parsed.FullIdentity() == s_FullIdentity);
     REQUIRE(parsed.DeltaIdentity() == s_DeltaIdentity);
+    REQUIRE(parsed.BaselineIdentity() == s_BaselineIdentity);
     REQUIRE(parsed.Serialize() == serialized);
+}
+
+TEST_CASE("PreIndexedSourceData_DeltaPairRoundTrip", "[pips][source_data]")
+{
+    // What adding a delta capable source produces: the two packages it actually has, and no full
+    // index to fall back to.
+    SourceData original;
+    original.DeltaIdentity(std::string{ s_DeltaIdentity });
+    original.BaselineIdentity(std::string{ s_BaselineIdentity });
+
+    std::string serialized = original.Serialize();
+    INFO(serialized);
+
+    SourceData parsed{ serialized };
+
+    REQUIRE(!parsed.HasFullIdentity());
+    REQUIRE(parsed.DeltaIdentity() == s_DeltaIdentity);
+    REQUIRE(parsed.BaselineIdentity() == s_BaselineIdentity);
+
+    // With no full index to be known by, the source is keyed on its delta.
+    REQUIRE(parsed.SourceIdentity() == s_DeltaIdentity);
+}
+
+TEST_CASE("PreIndexedSourceData_SourceIdentityPrefersTheFullIndex", "[pips][source_data]")
+{
+    // The identity a source is known by must not depend on which of its packages it happens to
+    // be using, since its local state directory and cross process lock are derived from it.
+    SourceData data;
+    data.FullIdentity(std::string{ s_FullIdentity });
+    data.DeltaIdentity(std::string{ s_DeltaIdentity });
+    data.BaselineIdentity(std::string{ s_BaselineIdentity });
+
+    REQUIRE(data.SourceIdentity() == s_FullIdentity);
 }
 
 TEST_CASE("PreIndexedSourceData_UnknownMembersIgnored", "[pips][source_data]")
 {
     // A newer client may add to this value; an older one must still be able to use the source.
-    std::string withUnknown = R"({"baseIdentity":")" + std::string{ s_BaseIdentity } + R"(","somethingNew":42})";
+    std::string withUnknown = R"({"fullIdentity":")" + std::string{ s_FullIdentity } + R"(","somethingNew":42})";
 
     SourceData data{ withUnknown };
 
-    REQUIRE(data.BaseIdentity() == s_BaseIdentity);
+    REQUIRE(data.FullIdentity() == s_FullIdentity);
     REQUIRE(!data.HasDeltaIdentity());
 }
 
 TEST_CASE("PreIndexedSourceData_Malformed", "[pips][source_data]")
 {
     // A value that is structured but unreadable is an error, not a package family name.
-    std::string truncated = R"({"baseIdentity":)";
-    std::string noBase = R"({"deltaIdentity":")" + std::string{ s_DeltaIdentity } + R"("})";
-    std::string wrongType = R"({"baseIdentity":42})";
+    std::string truncated = R"({"fullIdentity":)";
+    std::string noIdentity = R"({"baselineIdentity":")" + std::string{ s_BaselineIdentity } + R"("})";
+    std::string wrongType = R"({"fullIdentity":42})";
 
     REQUIRE_THROWS(SourceData{ truncated });
-    REQUIRE_THROWS(SourceData{ noBase });
+    REQUIRE_THROWS(SourceData{ noIdentity });
     REQUIRE_THROWS(SourceData{ wrongType });
 }
 
@@ -309,12 +348,18 @@ TEST_CASE("PreIndexedSourceData_WellKnownWinGetSourceNamesDelta", "[pips][source
 {
     SourceData data{ GetWellKnownSourceDetails(WellKnownSource::WinGet).Data };
 
-    REQUIRE(data.BaseIdentity() == s_WinGetSourceIdentity);
+    REQUIRE(data.FullIdentity() == s_WinGetSourceIdentity);
     REQUIRE(data.HasDeltaIdentity());
+    REQUIRE(data.HasBaselineIdentity());
+
+    // Each package has an identity of its own, so that a store can hold them all at once.
+    REQUIRE(data.BaselineIdentity() != data.FullIdentity());
+    REQUIRE(data.BaselineIdentity() != data.DeltaIdentity());
 
     // The source's own identity has to stay the one it has always been known by, since the local
     // state directory and the cross process lock are derived from it.
-    REQUIRE(GetWellKnownSourceDetails(WellKnownSource::WinGet).Identifier == data.BaseIdentity());
+    REQUIRE(GetWellKnownSourceDetails(WellKnownSource::WinGet).Identifier == data.FullIdentity());
+    REQUIRE(data.SourceIdentity() == data.FullIdentity());
 }
 
 // The cases below build their own packages rather than using the signed test data, so they need
@@ -339,6 +384,10 @@ namespace
 
     constexpr std::string_view s_DeltaMsixName = "delta.msix"sv;
     constexpr std::string_view s_BaselineMsixName = "baseline.msix"sv;
+
+    // Where the source publishes its full index. The client prefers this name over the one it
+    // falls back to, so this is the one a test publishes to and reads back.
+    constexpr std::string_view s_RemoteIndexMsixName = "source2.msix"sv;
 
     // The versions that the source publishes its full index and delta at, in the order that the
     // cases publish them.
@@ -452,14 +501,16 @@ namespace
         PublishedBaseline Baseline{ s_BaselineRelativePath, s_BaselineVersion };
         PublishedBaseline NextBaseline{ s_NextBaselineRelativePath, s_NextBaselineVersion };
 
-        // The full index and the delta are published under different identities, since the client
-        // has to be able to ask for one without getting the other. The baseline keeps the identity
-        // that the full index has always used.
-        std::string BaseIdentityName = "WinGetTestSourceIndex";
+        // Every package the source publishes has an identity of its own, since the client has to
+        // be able to ask for one without getting another, and a store that holds packages by
+        // identity could not hold two that shared one.
+        std::string FullIdentityName = "WinGetTestSourceIndex";
         std::string DeltaIdentityName = "WinGetTestSourceIndexDelta";
+        std::string BaselineIdentityName = "WinGetTestSourceIndexBaseline";
 
-        std::string BaseFamilyName;
+        std::string FullIndexFamilyName;
         std::string DeltaFamilyName;
+        std::string BaselineFamilyName;
 
         TestPreIndexedSource(const std::vector<IndexFields>& packages)
         {
@@ -510,7 +561,7 @@ namespace
                 index.PrepareForPackaging();
             }
 
-            BaseFamilyName = PublishPackage(baseline.IndexFile.GetPath(), baseline.RelativePath, BaseIdentityName, baseline.Version);
+            BaselineFamilyName = PublishPackage(baseline.IndexFile.GetPath(), baseline.RelativePath, BaselineIdentityName, baseline.Version);
         }
 
         // Prepares a copy of the working index and publishes it as the source's full index,
@@ -544,7 +595,7 @@ namespace
                 index.PrepareForPackaging();
             }
 
-            BaseFamilyName = PublishPackage(prepared.GetPath(), "source2.msix"sv, BaseIdentityName, std::string{ version });
+            FullIndexFamilyName = PublishPackage(prepared.GetPath(), s_RemoteIndexMsixName, FullIdentityName, std::string{ version });
 
             if (publishDelta)
             {
@@ -555,7 +606,7 @@ namespace
         // Replaces the published baseline with one at a version the delta does not name.
         void RepublishBaselineAtVersion(std::string_view version)
         {
-            PublishPackage(Baseline.IndexFile.GetPath(), Baseline.RelativePath, BaseIdentityName, std::string{ version });
+            PublishPackage(Baseline.IndexFile.GetPath(), Baseline.RelativePath, BaselineIdentityName, std::string{ version });
         }
 
         // Where a published baseline package sits on the "remote".
@@ -575,15 +626,39 @@ namespace
 
         fs::path StatePath() const
         {
-            REQUIRE(!BaseFamilyName.empty());
-            return GetStatePathFor(BaseFamilyName);
+            REQUIRE(!FullIndexFamilyName.empty());
+            return GetStatePathFor(FullIndexFamilyName);
+        }
+
+        // Where the local file store keeps a source that settled on the delta pair.
+        //
+        // A source is keyed on the identity of its first package, and a delta pair has no full
+        // index to be keyed on, so the two forms do not share a state directory.
+        fs::path DeltaStatePath() const
+        {
+            REQUIRE(!DeltaFamilyName.empty());
+            return GetStatePathFor(DeltaFamilyName);
+        }
+
+        // Clears every trace of this source, whichever form it settles on.
+        void CleanSources() const
+        {
+            if (!FullIndexFamilyName.empty())
+            {
+                CleanSourcesFor(FullIndexFamilyName);
+            }
+
+            if (!DeltaFamilyName.empty())
+            {
+                CleanSourcesFor(DeltaFamilyName);
+            }
         }
 
         // Where the stand in for the deployed store holds this source's packages.
         fs::path DeployedStatePath() const
         {
-            REQUIRE(!BaseFamilyName.empty());
-            return GetDeployedStatePathFor(BaseFamilyName);
+            REQUIRE(!FullIndexFamilyName.empty());
+            return GetDeployedStatePathFor(FullIndexFamilyName);
         }
 
     private:
@@ -644,7 +719,7 @@ namespace
     {
         TestDeployedPackageStore(const SourceDetails& details)
         {
-            std::string identity = details.Identifier.empty() ? SourceData{ details.Data }.BaseIdentity() : details.Identifier;
+            std::string identity = details.Identifier.empty() ? SourceData{ details.Data }.SourceIdentity() : details.Identifier;
             REQUIRE(!identity.empty());
 
             SourceDetails deployedDetails = details;
@@ -678,6 +753,11 @@ namespace
             m_inner->Remove(packages, progress);
         }
 
+        void RemovePackage(const PackageKey& package, IProgressCallback& progress) override
+        {
+            m_inner->RemovePackage(package, progress);
+        }
+
         Synchronization::CrossProcessLock Lock(IProgressCallback& progress, bool isBackground = false) override
         {
             return m_inner->Lock(progress, isBackground);
@@ -705,7 +785,7 @@ TEST_CASE("PIPS_LocalFile_FullIndex", "[pips][local_file]")
     TestPreIndexedSource source{ { MakeIndexFields(s_Package1Id), MakeIndexFields(s_Package2Id) } };
     source.Publish(s_FirstVersion);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
@@ -748,7 +828,7 @@ TEST_CASE("PIPS_LocalFile_Delta_Add", "[pips][local_file][delta]")
     source.AddPackage(MakeIndexFields(s_Package3Id));
     source.Publish(s_SecondVersion, true);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
@@ -758,16 +838,22 @@ TEST_CASE("PIPS_LocalFile_Delta_Add", "[pips][local_file][delta]")
     SourceDetails stored = GetStoredDetails(details.Name);
 
     // Adding is the only operation that can learn what a source's packages are, so it is the only
-    // one that records both identities.
+    // one that records them. A source that settled on the delta pair names the two packages it
+    // actually has and no full index.
     SourceData data{ stored.Data };
-    REQUIRE(data.BaseIdentity() == source.BaseFamilyName);
+    REQUIRE(!data.HasFullIdentity());
     REQUIRE(data.DeltaIdentity() == source.DeltaFamilyName);
+    REQUIRE(data.BaselineIdentity() == source.BaselineFamilyName);
 
-    // The source's own identity stays the one it has always been known by, since the local state
-    // directory and the cross process lock are derived from it.
-    REQUIRE(stored.Identifier == source.BaseFamilyName);
+    // The baseline is a package in its own right, not the full index under another name.
+    REQUIRE(source.BaselineFamilyName != source.FullIndexFamilyName);
 
-    fs::path state = source.StatePath();
+    // With no full index to be known by, the source is keyed on its delta. That is the package
+    // published at a fixed name, so it is the one that cannot move out from under the local state
+    // directory and the cross process lock.
+    REQUIRE(stored.Identifier == source.DeltaFamilyName);
+
+    fs::path state = source.DeltaStatePath();
     REQUIRE(fs::exists(state / s_DeltaMsixName));
     REQUIRE(fs::exists(state / s_BaselineMsixName));
 
@@ -790,14 +876,14 @@ TEST_CASE("PIPS_LocalFile_Delta_UpdateKeepsBaseline", "[pips][local_file][delta]
     source.AddPackage(MakeIndexFields(s_Package2Id));
     source.Publish(s_SecondVersion, true);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
 
     REQUIRE(AddSource(details, callback));
 
-    fs::path baselinePackage = source.StatePath() / s_BaselineMsixName;
+    fs::path baselinePackage = source.DeltaStatePath() / s_BaselineMsixName;
     REQUIRE(fs::exists(baselinePackage));
     auto baselineWriteTime = fs::last_write_time(baselinePackage);
 
@@ -821,7 +907,7 @@ TEST_CASE("PIPS_LocalFile_Delta_FallsBackWhenNoDeltaPublished", "[pips][local_fi
     TestPreIndexedSource source{ { MakeIndexFields(s_Package1Id) } };
     source.Publish(s_FirstVersion);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
@@ -831,7 +917,7 @@ TEST_CASE("PIPS_LocalFile_Delta_FallsBackWhenNoDeltaPublished", "[pips][local_fi
     // A source that publishes no delta is an ordinary answer rather than a failure, so the added
     // source records no delta identity and holds the full index.
     SourceData data{ GetStoredDetails(details.Name).Data };
-    REQUIRE(data.BaseIdentity() == source.BaseFamilyName);
+    REQUIRE(data.FullIdentity() == source.FullIndexFamilyName);
     REQUIRE(!data.HasDeltaIdentity());
 
     fs::path state = source.StatePath();
@@ -856,7 +942,7 @@ TEST_CASE("PIPS_LocalFile_Delta_FallsBackWhenBaselineVersionDiffers", "[pips][lo
     // the version header says so before anything is downloaded.
     source.RepublishBaselineAtVersion(s_UnexpectedBaselineVersion);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
@@ -885,20 +971,89 @@ TEST_CASE("PIPS_LocalFile_Delta_RemoveClearsEverySlot", "[pips][local_file][delt
     source.AddPackage(MakeIndexFields(s_Package2Id));
     source.Publish(s_SecondVersion, true);
 
-    CleanSourcesFor(source.BaseFamilyName);
+    source.CleanSources();
 
     SourceDetails details = source.MakeDetails();
     TestProgress callback;
 
     REQUIRE(AddSource(details, callback));
 
-    fs::path state = source.StatePath();
+    fs::path state = source.DeltaStatePath();
     REQUIRE(fs::exists(state / s_DeltaMsixName));
     REQUIRE(fs::exists(state / s_BaselineMsixName));
 
     REQUIRE(RemoveSource(details.Name, callback));
 
     REQUIRE(!fs::exists(state));
+}
+
+TEST_CASE("PIPS_LocalFile_Delta_FallbackLeavesNothingOfTheDeltaAttempt", "[pips][local_file][delta]")
+{
+    TestHook::SetSingleExperimentalFeature_Override deltaEnabled{ ExperimentalFeature::Feature::DeltaIndex };
+    TestHook::SetSourcePackageTrustValidation_Override trustOverride;
+
+    TestPreIndexedSource source{ { MakeIndexFields(s_Package1Id) } };
+    source.PublishBaseline();
+
+    source.AddPackage(MakeIndexFields(s_Package2Id));
+    source.Publish(s_SecondVersion, true);
+
+    // The delta is acquired before anything can tell that its baseline will not serve, so by the
+    // time the source gives up on the delta it is already being held.
+    source.RepublishBaselineAtVersion(s_UnexpectedBaselineVersion);
+
+    source.CleanSources();
+
+    SourceDetails details = source.MakeDetails();
+    TestProgress callback;
+
+    REQUIRE(AddSource(details, callback));
+
+    // Nothing displaces what the attempt held: the two forms are keyed on different identities, so
+    // the delta would have sat in a state directory of its own for as long as the source existed.
+    REQUIRE(!fs::exists(GetStatePathFor(source.DeltaFamilyName)));
+
+    REQUIRE(fs::exists(source.StatePath() / s_IndexMsixName));
+}
+
+TEST_CASE("PIPS_LocalFile_Delta_UpdateDiscardsTheFullIndex", "[pips][local_file][delta]")
+{
+    TestHook::SetSingleExperimentalFeature_Override deltaEnabled{ ExperimentalFeature::Feature::DeltaIndex };
+    TestHook::SetSourcePackageTrustValidation_Override trustOverride;
+
+    TestPreIndexedSource source{ { MakeIndexFields(s_Package1Id) } };
+    source.PublishBaseline();
+
+    source.AddPackage(MakeIndexFields(s_Package2Id));
+    source.Publish(s_SecondVersion, true);
+
+    source.CleanSources();
+
+    SourceDetails details = source.MakeDetails();
+    TestProgress callback;
+
+    REQUIRE(AddSource(details, callback));
+
+    // Stands in for a full index that the source acquired before it had a delta to use instead.
+    // Nothing produces one today -- a source settles on a form when it is added -- but the two are
+    // separate packages, so once a source does hold both, nothing the delta does displaces the
+    // full index and it would be kept at full size for as long as the source existed.
+    fs::path fullIndex = source.DeltaStatePath() / s_IndexMsixName;
+    fs::copy_file(source.Remote.GetPath() / std::string{ s_RemoteIndexMsixName }, fullIndex);
+    REQUIRE(fs::exists(fullIndex));
+
+    source.AddPackage(MakeIndexFields(s_Package3Id));
+    source.Publish(s_ThirdVersion, true);
+
+    REQUIRE(UpdateSource(details.Name, callback));
+
+    REQUIRE(!fs::exists(fullIndex));
+
+    // The packages the source is actually made of are untouched by the housekeeping.
+    REQUIRE(fs::exists(source.DeltaStatePath() / s_DeltaMsixName));
+    REQUIRE(fs::exists(source.DeltaStatePath() / s_BaselineMsixName));
+
+    REQUIRE(GetSourcePackageIds(details.Name) == std::set<std::string>{ s_Package1Id, s_Package2Id, s_Package3Id });
 }
 
 // The two cases below cover the service rolling its baseline onto a new lineage, which it is free
@@ -931,7 +1086,7 @@ namespace
             Source.AddPackage(MakeIndexFields(s_Package2Id));
             Source.Publish(s_SecondVersion, true);
 
-            CleanSourcesFor(Source.BaseFamilyName);
+            Source.CleanSources();
 
             Details = Source.MakeDetails();
             REQUIRE(AddSource(Details, Callback));
@@ -991,7 +1146,7 @@ namespace
 
         fs::path BaselinePackage() const
         {
-            return Source.StatePath() / s_BaselineMsixName;
+            return Source.DeltaStatePath() / s_BaselineMsixName;
         }
     };
 }
@@ -1100,7 +1255,7 @@ namespace
         {
             Source.Publish(s_FirstVersion);
 
-            CleanSourcesFor(Source.BaseFamilyName);
+            Source.CleanSources();
 
             Details = Source.MakeDetails();
             REQUIRE(AddSource(Details, Callback));
@@ -1192,7 +1347,7 @@ TEST_CASE("PIPS_StoreSwap_ReadKeepsOwnStoreWhenEqual", "[pips][local_file][store
 
     PackageKey key;
     key.Slot = PackageSlot::FullIndex;
-    key.Identity = test.Source.BaseFamilyName;
+    key.Identity = test.Source.FullIndexFamilyName;
 
     Msix::PackageVersion expectedVersion{ std::string{ s_FirstVersion } };
 

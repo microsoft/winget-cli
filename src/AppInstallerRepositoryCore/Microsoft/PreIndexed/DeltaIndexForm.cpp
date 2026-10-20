@@ -18,15 +18,16 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             DeltaIndexForm(const SourceDetails& details) : m_details(details)
             {
                 SourceData data{ details.Data };
-                m_baselineIdentity = data.BaseIdentity();
+                m_fullIndexIdentity = data.FullIdentity();
                 m_deltaIdentity = data.DeltaIdentity();
+                m_baselineIdentity = data.BaselineIdentity();
             }
 
             std::optional<std::string> DiscoverIdentities(IProgressCallback& progress) override
             {
                 if (m_deltaIdentity.empty())
                 {
-                    if (!m_baselineIdentity.empty())
+                    if (!m_fullIndexIdentity.empty())
                     {
                         // The source is already configured, and what it is configured with names
                         // no delta. Probing here would be a migration, which is deliberately not
@@ -49,26 +50,25 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                     }
 
                     m_deltaIdentity = deltaIdentity.value();
-
-                    // A baseline is a full index that has been designated as one, published under
-                    // the identity that the source has always used, so discovering the full index
-                    // discovers the baseline.
-                    PreIndexedPackageInfo packageInfo(GetFullIndexPackageLocations(m_details), [](const std::string& packageLocation)
-                        {
-                            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
-                        });
-
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
-
-                    m_baselineIdentity = Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName());
                 }
 
+                // The baseline is deliberately not probed for here. Where it is published is
+                // recorded in the delta, so finding it means acquiring and reading one, and the
+                // update that immediately follows is going to do that anyway. What it learns is
+                // reported back through UpdateReport::LearnedIdentities.
                 return SerializeIdentities();
             }
 
             std::vector<PackageKey> GetPackages() const override
             {
-                return { GetDeltaKey(), GetBaselineKey() };
+                std::vector<PackageKey> result{ GetDeltaKey() };
+
+                if (!m_baselineIdentity.empty())
+                {
+                    result.emplace_back(GetBaselineKey());
+                }
+
+                return result;
             }
 
             bool HasIdentities() const override
@@ -78,11 +78,20 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
             bool IsHeld(const IPackageStore& store) const override
             {
-                return store.GetVersion(GetDeltaKey()).has_value() && store.GetVersion(GetBaselineKey()).has_value();
+                return !m_baselineIdentity.empty() &&
+                    store.GetVersion(GetDeltaKey()).has_value() &&
+                    store.GetVersion(GetBaselineKey()).has_value();
             }
 
             bool IsUsable(IPackageStore& store, IProgressCallback& progress) override
             {
+                if (m_baselineIdentity.empty())
+                {
+                    // Which baseline this source uses has never been learned, so there is nothing
+                    // held that could be paired with the delta.
+                    return false;
+                }
+
                 std::optional<Msix::PackageVersion> heldBaselineVersion = store.GetVersion(GetBaselineKey());
 
                 if (!heldBaselineVersion)
@@ -146,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
 
                     if (locator)
                     {
-                        auto heldBaselineVersion = store.GetVersion(GetBaselineKey());
+                        auto heldBaselineVersion = GetHeldBaselineVersion(store);
 
                         if (heldBaselineVersion && heldBaselineVersion.value() == Msix::PackageVersion{ locator->PackageVersion })
                         {
@@ -206,6 +215,20 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 AICLI_LOG(Repo, Info, << "Delta for source `" << m_details.Name << "` names baseline " << locator->Identifier <<
                     " at `" << locator->RelativeSourcePath << "` version " << locator->PackageVersion);
 
+                std::vector<std::string> baselineLocations = GetBaselinePackageLocations(m_details, locator->RelativeSourcePath);
+
+                if (m_baselineIdentity.empty())
+                {
+                    // The source is being added. Only now, with a delta in hand to say where the
+                    // baseline is published, can the identity to acquire it under be read.
+                    if (!LearnBaselineIdentity(baselineLocations))
+                    {
+                        return UpdateResult::Unusable;
+                    }
+
+                    report.LearnedIdentities = SerializeIdentities();
+                }
+
                 Msix::PackageVersion requiredBaselineVersion{ locator->PackageVersion };
                 std::optional<Msix::PackageVersion> currentBaselineVersion = store.GetVersion(GetBaselineKey());
 
@@ -224,7 +247,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 }
                 else
                 {
-                    PreIndexedPackageUpdateCheck baselineCheck(GetBaselinePackageLocations(m_details, locator->RelativeSourcePath));
+                    PreIndexedPackageUpdateCheck baselineCheck(baselineLocations);
 
                     // The delta told us which version it was computed against; anything else at
                     // that location is not the baseline this delta can be paired with.
@@ -254,6 +277,8 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                     report.DownloadedBytes = deltaBytes.value_or(0) + baselineBytes.value_or(0);
                     report.Reportable = true;
                 }
+
+                DiscardFullIndex(store, progress);
 
                 return UpdateResult::Success;
             }
@@ -292,9 +317,64 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             std::string SerializeIdentities() const
             {
                 SourceData data;
-                data.BaseIdentity(m_baselineIdentity);
+                data.FullIdentity(m_fullIndexIdentity);
                 data.DeltaIdentity(m_deltaIdentity);
+                data.BaselineIdentity(m_baselineIdentity);
                 return data.Serialize();
+            }
+
+            // The version of the baseline that the store holds, or nothing when there is none --
+            // including when which baseline this source uses has never been learned.
+            std::optional<Msix::PackageVersion> GetHeldBaselineVersion(const IPackageStore& store) const
+            {
+                return m_baselineIdentity.empty() ? std::nullopt : store.GetVersion(GetBaselineKey());
+            }
+
+            // Learns the identity to acquire the baseline under by reading the published package.
+            //
+            // False when it could not be read, which leaves the source with a delta it has no way
+            // to pair.
+            bool LearnBaselineIdentity(const std::vector<std::string>& baselineLocations)
+            {
+                try
+                {
+                    PreIndexedPackageInfo packageInfo(baselineLocations, [](const std::string& packageLocation)
+                        {
+                            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
+                        });
+
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
+
+                    m_baselineIdentity = Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName());
+
+                    AICLI_LOG(Repo, Info, << "Baseline for source `" << m_details.Name << "` has identity " << m_baselineIdentity);
+                    return true;
+                }
+                catch (...)
+                {
+                    LOG_CAUGHT_EXCEPTION_MSG("Could not read the baseline named by the delta for source: %hs", m_details.Name.c_str());
+                    return false;
+                }
+            }
+
+            // Discards the full index, which a source composed of a delta and a baseline has no
+            // use for.
+            //
+            // The baseline is a package in its own right rather than something published over the
+            // full index, so nothing displaces one that was acquired before this source became a
+            // delta pair, or by a client that had fallen back to it. Left alone it would sit there
+            // for as long as the source existed, at the size that having a delta at all is meant
+            // to avoid.
+            //
+            // Best effort: the update has already succeeded, and failing it over housekeeping
+            // would leave the source no better off.
+            void DiscardFullIndex(IPackageStore& store, IProgressCallback& progress)
+            {
+                try
+                {
+                    store.RemovePackage(PackageKey{ PackageSlot::FullIndex, m_fullIndexIdentity }, progress);
+                }
+                CATCH_LOG();
             }
 
             // Learns the delta's identity by reading the published package.
@@ -351,6 +431,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             }
 
             SourceDetails m_details;
+            std::string m_fullIndexIdentity;
             std::string m_deltaIdentity;
             std::string m_baselineIdentity;
         };

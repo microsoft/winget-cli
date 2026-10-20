@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="DeltaSourceCommand.cs" company="Microsoft Corporation">
+// <copyright file="DeltaSource.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,10 +14,10 @@ namespace AppInstallerCLIE2ETests
     ///
     /// Unit tests cover the shape of a delta source and the merging of a delta with its baseline,
     /// but they run unpackaged, so they can only ever reach the local file store. Everything here
-    /// is about the half they structurally cannot touch: deploying the packages, the full index and
-    /// the baseline sharing a single deployed identity, and the clean up that follows a removal.
+    /// is about the half they structurally cannot touch: deploying the packages, keeping three
+    /// separate deployed identities apart, and the clean up that follows a removal.
     /// </summary>
-    public class DeltaSourceCommand : BaseCommand
+    public class DeltaSource : BaseCommand
     {
         /// <summary>
         /// The experimental feature, as it is named in the settings file.
@@ -69,9 +69,16 @@ namespace AppInstallerCLIE2ETests
 
             Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.True, "The delta package should be deployed");
             Assert.That(
-                GetDeployedPackageVersion(Constants.DeltaTestSourceIdentityName),
+                GetDeployedPackageVersion(Constants.DeltaTestSourceBaselineIdentityName),
                 Is.EqualTo(Constants.DeltaTestSourceBaselineVersion),
-                "The baseline should have been deployed, not the full index");
+                "The baseline should have been deployed at its own version");
+
+            // The baseline is a package of its own, so a source on the delta holds no full index at
+            // all. Were the two to share an identity this could not be asked.
+            Assert.That(
+                IsPackageDeployed(Constants.DeltaTestSourceIdentityName),
+                Is.False,
+                "The full index should not have been acquired");
 
             // This package was left out of the baseline, so it exists only in the delta.
             RequireFound(Constants.DeltaOnlyPackageIdentifier);
@@ -81,11 +88,16 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// A source added while the feature was off holds the full index. Turning the feature on and
-        /// updating has to move that deployed identity backward to the baseline's older version.
+        /// A source added while the feature was off holds the full index, and goes on holding it.
+        ///
+        /// Which packages a source is made of is established when it is added and recorded in its
+        /// details; an update reads those details and never probes for anything else. So turning
+        /// the feature on does not move an existing source onto the delta, and the source has to be
+        /// re-added for that. This is deliberate -- see the no-migration decision -- and it is
+        /// asserted here because nothing about it is obvious from the outside.
         /// </summary>
         [Test]
-        public void DeltaSourceAdoptedByExistingFullIndexSource()
+        public void DeltaSourceNotAdoptedByExistingFullIndexSource()
         {
             WinGetSettingsHelper.ConfigureFeature(DeltaFeatureName, false);
 
@@ -103,16 +115,16 @@ namespace AppInstallerCLIE2ETests
             Assert.That(updateResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(updateResult.StdOut, Does.Contain("Done"));
 
-            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.True, "The delta package should be deployed after the update");
-
-            // The full index and the baseline share a deployed identity, so this is the baseline
-            // having replaced a package that was newer than itself.
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.False, "The update should not have acquired a delta");
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceBaselineIdentityName), Is.False, "The update should not have acquired a baseline");
             Assert.That(
                 GetDeployedPackageVersion(Constants.DeltaTestSourceIdentityName),
-                Is.EqualTo(Constants.DeltaTestSourceBaselineVersion),
-                "The baseline should have replaced the full index, even though it is older");
+                Is.EqualTo(Constants.DeltaTestSourceVersion),
+                "The source should still be served by the full index");
 
+            // The full index holds everything, so what the source presents is unchanged.
             RequireFound(Constants.DeltaOnlyPackageIdentifier);
+            RequireFound(BaselinePackageIdentifier);
         }
 
         /// <summary>
@@ -125,14 +137,14 @@ namespace AppInstallerCLIE2ETests
             AddDeltaSource();
 
             Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.True);
-            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceIdentityName), Is.True);
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceBaselineIdentityName), Is.True);
 
             var removeResult = TestCommon.RunAICLICommand("source remove", $"-n {Constants.DeltaTestSourceName}");
             Assert.That(removeResult.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
             Assert.That(removeResult.StdOut, Does.Contain("Done"));
 
             Assert.That(IsPackageDeployed(Constants.DeltaTestSourceDeltaIdentityName), Is.False, "The delta package should have been removed");
-            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceIdentityName), Is.False, "The baseline package should have been removed");
+            Assert.That(IsPackageDeployed(Constants.DeltaTestSourceBaselineIdentityName), Is.False, "The baseline package should have been removed");
 
             var listResult = TestCommon.RunAICLICommand("source list", $"-n {Constants.DeltaTestSourceName}");
             Assert.That(listResult.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST));

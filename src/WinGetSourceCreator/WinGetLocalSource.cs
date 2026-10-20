@@ -180,7 +180,7 @@ namespace Microsoft.WinGetSourceCreator
                 localSource.AppxManifest,
                 baselineIndexPath,
                 localSource.Signature,
-                delta.IdentityName,
+                delta.BaselineIdentityName,
                 delta.BaselineVersion,
                 indexNameInPackage);
 

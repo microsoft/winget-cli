@@ -19,11 +19,11 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             {
                 Deployment::Options options{ IsTrusted() };
 
-                // The baseline is published under the identity the full index has always used, so
-                // the platform may already hold a full index at a higher version than the one the
-                // delta names. The version to deploy is dictated by the delta, not by which is
-                // newer, so the move backward has to be permitted or the pair could never be formed
-                // on a machine that had ever acquired a full index.
+                // A baseline is acquired because a delta names it, not because it is the newest one
+                // published. The delta a client holds can name an older baseline than the one it
+                // already has -- after a baseline arrives ahead of the delta computed against it,
+                // for instance -- so the move backward has to be permitted or that pair could
+                // never be formed.
                 options.AllowDowngrade = (package.Key.Slot == PackageSlot::Baseline);
 
                 // The file lock is deliberately held across deployment, so that the package the
@@ -79,17 +79,30 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
             {
                 for (const auto& package : packages)
                 {
-                    auto fullName = Msix::GetPackageFullNameFromFamilyName(package.Identity);
+                    RemovePackage(package, progress);
+                }
+            }
 
-                    if (!fullName)
-                    {
-                        AICLI_LOG(Repo, Info, << "No full name found for family name: " << package.Identity);
-                    }
-                    else
-                    {
-                        AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
-                        Deployment::RemovePackage(*fullName, winrt::Windows::Management::Deployment::RemovalOptions::None, progress);
-                    }
+            void RemovePackage(const PackageKey& package, IProgressCallback& progress) override
+            {
+                if (package.Identity.empty())
+                {
+                    // A deployed package can only be found by identity, so there is nothing to act
+                    // on. This is reachable for the full index of a source that never had one.
+                    AICLI_LOG(Repo, Info, << "No identity known for the " << GetSlotName(package.Slot) << " package, nothing to remove");
+                    return;
+                }
+
+                auto fullName = Msix::GetPackageFullNameFromFamilyName(package.Identity);
+
+                if (!fullName)
+                {
+                    AICLI_LOG(Repo, Info, << "No full name found for family name: " << package.Identity);
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
+                    Deployment::RemovePackage(*fullName, winrt::Windows::Management::Deployment::RemovalOptions::None, progress);
                 }
             }
 
