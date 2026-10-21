@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Tests.h"
 #include "PackageManager.h"
+#include <wil/resource.h>
 
 using namespace std::string_view_literals;
 using namespace winrt::Microsoft::Management::Deployment;
@@ -201,6 +202,66 @@ namespace
 
         winrt::throw_hresult(E_UNEXPECTED);
     }
+}
+
+bool TestInitializationFailure(ActivationType activationType)
+{
+    wil::unique_hmodule module{ LoadLibraryW(L"Microsoft.Management.Deployment.InProc.dll") };
+    winrt::check_bool(module.get());
+
+    using CanUnloadNow = HRESULT(STDAPICALLTYPE*)();
+    using GetClassObject = HRESULT(STDAPICALLTYPE*)(REFCLSID, REFIID, void**);
+    using GetActivationFactory = HRESULT(STDAPICALLTYPE*)(HSTRING, void**);
+    using Initialize = HRESULT(STDAPICALLTYPE*)();
+
+    auto canUnloadNow = reinterpret_cast<CanUnloadNow>(GetProcAddress(module.get(), "DllCanUnloadNow"));
+    auto getClassObject = reinterpret_cast<GetClassObject>(GetProcAddress(module.get(), "DllGetClassObject"));
+    auto getActivationFactory = reinterpret_cast<GetActivationFactory>(GetProcAddress(module.get(), "DllGetActivationFactory"));
+    auto initialize = reinterpret_cast<Initialize>(GetProcAddress(GetModuleHandleW(L"WindowsPackageManager.dll"), "WindowsPackageManagerInProcModuleInitialize"));
+    winrt::check_bool(canUnloadNow && getClassObject && getActivationFactory && initialize);
+
+    if (canUnloadNow() != S_OK)
+    {
+        std::cout << "Unactivated module could not be unloaded" << std::endl;
+        return false;
+    }
+
+    HRESULT expectedResult = initialize();
+    if (SUCCEEDED(expectedResult) || expectedResult == HRESULT_FROM_WIN32(ERROR_DLL_INIT_FAILED))
+    {
+        std::cout << "Expected an underlying initialization failure, got " << winrt::hresult{ expectedResult } << std::endl;
+        return false;
+    }
+
+    winrt::hstring className{ winrt::name_of<PackageManager>() };
+    auto checkFactory = [&](ActivationType type)
+    {
+        // A failure must clear the output even if the caller supplied a non-null value.
+        void* factory = module.get();
+        HRESULT result = type == ActivationType::CoCreateInstance ?
+            getClassObject(CLSID_PackageManager, __uuidof(IClassFactory), &factory) :
+            getActivationFactory(static_cast<HSTRING>(winrt::get_abi(className)), &factory);
+        if (result != expectedResult || factory != nullptr)
+        {
+            std::cout << "Factory did not preserve the initialization failure: " << winrt::hresult{ result } << std::endl;
+            return false;
+        }
+        return true;
+    };
+
+    if (!checkFactory(activationType) ||
+        !checkFactory(activationType == ActivationType::ClassName ? ActivationType::CoCreateInstance : ActivationType::ClassName))
+    {
+        return false;
+    }
+
+    if (canUnloadNow() != S_OK)
+    {
+        std::cout << "Module could not be unloaded after initialization failed" << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 TestParameters::TestParameters(int argc, const char** argv)

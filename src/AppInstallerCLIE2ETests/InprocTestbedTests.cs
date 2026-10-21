@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using AppInstallerCLIE2ETests.Helpers;
@@ -91,6 +92,32 @@ namespace AppInstallerCLIE2ETests
         public void DefaultTest()
         {
             this.RunInprocTestbed(new TestbedParameters() { WorkTestSleepInterval = 1000 });
+        }
+
+        /// <summary>
+        /// Verifies that DLL loading succeeds and both factory exports preserve initialization failures.
+        /// </summary>
+        /// <param name="activationType">The factory export to call first.</param>
+        [TestCase(ActivationType.ClassName)]
+        [TestCase(ActivationType.CoCreateInstance)]
+        public void InitializationFailure(ActivationType activationType)
+        {
+            // An existing file cannot serve as the parent directory for the unpackaged log path.
+            var environmentVariables = new Dictionary<string, string>()
+            {
+                ["TMP"] = Path.GetFullPath(this.InprocTestbedPath),
+                ["TEMP"] = Path.GetFullPath(this.InprocTestbedPath),
+            };
+
+            var result = TestCommon.RunProcess(
+                this.InprocTestbedPath,
+                string.Empty,
+                $"-test initialization_failure -activation {activationType}",
+                null,
+                60000,
+                true,
+                environmentVariables);
+            Assert.That(result.ExitCode, Is.Zero, result.StdOut + result.StdErr);
         }
 
         /// <summary>

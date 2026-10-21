@@ -40,6 +40,9 @@ enum class ActivationType
     CoCreateInstance,
 };
 
+// Verifies that initialization failures are returned by the factory exports rather than DLL loading.
+bool TestInitializationFailure(ActivationType activationType);
+
 // Test parameters from command line
 struct TestParameters
 {
