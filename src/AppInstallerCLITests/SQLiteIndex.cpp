@@ -2726,11 +2726,14 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
 
     const std::string packageName = "Intel\xC2\xAE" " Driver & Support Assistant";
     const std::string normalizedQuery = "Intel Driver & Support Assistant";
+    const std::string normalizedId = "Intel.DriverAndSupportAssistant.Normalized";
 
+    SQLiteVersion testVersion = GENERATE(SQLiteVersion{ 1, 2 }, SQLiteVersion{ 1, 7 }, SQLiteVersion{ 2, 0 }, SQLiteVersion{ 2, 1 });
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Intel.DriverAndSupportAssistant", packageName, "Intel", "intel-driver-support", "1.0", "", {}, {}, "Path1", {}, {} },
-        { "Other.Package", "Other Package", "Other", "other", "1.0", "", {}, {}, "Path2", {}, {} },
-        }, SQLiteVersion{ 2, 0 });
+        { normalizedId, normalizedQuery, "Intel", "intel-driver-support-normalized", "1.0", "", {}, {}, "Path2", {}, {} },
+        { "Other.Package", "Other Package", "Other", "other", "1.0", "", {}, {}, "Path3", {}, {} },
+        }, testVersion);
 
     TestPrepareForRead(index);
 
@@ -2740,9 +2743,11 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
         request.Query = RequestMatch(MatchType::CaseInsensitive, normalizedQuery);
 
         auto results = index.Search(request);
-        REQUIRE(results.Matches.size() == 1);
-        REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+        REQUIRE(results.Matches.size() == 2);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == normalizedId);
         REQUIRE(results.Matches[0].second.Field == PackageMatchField::Name);
+        REQUIRE(GetIdStringById(index, results.Matches[1].first) == "Intel.DriverAndSupportAssistant");
+        REQUIRE(results.Matches[1].second.Field == PackageMatchField::NormalizedName);
     }
 
     SECTION("Name inclusion")
@@ -2754,6 +2759,7 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
         auto results = index.Search(request);
         REQUIRE(results.Matches.size() == 1);
         REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+        REQUIRE(results.Matches[0].second.Field == PackageMatchField::NormalizedName);
     }
 
     SECTION("Name filter")
@@ -2761,16 +2767,55 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
         SearchRequest request;
         request.Query = RequestMatch(MatchType::Substring, "Intel");
         request.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, normalizedQuery);
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, "Intel.DriverAndSupportAssistant");
 
         auto results = index.Search(request);
         REQUIRE(results.Matches.size() == 1);
         REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
     }
 
+    SECTION("Name filter only")
+    {
+        SearchRequest request;
+        request.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, normalizedQuery);
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 2);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == normalizedId);
+        REQUIRE(results.Matches[0].second.Field == PackageMatchField::Name);
+        REQUIRE(GetIdStringById(index, results.Matches[1].first) == "Intel.DriverAndSupportAssistant");
+        REQUIRE(results.Matches[1].second.Field == PackageMatchField::NormalizedName);
+    }
+
+    SECTION("Normalized name collision returns all candidates")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::CaseInsensitive, normalizedQuery);
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 2);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == normalizedId);
+        REQUIRE(GetIdStringById(index, results.Matches[1].first) == "Intel.DriverAndSupportAssistant");
+    }
+
+    SECTION("Raw name match is preferred when result limit applies")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::CaseInsensitive, normalizedQuery);
+        request.MaximumResults = 1;
+
+        auto results = index.Search(request);
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(GetIdStringById(index, results.Matches[0].first) == normalizedId);
+        REQUIRE(results.Matches[0].second.Field == PackageMatchField::Name);
+        REQUIRE(results.Truncated);
+    }
+
     SECTION("Exact name")
     {
         SearchRequest request;
         request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Exact, normalizedQuery);
+        request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Intel.DriverAndSupportAssistant");
 
         REQUIRE(index.Search(request).Matches.empty());
     }
@@ -2784,6 +2829,29 @@ TEST_CASE("SQLiteIndex_Search_NormalizedName", "[sqliteindex]")
         REQUIRE(results.Matches.size() == 1);
         REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
     }
+}
+
+TEST_CASE("SQLiteIndex_Search_NormalizedName_ArpDisplayName", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    const std::string normalizedQuery = "Intel Driver & Support Assistant";
+    SQLiteVersion testVersion = GENERATE(SQLiteVersion{ 1, 2 }, SQLiteVersion{ 1, 7 }, SQLiteVersion{ 2, 0 }, SQLiteVersion{ 2, 1 });
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Intel.DriverAndSupportAssistant", "Manifest Name", "Intel", "intel-driver-support", "1.0", "", {}, {}, "Path1", {}, {},
+            "Intel\xC2\xAE" " Driver & Support Assistant", "Intel" },
+        { "Other.Package", "Other Package", "Other", "other", "1.0", "", {}, {}, "Path2", {}, {} },
+        }, testVersion);
+
+    TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::CaseInsensitive, normalizedQuery);
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+    REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Intel.DriverAndSupportAssistant");
+    REQUIRE(results.Matches[0].second.Field == PackageMatchField::NormalizedName);
 }
 
 TEST_CASE("SQLiteIndex_NormNameAndPublisher_Simple", "[sqliteindex]")
@@ -3793,4 +3861,3 @@ TEST_CASE("SQLiteIndex_VersionStringPreserved", "[sqliteindex]")
 
     REQUIRE(extractedVersion == version);
 }
-

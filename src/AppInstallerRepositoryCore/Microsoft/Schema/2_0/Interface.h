@@ -64,6 +64,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
 
+        // Gets the direct and alternative search fields for one requested match.
+        virtual std::vector<PackageMatchFilter> GetSearchAlternatives(const PackageMatchFilter& filter) const;
+
         // Gets the one to many table schema to use.
         virtual OneToManyTableSchema GetOneToManyTableSchema() const;
 

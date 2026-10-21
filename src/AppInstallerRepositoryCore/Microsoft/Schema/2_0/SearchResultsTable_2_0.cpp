@@ -73,18 +73,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void SearchResultsTable::SearchOnField(const PackageMatchFilter& filter)
     {
-        SearchOnFieldInternal(filter, false);
-
-        if (filter.Field == PackageMatchField::Name && filter.Type != MatchType::Exact && filter.Additional)
-        {
-            PackageMatchFilter normalizedFilter = filter;
-            normalizedFilter.Value = std::move(normalizedFilter.Additional.value());
-            normalizedFilter.Additional.reset();
-            SearchOnFieldInternal(normalizedFilter, true);
-        }
+        SearchOnFieldInternal(filter);
     }
 
-    void SearchResultsTable::SearchOnFieldInternal(const PackageMatchFilter& filter, bool normalizedName)
+    void SearchResultsTable::SearchOnFieldInternal(const PackageMatchFilter& filter)
     {
         using namespace SQLite::Builder;
 
@@ -107,13 +99,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         From().BeginParenthetical();
 
         // Add the field specific portion
-        std::vector<int> bindIndex = normalizedName ?
-            BuildNormalizedNameSearchStatement(
-                builder,
-                s_SearchResultsTable_SubSelect_PackageAlias,
-                s_SearchResultsTable_SubSelect_ValueAlias,
-                MatchUsesLike(filter.Type)) :
-            BuildSearchStatement(builder, filter.Field, filter.Type);
+        std::vector<int> bindIndex = BuildSearchStatement(builder, filter.Field, filter.Type);
 
         if (bindIndex.empty())
         {
@@ -163,18 +149,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void SearchResultsTable::FilterOnField(const PackageMatchFilter& filter)
     {
-        FilterOnFieldInternal(filter, false);
-
-        if (filter.Field == PackageMatchField::Name && filter.Type != MatchType::Exact && filter.Additional)
-        {
-            PackageMatchFilter normalizedFilter = filter;
-            normalizedFilter.Value = std::move(normalizedFilter.Additional.value());
-            normalizedFilter.Additional.reset();
-            FilterOnFieldInternal(normalizedFilter, true);
-        }
+        FilterOnFieldInternal(filter);
     }
 
-    void SearchResultsTable::FilterOnFieldInternal(const PackageMatchFilter& filter, bool normalizedName)
+    void SearchResultsTable::FilterOnFieldInternal(const PackageMatchFilter& filter)
     {
         using namespace SQLite::Builder;
 
@@ -191,13 +169,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             Select(s_SearchResultsTable_SubSelect_PackageAlias).From().BeginParenthetical();
 
         // Add the field specific portion
-        std::vector<int> bindIndex = normalizedName ?
-            BuildNormalizedNameSearchStatement(
-                builder,
-                s_SearchResultsTable_SubSelect_PackageAlias,
-                s_SearchResultsTable_SubSelect_ValueAlias,
-                MatchUsesLike(filter.Type)) :
-            BuildSearchStatement(builder, filter.Field, filter.Type);
+        std::vector<int> bindIndex = BuildSearchStatement(builder, filter.Field, filter.Type);
 
         if (bindIndex.empty())
         {
@@ -279,6 +251,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         case PackageMatchField::Name:
             result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::NameColumn::Name, manifestAlias, valueAlias, useLike));
             break;
+        case PackageMatchField::NormalizedName:
+            result.push_back(NormalizedPackageNameTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
         case PackageMatchField::Moniker:
             result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::MonikerColumn::Name, manifestAlias, valueAlias, useLike));
             break;
@@ -303,15 +278,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         return result;
-    }
-
-    std::vector<int> SearchResultsTable::BuildNormalizedNameSearchStatement(
-        SQLite::Builder::StatementBuilder& builder,
-        std::string_view packageAlias,
-        std::string_view valueAlias,
-        bool useLike) const
-    {
-        return { NormalizedPackageNameTable::BuildSearchStatement(builder, packageAlias, valueAlias, useLike) };
     }
 
     bool SearchResultsTable::MatchUsesLike(MatchType match)
