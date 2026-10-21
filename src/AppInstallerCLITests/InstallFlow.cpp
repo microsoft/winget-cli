@@ -179,6 +179,7 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_LicenseDisclaimer", "[InstallFlow][workflow]")
 {
     bool disableDisclaimer = GENERATE(false, true);
+    PolicyState forcePolicy = GENERATE(PolicyState::NotConfigured, PolicyState::Disabled, PolicyState::Enabled);
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -191,6 +192,9 @@ TEST_CASE("InstallFlow_LicenseDisclaimer", "[InstallFlow][workflow]")
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::DisableLicenseDisclaimer>(bool{ disableDisclaimer });
 
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::ForceLicenseDisclaimer, forcePolicy);
+
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -199,8 +203,10 @@ TEST_CASE("InstallFlow_LicenseDisclaimer", "[InstallFlow][workflow]")
     REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
 
+    // Hidden only when the user hid it and the policy does not force it.
+    bool forced = forcePolicy == PolicyState::Enabled;
     bool disclaimerShown = installOutput.str().find(Resource::LocString(Resource::String::InstallationDisclaimer1).get()) != std::string::npos;
-    REQUIRE(disclaimerShown == !disableDisclaimer);
+    REQUIRE(disclaimerShown == (!disableDisclaimer || forced));
 }
 
 TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")

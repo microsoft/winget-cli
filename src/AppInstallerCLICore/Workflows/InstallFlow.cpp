@@ -364,7 +364,8 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Execution::PromptEmphasis << Resource::String::InstallationDisclaimerMSStore << std::endl;
         }
-        else if (!Settings::User().Get<Settings::Setting::DisableLicenseDisclaimer>())
+        else if (!Settings::User().Get<Settings::Setting::DisableLicenseDisclaimer>() ||
+                 Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::ForceLicenseDisclaimer))
         {
             context.Reporter.Info() <<
                 Resource::String::InstallationDisclaimer1 << std::endl <<

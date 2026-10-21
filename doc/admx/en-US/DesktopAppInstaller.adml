@@ -38,6 +38,14 @@ If you enable this policy, the Windows Package Manager will bypass the Microsoft
 If you disable this policy, the Windows Package Manager will validate the Microsoft Store certificate used is valid and belongs to the Microsoft Store before communicating with the Microsoft Store source.
 
 If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
+      <string id="EnableForceLicenseDisclaimer">Always show the Windows Package Manager license disclaimer</string>
+      <string id="EnableForceLicenseDisclaimerExplanation">This policy controls whether users can hide the license disclaimer that the Windows Package Manager shows before installing a package ("This application is licensed to you by its owner. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.").
+
+If you enable this policy, the license disclaimer is always shown before a package is installed. The installBehavior.disableLicenseDisclaimer setting in the user's settings file is ignored.
+
+If you disable or do not configure this policy, users can hide the license disclaimer by setting installBehavior.disableLicenseDisclaimer to true in their settings file. By default, the disclaimer is shown.
+
+This policy does not affect the notice shown for packages from the Microsoft Store.</string>
       <string id="EnableHashOverride">Enable Windows Package Manager Hash Override</string>
       <string id="EnableHashOverrideExplanation">This policy controls whether or not the Windows Package Manager can be configured to enable the ability override the SHA256 security validation in settings.
 

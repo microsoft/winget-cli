@@ -51,6 +51,7 @@ namespace AppInstaller::Settings
             ProxyCommandLineOptions,
             McpServer,
             ConfigurationProcessorPath,
+            ForceLicenseDisclaimer,
             Max,
         };
 

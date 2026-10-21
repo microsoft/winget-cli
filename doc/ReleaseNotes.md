@@ -39,6 +39,8 @@ Added the contract version 30 `InstallOptions.InstallDependenciesOnly` property 
 
 Added a new `installBehavior.disableLicenseDisclaimer` setting that hides the license disclaimer ("This application is licensed to you by its owner. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.") shown before a package is installed. Defaults to `false`.
 
+Added the `EnableForceLicenseDisclaimer` Group Policy, which lets administrators require that the license disclaimer is always shown, overriding the `installBehavior.disableLicenseDisclaimer` user setting.
+
 ## Bug Fixes
 
 ### Portable installer alias handling

@@ -98,6 +98,8 @@ The `disableLicenseDisclaimer` behavior affects whether the license disclaimer (
     },
 ```
 
+Administrators can prevent users from hiding the disclaimer by enabling the **Always show the Windows Package Manager license disclaimer** Group Policy (`EnableForceLicenseDisclaimer`). When this policy is enabled, the disclaimer is always shown and this setting is ignored.
+
 ### Portable Package User Root
 
 The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
