@@ -233,7 +233,7 @@ TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")
     blockedPath.Create = GENERATE(false, true);
     TestHook_SetPathOverride(PathName::DefaultLogLocation, blockedPath);
 
-    REQUIRE_NOTHROW(AppInstaller::CLI::Execution::COMContext::SetLoggers(Channel::All, Level::Verbose));
+    REQUIRE_NOTHROW(AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::All, Level::Verbose));
     REQUIRE_FALSE(Log().ContainsLogger("file"));
     REQUIRE(Log().ContainsLogger("Trace"));
     REQUIRE_FALSE(Log().ContainsLogger("OutputDebugStringLogger"));
