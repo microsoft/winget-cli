@@ -86,21 +86,23 @@ namespace AppInstaller::CLI::Execution
         Logging::Log().SetEnabledChannels(channel.has_value() ? channel.value() : Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(level.has_value() ? level.value() : Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
-        // TODO: Log to file for COM API calls only when debugging in visual studio
-        Logging::FileLogger::Add(s_comLogFileNamePrefix);
+        Logging::TraceLogger::Add();
+        Logging::EnableWilFailureTelemetry();
+
+        // File logging must not prevent COM functionality.
+        try
+        {
+            Logging::FileLogger::Add(s_comLogFileNamePrefix);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+            {
+                // Initiate the background cleanup of the log file location.
+                Logging::FileLogger::BeginCleanup();
+            }
+        }
+        CATCH_LOG();
 
         Logging::OutputDebugStringLogger::Remove();
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
-#endif
-        {
-            // Initiate the background cleanup of the log file location.
-            Logging::FileLogger::BeginCleanup();
-        }
-
-        Logging::TraceLogger::Add();
-
-        Logging::EnableWilFailureTelemetry();
     }
 }

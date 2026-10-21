@@ -95,12 +95,10 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that DLL loading succeeds and both factory exports preserve initialization failures.
+        /// Verifies that an unusable file logging path does not prevent activation or settings calls.
         /// </summary>
-        /// <param name="activationType">The factory export to call first.</param>
-        [TestCase(ActivationType.ClassName)]
-        [TestCase(ActivationType.CoCreateInstance)]
-        public void InitializationFailure(ActivationType activationType)
+        [Test]
+        public void FileLoggingFailureDoesNotPreventActivation()
         {
             // An existing file cannot serve as the parent directory for the unpackaged log path.
             var environmentVariables = new Dictionary<string, string>()
@@ -112,7 +110,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunProcess(
                 this.InprocTestbedPath,
                 string.Empty,
-                $"-test initialization_failure -activation {activationType}",
+                "-itr 2",
                 null,
                 60000,
                 true,

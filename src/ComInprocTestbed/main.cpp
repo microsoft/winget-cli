@@ -15,13 +15,6 @@ int main(int argc, const char** argv) try
         return 2;
     }
 
-    if ("initialization_failure"sv == testParameters.TestToRun)
-    {
-        bool result = TestInitializationFailure(testParameters.ActivationType);
-        testParameters.UninitializeTestState();
-        return result ? 0 : 3;
-    }
-
     auto test = testParameters.CreateTest();
 
     for (int i = 0; i < testParameters.Iterations; ++i)
