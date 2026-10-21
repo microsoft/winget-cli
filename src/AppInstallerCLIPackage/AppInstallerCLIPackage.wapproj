@@ -253,7 +253,7 @@
       <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd">
         <PackagePath>Microsoft.Management.Configuration.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net8.0-windows10.0.26100.0\$(ConfigServerRid)\**\*">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditionalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net10.0-windows10.0.26100.0\$(ConfigServerRid)\**\*">
         <PackagePath>$(WinGetDotNetDirectoryName)</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>

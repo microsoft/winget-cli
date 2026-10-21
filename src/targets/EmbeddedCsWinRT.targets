@@ -52,6 +52,18 @@
         Encoding="Unicode" />
   </Target>
 
+  <!--
+    WinRT can be consumed by compiling CsWinRT's embedded runtime sources or by referencing WinRT.Runtime.dll.
+    For embedded projects, CsWinRT removes the DLL reference only when it matches a hardcoded framework path.
+    NuGet resolves an asset for a different framework, so that reference remains alongside the embedded sources
+    and causes ambiguous calls (CS0121). Remove the DLL reference by file name.
+  -->
+  <Target Name="WinGetRemoveEmbeddedWinRTRuntimeReference" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'$([System.IO.Path]::GetFileName(%(HintPath)))' == 'WinRT.Runtime.dll'" />
+    </ItemGroup>
+  </Target>
+
   <!-- Remove any items from ReferenceCopyLocalPaths that have CopyLocal set to false. -->
   <Target Name="WinGetRemoveCopyLocalReferencesAsNeeded" AfterTargets="CsWinRTRemoveWinMDReferences">
     <ItemGroup>
