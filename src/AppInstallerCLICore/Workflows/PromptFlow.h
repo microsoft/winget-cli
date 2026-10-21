@@ -2,9 +2,26 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include "TableOutput.h"
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Prompts for a numbered choice among the table's rows.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: SelectedIndex (zero-based index, or nullopt if prompting is unavailable)
+    struct PromptForSelection : public WorkflowTask
+    {
+        PromptForSelection(Execution::TableOutputBase& table, Resource::LocString title) :
+            WorkflowTask("PromptForSelection"), m_table(table), m_title(std::move(title)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::TableOutputBase& m_table;
+        Resource::LocString m_title;
+    };
+
     // Handles all opened source(s) agreements if needed.
     // Required Args: The source to be checked for agreements
     // Inputs: None

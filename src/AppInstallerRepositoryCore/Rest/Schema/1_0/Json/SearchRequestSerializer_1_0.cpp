@@ -158,6 +158,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
     std::optional<web::json::value> SearchRequestSerializer::GetRequestMatchJsonObject(const AppInstaller::Repository::RequestMatch& requestMatch) const
     {
+        // This schema has no field for Additional; normalized-pair requests send the name without the publisher.
         web::json::value match = web::json::value::object();
         match[JSON::GetUtilityString(KeyWord)] = web::json::value::string(JSON::GetUtilityString(requestMatch.Value));
 

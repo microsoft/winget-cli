@@ -515,6 +515,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (options)
         {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, options.SkipDependencies() && options.InstallDependenciesOnly());
+
             if (!options.LogOutputPath().empty())
             {
                 context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
@@ -597,6 +599,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (options.SkipDependencies())
             {
                 context->Args.AddArg(Execution::Args::Type::SkipDependencies);
+            }
+            if (options.InstallDependenciesOnly())
+            {
+                context->Args.AddArg(Execution::Args::Type::DependenciesOnly);
             }
 
             if (options.AuthenticationArguments())

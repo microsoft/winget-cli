@@ -73,6 +73,32 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
         }));
 }
 
+TEST_CASE("ExportFlow_ExportAll_UnicodeOutputPath", "[ExportFlow][workflow]")
+{
+    TestCommon::TempDirectory exportDirectory("TestExportUnicode", true);
+    const auto emojiDirectory = exportDirectory.GetPath() / std::filesystem::u8path(u8"\u26A0\uFE0F");
+    std::filesystem::create_directory(emojiDirectory);
+    const auto exportResultPath = emojiDirectory / "TestExport.json";
+
+    std::ostringstream exportOutput;
+    TestContext context{ exportOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath.u8string());
+
+    ExportCommand exportCommand({});
+    exportCommand.Execute(context);
+    INFO(exportOutput.str());
+
+    REQUIRE(std::filesystem::is_regular_file(exportResultPath));
+
+    std::ifstream exportFile(exportResultPath);
+    Json::Value exportedJson;
+    exportFile >> exportedJson;
+    REQUIRE(exportedJson.isObject());
+    REQUIRE(exportedJson["Sources"].isArray());
+}
+
 TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
 {
     TestCommon::TempFile exportResultPath("TestExport.json");

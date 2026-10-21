@@ -21,12 +21,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
         PrepareForPackaging(context.Connection);
     }
 
-    void ISQLiteIndex::SetProperty(SQLite::Connection&, Property, const std::string&)
+    bool ISQLiteIndex::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
     {
-        THROW_WIN32(ERROR_NOT_SUPPORTED);
+        // Only 2.1+ can compare a database against another one.
+        THROW_WIN32_IF(ERROR_NOT_SUPPORTED, context.Data.Contains(Property::DeltaComparisonIndexPath));
+
+        return CheckConsistency(context.Connection, log);
     }
 
-    void ISQLiteIndex::MarkAsBaseline(SQLite::Connection&)
+    void ISQLiteIndex::SetProperty(SQLite::Connection&, Property, const std::string&)
     {
         THROW_WIN32(ERROR_NOT_SUPPORTED);
     }

@@ -33,6 +33,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     // The column that records a row as representing the removal of the data that it identifies.
     std::string_view IsRemovedColumnName();
 
+    // Whether the database carries the delta schema.
+    bool IsDeltaDatabase(const SQLite::Connection& connection);
+
     // Creates the full set of delta tables in the given database.
     void CreateTables(SQLite::Connection& connection);
 

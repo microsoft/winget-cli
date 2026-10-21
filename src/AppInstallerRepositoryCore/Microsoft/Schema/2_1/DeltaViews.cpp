@@ -43,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
                 From(GetTableName(V2_0::PackagesTable::TableName())).As(s_Delta_PackagesAlias).
                 Where(QualifiedColumn{ s_Delta_PackagesAlias, SQLite::RowIDName }).
                     Equals(QualifiedColumn{ s_Delta_BaselineAlias, packageColumn }).
-                And(QualifiedColumn{ s_Delta_PackagesAlias, IsRemovedColumnName() }).EqualsLiteral(1).
+                And(QualifiedColumn{ s_Delta_PackagesAlias, IsRemovedColumnName() }).NotEqualsLiteral(0).
                 EndParenthetical();
         }
 

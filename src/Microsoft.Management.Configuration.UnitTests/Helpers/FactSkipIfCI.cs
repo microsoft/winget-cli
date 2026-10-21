@@ -6,20 +6,22 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using System;
     using Xunit;
+    using Xunit.Sdk;
 
     /// <summary>
-    /// Skip fact tests if running in CI builds.
+    /// Skip fact tests if running in CI builds, and allow the test to skip itself at runtime by
+    /// way of <see cref="TestSkip"/> or <see cref="Skip"/>.
     /// </summary>
-    public class FactSkipIfCI : FactAttribute
+    [XunitTestCaseDiscoverer("Xunit.Sdk.SkippableFactDiscoverer", "Xunit.SkippableFact")]
+    public class FactSkipIfCI : SkippableFactAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FactSkipIfCI"/> class.
         /// </summary>
         public FactSkipIfCI()
         {
-            if (Environment.GetEnvironmentVariable("BUILD_BUILDNUMBER") is not null)
+            if (TestSkip.IsCIBuild)
             {
                 this.Skip = "Skip test for CI builds";
             }

@@ -160,6 +160,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void DownloadPackageDependencies(Execution::Context& context);
 
+    // Successfully terminates the context if only the dependencies were requested to be installed.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void CheckForOnlyDependencies(Execution::Context& context);
+
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
     // RequiredArgs: None

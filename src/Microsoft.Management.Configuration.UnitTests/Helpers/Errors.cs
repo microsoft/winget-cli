@@ -48,6 +48,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN             = unchecked((int)0x8A15C111);
         public static readonly int WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR           = unchecked((int)0x8A15C112);
         public static readonly int WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH              = unchecked((int)0x8A15C113);
+        public static readonly int WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED               = unchecked((int)0x8A15C114);
 
         // Limitation Set Errors
         public static readonly int CORE_INVALID_OPERATION = unchecked((int)0x80131509);

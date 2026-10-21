@@ -432,6 +432,7 @@
     <ClCompile Include="ExecutionContext.cpp" />
     <ClCompile Include="ExecutionProgress.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
+    <ClCompile Include="TableOutput.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

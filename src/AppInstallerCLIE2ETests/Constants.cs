@@ -34,6 +34,8 @@ namespace AppInstallerCLIE2ETests
         public const string ForcedExperimentalFeaturesParameter = "ForcedExperimentalFeatures";
         public const string InprocTestbedPathParameter = "InprocTestbedPath";
         public const string InprocTestbedUseTestPackageParameter = "InprocTestbedUseTestPackage";
+        public const string WinGetServerPathParameter = "WinGetServerPath";
+        public const string RpcTestHelperPathParameter = "RpcTestHelperPath";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";

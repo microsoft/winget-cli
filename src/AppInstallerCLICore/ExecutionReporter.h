@@ -11,6 +11,7 @@
 #include <wil/resource.h>
 
 #include <atomic>
+#include <cstdint>
 #include <iomanip>
 #include <istream>
 #include <memory>
@@ -113,6 +114,24 @@ namespace AppInstaller::CLI::Execution
         // Check if the input stream is interactive or not.
         bool InputStreamIsInteractive() const;
 
+        bool CanPrompt(Level level = Level::Info);
+
+        // Reads one line without output; returns nullopt on cancellation.
+        std::optional<std::string> ReadLine(std::function<bool()> isCancelled = {});
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        void SetConsoleStreamsForTest(bool value) { m_consoleStreams = value; }
+        void SetInputStreamFileTypeForTest(DWORD value) { m_inStreamFileType = value; }
+#endif
+
+        // Prompts for a non-negative integer; returns nullopt if unavailable or cancelled.
+        std::optional<uint64_t> PromptForIntegerResponse(Resource::LocString message, Level level = Level::Info,
+            Resource::LocString invalid = Resource::String::NumberedSelectionInvalid, std::function<bool()> isCancelled = {});
+
+        // Prompts for an integer in [minimum, maximum]; returns nullopt if unavailable or cancelled.
+        std::optional<uint64_t> PromptForIntegerResponseWithinRange(Resource::LocString message, uint64_t minimum, uint64_t maximum,
+            Level level = Level::Info, Resource::LocString invalid = Resource::String::NumberedSelectionInvalid, std::function<bool()> isCancelled = {});
+
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);
 
@@ -210,6 +229,7 @@ namespace AppInstaller::CLI::Execution
         std::atomic<IProgressSink*> m_progressSink;
         DWORD m_outStreamFileType = FILE_TYPE_UNKNOWN;
         DWORD m_inStreamFileType = FILE_TYPE_UNKNOWN;
+        bool m_consoleStreams = false;
 
         // Enable all levels by default
         Level m_enabledLevels = Level::All;

@@ -5,6 +5,7 @@
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/IRestClient.h"
 #include "ManifestDeserializer.h"
+#include <AppInstallerStrings.h>
 #include <winget/HttpClientHelper.h>
 #include <winget/JsonUtil.h>
 
@@ -150,6 +151,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
         }
 
+        // The schema allows surrounding whitespace in the id and version values, but they are used to construct file system
+        // paths and version comparison trims, so trim them here as the YAML parser does.
+        Utility::Trim(id.value());
+
         std::optional<std::reference_wrapper<const web::json::array>> versions = JSON::GetRawJsonArrayFromJsonNode(dataJsonObject, JSON::GetUtilityString(Versions));
         if (!versions || versions.value().get().size() == 0)
         {
@@ -171,7 +176,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 AICLI_LOG(Repo, Error, << "Missing package version in package: " << manifest.Id);
                 THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
             }
-            manifest.Version = std::move(packageVersion.value());
+            manifest.Version = Utility::Trim(std::move(packageVersion.value()));
 
             manifest.Channel = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(Channel)).value_or("");
 

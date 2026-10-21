@@ -6,7 +6,6 @@
 #include "Resources.h"
 #include "Workflows/SourceFlow.h"
 #include <winget/RepositorySource.h>
-#include <winget/ExperimentalFeature.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Repository;
@@ -111,10 +110,7 @@ namespace AppInstaller::CLI
                         Output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
                         Output.Explicit(source.Explicit);
 
-                        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority))
-                        {
-                            Output.Priority(source.Priority);
-                        }
+                        Output.Priority(source.Priority);
 
                         std::vector<Repository::SourceDetails> sources;
                         sources.emplace_back(source);
@@ -158,7 +154,6 @@ namespace AppInstaller::CLI
                 std::string priorityString;
                 if (Input.Priority())
                 {
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
                     priorityString = std::to_string(Input.Priority().value());
                     SubContext->Args.AddArg(Execution::Args::Type::SourcePriority, priorityString);
                 }
@@ -202,7 +197,6 @@ namespace AppInstaller::CLI
                 std::string priorityString;
                 if (Input.Priority())
                 {
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
                     priorityString = std::to_string(Input.Priority().value());
                     SubContext->Args.AddArg(Execution::Args::Type::SourcePriority, priorityString);
                 }
@@ -373,7 +367,6 @@ namespace AppInstaller::CLI
             {
                 if (Input.Priority())
                 {
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority));
                     if (Output.Priority())
                     {
                         return Input.Priority().value() == Output.Priority().value();
@@ -499,10 +492,7 @@ namespace AppInstaller::CLI
             output.TrustLevel(TrustLevelStringFromFlags(source.TrustLevel));
             output.Explicit(source.Explicit);
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SourcePriority))
-            {
-                output.Priority(source.Priority);
-            }
+            output.Priority(source.Priority);
 
             WriteJsonOutputLine(context, output.ToJson());
         }

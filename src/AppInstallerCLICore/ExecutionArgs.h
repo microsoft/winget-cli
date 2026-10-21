@@ -176,6 +176,7 @@ namespace AppInstaller::CLI::Execution
             DisableInteractivity, // Disable interactive prompts
             Wait, // Prompts the user to press any key before exiting
             OpenLogs, // Opens the default logs directory after executing the command
+            OutputLocale, // Overrides the language used for winget's own output strings
             Force, // Forces the execution of the workflow with non security related issues
             OutputFile,
             Correlation,

@@ -407,6 +407,30 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Plusieurs packages correspondent à vos critères. Veuillez affiner votre recherche.</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>Plusieurs packages correspondent. Effectuer une sélection.</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>Entrez un nombre (1-{0}) ou 0 pour annuler :</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>Sélection non valide.</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>Sélectionné : {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>Spécifiez un package avec --id &lt;ID&gt; --exact --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>Spécifiez un package avec --package-id &lt;ID&gt; --source &lt;SOURCE&gt;.</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par nom</value>
   </data>
@@ -859,6 +883,10 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>Fichier dans lequel le résultat doit être écrit</value>
   </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>Paramètres régionaux à utiliser pour la sortie de cette commande (format BCP47)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>Fichier décrivant les packages à installer</value>
   </data>
@@ -894,8 +922,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Le package est déjà installé : {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
-    <value>Ignorer les packages non disponibles</value>
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorer les paquets non disponibles</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
     <value>Inclure les versions de paquets dans le fichier d’exportation</value>
@@ -2890,8 +2918,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>Le package installé pour l’étendue de l’utilisateur ne peut pas être réparé en cas d’exécution avec des privilèges d’administrateur.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>Les opérations de réparation impliquant des privilèges d’administrateur ne sont pas autorisées sur les packages installés dans l’étendue utilisateur.</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>L’opération demandée n’est pas autorisée à partir d’un contexte d’administrateur sur des packages installés dans l’étendue utilisateur.</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Échec de la réparation avec le code de sortie : {0}</value>
@@ -3648,5 +3676,12 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>Le hachage du processeur DSC fourni ne correspond pas au hachage du fichier cible.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>Le chemin d’accès du processeur DSC ne fait plus référence au fichier qui a été vérifié.</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>Le package installé pour l’étendue utilisateur ne peut pas être désinstallé lors de l’exécution avec des privilèges d’administrateur.</value>
   </data>
 </root>

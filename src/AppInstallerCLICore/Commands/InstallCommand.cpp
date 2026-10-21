@@ -167,7 +167,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
-                    InstallOrUpgradeSinglePackage(OperationType::Install);
+                    InstallOrUpgradeSinglePackage(OperationType::Install, PackageSelectionBehavior::Prompt);
             }
         }
     }

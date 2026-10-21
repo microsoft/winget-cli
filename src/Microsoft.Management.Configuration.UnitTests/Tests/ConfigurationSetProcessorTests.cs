@@ -799,6 +799,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [FactSkipIfCI]
         public void CreateUnitProcessor_ModuleRequiresAdmin()
         {
+            // The module only fails to import when the process lacks the rights that it requires,
+            // so an elevated run cannot observe the behavior that this test is about.
+            TestSkip.IfElevated();
+
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var setProcessor = new PowerShellConfigurationSetProcessor(processorEnv, new ConfigurationSet());
