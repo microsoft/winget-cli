@@ -109,7 +109,7 @@ TEST_CASE("NormalizedString", "[strings]")
 
 TEST_CASE("NormalizedPath", "[strings]")
 {
-    NormalizedPath path{ u8"directory/subdirectory/\u00E4.exe" };
+    Filesystem::NormalizedPath path{ u8"directory/subdirectory/\u00E4.exe" };
 
     REQUIRE(path.string() == "directory\\subdirectory\\\xC3\xA4.exe");
     REQUIRE(path.wstring() == L"directory\\subdirectory\\\u00E4.exe"s);

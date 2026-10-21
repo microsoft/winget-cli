@@ -360,7 +360,7 @@ namespace AppInstaller::Manifest
 
     struct NestedInstallerFile
     {
-        Utility::NormalizedPath RelativeFilePath;
+        Filesystem::NormalizedPath RelativeFilePath;
         string_t PortableCommandAlias;
     };
 

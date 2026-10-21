@@ -455,7 +455,7 @@ namespace AppInstaller::Manifest
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
-                    const std::filesystem::path relativeFilePath{ nestedInstallerFile.RelativeFilePath.wstring() };
+                    const std::filesystem::path& relativeFilePath = nestedInstallerFile.RelativeFilePath.get();
                     const std::string relativeFilePathUtf8 = nestedInstallerFile.RelativeFilePath.string();
 
                     if (relativeFilePath.empty())

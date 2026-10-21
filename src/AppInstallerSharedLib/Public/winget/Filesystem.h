@@ -11,7 +11,7 @@
 
 using namespace std::chrono_literals;
 
-namespace AppInstaller::Utility
+namespace AppInstaller::Filesystem
 {
     // Holds a UTF16 path with preferred directory separators; string() returns UTF8, wstring() returns UTF16.
     struct NormalizedPath
@@ -37,10 +37,7 @@ namespace AppInstaller::Utility
     private:
         std::filesystem::path m_path;
     };
-}
 
-namespace AppInstaller::Filesystem
-{
     // Checks if the file system at path supports named streams/ADS
     bool SupportsNamedStreams(const std::filesystem::path& path);
 

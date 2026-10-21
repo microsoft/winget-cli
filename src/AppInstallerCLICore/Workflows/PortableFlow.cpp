@@ -228,7 +228,7 @@ namespace AppInstaller::CLI::Workflow
                 EnsurePathIsRelative(context, nestedInstallerFile.PortableCommandAlias, "PortableCommandAlias", ManifestError::PortableCommandAliasEscapesDirectory);
                 AICLI_RETURN_VALUE_IF_TERMINATED(context, {});
 
-                std::filesystem::path targetPath = targetInstallDirectory / nestedInstallerFile.RelativeFilePath.wstring();
+                std::filesystem::path targetPath = targetInstallDirectory / nestedInstallerFile.RelativeFilePath.get();
                 std::filesystem::path originalFilename = targetPath.filename();
 
                 std::filesystem::path commandAlias;
