@@ -1,0 +1,134 @@
+# Build and test PowerShell module
+
+parameters:
+# Steps run before any winget-cli step, for environment preparation the consuming repository
+# requires. See jobs-build.yml.
+- name: preSteps
+  type: stepList
+  default: []
+# Agent pool for this job. Leave empty to inherit the pipeline's pool. This job deploys MSIX
+# packages, so its agent has stricter requirements than the build's; see the "Agent requirements"
+# section of README.md.
+- name: pool
+  type: object
+  default: ''
+
+jobs:
+- job: 'BuildPowerShellModule'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: succeeded('Build')
+  ${{ if ne(parameters.pool, '') }}:
+    pool: ${{ parameters.pool }}
+  variables:
+    # Root of the winget-cli sources this job reads at run time. This job compiles nothing, so it
+    # takes those sources from the copy staged into the build artifact rather than from a checkout:
+    # the files are then guaranteed to be the ones the artifact was built from, and no checkout of
+    # the consuming repository is needed on this agent. See README.md.
+    wingetSourceRoot: $(Pipeline.Workspace)\Build.x64Release\Source
+    # Exported to every step as an environment variable. winget-cli content that has to find the
+    # sources at runtime, rather than through an MSBuild or task input, reads it: localsource.json
+    # and Microsoft.Management.Configuration.UnitTests both used to read BUILD_SOURCESDIRECTORY,
+    # which is the repository root and therefore wrong in a subtree.
+    WINGET_SOURCE_ROOT: $(wingetSourceRoot)
+    buildOutDir: $(Pipeline.Workspace)\Build.x64Release
+
+  steps:
+  - checkout: none
+
+  - ${{ each step in parameters.preSteps }}:
+    - ${{ step }}
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x64 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(buildOutDir)\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
+        New-ExternalHelp -Path '$(wingetSourceRoot)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(wingetSourceRoot)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(buildOutDir)
+
+  - template: e2e-setup.yml
+    parameters:
+      sourceDir: $(wingetSourceRoot)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
+
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
+    workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
+    displayName: Run PowerShell 7 Tests
+
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+    workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
+    displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
+
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results PowerShell 7
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results Windows PowerShell
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Copy WinGet Logs
+    inputs:
+      pwsh: true
+      targetType: inline
+      script: |
+        $sourceDir = Join-Path $env:LocalAppData Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir
+        $destinationDir = Join-Path $(Build.ArtifactStagingDirectory) WinGetLogs
+        Copy-Item -Path $sourceDir -Destination $destinationDir -Recurse -Force
+    condition: succeededOrFailed()
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish PowerShell Module Artifacts
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifact: 'PowerShell.$(System.JobAttempt)'
+    condition: succeededOrFailed()

@@ -44,12 +44,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     struct GetManifest : public WorkflowTask
     {
-        GetManifest(bool considerPins) : WorkflowTask("GetManifest"), m_considerPins(considerPins) {}
+        GetManifest(bool considerPins, PackageSelectionBehavior selectionBehavior = PackageSelectionBehavior::Disabled) :
+            WorkflowTask("GetManifest"), m_considerPins(considerPins), m_selectionBehavior(selectionBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         bool m_considerPins;
+        PackageSelectionBehavior m_selectionBehavior;
     };
 
     // Reusable helpers for `show` style line output

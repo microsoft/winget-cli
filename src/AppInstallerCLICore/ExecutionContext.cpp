@@ -8,7 +8,9 @@
 #include "ExecutionContext.h"
 #include "Public/ShutdownMonitoring.h"
 #include <winget/Checkpoint.h>
+#include <winget/Locale.h>
 #include <winget/Reboot.h>
+#include <winget/Resources.h>
 #include <winget/UserSettings.h>
 #include <winget/NetworkSettings.h>
 
@@ -107,6 +109,27 @@ namespace AppInstaller::CLI::Execution
 
     void Context::UpdateForArgs()
     {
+        // Override the language used for winget's own output.
+        // This takes precedence over the output locale user setting because it is applied later.
+        // Unsupported values are reported by Command::ValidateArguments.
+        if (Args.Contains(Args::Type::OutputLocale))
+        {
+            std::string_view requestedLocale = Args.GetArg(Args::Type::OutputLocale);
+            auto normalizedLocale = Locale::NormalizeOutputLocale(requestedLocale);
+
+            if (normalizedLocale)
+            {
+                if (AppInstaller::Resource::SetLanguageOverride(normalizedLocale.value()))
+                {
+                    AICLI_LOG(CLI, Info, << "Applied output locale override from argument: " << normalizedLocale.value());
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Failed to apply output locale override from argument: " << normalizedLocale.value());
+                }
+            }
+        }
+
         // Change logging level to Info if Verbose not requested
         if (Args.Contains(Args::Type::VerboseLogs))
         {

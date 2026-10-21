@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "SQLiteIndexTestCommon.h"
 #include <winget/SQLiteWrapper.h>
 #include <PackageDependenciesValidation.h>
 #include <ArpVersionValidation.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
 #include <AppInstallerStrings.h>
-#include <winget/SQLiteMetadataTable.h>
+#include <AppInstallerErrors.h>
 #include <winget/PackageVersionDataManifest.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
@@ -35,22 +36,6 @@ using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Utility;
 
 using UtilityVersion = AppInstaller::Utility::Version;
-using SQLiteVersion = AppInstaller::SQLite::Version;
-
-SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<SQLiteVersion> version = {})
-{
-    // If no specific version requested, then use generator to run against the last 3 versions.
-    if (!version)
-    {
-        SQLiteVersion latestVersion{ 2, 0 };
-        SQLiteVersion versionMinus1 = SQLiteVersion{ 1, 7 };
-        SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 6 };
-
-        version = GENERATE_COPY(SQLiteVersion{ versionMinus2 }, SQLiteVersion{ versionMinus1 }, SQLiteVersion{ latestVersion });
-    }
-
-    return SQLiteIndex::CreateNew(filePath, version.value());
-}
 
 SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
 {
@@ -82,26 +67,6 @@ SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
     return index.GetVersion();
 }
 
-std::string GetPathFromManifest(Manifest& manifest)
-{
-    auto publisher = manifest.Id;
-    AppInstaller::Utility::FindAndReplace(publisher, ".", "/");
-    
-    return AppInstaller::Utility::ToLower(publisher).append("/").append(manifest.Version);
-}
-
-void CreateFakeManifest(Manifest& manifest, string_t publisher, string_t version = "1.0.0")
-{
-    manifest.Installers.push_back({});
-    manifest.Id = publisher.append(".").append("Id");
-    manifest.DefaultLocalization.Add<Localization::PackageName>(publisher.append(" Name"));
-    manifest.Moniker = "testmoniker";
-    manifest.Version = version;
-    manifest.Channel = "test";
-    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
-    manifest.Installers[0].Commands = { "test1", "test2" };
-}
-
 SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::optional<SQLiteVersion> version = {})
 {
     SQLiteIndex index = CreateTestIndex(filePath, version);
@@ -112,176 +77,6 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
     auto relativePath = GetPathFromManifest(manifest);
 
     index.AddManifest(manifest, relativePath);
-
-    return index;
-}
-
-struct IndexFields
-{
-    IndexFields(
-        std::string id,
-        std::string name,
-        std::string moniker,
-        std::string version,
-        std::string channel,
-        std::vector<NormalizedString> tags,
-        std::vector<NormalizedString> commands,
-        std::string path
-    ) :
-        Id(std::move(id)),
-        Name(std::move(name)),
-        Moniker(std::move(moniker)),
-        Version(std::move(version)),
-        Channel(std::move(channel)),
-        Tags(std::move(tags)),
-        Commands(std::move(commands)),
-        Path(std::move(path))
-    {}
-
-    IndexFields(
-        std::string id,
-        std::string name,
-        std::string moniker,
-        std::string version,
-        std::string channel,
-        std::vector<NormalizedString> tags,
-        std::vector<NormalizedString> commands,
-        std::string path,
-        std::vector<NormalizedString> packageFamilyNames,
-        std::vector<NormalizedString> productCodes
-    ) :
-        Id(std::move(id)),
-        Name(std::move(name)),
-        Moniker(std::move(moniker)),
-        Version(std::move(version)),
-        Channel(std::move(channel)),
-        Tags(std::move(tags)),
-        Commands(std::move(commands)),
-        Path(std::move(path)),
-        PackageFamilyNames(std::move(packageFamilyNames)),
-        ProductCodes(std::move(productCodes))
-    {}
-
-    IndexFields(
-        std::string id,
-        std::string name,
-        std::string publisher,
-        std::string moniker,
-        std::string version,
-        std::string channel,
-        std::vector<NormalizedString> tags,
-        std::vector<NormalizedString> commands,
-        std::string path,
-        std::vector<NormalizedString> packageFamilyNames,
-        std::vector<NormalizedString> productCodes
-    ) :
-        Id(std::move(id)),
-        Name(std::move(name)),
-        Publisher(std::move(publisher)),
-        Moniker(std::move(moniker)),
-        Version(std::move(version)),
-        Channel(std::move(channel)),
-        Tags(std::move(tags)),
-        Commands(std::move(commands)),
-        Path(std::move(path)),
-        PackageFamilyNames(std::move(packageFamilyNames)),
-        ProductCodes(std::move(productCodes))
-    {}
-
-    IndexFields(
-        std::string id,
-        std::string name,
-        std::string publisher,
-        std::string moniker,
-        std::string version,
-        std::string channel,
-        std::vector<NormalizedString> tags,
-        std::vector<NormalizedString> commands,
-        std::string path,
-        std::vector<NormalizedString> packageFamilyNames,
-        std::vector<NormalizedString> productCodes,
-        std::string arpName,
-        std::string arpPublisher
-    ) :
-        Id(std::move(id)),
-        Name(std::move(name)),
-        Publisher(std::move(publisher)),
-        Moniker(std::move(moniker)),
-        Version(std::move(version)),
-        Channel(std::move(channel)),
-        Tags(std::move(tags)),
-        Commands(std::move(commands)),
-        Path(std::move(path)),
-        PackageFamilyNames(std::move(packageFamilyNames)),
-        ProductCodes(std::move(productCodes)),
-        ArpName(std::move(arpName)),
-        ArpPublisher(std::move(arpPublisher))
-    {}
-
-    std::string Id;
-    std::string Name;
-    std::string Publisher;
-    std::string Moniker;
-    std::string Version;
-    std::string Channel;
-    std::vector<NormalizedString> Tags;
-    std::vector<NormalizedString> Commands;
-    std::string Path;
-    std::vector<NormalizedString> PackageFamilyNames;
-    std::vector<NormalizedString> ProductCodes;
-    std::string ArpName;
-    std::string ArpPublisher;
-};
-
-SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, std::optional<SQLiteVersion> version = {})
-{
-    SQLiteIndex index = CreateTestIndex(filePath, version);
-
-    Manifest manifest;
-
-    auto addFunc = [&](const IndexFields& d)
-    {
-        manifest.Id = d.Id;
-        manifest.DefaultLocalization.Add<Localization::PackageName>(d.Name);
-        manifest.DefaultLocalization.Add<Localization::Publisher>(d.Publisher);
-        manifest.Moniker = d.Moniker;
-        manifest.Version = d.Version;
-        manifest.DefaultLocalization.Add<Localization::Tags>(d.Tags);
-
-        manifest.Installers.resize(std::max(d.PackageFamilyNames.size(), d.ProductCodes.size()));
-
-        if (manifest.Installers.size() == 0)
-        {
-            manifest.Installers.push_back({});
-        }
-
-        manifest.Channel = d.Channel;
-        manifest.Installers[0].Commands = d.Commands;
-
-        for (size_t i = 0; i < d.PackageFamilyNames.size(); ++i)
-        {
-            manifest.Installers[i].PackageFamilyName = d.PackageFamilyNames[i];
-        }
-
-        for (size_t i = 0; i < d.ProductCodes.size(); ++i)
-        {
-            manifest.Installers[i].ProductCode = d.ProductCodes[i];
-        }
-
-        if (!d.ArpName.empty() || !d.ArpPublisher.empty())
-        {
-            manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
-            manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayName = d.ArpName;
-            manifest.Installers[0].AppsAndFeaturesEntries[0].Publisher = d.ArpPublisher;
-        }
-
-        index.AddManifest(manifest, d.Path);
-    };
-
-    for (const auto& d : data)
-    {
-        addFunc(d);
-    }
 
     return index;
 }
@@ -3582,7 +3377,7 @@ TEST_CASE("SQLiteIndex_MigrateTo_Data", "[sqliteindex][V2_0]")
         REQUIRE(index.GetVersion() == SQLiteVersion{ 2, 0 });
 
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-        auto updateData = Schema::V2_0::PackageUpdateTrackingTable::GetUpdatesSince(connection, 0);
+        auto updateData = Schema::V2_0::PackageUpdateTrackingTable::GetUpdatesSince(connection, 0, Schema::V2_0::PackageUpdateTrackingTable::RemovalBehavior::Delete);
 
         REQUIRE(updateData.size() == 3);
         REQUIRE(std::count_if(updateData.begin(), updateData.end(), [&](const auto& x) { return x.PackageIdentifier == packageId1; }) == 1);
@@ -3605,38 +3400,6 @@ TEST_CASE("SQLiteIndex_Property_IntermediateFilePath", "[sqliteindex]")
     auto contextData = index.GetContextData();
     REQUIRE(contextData.Contains(Schema::Property::IntermediateFileOutputPath));
     REQUIRE(contextData.Get<Schema::Property::IntermediateFileOutputPath>() == intermediateFilePath);
-}
-
-struct ManifestAndPath
-{
-    Manifest Manifest;
-    std::string Path;
-};
-
-void CreateFakeManifestAndPath(
-    ManifestAndPath& manifestAndPath,
-    const string_t& publisher,
-    std::string_view version = "1.0.0",
-    std::optional<std::string_view> arpMinVersion = {},
-    std::optional<std::string_view> arpMaxVersion = {})
-{
-    CreateFakeManifest(manifestAndPath.Manifest, publisher, version);
-    manifestAndPath.Path = ConvertToUTF8(CreateNewGuidNameWString());
-    manifestAndPath.Manifest.StreamSha256 = SHA256::ComputeHash(manifestAndPath.Path);
-
-    if (arpMinVersion)
-    {
-        manifestAndPath.Manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
-        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
-        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.back().DisplayVersion = arpMinVersion.value();
-    }
-
-    if (arpMaxVersion)
-    {
-        manifestAndPath.Manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
-        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
-        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.back().DisplayVersion = arpMaxVersion.value();
-    }
 }
 
 std::filesystem::path GetOnlyChild(const std::filesystem::path& parent)
@@ -3963,3 +3726,4 @@ TEST_CASE("SQLiteIndex_VersionStringPreserved", "[sqliteindex]")
 
     REQUIRE(extractedVersion == version);
 }
+

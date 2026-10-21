@@ -8,10 +8,10 @@
 
 namespace AppInstaller::SQLite
 {
-    Version Version::GetSchemaVersion(Connection& connection)
+    Version Version::GetSchemaVersion(const Connection& connection, std::string_view database)
     {
-        int major = MetadataTable::GetNamedValue<int>(connection, s_MetadataValueName_MajorVersion);
-        int minor = MetadataTable::GetNamedValue<int>(connection, s_MetadataValueName_MinorVersion);
+        int major = MetadataTable::GetNamedValue<int>(connection, s_MetadataValueName_MajorVersion, database);
+        int minor = MetadataTable::GetNamedValue<int>(connection, s_MetadataValueName_MinorVersion, database);
 
         return { static_cast<uint32_t>(major), static_cast<uint32_t>(minor) };
     }

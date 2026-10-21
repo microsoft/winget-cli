@@ -4,6 +4,7 @@
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
 #include "Microsoft/Schema/2_0/OneToManyTableWithMap.h"
+#include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
 
 #include <memory>
 #include <vector>
@@ -30,6 +31,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         void PrepareForPackaging(SQLite::Connection& connection) override;
         void PrepareForPackaging(const SQLiteIndexContext& context) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
+        using ISQLiteIndex::CheckConsistency;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
         std::optional<std::string> GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionProperty property) const override;
         std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;
@@ -74,6 +76,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Prepares for packaging, optionally vacuuming the database.
         virtual void PrepareForPackaging(const SQLiteIndexContext& context, bool vacuum);
 
+        // Extends PrepareForPackaging at the point where the 2.0 tables have been populated but
+        // the update tracking and internal 1.7 tables have not yet been dropped. That is the only
+        // window in which both the packaged and the pre-packaged forms of the data exist, so any
+        // output that must correlate the two has to be produced here. Does nothing by default.
+        virtual void CreateAdditionalPackagingOutput(const SQLiteIndexContext& context);
+
         // Force the database to shrink the file size.
         // This *must* be done outside of an active transaction.
         void Vacuum(const SQLite::Connection& connection);
@@ -88,6 +96,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // If EnsureInternalInterface has been called.
         mutable bool m_internalInterfaceChecked = false;
+
+        // Determines how the removal of a package is recorded in the update tracking table.
+        PackageUpdateTrackingTable::RemovalBehavior m_trackingRemovalBehavior = PackageUpdateTrackingTable::RemovalBehavior::Delete;
+
+        // Set when the tables that this interface reads are the merged views over a delta and its
+        // baseline rather than tables of this database.
+        mutable bool m_isDeltaReadMode = false;
 
         // Interface to the data before PrepareForPackaging is called.
         mutable std::unique_ptr<Schema::ISQLiteIndex> m_internalInterface;

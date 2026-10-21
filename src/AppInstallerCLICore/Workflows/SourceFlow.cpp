@@ -189,10 +189,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelForDisplay(source.TrustLevel)});
             table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(source.Explicit) } });
-            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
-            {
-                table.OutputLine({ Resource::LocString(Resource::String::SourceListPriority), std::to_string(source.Priority) });
-            }
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListPriority), std::to_string(source.Priority) });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
@@ -410,10 +407,7 @@ namespace AppInstaller::CLI::Workflow
                 s.TrustLevel = std::vector<std::string>(sourceTrustLevels.begin(), sourceTrustLevels.end());
                 s.Explicit = source.Explicit;
 
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SourcePriority))
-                {
-                    s.Priority = source.Priority;
-                }
+                s.Priority = source.Priority;
 
                 context.Reporter.Info() << s.ToJsonString() << std::endl;
             }

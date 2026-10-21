@@ -80,5 +80,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// The DSC processor hash provided does not match hash of the target file.
         /// </summary>
         internal const int WinGetConfigProcessorHashMismatch = unchecked((int)0x8A15C113);
+
+        /// <summary>
+        /// The DSC processor path no longer refers to the file that was verified.
+        /// </summary>
+        internal const int WinGetConfigProcessorPathChanged = unchecked((int)0x8A15C114);
     }
 }

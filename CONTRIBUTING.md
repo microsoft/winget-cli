@@ -25,6 +25,14 @@ Therefore, if you do file issues, or create PRs, please keep an eye on your GitH
 
 **Please do not report security vulnerabilities through public GitHub issues.** Instead, please report them to the Microsoft Security Response Center (MSRC). See [SECURITY.md](./SECURITY.md) for more information.
 
+## AI-assisted contributions
+
+AI assistance is welcome, but contributors remain fully responsible for the submitted work. If AI contributes to a change, you are accountable for that content exactly as if you wrote it yourself: you must understand it, ensure it follows project conventions, and provide the same testing and validation evidence expected for any other contribution.
+
+When opening or updating a PR, disclose material AI-generated assistance and briefly describe which parts were assisted.
+
+Opening a PR requires real engineering review time. Please keep this in mind and submit contributions that are complete, reviewed, and ready for meaningful feedback. Low-effort, unreviewed, or unverifiable AI-generated submissions may be closed at maintainer discretion.
+
 ## Before you start, file an issue
 
 Please follow this simple rule to help us eliminate any unnecessary wasted effort & frustration, and ensure an efficient and effective use of everyone's time - yours, ours, and other community members':
@@ -116,9 +124,25 @@ Once you've discussed your proposed feature/fix/etc. with a team member, and you
 1. Work on your changes.
 1. Build and see if it works.
 
+### Coding Standards
+
+Before writing code, review [doc/Standards.md](./doc/Standards.md) for the conventions used in this codebase — naming, formatting, error handling, casts, `std::move()` usage, and resource strings. PRs that diverge from these conventions will be asked to bring their changes into line before review completes.
+
 ### Testing
 
-Testing is a key component in the development workflow.
+Testing is a key part of getting a change ready for review.
+
+If your contribution changes behavior or implementation, please plan to add or update automated tests alongside the code.
+
+As a quick rule of thumb: unit tests in `AppInstallerCLITests` focus on the code and logic, while end-to-end tests in `AppInstallerCLIE2ETests` focus on actual `winget` command behavior and the resulting system outcomes.
+
+For non-trivial code changes, the bar is high. Where practical, include both unit tests and end-to-end coverage. If you believe that tests aren't needed for your change, please call that out in your PR and explain why.
+
+Documentation-only updates and non-functional metadata changes generally do not require new tests.
+
+For build and test execution details, see [Running Unit Tests](./doc/Developing.md#running-unit-tests) and [Running End-to-End Tests](./doc/Developing.md#running-end-to-end-tests) in [doc/Developing.md](./doc/Developing.md).
+
+PRs without appropriate coverage may be asked to add tests before review completes.
 
 ### Code Review
 

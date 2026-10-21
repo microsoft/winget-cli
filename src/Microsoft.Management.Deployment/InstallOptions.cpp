@@ -160,6 +160,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_skipDependencies;
     }
+    void InstallOptions::InstallDependenciesOnly(bool value)
+    {
+        m_installDependenciesOnly = value;
+    }
+    bool InstallOptions::InstallDependenciesOnly()
+    {
+        return m_installDependenciesOnly;
+    }
     winrt::Microsoft::Management::Deployment::AuthenticationArguments InstallOptions::AuthenticationArguments()
     {
         return m_authenticationArguments;

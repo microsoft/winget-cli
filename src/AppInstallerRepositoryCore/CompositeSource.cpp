@@ -969,15 +969,12 @@ namespace AppInstaller::Repository
                     {
                         AddIfNotPresent(SystemReferenceString{ PackageMatchField::UpgradeCode, Utility::LocIndString{ upgradeCode } });
                     }
-                    for (const auto& name : manifest.GetPackageNames())
+                    for (auto&& [name, publisher] : manifest.GetNameAndPublisherPairs())
                     {
-                        for (const auto& publisher : manifest.GetPublishers())
-                        {
-                            AddIfNotPresent(SystemReferenceString{
-                                PackageMatchField::NormalizedNameAndPublisher,
-                                Utility::LocIndString{ name },
-                                Utility::LocIndString{ publisher } });
-                        }
+                        AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            Utility::LocIndString{ std::move(name) },
+                            Utility::LocIndString{ std::move(publisher) } });
                     }
                 }
 
@@ -996,21 +993,13 @@ namespace AppInstaller::Repository
                 void GetNameAndPublisher(
                     IPackage* package)
                 {
-                    // Unfortunately the names and publishers are unique and not tied to each other strictly, so we need
-                    // to go broad on the matches. Future work can hopefully make name and publisher operate more as a unit,
-                    // but for now we have to search for the cartesian of these...
-                    auto names = package->GetMultiProperty(PackageMultiProperty::NormalizedName);
-                    auto publishers = package->GetMultiProperty(PackageMultiProperty::NormalizedPublisher);
-
-                    for (const auto& name : names)
+                    for (auto&& row : package->GetMatrixProperty(PackageMatrixProperty::NormalizedNameAndPublisher))
                     {
-                        for (const auto& publisher : publishers)
-                        {
-                            AddIfNotPresent(SystemReferenceString{
-                                PackageMatchField::NormalizedNameAndPublisher,
-                                name,
-                                publisher });
-                        }
+                        THROW_HR_IF(E_UNEXPECTED, row.size() != 2);
+                        AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            Utility::LocIndString{ std::move(row[0]) },
+                            Utility::LocIndString{ std::move(row[1]) } });
                     }
                 }
             };

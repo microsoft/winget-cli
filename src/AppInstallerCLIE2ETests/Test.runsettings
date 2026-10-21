@@ -25,6 +25,8 @@
     MsiTestInstallerV2Path: The v2 MSI Installer executable under test.
     InprocTestbedPath: Path to the ComInprocTestbed executable used by in-proc COM tests.
     InprocTestbedUseTestPackage: Bool to indicate whether in-proc COM tests should target the test package.
+    WinGetServerPath: Path to the WindowsPackageManagerServer executable used by the RPC security tests.
+    RpcTestHelperPath: Path to the WinGetRpcTestHelper executable used by the RPC security tests.
     ForcedExperimentalFeatures: Pipe-separated list of experimental features to force-enable during test setup.
     SkipTestSource: I solemnly swear the test won't use the local test source or the source is already set up.
   -->
@@ -46,6 +48,8 @@
     <Parameter name="LocalServerCertPath" value="servercert.cer" />
     <Parameter name="InprocTestbedPath" value="ComInprocTestbed.exe" />
     <Parameter name="InprocTestbedUseTestPackage" value="false" />
+    <Parameter name="WinGetServerPath" value="..\WinGetServer\WindowsPackageManagerServer.exe" />
+    <Parameter name="RpcTestHelperPath" value="..\WinGetRpcTestHelper\WinGetRpcTestHelper.exe" />
     <Parameter name="ForcedExperimentalFeatures" value="" />
     <Parameter name="SkipTestSource" value="false" />
   </TestRunParameters>

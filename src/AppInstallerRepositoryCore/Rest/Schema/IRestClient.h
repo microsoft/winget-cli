@@ -45,6 +45,8 @@ namespace AppInstaller::Repository::Rest::Schema
     {
         PackageInfo PackageInformation;
         std::vector<VersionInfo> Versions;
+        // Aggregate search metadata retained when an unknown version is expanded.
+        std::vector<VersionInfo> SearchVersions;
 
         Package(PackageInfo packageInfo, std::vector<VersionInfo> versions)
         : PackageInformation(std::move(packageInfo)), Versions(std::move(versions)) {}

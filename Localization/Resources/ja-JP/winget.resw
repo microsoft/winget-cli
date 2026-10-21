@@ -407,6 +407,30 @@
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>複数のパッケージが入力条件に一致しました。入力内容を修正してください。</value>
   </data>
+  <data name="PackageSelectionTitle" xml:space="preserve">
+    <value>複数のパッケージが一致します。1 つ選択してください。</value>
+    <comment>Introduces a numbered list of packages the user can choose from.</comment>
+  </data>
+  <data name="NumberedSelectionPrompt" xml:space="preserve">
+    <value>数字 (1-{0}) を入力するか、取り消す場合は 0 を入力します:</value>
+    <comment>{Locked="{0}"} {0} is the number of choices in the list. The input is a numeric choice; 0 cancels the command.</comment>
+  </data>
+  <data name="NumberedSelectionInvalid" xml:space="preserve">
+    <value>選択が無効です。</value>
+    <comment>Shown after invalid or empty input to a numbered selection prompt.</comment>
+  </data>
+  <data name="PackageSelectionSelected" xml:space="preserve">
+    <value>選択済み: {0} [{1}]</value>
+    <comment>{Locked="{0}","{1}"} {0} is the package name and {1} is its identifier. Confirms the user's choice before continuing the original command.</comment>
+  </data>
+  <data name="PackageSelectionRefine" xml:space="preserve">
+    <value>--id &lt;ID&gt; --exact --source &lt;SOURCE&gt; でパッケージを指定します。</value>
+    <comment>{Locked="--id","--exact","--source","ID","SOURCE"} Guidance when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
+  <data name="PackageSelectionRefineForExport" xml:space="preserve">
+    <value>--package-id &lt;ID&gt; --source &lt;SOURCE&gt; でパッケージを指定します。</value>
+    <comment>{Locked="--package-id","--source","ID","SOURCE"} Guidance for configure export when multiple packages match. ID and SOURCE are placeholders.</comment>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>名前で結果をフィルター処理</value>
   </data>
@@ -859,6 +883,10 @@
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>結果が書き込まれるファイル</value>
   </data>
+  <data name="OutputLocaleArgumentDescription" xml:space="preserve">
+    <value>このコマンドの出力に使用するロケール (BCP47 形式)</value>
+    <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
+  </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>インストールするパッケージを記述したファイル</value>
   </data>
@@ -894,8 +922,8 @@
     <value>パッケージは既にインストールされています: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
-  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
-    <value>使用できないパッケージを無視する</value>
+  <data name="IgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>利用できないパッケージを無視します</value>
   </data>
   <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
     <value>エクスポート ファイルにパッケージ バージョンを含める</value>
@@ -2890,8 +2918,8 @@
   <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>管理者特権で実行している場合、ユーザー スコープ用にインストールされたパッケージは修復できません。</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
-    <value>管理者特権を含む修復操作は、ユーザースコープ内にインストールされたパッケージでは許可されていません。</value>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
+    <value>要求された操作は、ユーザー スコープ内にインストールされたパッケージの管理者コンテキストからは許可されていません。</value>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>修復が終了コードで失敗しました: {0}</value>
@@ -3648,5 +3676,12 @@ An unlocalized JSON fragment will follow on another line.</comment>
   </data>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_HASH_MISMATCH" xml:space="preserve">
     <value>指定された DSC プロセッサ ハッシュがターゲット ファイルのハッシュと一致しません。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
+    <value>DSC プロセッサのパスは、検証されたファイルを参照していません。</value>
+    <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>ユーザー スコープ用にインストールされたパッケージは、管理者特権で実行している場合はアンインストールできません。</value>
   </data>
 </root>

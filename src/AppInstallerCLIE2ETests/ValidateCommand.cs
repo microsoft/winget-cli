@@ -42,7 +42,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ValidateInvalidManifest()
         {
-            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestInvalidManifest.yaml"));
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("InvalidManifests\\TestInvalidManifest.yaml"));
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_FAILURE));
             Assert.That(result.StdOut, Does.Contain("Manifest validation failed."));
         }

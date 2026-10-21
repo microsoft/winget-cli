@@ -55,6 +55,12 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a copy of the given index.
         static SQLiteIndex CopyFrom(const std::string& filePath, SQLiteIndex& source);
 
+        // Opens a delta index combined with its baseline for reading.
+        // The delta is the main connection; the baseline is attached and temp views are created
+        // so that existing search code operates transparently across both.
+        // The disposition applies to both files, because the pair is only meaningful as a unit.
+        static SQLiteIndex OpenWithBaseline(const std::string& deltaFilePath, const std::string& baselineFilePath, OpenDisposition disposition = OpenDisposition::Read);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
@@ -123,6 +129,13 @@ namespace AppInstaller::Repository::Microsoft
 
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
+        //
+        // What that means depends on what the database is and on the properties that have been
+        // set. A delta is not an index in its own right: on its own only what it says about itself
+        // can be checked, and DeltaBaselineIndexPath additionally checks the merged form.
+        // DeltaComparisonIndexPath requires the result -- the merged form for such a delta, or the
+        // database itself for any other index -- to present the same data as the index it names.
+        // Equivalence includes package identity, so the two must share lineage.
         bool CheckConsistency(bool log = false) const;
 
         // Performs a search based on the given criteria.
@@ -167,6 +180,12 @@ namespace AppInstaller::Repository::Microsoft
         {
             PackageUpdateTrackingBaseTime,
             IntermediateFileOutputPath,
+            DeltaBaselineIndexPath,
+            DeltaOutputPath,
+            DeltaBaselineRelativeSourcePath,
+            DeltaBaselinePackageVersion,
+            DeltaMarkAsBaseline,
+            DeltaComparisonIndexPath,
         };
 
         // Sets the given property.
@@ -179,6 +198,8 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
 
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);

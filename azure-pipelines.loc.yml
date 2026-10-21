@@ -19,12 +19,14 @@ jobs:
   variables:
     skipComponentGovernanceDetection: true
     tdbuildTeamId: 8343
+    serviceTreeId: 4e6e6c45-6ddc-46ff-8661-909d2ef6171b
   steps:
     # Upload client resources
   - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@5
     displayName: Send resources to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)
+      serviceTreeId: $(serviceTreeId)
       authType: FederatedIdentity
       FederatedIdentityServiceConnection: AppInstallerTDBuild
       isPreview: false
@@ -38,6 +40,7 @@ jobs:
     displayName: Send ADML to Touchdown Build
     inputs:
       teamId: $(tdbuildTeamId)
+      serviceTreeId: $(serviceTreeId)
       authType: FederatedIdentity
       FederatedIdentityServiceConnection: AppInstallerTDBuild
       isPreview: false

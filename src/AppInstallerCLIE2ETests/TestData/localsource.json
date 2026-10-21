@@ -1,8 +1,8 @@
 {
-  "AppxManifest": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/Package/AppxManifest.xml",
+  "AppxManifest": "%WINGET_SOURCE_ROOT%/src/AppInstallerCLIE2ETests/TestData/Package/AppxManifest.xml",
   "WorkingDirectory": "%AGENT_TEMPDIRECTORY%/TestLocalIndex",
   "LocalManifests": [
-    "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/Manifests"
+    "%WINGET_SOURCE_ROOT%/src/AppInstallerCLIE2ETests/TestData/Manifests"
   ],
   "LocalInstallers": [
     {
@@ -14,13 +14,13 @@
     {
       "Type": "msi",
       "Name": "AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi",
-      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi",
+      "Input": "%WINGET_SOURCE_ROOT%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi",
       "HashToken": "<MSIHASH>"
     },
     {
       "Type": "msi",
       "Name": "AppInstallerTestMsiInstaller/AppInstallerTestMsiInstallerV2.msi",
-      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstallerV2.msi",
+      "Input": "%WINGET_SOURCE_ROOT%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstallerV2.msi",
       "HashToken": "<MSIHASHV2>"
     },
     {
@@ -33,7 +33,7 @@
     {
       "Type": "font",
       "Name": "AppInstallerTestFont/AppInstallerTestFont.ttf",
-      "Input": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestFont.ttf",
+      "Input": "%WINGET_SOURCE_ROOT%/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestFont.ttf",
       "HashToken": "<FONTHASH>",
       "SkipSignature": true
     }

@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
 #include <filesystem>
+#include <string>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema
@@ -13,6 +14,12 @@ namespace AppInstaller::Repository::Microsoft::Schema
         PackageUpdateTrackingBaseTime,
         IntermediateFileOutputPath,
         DatabaseFilePath,
+        DeltaBaselineIndexPath,
+        DeltaMarkAsBaseline,
+        DeltaOutputPath,
+        DeltaBaselineRelativeSourcePath,
+        DeltaBaselinePackageVersion,
+        DeltaComparisonIndexPath,
         Max
     };
 
@@ -40,6 +47,52 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         template <>
         struct PropertyMapping<Property::DatabaseFilePath>
+        {
+            using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaBaselineIndexPath>
+        {
+            using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        // Designates the index being prepared as a baseline, in place of naming an existing one.
+        // The only meaningful value is true; an index is either being designated or it is not.
+        template <>
+        struct PropertyMapping<Property::DeltaMarkAsBaseline>
+        {
+            using value_t = bool;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaOutputPath>
+        {
+            using value_t = std::filesystem::path;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        // Not a local path; the location of the baseline package relative to the source's base
+        // location, which only the consuming client can resolve.
+        template <>
+        struct PropertyMapping<Property::DeltaBaselineRelativeSourcePath>
+        {
+            using value_t = std::string;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaBaselinePackageVersion>
+        {
+            using value_t = std::string;
+            static constexpr bool SetThroughInterface = false;
+        };
+
+        template <>
+        struct PropertyMapping<Property::DeltaComparisonIndexPath>
         {
             using value_t = std::filesystem::path;
             static constexpr bool SetThroughInterface = false;

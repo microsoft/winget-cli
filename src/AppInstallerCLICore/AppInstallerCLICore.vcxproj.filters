@@ -346,6 +346,9 @@
     <ClCompile Include="ExecutionReporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TableOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Commands\HashCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>

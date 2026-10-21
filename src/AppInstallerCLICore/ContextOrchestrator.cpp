@@ -144,7 +144,7 @@ namespace AppInstaller::CLI::Execution
         if (queueItem.IsApplicableForInstallingSource())
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-            m_installingWriteableSource.AddPackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+            m_installingWriteableSource.AddPackageVersion(manifest, Manifest::GetPathPart(manifest));
         }
     }
 
@@ -153,7 +153,7 @@ namespace AppInstaller::CLI::Execution
         if (queueItem.IsApplicableForInstallingSource())
         {
             const auto& manifest = queueItem.GetContext().Get<Execution::Data::Manifest>();
-            m_installingWriteableSource.RemovePackageVersion(manifest, std::filesystem::path{ manifest.Id + '.' + manifest.Version });
+            m_installingWriteableSource.RemovePackageVersion(manifest, Manifest::GetPathPart(manifest));
         }
     }
 

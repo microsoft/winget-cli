@@ -4,7 +4,9 @@
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
+#include <AppInstallerStrings.h>
 #include <winget/JsonUtil.h>
+#include <winget/ManifestValidation.h>
 #include <winget/Rest.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
@@ -20,6 +22,24 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         constexpr std::string_view Versions = "Versions"sv;
         constexpr std::string_view PackageVersion = "PackageVersion"sv;
         constexpr std::string_view Channel = "Channel"sv;
+
+        // The package identifier and version flow into file system paths, so the manifest schema restrictions
+        // on them are enforced here as well; the schema itself is not applied to REST responses.
+        bool CheckPathFieldValueValidation(std::string_view fieldName, const std::vector<AppInstaller::Manifest::ValidationError>& validationErrors)
+        {
+            bool result = true;
+
+            for (const auto& error : validationErrors)
+            {
+                if (error.ErrorLevel == AppInstaller::Manifest::ValidationError::Level::Error)
+                {
+                    AICLI_LOG(Repo, Error, << "Invalid " << fieldName << " received from rest source: " << error.GetErrorMessage());
+                    result = false;
+                }
+            }
+
+            return result;
+        }
     }
 
     IRestClient::SearchResult SearchResponseDeserializer::Deserialize(const web::json::value& searchResponseObject) const
@@ -59,6 +79,15 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 if (!JSON::IsValidNonEmptyStringValue(packageId) || !JSON::IsValidNonEmptyStringValue(packageName) || !JSON::IsValidNonEmptyStringValue(publisher))
                 {
                     AICLI_LOG(Repo, Error, << "Missing required package fields in manifest search results.");
+                    return {};
+                }
+
+                // The YAML parser trims these values, so do the same here before validating; the schema excludes
+                // whitespace from the identifier, but surrounding whitespace should be tolerated identically.
+                Utility::Trim(packageId.value());
+
+                if (!CheckPathFieldValueValidation(PackageIdentifier, AppInstaller::Manifest::ValidatePackageIdentifier(packageId.value())))
+                {
                     return {};
                 }
 
@@ -112,6 +141,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         if (!JSON::IsValidNonEmptyStringValue(version))
         {
             AICLI_LOG(Repo, Error, << "Received incomplete package version");
+            return {};
+        }
+
+        // The schema allows surrounding whitespace in the version, but the value is used to construct file system
+        // paths and version comparison trims, so trim it here as the YAML parser does. Trim before validating so
+        // that a value which is only path unsafe because of its surrounding whitespace is still accepted.
+        Utility::Trim(version.value());
+
+        if (!CheckPathFieldValueValidation(PackageVersion, AppInstaller::Manifest::ValidatePackageVersion(version.value())))
+        {
             return {};
         }
 

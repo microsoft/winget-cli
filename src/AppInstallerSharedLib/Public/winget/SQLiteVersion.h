@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/SQLiteWrapper.h>
 #include <memory>
+#include <string_view>
 
 namespace AppInstaller::SQLite
 {
@@ -53,7 +54,9 @@ namespace AppInstaller::SQLite
         bool IsLatestForMajor(uint32_t majorVersion) const;
 
         // Determines the schema version of the opened database.
-        static Version GetSchemaVersion(Connection& connection);
+        // The database names the schema to read from, which is the alias an attached database was
+        // given; leaving it empty reads the primary database.
+        static Version GetSchemaVersion(const Connection& connection, std::string_view database = {});
 
         // Writes the current version to the given database.
         void SetSchemaVersion(Connection& connection) const;

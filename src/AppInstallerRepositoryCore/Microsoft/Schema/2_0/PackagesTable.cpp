@@ -188,15 +188,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     bool PackagesTable::Exists(const SQLite::Connection& connection)
     {
-        using namespace SQLite;
-
-        Builder::StatementBuilder builder;
-        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
-            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_PackagesTable_Table_Name);
-
-        Statement statement = builder.Prepare(connection);
-        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
-        return statement.GetColumn<int64_t>(0) != 0;
+        return SQLite::Builder::Schema::TableExists(connection, s_PackagesTable_Table_Name);
     }
 
     void PackagesTable::AddColumn(SQLite::Connection& connection, const ColumnInfo& value)
@@ -213,10 +205,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         savepoint.Commit();
     }
 
-    SQLite::rowid_t PackagesTable::Insert(SQLite::Connection& connection, const std::vector<NameValuePair>& values)
+    SQLite::rowid_t PackagesTable::Insert(SQLite::Connection& connection, const std::vector<NameValuePair>& values, std::optional<SQLite::rowid_t> rowid)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PackagesTable_Table_Name).BeginColumns();
+
+        if (rowid)
+        {
+            builder.Column(SQLite::RowIDName);
+        }
 
         for (const NameValuePair& value : values)
         {
@@ -224,6 +221,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         builder.EndColumns().BeginValues();
+
+        if (rowid)
+        {
+            builder.Value(rowid.value());
+        }
 
         for (const NameValuePair& value : values)
         {
@@ -234,7 +236,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         builder.Execute(connection);
 
-        return connection.GetLastInsertRowID();
+        return rowid ? rowid.value() : connection.GetLastInsertRowID();
     }
 
     bool PackagesTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)

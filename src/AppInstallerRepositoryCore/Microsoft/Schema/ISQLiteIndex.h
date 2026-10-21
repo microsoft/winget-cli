@@ -15,11 +15,22 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
+    // Contains the database connection and any other data that the owning index might need to pass in,
+    // for operations that do not modify the index.
+    struct SQLiteIndexConstContext
+    {
+        const SQLite::Connection& Connection;
+        const SQLiteIndexContextData& Data;
+    };
+
     // Contains the database connection and any other data that the owning index might need to pass in.
     struct SQLiteIndexContext
     {
         SQLite::Connection& Connection;
         SQLiteIndexContextData& Data;
+
+        // Grants only the access that a read only operation needs.
+        operator SQLiteIndexConstContext() const { return SQLiteIndexConstContext{ Connection, Data }; }
     };
 
     // The common interface used to interact with all schema versions of the index.
@@ -97,6 +108,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Returns true if index is consistent; false if it is not.
         virtual bool CheckConsistency(const SQLite::Connection& connection, bool log) const = 0;
 
+        // Checks the consistency of the index, taking into account any properties that the caller has set.
+        // Returns true if index is consistent; false if it is not.
+        virtual bool CheckConsistency(const SQLiteIndexConstContext& context, bool log) const;
+
         // Performs a search based on the given criteria.
         virtual SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const = 0;
 
@@ -151,6 +166,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Set the property value.
         virtual void SetProperty(SQLite::Connection& connection, Property property, const std::string& value);
+
+        // Version 2.1
+
+        // Sets this index up to read the combination of a delta and the baseline that it was
+        // generated against, so that every subsequent read sees the merged data. Must be called
+        // before any read.
+        virtual void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline);
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

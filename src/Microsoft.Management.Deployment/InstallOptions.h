@@ -45,6 +45,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AcceptPackageAgreements(bool value);
         bool SkipDependencies();
         void SkipDependencies(bool value);
+        bool InstallDependenciesOnly();
+        void InstallDependenciesOnly(bool value);
         winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
         void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
 
@@ -68,6 +70,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_force = false;
         bool m_acceptPackageAgreements = true;
         bool m_skipDependencies = false;
+        bool m_installDependenciesOnly = false;
         winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
 #endif
     };
