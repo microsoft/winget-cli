@@ -1599,6 +1599,7 @@ namespace AppInstaller::Repository
             auto trackingCatalog = source.GetTrackingCatalog();
 
             SearchResult availableResult = result.SearchAndHandleFailures(source, request);
+            result.Truncated = result.Truncated || availableResult.Truncated;
             bool downloadManifests = source.QueryFeatureFlag(SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings);
 
             for (auto&& match : availableResult.Matches)
@@ -1752,6 +1753,7 @@ namespace AppInstaller::Repository
             }
 
             // Move into the single result
+            result.Truncated = result.Truncated || oneSourceResult.Truncated;
             std::move(oneSourceResult.Matches.begin(), oneSourceResult.Matches.end(), std::back_inserter(result.Matches));
             std::move(oneSourceResult.Failures.begin(), oneSourceResult.Failures.end(), std::back_inserter(result.Failures));
         }

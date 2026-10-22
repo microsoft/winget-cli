@@ -315,6 +315,31 @@ namespace AppInstaller::CLI::Workflow
             EnsureSupportForInstall;
     }
 
+    bool HasUnsupportedArgumentError(Execution::Context& context, const ManifestInstaller& installer)
+    {
+        const auto* command = context.GetExecutingCommand();
+        if (!command)
+        {
+            return false;
+        }
+
+        const auto commandArguments = command->GetArguments();
+        for (auto unsupportedArg : installer.UnsupportedArguments)
+        {
+            auto argumentType = GetUnsupportedArgumentType(unsupportedArg);
+            if (context.Args.Contains(argumentType) && ShouldErrorForUnsupportedArgument(unsupportedArg) &&
+                std::any_of(commandArguments.begin(), commandArguments.end(), [&](const Argument& argument)
+                {
+                    return argument.ExecArgType() == argumentType;
+                }))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void CheckForUnsupportedArgs(Execution::Context& context)
     {
         bool messageDisplayed = false;

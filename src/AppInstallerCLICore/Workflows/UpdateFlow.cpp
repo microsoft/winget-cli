@@ -325,6 +325,14 @@ namespace AppInstaller::CLI::Workflow
             EnsureOneMatchFromSearchResult(m_operationType, m_selectionBehavior) <<
             GetInstalledPackageVersion;
 
+        AICLI_RETURN_IF_TERMINATED(context);
+        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
+        {
+            THROW_HR_IF(E_UNEXPECTED, m_operationType != OperationType::Install || context.Get<Execution::Data::InstalledPackageVersion>());
+            context << GetManifestFromPackage(true, OperationType::Install) << SelectInstaller << EnsureApplicableInstaller;
+            return;
+        }
+
         if ( m_operationType != OperationType::Upgrade && 
             context.Contains(Execution::Data::InstalledPackageVersion) &&
             context.Get<Execution::Data::InstalledPackageVersion>() != nullptr )

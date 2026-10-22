@@ -105,3 +105,32 @@ TEST_CASE("ExperimentalFeature InteractivePackageSelection", "[experimentalFeatu
         return item.GetFeature() == ExperimentalFeature::Feature::InteractivePackageSelection;
     }));
 }
+
+TEST_CASE("ExperimentalFeature PackageDeduplication", "[experimentalFeature][PackageDeduplication]")
+{
+    auto again = DeleteUserSettingsFiles();
+    auto [json, enabled] = GENERATE(
+        std::make_pair(std::string_view{ "{}" }, false),
+        std::make_pair(std::string_view{ R"({ "experimentalFeatures": { "packageDeduplication": true } })" }, true),
+        std::make_pair(std::string_view{ R"({ "experimentalFeatures": { "packageDeduplication": false } })" }, false),
+        std::make_pair(std::string_view{ R"({ "experimentalFeatures": { "packageDeduplication": "string" } })" }, false));
+    bool policyEnabled = GENERATE(false, true);
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, policyEnabled);
+    GroupPolicyTestOverride policies{ policiesKey.get() };
+    SetSetting(Stream::PrimaryUserSettings, json);
+    UserSettingsTest userSettingTest;
+
+    CAPTURE(json, policyEnabled);
+    REQUIRE(userSettingTest.Get<Setting::EFPackageDeduplication>() == enabled);
+    REQUIRE_FALSE(userSettingTest.Get<Setting::EFInteractivePackageSelection>());
+    REQUIRE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PackageDeduplication, userSettingTest) ==
+        (enabled && policyEnabled));
+    auto feature = ExperimentalFeature::GetFeature(ExperimentalFeature::Feature::PackageDeduplication);
+    REQUIRE(std::string_view{ feature.JsonName() } == "packageDeduplication");
+    auto features = ExperimentalFeature::GetAllFeatures();
+    REQUIRE(std::any_of(features.begin(), features.end(), [](const auto& item)
+    {
+        return item.GetFeature() == ExperimentalFeature::Feature::PackageDeduplication;
+    }));
+}

@@ -348,6 +348,11 @@
           "description": "Enable support for some commands to resume",
           "type": "boolean",
           "default": false
+        },
+        "packageDeduplication": {
+          "description": "Resolve equivalent installers across sources for single-package install, download, and show commands",
+          "type": "boolean",
+          "default": false
         }
       }
     },

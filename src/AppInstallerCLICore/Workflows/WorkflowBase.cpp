@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
+#include "InstallFlow.h"
 #include "PackageTableSortHelper.h"
 #include "PromptFlow.h"
 #include "ShowFlow.h"
@@ -19,6 +20,7 @@
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 #include <winget/IconExtraction.h>
+#include <set>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -33,6 +35,254 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
+        bool HandlePackageDeduplicationFailure(Execution::Context& context, HRESULT hr)
+        {
+            if (context.IsTerminated())
+            {
+                return true;
+            }
+
+            if (hr == E_ABORT || hr == HRESULT_FROM_WIN32(ERROR_CANCELLED) || hr == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED) ||
+                hr == HRESULT_FROM_WIN32(ERROR_INTERNET_OPERATION_CANCELLED) || hr == APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER)
+            {
+                context.Terminate(hr);
+                return true;
+            }
+
+            bool expected = HRESULT_FACILITY(hr) == FACILITY_HTTP ||
+                (HRESULT_FACILITY(hr) == FACILITY_WIN32 && HRESULT_CODE(hr) >= INTERNET_ERROR_BASE && HRESULT_CODE(hr) <= INTERNET_ERROR_LAST);
+            switch (hr)
+            {
+            case HRESULT_FROM_WIN32(ERROR_TIMEOUT):
+            case HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND):
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED:
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
+            case APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE:
+            case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
+            case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
+            case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
+            case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
+            case APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE:
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY:
+            case APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY:
+            case APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED:
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA:
+            case APPINSTALLER_CLI_ERROR_LIBYAML_ERROR:
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
+            case APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR:
+            case APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE:
+            case APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND:
+                expected = true;
+                break;
+            }
+
+            if (expected)
+            {
+                AICLI_LOG(CLI, Warning, << "Package deduplication comparison failed: " << hr);
+                context.Reporter.Warn() << Resource::String::PackageDeduplicationFailed << std::endl;
+            }
+            return expected;
+        }
+
+        std::optional<PreparedPackageMatch> TryPreparePackageDeduplication(Execution::Context& context, OperationType operation)
+        {
+            try
+            {
+                return PreparePackageDeduplication(context, operation);
+            }
+            catch (const wil::ResultException& exception)
+            {
+                if (!HandlePackageDeduplicationFailure(context, exception.GetErrorCode())) { throw; }
+            }
+            catch (const winrt::hresult_error& exception)
+            {
+                if (!HandlePackageDeduplicationFailure(context, exception.code())) { throw; }
+            }
+            catch (const web::json::json_exception&)
+            {
+                HandlePackageDeduplicationFailure(context, APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+            }
+            catch (const pplx::task_canceled&)
+            {
+                HandlePackageDeduplicationFailure(context, E_ABORT);
+            }
+            return std::nullopt;
+        }
+
+        std::optional<Utility::Version> GetDeduplicationVersion(const Manifest::Manifest& manifest,
+            const std::optional<Utility::Version>& referenceVersion, std::string_view referenceChannel)
+        {
+            Utility::Version version;
+            try
+            {
+                version = Utility::Version{ manifest.Version };
+            }
+            catch (const wil::ResultException& exception)
+            {
+                if (exception.GetErrorCode() != E_INVALIDARG)
+                {
+                    throw;
+                }
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: invalid resolved version");
+                return std::nullopt;
+            }
+
+            if (version.IsEmpty() || version.IsUnknown() || version.IsLatest() || version.IsApproximate() ||
+                (referenceVersion && version != *referenceVersion) || !Utility::ICUCaseInsensitiveEquals(manifest.Channel, referenceChannel))
+            {
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: unusable or different resolved version/channel");
+                return std::nullopt;
+            }
+
+            return version;
+        }
+
+        std::optional<std::string_view> GetDeduplicationOperationRestriction(
+            Execution::Context& context, OperationType operation, const Manifest::ManifestInstaller& installer)
+        {
+            if (operation == OperationType::Download && installer.DownloadCommandProhibited)
+            {
+                return "download is prohibited";
+            }
+
+            if (operation == OperationType::Install &&
+                ((installer.ElevationRequirement == Manifest::ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin()) ||
+                    HasUnsupportedArgumentError(context, installer)))
+            {
+                return "installation is blocked by elevation or a supplied argument";
+            }
+
+            return std::nullopt;
+        }
+
+        std::optional<std::string_view> GetDeduplicationDependencyMismatch(OperationType operation,
+            const Manifest::ManifestInstaller& installer, const Manifest::ManifestInstaller* referenceInstaller)
+        {
+            using namespace AppInstaller::Manifest;
+
+            if (installer.Dependencies.HasAnyOf(DependencyType::Package))
+            {
+                return "automatic package dependencies";
+            }
+
+            if (operation == OperationType::Install && referenceInstaller)
+            {
+                auto getWindowsFeatures = [](const ManifestInstaller& value)
+                {
+                    std::set<std::string> result;
+                    value.Dependencies.ApplyToType(DependencyType::WindowsFeature, [&](const Dependency& dependency)
+                    {
+                        result.emplace(Utility::FoldCase(dependency.Id()));
+                    });
+                    return result;
+                };
+
+                if (getWindowsFeatures(installer) != getWindowsFeatures(*referenceInstaller))
+                {
+                    return "different Windows feature dependencies";
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        std::optional<size_t> GetDeduplicationCandidateIndex(const SearchResult& result, const Source& source)
+        {
+            auto skip = [](std::string_view reason) -> std::optional<size_t>
+            {
+                AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+                return std::nullopt;
+            };
+
+            auto sources = source.GetAvailableSources();
+            std::set<std::string> openedIdentifiers;
+            for (const auto& opened : sources)
+            {
+                if (opened.GetIdentifier().empty() || !openedIdentifiers.emplace(opened.GetIdentifier()).second)
+                {
+                    return skip("missing or repeated opened source identity");
+                }
+            }
+
+            std::set<std::string> candidateIdentifiers;
+            std::optional<int32_t> priority;
+            size_t selectedIndex = 0;
+            size_t selectedSourceIndex = sources.size();
+            for (size_t i = 0; i < result.Matches.size(); ++i)
+            {
+                const auto& package = result.Matches[i].Package;
+                if (!package || package->GetInstalled())
+                {
+                    return skip("missing package or installed association");
+                }
+
+                auto available = package->GetAvailable();
+                if (available.size() != 1 || !available.front())
+                {
+                    return skip("ambiguous available package identity");
+                }
+
+                auto candidateSource = available.front()->GetSource();
+                if (!candidateSource || candidateSource.IsComposite())
+                {
+                    return skip("missing individual source");
+                }
+
+                auto identifier = candidateSource.GetIdentifier();
+                auto opened = std::find_if(sources.begin(), sources.end(), [&](const Source& value) { return value.GetIdentifier() == identifier; });
+                if (identifier.empty() || opened == sources.end() || !candidateIdentifiers.emplace(identifier).second)
+                {
+                    return skip("missing, unopened, or repeated candidate source identity");
+                }
+
+                if (priority && *priority != opened->GetDetails().Priority)
+                {
+                    return skip("results have not been filtered by source priority");
+                }
+                priority = opened->GetDetails().Priority;
+
+                size_t sourceIndex = static_cast<size_t>(std::distance(sources.begin(), opened));
+                if (sourceIndex < selectedSourceIndex)
+                {
+                    selectedIndex = i;
+                    selectedSourceIndex = sourceIndex;
+                }
+            }
+
+            return selectedIndex;
+        }
+
+        std::shared_ptr<IPackageVersion> GetDeduplicationTargetVersion(
+            Execution::Context& context, OperationType operation, const std::shared_ptr<ICompositePackage>& package)
+        {
+            auto availableVersions = GetAllAvailableVersions(package);
+            std::shared_ptr<IPackageVersion> version;
+            if (operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version))
+            {
+                PinningData pinningData{ PinningData::Disposition::ReadOnly };
+                auto evaluator = pinningData.CreatePinStateEvaluator(
+                    context.Args.Contains(Execution::Args::Type::Force) ? PinBehavior::IgnorePins : PinBehavior::IncludePinned, nullptr);
+                for (const auto& key : availableVersions->GetVersionKeys())
+                {
+                    AICLI_RETURN_VALUE_IF_TERMINATED(context, nullptr);
+                    version = availableVersions->GetVersion(key);
+                    if (!version || evaluator.EvaluatePinType(version) == PinType::Unknown)
+                    {
+                        break;
+                    }
+                    version.reset();
+                }
+            }
+            else
+            {
+                // Pins do not restrict packages without an installed version.
+                version = availableVersions->GetVersion({ "", context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel) });
+            }
+
+            return version;
+        }
+
         std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
         {
             if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name)
@@ -766,6 +1016,169 @@ namespace AppInstaller::CLI::Workflow
         return options;
     }
 
+    std::optional<std::vector<Manifest::ManifestInstaller>> GetEquivalentInstallers(
+        Execution::Context& context, OperationType operation, const std::vector<Manifest::Manifest>& manifests)
+    {
+        using namespace AppInstaller::Manifest;
+
+        auto skip = [](std::string_view reason) -> std::optional<std::vector<ManifestInstaller>>
+        {
+            AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+            return std::nullopt;
+        };
+
+        if (manifests.size() < 2 || manifests.size() > 3 ||
+            (operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show))
+        {
+            return skip("unsupported candidate count or operation");
+        }
+
+        bool processDependencies = operation != OperationType::Show &&
+            !Settings::User().Get<Setting::InstallSkipDependencies>() && !context.Args.Contains(Execution::Args::Type::SkipDependencies);
+        ManifestComparator comparator{ GetManifestComparatorOptions(context, {}) };
+        std::optional<Utility::Version> firstVersion;
+        std::vector<ManifestInstaller> installers;
+        bool hasUserScope = false;
+        bool hasMachineScope = false;
+
+        for (const auto& manifest : manifests)
+        {
+            auto version = GetDeduplicationVersion(manifest, firstVersion, manifests.front().Channel);
+            if (!version)
+            {
+                return std::nullopt;
+            }
+            firstVersion = std::move(version);
+
+            auto [installer, inapplicabilities] = comparator.GetPreferredInstaller(manifest);
+            if (!installer)
+            {
+                return skip("no applicable installer");
+            }
+
+            switch (installer->BaseInstallerType)
+            {
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Msix:
+                break;
+            default:
+                return skip("unsupported installer type");
+            }
+
+            if (installer->NestedInstallerType != InstallerTypeEnum::Unknown ||
+                (!installers.empty() && !IsInstallerTypeCompatible(installers.front().BaseInstallerType, installer->BaseInstallerType)))
+            {
+                return skip("nested installer or different execution family");
+            }
+
+            if (installer->Sha256.size() != Utility::SHA256::HashBufferSizeInBytes ||
+                std::all_of(installer->Sha256.begin(), installer->Sha256.end(), [](BYTE value) { return value == 0; }) ||
+                (!installers.empty() && installer->Sha256 != installers.front().Sha256))
+            {
+                return skip("missing, invalid, or different installer hash");
+            }
+
+            if (!DoesInstallerTypeIgnoreScopeFromManifest(installer->BaseInstallerType))
+            {
+                hasUserScope = hasUserScope || installer->Scope == ScopeEnum::User;
+                hasMachineScope = hasMachineScope || installer->Scope == ScopeEnum::Machine;
+                if (hasUserScope && hasMachineScope)
+                {
+                    return skip("conflicting explicit installation scopes");
+                }
+            }
+
+            if (auto restriction = GetDeduplicationOperationRestriction(context, operation, *installer))
+            {
+                return skip(*restriction);
+            }
+
+            if (processDependencies)
+            {
+                if (auto mismatch = GetDeduplicationDependencyMismatch(operation, *installer, installers.empty() ? nullptr : &installers.front()))
+                {
+                    return skip(*mismatch);
+                }
+            }
+
+            installers.emplace_back(std::move(*installer));
+        }
+
+        return installers;
+    }
+
+    std::optional<PreparedPackageMatch> PreparePackageDeduplication(Execution::Context& context, OperationType operation)
+    {
+        AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+
+        auto skip = [](std::string_view reason) -> std::optional<PreparedPackageMatch>
+        {
+            AICLI_LOG(CLI, Verbose, << "Package deduplication skipped: " << reason);
+            return std::nullopt;
+        };
+
+        if ((operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show) ||
+            context.Args.Contains(Execution::Args::Type::Manifest) || context.Args.Contains(Execution::Args::Type::ListVersions) ||
+            context.Args.GetCount(Execution::Args::Type::MultiQuery) > 1 ||
+            context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
+            WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
+            (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>()))
+        {
+            return skip("unsupported operation or context");
+        }
+
+        if (!context.Contains(Execution::Data::SearchResult) || !context.Contains(Execution::Data::Source))
+        {
+            return skip("missing search results or opened sources");
+        }
+
+        const auto& result = context.Get<Execution::Data::SearchResult>();
+        const auto& source = context.Get<Execution::Data::Source>();
+        if (result.Truncated || !result.Failures.empty() || result.Matches.size() < 2 || result.Matches.size() > 3 ||
+            !source || !source.IsComposite())
+        {
+            return skip("incomplete results, unsupported candidate count, or no composite source");
+        }
+
+        auto selectedIndex = GetDeduplicationCandidateIndex(result, source);
+        if (!selectedIndex)
+        {
+            return std::nullopt;
+        }
+
+        std::vector<std::shared_ptr<IPackageVersion>> versions;
+        std::vector<Manifest::Manifest> manifests;
+        for (const auto& match : result.Matches)
+        {
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            auto version = GetDeduplicationTargetVersion(context, operation, match.Package);
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            if (!version)
+            {
+                return skip("target version not found");
+            }
+
+            manifests.emplace_back(version->GetManifest());
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            versions.emplace_back(std::move(version));
+        }
+
+        auto installers = GetEquivalentInstallers(context, operation, manifests);
+        AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+        if (!installers)
+        {
+            return std::nullopt;
+        }
+
+        return PreparedPackageMatch{ operation, result.Matches[*selectedIndex].Package, std::move(versions[*selectedIndex]),
+            std::move(manifests[*selectedIndex]), std::move(installers->at(*selectedIndex)) };
+    }
+
     void OpenSource::operator()(Execution::Context& context) const
     {
         std::string_view sourceName;
@@ -1391,6 +1804,26 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            if (searchResult.Matches.size() > 1 && WI_IsFlagSet(m_selectionBehavior, PackageSelectionBehavior::Deduplicate) &&
+                ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PackageDeduplication))
+            {
+                auto prepared = TryPreparePackageDeduplication(context, m_operationType);
+                AICLI_RETURN_IF_TERMINATED(context);
+                if (prepared)
+                {
+                    auto package = prepared->Package;
+                    const auto& manifest = prepared->Manifest;
+                    const auto& name = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+                    context.Reporter.Info() << Resource::String::PackageDeduplicationSelected(
+                        Utility::LocIndView{ name }, Utility::LocIndView{ manifest.Id },
+                        Utility::LocIndView{ prepared->PackageVersion->GetSource().GetDetails().Name }) << std::endl;
+                    Logging::Telemetry().LogAppFound(name, manifest.Id);
+                    context.Add<Execution::Data::Package>(std::move(package));
+                    context.Add<Execution::Data::PreparedPackageMatch>(std::move(prepared));
+                    return;
+                }
+            }
+
             size_t selectedIndex = 0;
             if (searchResult.Matches.size() > 1)
             {
@@ -1398,7 +1831,7 @@ namespace AppInstaller::CLI::Workflow
 
                 auto table = operationTargetsInstalled ? GetMultiplePackageFoundResultTable(context) :
                     GetMultiplePackageFoundResultTableWithSource(context);
-                bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
+                bool selectionSupported = WI_IsFlagSet(m_selectionBehavior, PackageSelectionBehavior::Prompt) &&
                     Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::InteractivePackageSelection);
                 std::optional<size_t> selection;
                 if (selectionSupported && !searchResult.Truncated)
@@ -1541,6 +1974,22 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestFromPackage::operator()(Execution::Context& context) const
     {
+        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
+        {
+            auto& prepared = *context.Get<Execution::Data::PreparedPackageMatch>();
+            THROW_HR_IF(E_UNEXPECTED, !m_preparedOperation || prepared.Operation != *m_preparedOperation ||
+                prepared.Package != context.Get<Execution::Data::Package>() || prepared.ManifestApplied);
+
+            auto manifest = prepared.Manifest;
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
+            manifest.ApplyLocale(prepared.Operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version) ?
+                prepared.Installer.Locale : std::string{ context.Args.GetArg(Execution::Args::Type::Locale) });
+            context.Add<Execution::Data::Manifest>(std::move(manifest));
+            context.Add<Execution::Data::PackageVersion>(prepared.PackageVersion);
+            prepared.ManifestApplied = true;
+            return;
+        }
+
         context << GetManifestWithVersionFromPackage(
             context.Args.GetArg(Execution::Args::Type::Version),
             context.Args.GetArg(Execution::Args::Type::Channel),
@@ -1678,15 +2127,28 @@ namespace AppInstaller::CLI::Workflow
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
-        IPackageVersion::Metadata installationMetadata;
-
-        if (isUpdate || isRepair)
+        Manifest::InstallerAndInapplicabilities selection;
+        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
         {
-            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
+            auto& prepared = *context.Get<Execution::Data::PreparedPackageMatch>();
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            THROW_HR_IF(E_UNEXPECTED, !prepared.ManifestApplied || isUpdate || isRepair ||
+                prepared.Package != context.Get<Execution::Data::Package>() || prepared.PackageVersion != context.Get<Execution::Data::PackageVersion>() ||
+                manifest.Id != prepared.Manifest.Id || manifest.Version != prepared.Manifest.Version || manifest.Channel != prepared.Manifest.Channel);
+            selection.installer = std::move(prepared.Installer);
+            context.Get<Execution::Data::PreparedPackageMatch>().reset();
         }
-
-        Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, installationMetadata));
-        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+        else
+        {
+            IPackageVersion::Metadata installationMetadata;
+            if (isUpdate || isRepair)
+            {
+                installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
+            }
+            Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, installationMetadata));
+            selection = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
+        }
+        auto& [installer, inapplicabilities] = selection;
 
         if (!installer.has_value())
         {

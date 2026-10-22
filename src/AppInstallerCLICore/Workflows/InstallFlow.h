@@ -81,6 +81,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 
+    // Checks for supplied arguments that would stop installation, without reporting or terminating.
+    bool HasUnsupportedArgumentError(Execution::Context& context, const Manifest::ManifestInstaller& installer);
+
     // Admin is required for machine scope install for installer types like portable, msix and msstore.
     // Required Args: None
     // Inputs: Installer

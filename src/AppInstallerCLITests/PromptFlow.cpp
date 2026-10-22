@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include <CompositeSource.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/DownloadCommand.h>
 #include <Commands/ShowCommand.h>
@@ -1192,6 +1193,22 @@ TEST_CASE("PackageSelection_Unavailable", "[PackageSelection][workflow]")
     SECTION("Truncated results")
     {
         result.Truncated = true;
+    }
+    SECTION("Truncated child source results")
+    {
+        bool installedAware = GENERATE(false, true);
+        result.Truncated = true;
+        auto child = std::make_shared<TestSource>();
+        child->SearchFunction = [&](const SearchRequest&) { return result; };
+        CompositeSource composite{ "*TruncatedSelection" };
+        composite.AddAvailableSource(Source{ child });
+        if (installedAware)
+        {
+            composite.SetInstalledSource(Source{ std::make_shared<TestSource>() }, CompositeSearchBehavior::AvailablePackages);
+        }
+        result = composite.Search({});
+        REQUIRE(result.Matches.size() == 2);
+        REQUIRE(result.Truncated);
     }
     SECTION("No matches")
     {

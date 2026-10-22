@@ -48,9 +48,12 @@ namespace AppInstaller::CLI::Workflow
 
     enum class PackageSelectionBehavior
     {
-        Disabled,
-        Prompt,
+        Disabled = 0,
+        Prompt = 0x1,
+        Deduplicate = 0x2,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(PackageSelectionBehavior);
 
     // A task in the workflow.
     struct WorkflowTask
@@ -100,6 +103,23 @@ namespace AppInstaller::CLI::Workflow
 
     // Fills the options from the given context and metadata.
     AppInstaller::Manifest::ManifestComparator::Options GetManifestComparatorOptions(const Execution::Context& context, const Repository::IPackageVersion::Metadata& metadata);
+
+    // Returns each manifest's preferred installer only when the entire set is equivalent.
+    std::optional<std::vector<Manifest::ManifestInstaller>> GetEquivalentInstallers(
+        Execution::Context& context, OperationType operation, const std::vector<Manifest::Manifest>& manifests);
+
+    struct PreparedPackageMatch
+    {
+        OperationType Operation;
+        std::shared_ptr<Repository::ICompositePackage> Package;
+        std::shared_ptr<Repository::IPackageVersion> PackageVersion;
+        Manifest::Manifest Manifest;
+        Manifest::ManifestInstaller Installer;
+        bool ManifestApplied = false;
+    };
+
+    // Prepares an equivalent match from priority-filtered results without changing the context.
+    std::optional<PreparedPackageMatch> PreparePackageDeduplication(Execution::Context& context, OperationType operation);
 
     // Creates the source object.
     // Required Args: None
@@ -293,12 +313,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest, PackageVersion
     struct GetManifestFromPackage : public WorkflowTask
     {
-        GetManifestFromPackage(bool considerPins) : WorkflowTask("GetManifestFromPackage"), m_considerPins(considerPins) {}
+        GetManifestFromPackage(bool considerPins, std::optional<OperationType> preparedOperation = {}) :
+            WorkflowTask("GetManifestFromPackage"), m_considerPins(considerPins), m_preparedOperation(preparedOperation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         bool m_considerPins;
+        std::optional<OperationType> m_preparedOperation;
     };
 
     // Ensures the file exists and is not a directory.
