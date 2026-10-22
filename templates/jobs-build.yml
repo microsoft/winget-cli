@@ -83,6 +83,12 @@ jobs:
     - ${{ step }}
 
   - task: PowerShell@2
+    displayName: Validate Release Notes
+    inputs:
+      filePath: '${{ parameters.sourceRoot }}\doc\release-notes\Merge-ReleaseNotes.ps1'
+      pwsh: true
+
+  - task: PowerShell@2
     displayName: Report Initial Disk Space
     inputs:
       targetType: 'inline'
