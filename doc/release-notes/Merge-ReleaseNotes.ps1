@@ -35,6 +35,7 @@ $categories = [ordered]@{
     'New Features' = [System.Collections.Generic.List[string]]::new()
     'Bug Fixes' = [System.Collections.Generic.List[string]]::new()
 }
+$minorFixes = [System.Collections.Generic.List[string]]::new()
 
 [string[]] $files = @(Get-ChildItem -LiteralPath $releaseDirectory -Filter '*.md' -File |
     ForEach-Object { $_.FullName })
@@ -46,7 +47,6 @@ foreach ($file in $files) {
     if (-not $headings.Count -or $headings[0].Index -ne 0) {
         throw "Invalid release note '$file': expected a New Features or Bug Fixes heading."
     }
-    $hasNotes = $false
     for ($index = 0; $index -lt $headings.Count; ++$index) {
         $heading = $headings[$index]
         $category = $heading.Groups[1].Value
@@ -59,17 +59,40 @@ foreach ($file in $files) {
         if (-not $body) {
             continue
         }
-        if ($body -match '(?m)^#{1,2} ' -or
-            $body.Contains('<Short title>') -or
-            $body.Contains('<Describe the user-visible change, including usage or limitations when relevant.>')) {
-            throw "Invalid release note '$file': fill out the template and use only level-three or deeper body headings."
+        if ($body -match '(?m)^#{1,2} ') {
+            throw "Invalid release note '$file': use only level-three or deeper body headings."
         }
-        $categories[$category].Add($body)
-        $hasNotes = $true
+        foreach ($subsection in [regex]::Split($body, '(?m)(?=^### )')) {
+            $subsection = $subsection.Trim()
+            if (-not $subsection) {
+                continue
+            }
+            if ($subsection -match '\A### Minor Bug Fixes(?:\n|\z)') {
+                if ($category -ne 'Bug Fixes') {
+                    throw "Invalid release note '$file': Minor Bug Fixes must be under Bug Fixes."
+                }
+                $items = $subsection.Substring($Matches[0].Length).Trim()
+                foreach ($line in $items -split "`n") {
+                    $line = $line.Trim()
+                    if (-not $line -or $line -match '^[*-] <Describe a minor bug fix in one line\.>$') {
+                        continue
+                    }
+                    if ($line -notmatch '^[*-] \S.*$') {
+                        throw "Invalid release note '$file': each minor bug fix must be a single-line bullet."
+                    }
+                    $minorFixes.Add("* $($line.Substring(2))")
+                }
+            }
+            elseif (-not $subsection.Contains('<Short title>') -and
+                -not $subsection.Contains('<Describe the user-visible change, including usage or limitations when relevant.>')) {
+                $categories[$category].Add($subsection)
+            }
+        }
     }
-    if (-not $hasNotes) {
-        throw "Invalid release note '$file': add at least one feature or bug fix."
-    }
+}
+
+if ($minorFixes.Count) {
+    $categories['Bug Fixes'].Add("### Minor Bug Fixes`n`n" + ($minorFixes -join "`n"))
 }
 
 $sections = [System.Collections.Generic.List[string]]::new()
