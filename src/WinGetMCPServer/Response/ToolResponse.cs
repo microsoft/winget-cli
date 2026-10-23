@@ -87,6 +87,36 @@ namespace WinGetMCPServer.Response
             return DefaultJsonOptions;
         }
 
+        /// <summary>
+        /// Notes in a response that some sources were not used because their agreements were not accepted.
+        /// </summary>
+        /// <param name="response">The response to add the note to.</param>
+        /// <param name="excludedSources">The sources that were excluded.</param>
+        /// <returns>The response provided in <paramref name="response"/>.</returns>
+        public static CallToolResult WithExcludedSources(CallToolResult response, IReadOnlyCollection<string> excludedSources)
+        {
+            if (excludedSources.Count == 0)
+            {
+                return response;
+            }
+
+            // A separate block is used so that the existing JSON block is unchanged for callers that parse it.
+            response.Content.Add(new TextContentBlock()
+            {
+                Text = $"These sources were not used because the user has not accepted their agreements: {string.Join(", ", excludedSources)}. " +
+                    "If the user wants to use them, call this tool again with acceptSourceAgreements set to true to ask the user again.",
+            });
+
+            if (response.StructuredContent is JsonElement structuredContent && structuredContent.ValueKind == JsonValueKind.Object)
+            {
+                JsonObject updated = JsonNode.Parse(structuredContent.GetRawText())!.AsObject();
+                updated["excludedSources"] = JsonSerializer.SerializeToNode(excludedSources, DefaultJsonOptions);
+                response.StructuredContent = JsonSerializer.SerializeToElement(updated);
+            }
+
+            return response;
+        }
+
         private static CallToolResult Create(object value, bool isError, JsonSerializerOptions jsonSerializerOptions, string? collectionPropertyName)
         {
             JsonElement element = JsonSerializer.SerializeToElement(value, jsonSerializerOptions);
