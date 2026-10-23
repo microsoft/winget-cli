@@ -13,8 +13,20 @@ winget-cli as a subtree.
 | `jobs-powershell-module.yml` | jobs | Builds and Pester-tests the PowerShell modules |
 | `e2e-setup.yml` | steps | Test certificates, localhost web server, local PS repository |
 | `e2e-test.template.yml` | steps | One E2E test pass, with optional COM tracing |
+| `prime-windows-update.yml` | steps | Online Windows Update scan before Store-dependent tests |
 
-The two step templates are used by the job templates; a consumer does not reference them directly.
+The step templates are used by the job templates; a consumer does not reference them directly.
+
+## Windows Update priming
+
+Each `Test` matrix leg and the `BuildPowerShellModule` job runs an online Windows Update scan
+before running tests. The scan does not download or install updates or preinstall DSCv3, so tests
+still exercise Store installation themselves. The priming task retries up to three times after a
+failure and has a ten-minute timeout. Partial success is treated as failure. The task uses
+`continueOnError` so tests still run if priming never succeeds; all test conditions are unchanged.
+
+This primes the Windows Update backend but does not guarantee subsequent Store operations will
+succeed. Store failures remain test failures with their original HRESULT.
 
 ## `sourceRoot`
 

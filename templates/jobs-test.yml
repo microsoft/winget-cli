@@ -68,6 +68,8 @@ jobs:
     inputs:
       packageFeedSelector: 'nugetOrg'
 
+  - template: prime-windows-update.yml
+
   - task: CmdLine@2
     displayName: Start HAM trace
     condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
