@@ -15,11 +15,28 @@
 #include <ShObjIdl_core.h>
 #include <propkey.h>
 #include <wingdi.h>
+#include <functional>
 
 using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Fonts
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    using GetFontRegistryHiveFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
+    static GetFontRegistryHiveFunc s_GetFontRegistryHiveOverride;
+    static bool s_FontSessionChangesDisabled = false;
+
+    void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value)
+    {
+        s_GetFontRegistryHiveOverride = std::move(value);
+    }
+
+    void TestHook_SetFontSessionChangesDisabled(bool value)
+    {
+        s_FontSessionChangesDisabled = value;
+    }
+#endif
+
     namespace
     {
         constexpr std::wstring_view s_FontsPathSubkey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
@@ -29,6 +46,32 @@ namespace AppInstaller::Fonts
         constexpr std::wstring_view s_Separator = L"\\";
         constexpr std::wstring_view s_FontsWinGetPrefix = L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
         const int s_RemoveFontResourceMaxTries = 1000;
+
+        Registry::Key GetFontRegistryHive(Manifest::ScopeEnum scope)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_GetFontRegistryHiveOverride)
+            {
+                return s_GetFontRegistryHiveOverride(scope);
+            }
+#endif
+
+            switch (scope)
+            {
+            case Manifest::ScopeEnum::User:
+                return Registry::Key(HKEY_CURRENT_USER, L"", 0UL, MAXIMUM_ALLOWED);
+            case Manifest::ScopeEnum::Machine:
+                return Registry::Key(HKEY_LOCAL_MACHINE, L"", 0UL, MAXIMUM_ALLOWED);
+            case Manifest::ScopeEnum::Unknown:
+            default:
+                THROW_HR(E_INVALIDARG);
+            }
+        }
+
+        bool FontPathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
+        {
+            return CaseInsensitiveEquals(left.lexically_normal().wstring(), right.lexically_normal().wstring());
+        }
 
         std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath)
         {
@@ -102,58 +145,83 @@ namespace AppInstaller::Fonts
 
         std::filesystem::path GetRootFontPath(Manifest::ScopeEnum scope)
         {
-            if (scope == Manifest::ScopeEnum::Machine)
+            switch (scope)
             {
+            case Manifest::ScopeEnum::Machine:
                 return Runtime::GetPathTo(Runtime::PathName::FontsMachineInstallLocation);
-            }
-            else
-            {
+            case Manifest::ScopeEnum::User:
                 return Runtime::GetPathTo(Runtime::PathName::FontsUserInstallLocation);
-            }
-        }
-
-        std::filesystem::path GetFontFileInstallPath(const FontContext& context)
-        {
-            auto path = GetRootFontPath(context.Scope);
-
-            switch (context.InstallerSource)
-            {
-            case InstallerSource::Unknown:
-                // Unknown installer is assumed to be installed in the default location for machine.
-                // For a user installed font it could be anywhere.
-                break;
-            case InstallerSource::WinGet:
-                // WinGet installed packages have two formats depending on the scope.
-                // For Per-user we use subfolders for better robustness and cleaner format.
-                // For Per-machine we must use a single folder due to a system requirement,
-                // so the root path is the machine install path.
-                if (context.Scope == Manifest::ScopeEnum::User)
-                {
-                    AssertPackageInformation(context);
-                    path /= s_FontsWinGetPrefix;
-                    path /= context.PackageId;
-                    path /= context.PackageVersion;
-                }
-
-                break;
+            case Manifest::ScopeEnum::Unknown:
             default:
-                THROW_HR_MSG(E_UNEXPECTED, "Undefined InstallerSource.");
+                THROW_HR(E_INVALIDARG);
             }
-
-            return path;
         }
 
-        // For machine-installed fonts the files all reside in the same folder. We need a unique name that is reasonably human
-        // readable. The way system fonts normally do this is by appending a number to the end of the file stem. We will follow
-        // the same pattern by using the original file and adding a number until we arrive at a unique filename.
-        std::filesystem::path GetUniquePathForDestination(const std::filesystem::path& source, const std::filesystem::path& destination)
+        std::filesystem::path GetUserFontPackagePath(const FontContext& context)
         {
+            AssertPackageInformation(context);
+            return GetRootFontPath(Manifest::ScopeEnum::User) / s_FontsWinGetPrefix / context.PackageId / context.PackageVersion;
+        }
+
+        void AssertFontFilePath(const FontContext& context, const std::filesystem::path& path)
+        {
+            const bool inRoot = FontPathsEqual(path.parent_path(), GetRootFontPath(context.Scope));
+            const bool inPackage = context.Scope == Manifest::ScopeEnum::User &&
+                FontPathsEqual(path.parent_path(), GetUserFontPackagePath(context));
+            THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                !path.is_absolute() || !Manifest::IsValueSafeForPathConstruction(path.filename().u8string()) || (!inRoot && !inPackage),
+                "Font path is outside the package's font locations: %ls", path.c_str());
+        }
+
+        struct PackageFontFile
+        {
+            std::wstring RegistryName;
+            std::filesystem::path OriginalFileName;
+            std::filesystem::path FilePath;
+        };
+
+        std::vector<PackageFontFile> GetPackageFontFiles(const FontContext& context)
+        {
+            auto hive = GetFontRegistryHive(context.Scope);
+            auto key = Registry::Key::OpenIfExists(hive, GetFontRegistryPath(context));
+            std::vector<PackageFontFile> result;
+            if (!key)
+            {
+                return result;
+            }
+            for (const auto& entry : key.Values())
+            {
+                auto value = entry.Value();
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                    !value || value->GetType() != Registry::Value::Type::String);
+
+                PackageFontFile file;
+                file.RegistryName = ConvertToUTF16(entry.Name());
+                file.FilePath = value->GetValue<Registry::Value::Type::UTF16String>();
+                AssertFontFilePath(context, file.FilePath);
+                file.OriginalFileName = context.Scope == Manifest::ScopeEnum::User &&
+                    FontPathsEqual(file.FilePath.parent_path(), GetUserFontPackagePath(context)) ?
+                    file.FilePath.filename() : std::filesystem::path(file.RegistryName);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                    file.OriginalFileName.empty() || file.OriginalFileName != file.OriginalFileName.filename() ||
+                    !Manifest::IsValueSafeForPathConstruction(file.OriginalFileName.u8string()));
+                result.push_back(std::move(file));
+            }
+            return result;
+        }
+
+        // Files and registry value names share the scope's font namespace.
+        std::filesystem::path GetUniquePathForDestination(const std::filesystem::path& source, Manifest::ScopeEnum scope)
+        {
+            const auto destination = GetRootFontPath(scope);
+            auto hive = GetFontRegistryHive(scope);
+            auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
             const auto stem = source.stem();
             const auto ext = source.extension();
             auto uniqueName = source.filename();
             auto candidatePath = destination / uniqueName;
             int index = 0;
-            while (std::filesystem::exists(candidatePath))
+            while (std::filesystem::exists(candidatePath) || (root && root[uniqueName.wstring()].has_value()))
             {
                 std::filesystem::path appendId = { std::to_string(index) };
                 uniqueName = stem;
@@ -164,6 +232,146 @@ namespace AppInstaller::Fonts
             }
 
             return candidatePath;
+        }
+
+        std::optional<std::filesystem::path> GetRegisteredFontInstallPath(const FontContext& context, const std::filesystem::path& filePath)
+        {
+            const auto files = GetPackageFontFiles(context);
+            for (const auto& file : files)
+            {
+                if (FontPathsEqual(file.FilePath, filePath))
+                {
+                    return file.FilePath;
+                }
+            }
+            for (const auto& file : files)
+            {
+                if (FontPathsEqual(file.OriginalFileName, filePath.filename()))
+                {
+                    return file.FilePath;
+                }
+            }
+            return std::nullopt;
+        }
+
+        using FontRegistryEntry = std::pair<std::wstring, std::wstring>;
+
+        std::vector<FontRegistryEntry> GetFontRegistrations(Manifest::ScopeEnum scope, const std::filesystem::path& filePath)
+        {
+            auto hive = GetFontRegistryHive(scope);
+            auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
+            std::vector<FontRegistryEntry> result;
+            if (!root)
+            {
+                return result;
+            }
+            const auto rootPath = GetRootFontPath(scope);
+            for (const auto& entry : root.Values())
+            {
+                auto value = entry.Value();
+                if (!value || value->GetType() != Registry::Value::Type::String)
+                {
+                    continue;
+                }
+
+                auto data = value->GetValue<Registry::Value::Type::UTF16String>();
+                std::filesystem::path registeredPath = data;
+                if (registeredPath.is_relative())
+                {
+                    registeredPath = rootPath / registeredPath;
+                }
+                if (FontPathsEqual(registeredPath, filePath))
+                {
+                    result.emplace_back(ConvertToUTF16(entry.Name()), std::move(data));
+                }
+            }
+            return result;
+        }
+
+        void UnregisterFontFile(Manifest::ScopeEnum scope, const std::filesystem::path& filePath)
+        {
+            auto hive = GetFontRegistryHive(scope);
+            auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey }, 0UL, KEY_ALL_ACCESS);
+            for (const auto& entry : GetFontRegistrations(scope, filePath))
+            {
+                root.DeleteValue(entry.first);
+            }
+        }
+
+        void RegisterFontFile(const FontContext& context, const std::filesystem::path& originalFileName, const std::filesystem::path& installPath)
+        {
+            AssertFontFilePath(context, installPath);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                !FontPathsEqual(installPath.parent_path(), GetRootFontPath(context.Scope)));
+            auto hive = GetFontRegistryHive(context.Scope);
+            auto root = Registry::Key::Create(hive, std::wstring{ s_FontsPathSubkey });
+            const auto valueName = installPath.filename().wstring();
+            if (root[valueName])
+            {
+                const auto registrations = GetFontRegistrations(context.Scope, installPath);
+                THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED,
+                    std::none_of(registrations.begin(), registrations.end(), [&](const auto& entry)
+                        { return CaseInsensitiveEquals(entry.first, valueName); }),
+                    "Font registration is owned by another file: %ls", valueName.c_str());
+            }
+
+            auto package = Registry::Key::Create(hive, GetFontRegistryPath(context));
+            const auto originalName = originalFileName.wstring();
+            if (const auto existing = package[originalName])
+            {
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED, existing->GetType() != Registry::Value::Type::String);
+                const std::filesystem::path existingPath = existing->GetValue<Registry::Value::Type::UTF16String>();
+                const bool packageFile = context.Scope == Manifest::ScopeEnum::User &&
+                    FontPathsEqual(existingPath.parent_path(), GetUserFontPackagePath(context)) &&
+                    FontPathsEqual(existingPath.filename(), originalFileName);
+                THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                    !FontPathsEqual(existingPath, installPath) && !packageFile,
+                    "Font package mapping is owned by another file: %ls", originalName.c_str());
+            }
+            package.SetValue(originalName, installPath.wstring());
+            root.SetValue(valueName, context.Scope == Manifest::ScopeEnum::Machine ?
+                installPath.filename().wstring() : installPath.wstring());
+        }
+
+        void AddFontToSession(const std::filesystem::path& path)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_FontSessionChangesDisabled)
+            {
+                return;
+            }
+#endif
+            const auto fontsAdded = ::AddFontResource(path.c_str());
+            if (fontsAdded == 0)
+            {
+                AICLI_LOG(Core, Warning, << "Failed to add font resource: " << path);
+            }
+            else
+            {
+                AICLI_LOG(Core, Info, << "Added " << fontsAdded << " fonts to the session.");
+            }
+        }
+
+        void RemoveEmptyUserFontPackageDirectories(const FontContext& context)
+        {
+            if (context.Scope != Manifest::ScopeEnum::User)
+            {
+                return;
+            }
+
+            auto path = GetUserFontPackagePath(context);
+            for (size_t i = 0; i < 3; ++i)
+            {
+                if (std::filesystem::exists(path))
+                {
+                    if (!std::filesystem::is_empty(path))
+                    {
+                        break;
+                    }
+                    std::filesystem::remove(path);
+                }
+                path = path.parent_path();
+            }
         }
 
         std::vector<std::filesystem::path> GetFontFilePaths(const wil::com_ptr<IDWriteFontFace>& fontFace)
@@ -204,6 +412,12 @@ namespace AppInstaller::Fonts
 
         void RemoveAllFontResources(const std::filesystem::path& filePath)
         {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_FontSessionChangesDisabled)
+            {
+                return;
+            }
+#endif
             // The recommended uninstall method of a font is to call RemoveFontResource until it fails,
             // This is not guaranteed to remove the file from use, but it is the best we have.
             // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-removefontresourcea
@@ -220,6 +434,12 @@ namespace AppInstaller::Fonts
 
         void NotifyFontChange()
         {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_FontSessionChangesDisabled)
+            {
+                return;
+            }
+#endif
             // Send the WM_FONTCHANGE message so the system and apps know that there has been a font change.
             // Sometimes this does not have an error when it returns non-zero. To avoid random assert failures
             // we will not try to log failures for this call. If it fails it does not affect install state.
@@ -227,79 +447,78 @@ namespace AppInstaller::Fonts
             AICLI_LOG(Core, Info, << "Notified system of font change: " << sendResult);
         }
 
-        // Checks the registry path for the file specified, and returns the key value if it finds one.
-        std::optional<std::wstring> CheckRegistryForFontFileReference(const std::wstring& registryPath, const std::filesystem::path& filePath, Manifest::ScopeEnum scope)
+        void MigrateFontFile(const FontContext& context, const PackageFontFile& file)
         {
-            try
-            {
-                const auto& hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-                const auto& key = Registry::Key::OpenIfExists(hive, registryPath, 0UL, KEY_READ);
-                if (key)
+            auto hive = GetFontRegistryHive(context.Scope);
+            auto package = Registry::Key::OpenIfExists(hive, GetFontRegistryPath(context), 0UL, KEY_ALL_ACCESS);
+            const auto destination = GetUniquePathForDestination(file.OriginalFileName, context.Scope);
+            const auto registrations = GetFontRegistrations(context.Scope, file.FilePath);
+            const auto originalName = file.OriginalFileName.wstring();
+            const auto originalMapping = package[originalName];
+            bool sourceRemoved = false;
+            bool sourceUnloaded = false;
+            bool mappingChanged = false;
+            bool destinationCreated = false;
+            auto rollback = wil::scope_exit([&]()
                 {
-                    // Check for the file being present in this key.
-                    for (const auto& valueRef : key.Values())
+                    if (!destinationCreated)
                     {
-                        const auto& value = valueRef.Value();
-                        if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
+                        return;
+                    }
+                    try
+                    {
+                        if (sourceRemoved)
                         {
-                            continue;
+                            std::filesystem::copy_file(destination, file.FilePath);
                         }
-                        const auto& valueName = ConvertToUTF16(valueRef.Name());
-                        const std::filesystem::path& valuePath = { value->GetValue<Registry::Value::Type::String>() };
-                        if (valuePath.is_relative())
+                        if (mappingChanged)
                         {
-                            // Relative value is OK, just compare the filenames.
-                            // We will assume this is in the standard font paths.
-                            if (valuePath.filename() == filePath.filename())
+                            if (originalMapping)
                             {
-                                return valueName;
+                                package.SetValue(originalName, originalMapping->GetValue<Registry::Value::Type::UTF16String>());
                             }
+                            else
+                            {
+                                package.DeleteValue(originalName);
+                            }
+                            package.SetValue(file.RegistryName, file.FilePath.wstring());
                         }
-                        else
+                        UnregisterFontFile(context.Scope, destination);
+                        auto root = Registry::Key::Create(hive, std::wstring{ s_FontsPathSubkey });
+                        for (const auto& registration : registrations)
                         {
-                            if (valuePath == filePath)
-                            {
-                                return valueName;
-                            }
+                            root.SetValue(registration.first, registration.second);
+                        }
+                        std::filesystem::remove(destination);
+                        if (sourceUnloaded)
+                        {
+                            AddFontToSession(file.FilePath);
                         }
                     }
-                }
-            }
-            CATCH_LOG();
-
-            return std::nullopt;
-        }
-
-        // The package registry for machine installed fonts stores the package filename as a registry value.
-        // This is so we can map the original package filename to the installed filename since they may be different.
-        std::optional<std::filesystem::path> GetRegisteredMachineFontInstallPath(const std::wstring& registryPath, const std::filesystem::path& filePath)
-        {
-            try
-            {
-                const auto& key = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, registryPath, 0UL, KEY_READ);
-                if (key)
-                {
-                    for (const auto& valueRef : key.Values())
+                    catch (...)
                     {
-                        const auto& value = valueRef.Value();
-                        if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
-                        {
-                            continue;
-                        }
-
-                        const auto& valueName = ConvertToUTF16(valueRef.Name());
-                        if (valueName == filePath.filename())
-                        {
-                            const std::filesystem::path& valuePath = { value->GetValue<Registry::Value::Type::String>() };
-                            return valuePath;
-                        }
+                        LOG_CAUGHT_EXCEPTION();
+                        AICLI_LOG(Core, Error, << "Font repair rollback failed for " << file.FilePath);
                     }
-                }
-            }
-            CATCH_LOG();
+                });
 
-            return std::nullopt;
+            std::filesystem::copy_file(file.FilePath, destination);
+            destinationCreated = true;
+            mappingChanged = true;
+            RegisterFontFile(context, file.OriginalFileName, destination);
+            UnregisterFontFile(context.Scope, file.FilePath);
+            RemoveAllFontResources(file.FilePath);
+            sourceUnloaded = true;
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, !std::filesystem::remove(file.FilePath));
+            sourceRemoved = true;
+            if (!CaseInsensitiveEquals(file.RegistryName, originalName))
+            {
+                package.DeleteValue(file.RegistryName);
+            }
+            rollback.release();
+            AddFontToSession(destination);
         }
+
     }
 
     FontResult FontOperationResult::Result() const
@@ -379,70 +598,25 @@ namespace AppInstaller::Fonts
         }
 
         fileInfo.RegistryPackagePath = GetFontRegistryPath(context);
-        if (fileInfo.Scope == Manifest::ScopeEnum::Machine && fileInfo.InstallerSource == InstallerSource::WinGet)
-        {
-            // Machine fonts from WinGet still install into the Font folder but we track package source separately
-            // due to limited information in the Font registry and all font files being in the same key and folder.
-            fileInfo.RegistryInstallPath = s_FontsPathSubkey;
-        }
-        else
-        {
-            // User-installed and non-Winget fonts have same registry package path and install path.
-            fileInfo.RegistryInstallPath = fileInfo.RegistryPackagePath;
-        }
+        fileInfo.RegistryInstallPath = s_FontsPathSubkey;
 
-        // Check if the file is already in the install path, in which case this is a query.
-        auto const& installPath = GetFontFileInstallPath(context);
-        if (installPath == fileInfo.FilePath.parent_path())
+        const auto registeredPath = context.InstallerSource == InstallerSource::WinGet ?
+            GetRegisteredFontInstallPath(context, fileInfo.FilePath) : std::nullopt;
+        if (registeredPath)
+        {
+            fileInfo.InstallPath = registeredPath.value();
+        }
+        else if (context.InstallerSource == InstallerSource::Unknown)
         {
             fileInfo.InstallPath = fileInfo.FilePath;
         }
         else
         {
-            if (fileInfo.InstallerSource == InstallerSource::WinGet && fileInfo.Scope == Manifest::ScopeEnum::Machine)
-            {
-                // Machine installed WinGet fonts must have a non-conflicting filename in the root font folder.
-                // To ensure a unique font name and allow different versions to exist side by side, the install file
-                // name may be a different name from the original package install. To account for this, the Package
-                // registry location uses the original filename as the registry value name and the value as the
-                // resulting path. If we are installing a machine font that already exists, we must check to see
-                // if this file already has a mapping defined.
-                const auto& installedFilePath = GetRegisteredMachineFontInstallPath(fileInfo.RegistryPackagePath, fileInfo.FilePath.filename());
-                if (installedFilePath.has_value())
-                {
-                    fileInfo.InstallPath = installedFilePath.value();
-                }
-                else
-                {
-                    // File not already defined, we need to create a non-conflicting filename.
-                    // Machine-installed WinGet must provide a non-conflicting filename to the root install location.
-                    fileInfo.InstallPath = GetUniquePathForDestination(fileInfo.FilePath, installPath);
-                }
-            }
-            else
-            {
-                fileInfo.InstallPath = installPath / fileInfo.FilePath.filename();
-            }
+            fileInfo.InstallPath = GetUniquePathForDestination(fileInfo.FilePath, context.Scope);
         }
 
-        // If our font file is registered it will exist in the install path and have a registry value.
-        const auto& registryTitle = CheckRegistryForFontFileReference(fileInfo.RegistryInstallPath, fileInfo.InstallPath, fileInfo.Scope);
-
-        if (fileInfo.Title.empty())
-        {
-            // Use the registry title or filename if we still dont' know.
-            if (registryTitle.has_value())
-            {
-                fileInfo.Title = registryTitle.value();
-            }
-            else
-            {
-                fileInfo.Title = fileInfo.FilePath.filename().wstring();
-            }
-        }
-
-        fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath) ? true : false;
-        fileInfo.IsFontFileRegistered = registryTitle.has_value() ? true : false;
+        fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath);
+        fileInfo.IsFontFileRegistered = !GetFontRegistrations(fileInfo.Scope, fileInfo.InstallPath).empty();
         if (fileInfo.IsFontFileInstalled && fileInfo.IsFontFileRegistered)
         {
             fileInfo.Status = FontStatus::OK;
@@ -472,6 +646,10 @@ namespace AppInstaller::Fonts
             // Create font file info for each package file
             for (const auto& file : context.PackageFiles)
             {
+                THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                    std::any_of(result.FontFileInfos.begin(), result.FontFileInfos.end(), [&](const auto& info)
+                        { return FontPathsEqual(info.FilePath.filename(), file.filename()); }),
+                    "Font package contains duplicate filenames: %ls", file.filename().c_str());
                 result.FontFileInfos.push_back(CreateFontFileInfo(context, file));
             }
 
@@ -534,7 +712,7 @@ namespace AppInstaller::Fonts
         }
 
         // Validate the package data was all processed successfully.
-        const auto& validationResult = ValidateFontPackage(context);
+        auto validationResult = ValidateFontPackage(context);
         if (validationResult.Result != FontResult::Success)
         {
             result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED);
@@ -558,18 +736,28 @@ namespace AppInstaller::Fonts
             return result;
         }
 
-        // We will attempt a cleanup / force install if either this is a forced install or the package was not in a good state.
-        if (validationResult.Status == FontStatus::Corrupt || context.Force)
+        const auto installRoot = GetRootFontPath(context.Scope);
+        const bool usesPackageDirectory = std::any_of(validationResult.FontFileInfos.begin(), validationResult.FontFileInfos.end(),
+            [&](const auto& info) { return !FontPathsEqual(info.InstallPath.parent_path(), installRoot); });
+        if (validationResult.Status == FontStatus::Corrupt || context.Force || usesPackageDirectory)
         {
             // Force install of a font can have problems because if the font is already there then it
             // may be in use. The scenarios for using force is if a prior install attempt failed, so
             // we will try to clean up the existing font registration so it may be successful this time.
-            AICLI_LOG(Core, Info, << "Package is corrupt or forced install, attempting to remove any existing registration.");
+            AICLI_LOG(Core, Info, << "Removing existing font package mappings before installation.");
             auto uninstallResult = UninstallFontPackage(context);
             if (uninstallResult.Result() != FontResult::Success)
             {
                 result.HResult = uninstallResult.HResult;
                 AICLI_LOG(Core, Error, << "Font cleanup uninstall failed: " << context.PackageId.c_str() << " - " << AppInstaller::Logging::SetHRFormat << uninstallResult.HResult);
+                return result;
+            }
+
+            validationResult = ValidateFontPackage(context);
+            if (validationResult.Result != FontResult::Success || validationResult.HasUnsupportedFonts)
+            {
+                result.HResult = APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED;
+                AICLI_LOG(Core, Error, << "Font validation failed after cleanup: " << context.PackageId.c_str());
                 return result;
             }
         }
@@ -581,70 +769,32 @@ namespace AppInstaller::Fonts
             // Install each file from the file info.
             for (const auto& fontFileInfo : validationResult.FontFileInfos)
             {
-                // Font install step 1: Copy file to winget package identifiable location.
                 AICLI_LOG(Core, Info, << "Moving " << fontFileInfo.FilePath << " to " << fontFileInfo.InstallPath);
                 if (!std::filesystem::exists(fontFileInfo.InstallPath.parent_path()))
                 {
                     std::filesystem::create_directories(fontFileInfo.InstallPath.parent_path());
                 }
 
-                // The file should not be present, but if it is, do another attempt to remove it.
-                if (std::filesystem::exists(fontFileInfo.InstallPath))
-                {
-                    // Try to remove font resource to avoid file-in-use.
-                    RemoveAllFontResources(fontFileInfo.InstallPath);
-                    if (!std::filesystem::remove(fontFileInfo.InstallPath))
+                // Copying into the Fonts directory makes the file visible to system font discovery.
+                std::filesystem::copy_file(fontFileInfo.FilePath, fontFileInfo.InstallPath);
+                auto removeUnregisteredFile = wil::scope_exit([&]()
                     {
-                        AICLI_LOG(Core, Error, << "Font file already exists and was unable to be removed.");
-                        THROW_HR(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED);
-                    }
-                }
-
-                if (context.Scope == Manifest::ScopeEnum::Machine)
-                {
-                    // Using std::filesystem::rename does not work when installing into the system Fonts
-                    // folder; the system does not recognize the font files. std::filesystem::copy_file does work.
-                    std::filesystem::copy_file(fontFileInfo.FilePath, fontFileInfo.InstallPath);
-                    std::filesystem::remove(fontFileInfo.FilePath);
-                }
-                else
-                {
-                    // We prefer to use rename where it works.
-                    AppInstaller::Filesystem::RenameFile(fontFileInfo.FilePath, fontFileInfo.InstallPath);
-                }
+                        try
+                        {
+                            std::filesystem::remove(fontFileInfo.InstallPath);
+                        }
+                        catch (...)
+                        {
+                            LOG_CAUGHT_EXCEPTION();
+                            AICLI_LOG(Core, Error, << "Failed removing font file after installation failure: " << fontFileInfo.InstallPath);
+                        }
+                    });
 
                 AICLI_LOG(Core, Info, << "Adding " << fontFileInfo.Title.c_str() << " to " << fontFileInfo.InstallPath);
-                if (context.Scope == Manifest::ScopeEnum::User)
-                {
-                    auto key = Registry::Key::Create(HKEY_CURRENT_USER, fontFileInfo.RegistryInstallPath);
-                    key.SetValue(fontFileInfo.Title, fontFileInfo.InstallPath, REG_SZ);
-                }
-                else
-                {
-                    // Machine install we set two keys, one for source information, and one for the actual install.
-                    // The value name is the source filename so we can map this later for validation.
-                    auto sourceKey = Registry::Key::Create(HKEY_LOCAL_MACHINE, fontFileInfo.RegistryPackagePath, 0UL, KEY_ALL_ACCESS);
-                    sourceKey.SetValue(fontFileInfo.FilePath.filename(), fontFileInfo.InstallPath, REG_SZ);
-
-                    // Machine font install uses relative filename. Use filename as value to avoid collisions in the key.
-                    auto installKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, fontFileInfo.RegistryInstallPath, 0UL, KEY_ALL_ACCESS);
-                    installKey.SetValue(fontFileInfo.InstallPath.filename(), fontFileInfo.InstallPath.filename(), REG_SZ);
-                }
-
-                // Add Font Resource to the session.
-                const auto& fontsAdded = ::AddFontResource(fontFileInfo.InstallPath.c_str());
-                if (fontsAdded == 0)
-                {
-                    // AddFontResource does not add additional information for us, so we dont know why they were not added,
-                    // only that they were not added. At this point the "install" is successful, but we were not able to
-                    // add the font to the system, which means subsequent adds on session start may also fail, but is not
-                    // guaranteed to fail. We will note it in the log and carry on.
-                    AICLI_LOG(Core, Warning, << "Failed to add font resource: " << fontFileInfo.InstallPath);
-                }
-                else
-                {
-                    AICLI_LOG(Core, Info, << "Added " << fontsAdded << " fonts to the session.");
-                }
+                RegisterFontFile(context, fontFileInfo.FilePath.filename(), fontFileInfo.InstallPath);
+                std::filesystem::remove(fontFileInfo.FilePath);
+                removeUnregisteredFile.release();
+                AddFontToSession(fontFileInfo.InstallPath);
             }
 
             result.HResult = S_OK;
@@ -678,120 +828,114 @@ namespace AppInstaller::Fonts
         return result;
     }
 
-    FontOperationResult UninstallFontPackage(FontContext& context)
+    FontOperationResult RepairFontPackage(FontContext& context)
     {
-        FontOperationResult result;
-
-        if (context.InstallerSource != InstallerSource::WinGet)
-        {
-            throw std::logic_error("Only WinGet format of font package uninstall is supported.");
-        }
-
         AssertPackageInformation(context);
-
-        const auto& installFolderPath = GetFontFileInstallPath(context);
-        const auto& installPackagePath = GetFontRegistryPath(context);
-        std::vector<std::filesystem::path> filesToRemove;
+        THROW_HR_IF(E_INVALIDARG, context.InstallerSource != InstallerSource::WinGet);
+        FontOperationResult result;
 
         try
         {
-            auto hive = context.Scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-            auto key = Registry::Key::OpenIfExists(hive, installPackagePath, 0ul, KEY_ALL_ACCESS);
+            auto files = GetPackageFontFiles(context);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND, files.empty());
 
-            if (key)
+            FontCatalog catalog;
+            for (size_t i = 0; i < files.size(); ++i)
             {
-                // Assume all values in this key are fonts related to this package.
-                for (const auto& fontEntry : key.Values())
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND, !std::filesystem::is_regular_file(files[i].FilePath));
+                DWRITE_FONT_FILE_TYPE fileType;
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_SUPPORTED, !catalog.IsFontFileSupported(files[i].FilePath, fileType));
+                for (size_t j = 0; j < i; ++j)
                 {
-                    auto value = fontEntry.Value();
-                    if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
-                    {
-                        // Not a valid entry, nothing to do here.
-                        continue;
-                    }
-
-                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-                    if (!std::filesystem::exists(filePath))
-                    {
-                        // File doesn't exist, nothing to do here.
-                        continue;
-                    }
-
-                    // The font may be in use by the system or other apps, it needs to be removed from
-                    // from use or at least attempted to be removed from use.
-                    RemoveAllFontResources(filePath);
-                    filesToRemove.push_back(filePath);
-                }
-
-                // Delete the key
-                if (!Registry::Key::DeleteTree(hive, installPackagePath))
-                {
-                    AICLI_LOG(Core, Warning, << "Failed removing registry tree " << installPackagePath.c_str());
-                }
-
-                if (context.Scope == Manifest::ScopeEnum::Machine)
-                {
-                    // Machine installed fonts also have an entry in the System font registry.
-                    // We have to find the values that have the filename as data.
-                    auto machineFontRoot = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, s_FontsPathSubkey.data(), 0ul, KEY_ALL_ACCESS);
-
-                    for (const auto& file : filesToRemove)
-                    {
-                        machineFontRoot.DeleteValue(file.filename());
-                    }
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                        FontPathsEqual(files[i].FilePath, files[j].FilePath) ||
+                        FontPathsEqual(files[i].OriginalFileName, files[j].OriginalFileName));
                 }
             }
+
+            const auto rootPath = GetRootFontPath(context.Scope);
+            for (const auto& file : files)
+            {
+                if (FontPathsEqual(file.FilePath.parent_path(), rootPath))
+                {
+                    RegisterFontFile(context, file.OriginalFileName, file.FilePath);
+                    RemoveAllFontResources(file.FilePath);
+                    AddFontToSession(file.FilePath);
+                    continue;
+                }
+
+                MigrateFontFile(context, file);
+            }
+
+            RemoveEmptyUserFontPackageDirectories(context);
+        }
+        catch (...)
+        {
+            result.HResult = wil::ResultFromCaughtException();
+            LOG_CAUGHT_EXCEPTION();
+            AICLI_LOG(Core, Error, << "Font repair failed for " << context.PackageId.c_str());
+        }
+
+        NotifyFontChange();
+        return result;
+    }
+
+    FontOperationResult UninstallFontPackage(FontContext& context)
+    {
+        AssertPackageInformation(context);
+        THROW_HR_IF(E_INVALIDARG, context.InstallerSource != InstallerSource::WinGet);
+        FontOperationResult result;
+
+        std::vector<PackageFontFile> files;
+        try
+        {
+            files = GetPackageFontFiles(context);
         }
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
-
-            // For uninstall we will log the error and continue trying to remove it, since we have partial remove and are in an unknown state.
-            AICLI_LOG(Core, Error, << "Failed removing fonts in the registry.");
+            AICLI_LOG(Core, Error, << "Failed reading font package mappings.");
+            result.HResult = APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED;
+            return result;
         }
 
-        // Remove any font files.
-        for (const auto& file : filesToRemove)
+        auto hive = GetFontRegistryHive(context.Scope);
+        auto package = Registry::Key::OpenIfExists(hive, GetFontRegistryPath(context), 0UL, KEY_ALL_ACCESS);
+        for (const auto& file : files)
         {
             try
             {
-                if (std::filesystem::exists(file))
+                RemoveAllFontResources(file.FilePath);
+                if (std::filesystem::exists(file.FilePath))
                 {
-                    // TODO: Add robustness for files-in-use scenarios.
-                    std::filesystem::remove(file);
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED, !std::filesystem::remove(file.FilePath));
                 }
+                UnregisterFontFile(context.Scope, file.FilePath);
+                package.DeleteValue(file.RegistryName);
             }
             catch (...)
             {
                 LOG_CAUGHT_EXCEPTION();
-                AICLI_LOG(Core, Error, << "Failed removing font files.");
-                result.HResult = winrt::hresult(APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
+                AICLI_LOG(Core, Error, << "Failed removing font file or registration: " << file.FilePath);
+                result.HResult = APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED;
             }
         }
 
-        if (context.Scope == Manifest::ScopeEnum::User)
+        if (result.Result() == FontResult::Success)
         {
-            // User installed fonts also have an install folder, we will clean that up as well.
-            if (std::filesystem::exists(installFolderPath))
+            try
             {
-                try
+                if (package)
                 {
-                    const auto& parent = installFolderPath.parent_path();
-                    std::filesystem::remove_all(installFolderPath);
-
-                    // This may have been the only version installed, so remove parent if empty.
-                    if (std::filesystem::is_empty(parent))
-                    {
-                        std::filesystem::remove(parent);
-                    }
+                    Registry::Key::DeleteTree(hive, GetFontRegistryPath(context));
                 }
-                catch (...)
-                {
-                    // Font files have already been removed at this point, so failure to delete
-                    // this folder is not a failure of removing the fonts.
-                    LOG_CAUGHT_EXCEPTION();
-                    AICLI_LOG(Core, Error, << "Failed removing font folders.");
-                }
+                RemoveEmptyUserFontPackageDirectories(context);
+            }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                AICLI_LOG(Core, Error, << "Failed removing font package metadata or directories.");
+                result.HResult = APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED;
             }
         }
 
@@ -957,13 +1101,16 @@ namespace AppInstaller::Fonts
 
         try
         {
-            auto wingetMachineFonts = std::unordered_map<std::filesystem::path, bool>();
-
             // Iterate through scopes for machine and user
             for (const auto& scope : { Manifest::ScopeEnum::Machine, Manifest::ScopeEnum::User })
             {
-                auto hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+                std::vector<std::filesystem::path> wingetFonts;
+                auto hive = GetFontRegistryHive(scope);
                 auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
+                if (!root)
+                {
+                    continue;
+                }
 
                 // There are two supported scenarios for tracking sub-keys.
                 // 1) We created the subkey, therefore it is a winget installed font.
@@ -996,18 +1143,14 @@ namespace AppInstaller::Fonts
                                     }
 
                                     std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-                                    if (scope == Manifest::ScopeEnum::Machine)
-                                    {
-                                        // Capture the filename for winget machine fonts so we can avoid duplicates.
-                                        wingetMachineFonts[filePath.filename()] = true;
-                                    }
+                                    wingetFonts.push_back(filePath);
 
                                     auto context = FontContext();
                                     context.Scope = scope;
                                     context.InstallerSource = InstallerSource::WinGet;
                                     context.PackageId = packageId;
                                     context.PackageVersion = version;
-                                    auto fontFile = CreateFontFileInfo(context, filePath, ConvertToUTF16(versionValue.Name()));
+                                    auto fontFile = CreateFontFileInfo(context, filePath);
                                     fontFiles.push_back(std::move(fontFile));
                                 }
                             }
@@ -1025,13 +1168,11 @@ namespace AppInstaller::Fonts
                     }
 
                     std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-                    if (scope == Manifest::ScopeEnum::Machine)
+                    auto registeredPath = filePath.is_relative() ? GetRootFontPath(scope) / filePath : filePath;
+                    if (std::any_of(wingetFonts.begin(), wingetFonts.end(),
+                        [&](const auto& path) { return FontPathsEqual(path, registeredPath); }))
                     {
-                        // Skip it if this is already identified in the WinGet machine fonts.
-                        if (wingetMachineFonts[filePath.filename()])
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     auto context = FontContext();
@@ -1058,8 +1199,12 @@ namespace AppInstaller::Fonts
 
         try
         {
-            auto hive = scope == Manifest::ScopeEnum::Machine ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+            auto hive = GetFontRegistryHive(scope);
             auto root = Registry::Key::OpenIfExists(hive, s_FontsPathSubkey.data(), 0UL, KEY_READ);
+            if (!root)
+            {
+                return fontPackages;
+            }
 
             for (const auto& subkey : root)
             {

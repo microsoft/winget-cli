@@ -7,6 +7,7 @@
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/ArchiveFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/FontFlow.h"
 #include "Workflows/PromptFlow.h"
 #include "winget/ManifestCommon.h"
 #include "AppInstallerDeployment.h"
@@ -242,6 +243,7 @@ namespace AppInstaller::CLI::Workflow
             switch (installerTypeEnum)
             {
             case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Font:
                 return false;
             case InstallerTypeEnum::Msix:
                 // For MSIX packages that are from the Microsoft Store, selecting an installer is required.
@@ -362,6 +364,13 @@ namespace AppInstaller::CLI::Workflow
                 MSStoreRepair;
         }
         break;
+        case InstallerTypeEnum::Font:
+        {
+            context <<
+                FontRepairImpl <<
+                ReportRepairResult("Font", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, true);
+        }
+        break;
         case InstallerTypeEnum::Portable:
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -400,6 +409,12 @@ namespace AppInstaller::CLI::Workflow
         }
         break;
         case InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::Font:
+            break;
+        case InstallerTypeEnum::Zip:
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED),
+                !context.Contains(Execution::Data::Installer) ||
+                context.Get<Execution::Data::Installer>()->EffectiveInstallerType() != InstallerTypeEnum::Font);
             break;
         case InstallerTypeEnum::Portable:
         default:

@@ -125,6 +125,8 @@ namespace AppInstaller::Fonts
 
     FontOperationResult InstallFontPackage(FontContext& context);
 
+    FontOperationResult RepairFontPackage(FontContext& context);
+
     FontOperationResult UninstallFontPackage(FontContext& context);
 
     std::wstring GetFontRegistryRoot();

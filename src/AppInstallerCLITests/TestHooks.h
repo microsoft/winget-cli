@@ -55,6 +55,13 @@ namespace AppInstaller
         void TestHook_SetGetFontRegistryRootFunc(GetFontRegistryRootFunc value);
     }
 
+    namespace Fonts
+    {
+        using GetFontRegistryHiveFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
+        void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value);
+        void TestHook_SetFontSessionChangesDisabled(bool value);
+    }
+
     namespace Logging
     {
         void TestHook_SetTelemetryOverride(std::shared_ptr<TelemetryTraceLogger> ttl);
