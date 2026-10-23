@@ -18,6 +18,9 @@ such as `1.31`. Earlier releases remain in `..\release-notes-archive`.
    with usage examples, limitations, or migration guidance where helpful. Use headings
    at level three or deeper inside the fragment. Use absolute URLs for links so they
    still work in the combined document.
+   Fenced code examples may contain `#`, `##`, or `###` comments; they are preserved
+   as example text, not interpreted as release-note headings. Backtick and tilde fences
+   are supported.
    For small fixes, add one single-line bullet per fix under `### Minor Bug Fixes`
    in the `## Bug Fixes` section instead of writing a titled description.
 5. Preview the combined notes with the script below. Commit the fragment, not the

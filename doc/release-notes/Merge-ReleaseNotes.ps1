@@ -13,6 +13,33 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function Get-UnfencedMarkdown {
+    param([string] $Content)
+
+    $fence = ''
+    $lines = foreach ($line in $Content -split "`n") {
+        if ($fence) {
+            $closingPattern = '^ {0,3}' + [regex]::Escape($fence[0].ToString()) +
+                '{' + $fence.Length + ',}[ \t]*$'
+            if ($line -match $closingPattern) {
+                $fence = ''
+            }
+            ' ' * $line.Length
+        }
+        elseif ($line -match '^ {0,3}(`{3,}|~{3,})(.*)$' -and
+            ($Matches[1][0] -ne [char]96 -or -not $Matches[2].Contains([char]96))) {
+            $fence = $Matches[1]
+            ' ' * $line.Length
+        }
+        else {
+            $line
+        }
+    }
+
+    # Preserve offsets so headings can be located without altering the original code examples.
+    $lines -join "`n"
+}
+
 if (-not $Version) {
     $versionFile = Join-Path $PSScriptRoot '..\..\src\binver\binver\version.h'
     $versionHeader = Get-Content -LiteralPath $versionFile -Raw
@@ -43,7 +70,7 @@ $minorFixes = [System.Collections.Generic.List[string]]::new()
 
 foreach ($file in $files) {
     $content = [System.IO.File]::ReadAllText($file).Replace("`r`n", "`n").Trim()
-    $headings = [regex]::Matches($content, '(?m)^## ([^\n]+)')
+    $headings = [regex]::Matches((Get-UnfencedMarkdown $content), '(?m)^## ([^\n]+)')
     if (-not $headings.Count -or $headings[0].Index -ne 0) {
         throw "Invalid release note '$file': expected a New Features or Bug Fixes heading."
     }
@@ -59,11 +86,15 @@ foreach ($file in $files) {
         if (-not $body) {
             continue
         }
-        if ($body -match '(?m)^#{1,2} ') {
+        $unfencedBody = Get-UnfencedMarkdown $body
+        if ($unfencedBody -match '(?m)^#{1,2} ') {
             throw "Invalid release note '$file': use only level-three or deeper body headings."
         }
-        foreach ($subsection in [regex]::Split($body, '(?m)(?=^### )')) {
-            $subsection = $subsection.Trim()
+        $subsectionStarts = @(0) + @([regex]::Matches($unfencedBody, '(?m)^### ') |
+            Where-Object { $_.Index -gt 0 } | ForEach-Object { $_.Index }) + @($body.Length)
+        for ($subsectionIndex = 0; $subsectionIndex -lt $subsectionStarts.Count - 1; ++$subsectionIndex) {
+            $subsectionStart = $subsectionStarts[$subsectionIndex]
+            $subsection = $body.Substring($subsectionStart, $subsectionStarts[$subsectionIndex + 1] - $subsectionStart).Trim()
             if (-not $subsection) {
                 continue
             }
