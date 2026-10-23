@@ -958,6 +958,15 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
 }
 
+TEST_CASE("ReadGoodManifestInstallerUrlBlockScalar", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerUrl-BlockScalar.yaml"), validateOption);
+
+    REQUIRE(manifest.Installers.size() == 1);
+    REQUIRE(manifest.Installers[0].Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdk-x86.msi");
+}
+
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
 {
     ManifestTestCase TestCases[] =
@@ -973,6 +982,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-InstallerUrl-BlockScalar.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml" },
     };
