@@ -5,6 +5,7 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
+#include <winget/Filesystem.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -104,6 +105,27 @@ TEST_CASE("NormalizedString", "[strings]")
     // Embedded null
     std::string_view input3{ "Test\0Case", 9 };
     REQUIRE(NormalizedString(input3) == "Test Case");
+}
+
+TEST_CASE("NormalizedPath", "[strings]")
+{
+    Filesystem::NormalizedPath path{ u8"directory/subdirectory/\u00E4.exe" };
+
+    REQUIRE(path.string() == "directory\\subdirectory\\\xC3\xA4.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\u00E4.exe"s);
+
+    path = u8"directory/subdirectory/\U0001F600.exe";
+    REQUIRE(path.string() == "directory\\subdirectory\\\xF0\x9F\x98\x80.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\U0001F600.exe"s);
+
+    // An overlong UTF8 encoding of '/' must not become a path separator.
+    path = "directory\xC0\xAF" "subdirectory/file.exe";
+    REQUIRE(path.string() == "directory\xEF\xBF\xBD\xEF\xBF\xBD" "subdirectory\\file.exe");
+    REQUIRE(path.wstring() == L"directory\uFFFD\uFFFDsubdirectory\\file.exe"s);
+
+    path = std::string{ "other/path.exe" };
+    REQUIRE(path.string() == "other\\path.exe");
+    REQUIRE(path.wstring() == L"other\\path.exe"s);
 }
 
 TEST_CASE("Trim", "[strings]")

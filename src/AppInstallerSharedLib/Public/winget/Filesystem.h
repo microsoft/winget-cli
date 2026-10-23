@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerStrings.h>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -12,6 +13,31 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::Filesystem
 {
+    // Holds a UTF16 path with preferred directory separators; string() returns UTF8, wstring() returns UTF16.
+    struct NormalizedPath
+    {
+        NormalizedPath() = default;
+
+        NormalizedPath(const char* value) : NormalizedPath(std::string_view{ value }) {}
+        NormalizedPath(std::string_view value) { *this = value; }
+
+        NormalizedPath& operator=(const char* value) { return *this = std::string_view{ value }; }
+
+        NormalizedPath& operator=(std::string_view value)
+        {
+            m_path = AppInstaller::Utility::ConvertToUTF16(value);
+            m_path.make_preferred();
+            return *this;
+        }
+
+        std::string string() const { return m_path.u8string(); }
+        std::wstring wstring() const { return m_path.wstring(); }
+        const std::filesystem::path& get() const { return m_path; }
+
+    private:
+        std::filesystem::path m_path;
+    };
+
     // Checks if the file system at path supports named streams/ADS
     bool SupportsNamedStreams(const std::filesystem::path& path);
 
