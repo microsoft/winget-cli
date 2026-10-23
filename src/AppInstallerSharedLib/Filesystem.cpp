@@ -372,22 +372,31 @@ namespace AppInstaller::Filesystem
 
     bool PathEscapesBaseDirectory(std::string_view relativePath)
     {
-        std::filesystem::path path{ relativePath };
+        return PathEscapesBaseDirectory(std::filesystem::path{ Utility::ConvertToUTF16(relativePath) });
+    }
 
-        // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
-        // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").
-        if (path.has_root_path())
+    bool PathHasUnsuitableParts(const std::filesystem::path& relativePath)
+    {
+        for (const auto& part : relativePath)
         {
-            return true;
-        }
+            if (part == "." || part == "..")
+            {
+                continue;
+            }
 
-        // Resolve any "." and ".." components lexically (i.e. without touching the filesystem).
-        auto resolvedPath = path.lexically_normal();
+            std::string name = part.u8string();
 
-        // If the normalized path still begins with "..", it points to a parent of the base directory.
-        if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
-        {
-            return true;
+            try
+            {
+                if (Utility::MakeSuitablePathPart(name) != name)
+                {
+                    return true;
+                }
+            }
+            catch (...)
+            {
+                return true;
+            }
         }
 
         return false;
