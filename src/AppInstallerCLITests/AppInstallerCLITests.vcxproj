@@ -218,6 +218,7 @@
     <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="TestRestRequestHandler.h" />
     <ClInclude Include="TestHooks.h" />
+    <ClInclude Include="TestMsixPackage.h" />
     <ClInclude Include="TestSettings.h" />
     <ClInclude Include="TestSource.h" />
     <ClInclude Include="WorkflowCommon.h" />
@@ -338,6 +339,7 @@
     <ClCompile Include="TableOutput.cpp" />
     <ClCompile Include="TestCertificates.cpp" />
     <ClCompile Include="TestCommon.cpp" />
+    <ClCompile Include="TestMsixPackage.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="Yaml.cpp" />

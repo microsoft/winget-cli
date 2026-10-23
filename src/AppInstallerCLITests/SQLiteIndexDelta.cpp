@@ -1801,6 +1801,73 @@ TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_RemovedPackageExcluded", "[sqlitei
     REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id });
 }
 
+TEST_CASE("SQLiteIndex_Delta_OpenWithBaseline_TemporaryFilesCleanedUp", "[sqliteindex][V2_1][delta]")
+{
+    auto disposition = GENERATE(SQLiteStorageBase::OpenDisposition::Read, SQLiteStorageBase::OpenDisposition::Immutable);
+    bool validBaseline = GENERATE(true, false);
+    auto p1 = MakePackage("Publisher1.Id", "Package 1");
+    auto p2 = MakePackage("Publisher2.Id", "Package 2");
+    DeltaTestContext context{ { p1 } };
+    context.Add(p2);
+    context.GenerateDelta();
+
+    auto extract = [](const std::filesystem::path& source, const std::filesystem::path& target)
+    {
+        std::ifstream stream{ source, std::ios::binary };
+        REQUIRE(stream.good());
+        std::ostringstream contents;
+        contents << stream.rdbuf();
+        REQUIRE_FALSE(stream.bad());
+        auto data = contents.str();
+        auto file = ManagedFile::CreateWriteLockedFile(target, GENERIC_WRITE, true);
+        DWORD written = 0;
+        REQUIRE(WriteFile(file.GetFileHandle(), data.data(), wil::safe_cast<DWORD>(data.size()), &written, nullptr));
+        REQUIRE(written == data.size());
+        return file;
+    };
+
+    TempFile deltaFile{ "delta_extracted"s, ".db"s };
+    TempFile baselineFile{ "baseline_extracted"s, ".db"s };
+    auto delta = extract(context.DeltaFile.GetPath(), deltaFile.GetPath());
+    // The full working index has no baseline designation, so pairing it fails after attachment.
+    auto baseline = extract(validBaseline ? context.BaselineFile.GetPath() : context.WorkingFile.GetPath(), baselineFile.GetPath());
+
+    if (validBaseline)
+    {
+        SQLiteIndex combined = SQLiteIndex::OpenWithBaseline(
+            deltaFile.GetPath().u8string(), baselineFile.GetPath().u8string(), disposition,
+            std::move(delta), std::move(baseline));
+        REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
+        REQUIRE(std::filesystem::exists(deltaFile.GetPath()));
+        REQUIRE(std::filesystem::exists(baselineFile.GetPath()));
+
+        SECTION("Move construction")
+        {
+            SQLiteIndex moved{ std::move(combined) };
+            REQUIRE(GetSearchedIds(moved) == std::set<std::string>{ p1.Id, p2.Id });
+        }
+
+        SECTION("Move assignment")
+        {
+            combined = context.OpenCombined(disposition);
+            REQUIRE(GetSearchedIds(combined) == std::set<std::string>{ p1.Id, p2.Id });
+            REQUIRE_FALSE(std::filesystem::exists(deltaFile.GetPath()));
+            REQUIRE_FALSE(std::filesystem::exists(baselineFile.GetPath()));
+        }
+    }
+    else
+    {
+        REQUIRE_THROWS_HR(
+            SQLiteIndex::OpenWithBaseline(
+                deltaFile.GetPath().u8string(), baselineFile.GetPath().u8string(), disposition,
+                std::move(delta), std::move(baseline)),
+            APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+    }
+
+    REQUIRE_FALSE(std::filesystem::exists(deltaFile.GetPath()));
+    REQUIRE_FALSE(std::filesystem::exists(baselineFile.GetPath()));
+}
+
 TEST_CASE("SQLiteIndex_Delta_UnmarkedBaselineRejected", "[sqliteindex][V2_1][delta]")
 {
     DeltaTestContext context;
