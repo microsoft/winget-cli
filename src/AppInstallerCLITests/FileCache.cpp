@@ -256,6 +256,9 @@ TEST_CASE("FileCache_RejectsInvalidFilePaths", "[file_cache]")
 
     REQUIRE_THROWS_HR(cache->GetFile(std::wstring(L"nested\0/../file.yaml", 20), SHA256::ComputeHash("contents")),
         APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+
+    REQUIRE_THROWS_HR(cache->GetFile(std::wstring(L"file\u0600:stream"), SHA256::ComputeHash("contents")),
+        APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
 }
 
 TEST_CASE("FileCache_RejectsExternalReadsAndDeletes", "[file_cache]")

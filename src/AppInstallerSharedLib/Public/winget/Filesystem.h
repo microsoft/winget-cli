@@ -5,6 +5,7 @@
 #include <map>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 #include <shtypes.h>
 
@@ -23,6 +24,32 @@ namespace AppInstaller::Filesystem
 
     // Checks if a UTF-8 relative path points to a location outside of the base path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
+
+    // Checks a relative path directly. Only a path matches, so strings still use the UTF-8 overload.
+    template <typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
+    bool PathEscapesBaseDirectory(const T& relativePath)
+    {
+        // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
+        // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").
+        if (relativePath.has_root_path())
+        {
+            return true;
+        }
+
+        // Resolve any "." and ".." components lexically (i.e. without touching the filesystem).
+        auto resolvedPath = relativePath.lexically_normal();
+
+        // If the normalized path still begins with "..", it points to a parent of the base directory.
+        if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Checks if any part of the path, other than "." and "..", is changed or rejected by Utility::MakeSuitablePathPart.
+    bool PathHasUnsuitableParts(const std::filesystem::path& relativePath);
 
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);

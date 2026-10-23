@@ -161,30 +161,10 @@ namespace AppInstaller::Caching
     {
         auto normalizedPath = relativePath.lexically_normal();
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
-            Filesystem::PathEscapesBaseDirectory(relativePath.u8string()) || !normalizedPath.has_filename() || normalizedPath == ".");
+            Filesystem::PathEscapesBaseDirectory(relativePath) || !normalizedPath.has_filename() || normalizedPath == ".");
 
         // Every name must already be a suitable path part, even if ".." removes it.
-        for (const auto& part : relativePath)
-        {
-            if (part == "." || part == "..")
-            {
-                continue;
-            }
-
-            std::string name = part.u8string();
-            std::string suitableName;
-
-            try
-            {
-                suitableName = Utility::MakeSuitablePathPart(name);
-            }
-            catch (...)
-            {
-                THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
-            }
-
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, suitableName != name);
-        }
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, Filesystem::PathHasUnsuitableParts(relativePath));
 
         std::filesystem::path cachedFilePath = m_cacheBase / normalizedPath;
 

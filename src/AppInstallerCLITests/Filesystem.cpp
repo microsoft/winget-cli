@@ -82,6 +82,13 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
         REQUIRE_FALSE(PathEscapesBaseDirectory("\xE4\xB8\x81\\a\\..\\..\\target.exe"));
         REQUIRE(PathEscapesBaseDirectory("\xE4\xB8\x81\\..\\..\\target.exe"));
     }
+
+    SECTION("Paths can be checked without converting them to strings")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory(std::filesystem::path{ L"\u4E01\\a\\..\\..\\target.exe" }));
+        REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"\u4E01\\..\\..\\target.exe" }));
+        REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"C:\\target.exe" }));
+    }
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")
