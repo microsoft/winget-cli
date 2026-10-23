@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/PreIndexed/PackageStore.h"
+#include "Microsoft/PreIndexed/SourceData.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 #include <AppInstallerDownloader.h>
@@ -9,6 +10,10 @@
 #include <AppInstallerStrings.h>
 
 using namespace std::string_literals;
+
+// Set this to true when test hooks are enabled to force the use of
+// the local file package store and disable signing enforcement.
+#define WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE false
 
 namespace AppInstaller::Repository::Microsoft::PreIndexed
 {
@@ -77,7 +82,7 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // 
         // The fallback exists because Identifier was not always stored; a source written by an old
         // enough client has only Data, which is the value such a client would have put there.
-        m_sourceIdentity = details.Identifier.empty() ? details.Data : details.Identifier;
+        m_sourceIdentity = details.Identifier.empty() ? SourceData{ details.Data }.SourceIdentity() : details.Identifier;
         THROW_HR_IF(E_UNEXPECTED, m_sourceIdentity.empty());
     }
 
@@ -91,9 +96,35 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         return WI_IsFlagSet(m_trustLevel, SourceTrustLevel::Trusted);
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_SourcePackageTrustValidation_TestHook_Override = nullptr;
+
+    void TestHook_SetSourcePackageTrustValidation_Override(bool* result)
+    {
+        s_SourcePackageTrustValidation_TestHook_Override = result;
+    }
+#endif
+
     bool PackageStoreBase::ValidateTrust(const Msix::WriteLockedMsixFile& package) const
     {
-        return package.ValidateTrustInfo(RequireStoreOrigin());
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Source packages must be signed, which makes every store path untestable without
+        // installing a certificate. Overriding the answer here lets the stores be driven against
+        // packages built on the fly, so that the tests can choose the identities and versions that
+        // the delta pairing logic turns on.
+        if (s_SourcePackageTrustValidation_TestHook_Override)
+        {
+            return *s_SourcePackageTrustValidation_TestHook_Override;
+        }
+        else if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+        {
+            return true;
+        }
+        else
+#endif
+        {
+            return package.ValidateTrustInfo(RequireStoreOrigin());
+        }
     }
 
     std::optional<AcquiredPackage> PackageStoreBase::Acquire(const PackageKey& package, const std::string& location, IProgressCallback& progress)
@@ -167,13 +198,48 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         return result;
     }
 
-    bool CanUseDeployedPackage()
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static std::function<std::unique_ptr<IPackageStore>(const SourceDetails&)>* s_DeployedPackageStore_TestHook_Override = nullptr;
+
+    void TestHook_SetDeployedPackageStore_Override(std::function<std::unique_ptr<IPackageStore>(const SourceDetails&)>* value)
     {
-        return Runtime::IsRunningInPackagedContext() && Runtime::IsRunningAsInteractiveUser();
+        s_DeployedPackageStore_TestHook_Override = value;
     }
+#endif
 
     namespace anon
     {
+        // Whether this process can reach a deployed package.
+        bool CanReachDeployedPackage()
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_DeployedPackageStore_TestHook_Override)
+            {
+                return true;
+            }
+            else if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+            {
+                return false;
+            }
+            else
+#endif
+            {
+                return Runtime::IsRunningInPackagedContext();
+            }
+        }
+
+        std::unique_ptr<IPackageStore> CreateDeployedStore(const SourceDetails& details)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_DeployedPackageStore_TestHook_Override)
+            {
+                return (*s_DeployedPackageStore_TestHook_Override)(details);
+            }
+#endif
+
+            return CreateDeployedPackageStore(details);
+        }
+
         // A store over every store that this process can reach a source's packages through.
         //
         // Reading answers from whichever of them holds the most recently published copy, and
@@ -188,15 +254,15 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 // recent copy keeps a read on the store that it maintains itself.
                 if (CanUseDeployedPackage())
                 {
-                    m_stores.emplace_back(CreateDeployedPackageStore(details));
+                    m_stores.emplace_back(CreateDeployedStore(details));
                     m_stores.emplace_back(CreateLocalFilePackageStore(details));
                 }
                 else
                 {
                     m_stores.emplace_back(CreateLocalFilePackageStore(details));
-                    if (Runtime::IsRunningInPackagedContext())
+                    if (CanReachDeployedPackage())
                     {
-                        m_stores.emplace_back(CreateDeployedPackageStore(details));
+                        m_stores.emplace_back(CreateDeployedStore(details));
                     }
                 }
             }
@@ -249,7 +315,23 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 THROW_IF_FAILED(firstStoreFailure);
             }
 
+            void RemovePackage(const PackageKey& package, IProgressCallback& progress) override
+            {
+                // Every store that could hold it drops it. A package the source has stopped
+                // needing is unwanted wherever it is, and unlike a read there is no single store
+                // that holds the answer.
+                for (auto& store : m_stores)
+                {
+                    try
+                    {
+                        store->RemovePackage(package, progress);
+                    }
+                    CATCH_LOG();
+                }
+            }
+
             Synchronization::CrossProcessLock Lock(IProgressCallback& progress, bool isBackground = false) override
+
             {
                 // The lock is named from the source rather than from the mechanism, so every store
                 // for a source shares one and any of them can take it.
@@ -296,9 +378,23 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         };
     }
 
+    bool CanUseDeployedPackage()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if constexpr (WINGET_TEST_HOOK_FORCE_UNSIGNED_FILE_PACKAGE_STORE)
+        {
+            return false;
+        }
+        else
+#endif
+        {
+            return anon::CanReachDeployedPackage() && Runtime::IsRunningAsInteractiveUser();
+        }
+    }
+
     std::unique_ptr<IPackageStore> CreateStore(const SourceDetails& details)
     {
-        return CanUseDeployedPackage() ? CreateDeployedPackageStore(details) : CreateLocalFilePackageStore(details);
+        return CanUseDeployedPackage() ? anon::CreateDeployedStore(details) : CreateLocalFilePackageStore(details);
     }
 
     std::unique_ptr<IPackageStore> CreateCompositeStore(const SourceDetails& details)

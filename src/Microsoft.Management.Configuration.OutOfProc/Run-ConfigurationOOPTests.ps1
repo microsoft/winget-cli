@@ -53,7 +53,7 @@ if (-not (Test-Path $Local:vstestPath))
 }
 
 # Step 3: Run the tests with vstest
-$Local:testDll = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net8.0-windows10.0.26100.0\Microsoft.Management.Configuration.UnitTests.dll"
+$Local:testDll = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net10.0-windows10.0.26100.0\Microsoft.Management.Configuration.UnitTests.dll"
 
 $Local:vstestArgs = @(
     $Local:testDll,

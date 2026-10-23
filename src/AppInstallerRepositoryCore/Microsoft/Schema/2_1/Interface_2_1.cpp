@@ -82,6 +82,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         m_internalInterfaceChecked = true;
     }
 
+    std::optional<ISQLiteIndex::DeltaBaselineLocator> Interface::GetDeltaBaselineLocator(const SQLite::Connection& connection) const
+    {
+        return Delta::ReadBaselineLocator(connection);
+    }
+
+    std::optional<std::string> Interface::GetBaselineIdentifier(const SQLite::Connection& connection) const
+    {
+        return Delta::ReadBaselineIdentifier(connection);
+    }
+
     bool Interface::CheckConsistency(const SQLiteIndexConstContext& context, bool log) const
     {
         bool hasBaseline = context.Data.Contains(Property::DeltaBaselineIndexPath);
@@ -187,18 +197,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
 
         std::filesystem::path deltaOutputPath = context.Data.Get<Property::DeltaOutputPath>();
 
-        Delta::BaselineReference baselineReference
-        {
-            context.Data.Get<Property::DeltaBaselineRelativeSourcePath>(),
-            context.Data.Get<Property::DeltaBaselinePackageVersion>(),
-        };
+        // The caller's half of the locator that the delta will record; the baseline's identity is
+        // read from the baseline itself by generation.
+        const std::string& baselineRelativeSourcePath = context.Data.Get<Property::DeltaBaselineRelativeSourcePath>();
+        const std::string& baselinePackageVersion = context.Data.Get<Property::DeltaBaselinePackageVersion>();
 
         if (markAsBaseline)
         {
             MarkAsBaseline(connection);
 
             // This index is its own baseline, so nothing has changed since it and the delta that describes it is empty.
-            Delta::Generate(connection, connection, baselineReference, deltaOutputPath, GetVersion(), {}, {});
+            Delta::Generate(connection, connection, baselineRelativeSourcePath, baselinePackageVersion, deltaOutputPath, GetVersion(), {}, {});
             return;
         }
 
@@ -230,7 +239,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         Delta::Generate(
             connection,
             baselineConnection,
-            baselineReference,
+            baselineRelativeSourcePath,
+            baselinePackageVersion,
             deltaOutputPath,
             GetVersion(),
             changedPackages,
