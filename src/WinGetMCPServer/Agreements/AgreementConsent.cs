@@ -92,8 +92,12 @@ namespace WinGetMCPServer.Agreements
             bool? acceptAgreements,
             CancellationToken cancellationToken)
         {
+            string key = CreatePresentationKey(agreements);
+
             if (acceptAgreements == false)
             {
+                // A declined set must be presented again before a later call can accept it.
+                PresentedAgreements.TryRemove(key, out _);
                 return ConsentDecision.Declined;
             }
 
@@ -128,8 +132,8 @@ namespace WinGetMCPServer.Agreements
                 }
             }
 
-            string key = CreatePresentationKey(agreements);
-            if (acceptAgreements == true && PresentedAgreements.ContainsKey(key))
+            // A presentation can be accepted only once, so a later call must present the agreements again.
+            if (acceptAgreements == true && PresentedAgreements.TryRemove(key, out _))
             {
                 return ConsentDecision.Accepted;
             }
