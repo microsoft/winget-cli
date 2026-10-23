@@ -204,6 +204,11 @@
           "type": "boolean",
           "default": false
         },
+        "disableLicenseDisclaimer": {
+          "description": "Controls whether the license disclaimer is shown before a package is installed",
+          "type": "boolean",
+          "default": false
+        },
         "portablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",

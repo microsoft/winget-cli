@@ -338,6 +338,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableWindowsPackageManagerMcpServer"sv, String::PolicyEnableMcpServer);
         case TogglePolicy::Policy::ConfigurationProcessorPath:
             return TogglePolicy(policy, "EnableWindowsPackageManagerConfigurationProcessorPath"sv, String::PolicyEnableConfigurationProcessorPath);
+        case TogglePolicy::Policy::ForceLicenseDisclaimer:
+            return TogglePolicy(policy, "EnableForceLicenseDisclaimer"sv, String::PolicyForceLicenseDisclaimer, false);
         default:
             THROW_HR(E_UNEXPECTED);
         }

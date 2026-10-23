@@ -428,6 +428,21 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
         REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::NotConfigured);
         REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::DefaultSource));
     }
+
+    SECTION("Force license disclaimer is disabled when not configured")
+    {
+        GroupPolicy groupPolicy{ policiesKey.get() };
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::ForceLicenseDisclaimer) == PolicyState::NotConfigured);
+        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::Policy::ForceLicenseDisclaimer));
+    }
+
+    SECTION("Force license disclaimer enabled")
+    {
+        SetRegistryValue(policiesKey.get(), ForceLicenseDisclaimerPolicyValueName, 1);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::ForceLicenseDisclaimer) == PolicyState::Enabled);
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::ForceLicenseDisclaimer));
+    }
 }
 
 TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
@@ -450,6 +465,7 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), ProxyCommandLineOptionsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), McpServerValueName, 1);
     SetRegistryValue(policiesKey.get(), ConfigurationProcessorPathValueName, 1);
+    SetRegistryValue(policiesKey.get(), ForceLicenseDisclaimerPolicyValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())

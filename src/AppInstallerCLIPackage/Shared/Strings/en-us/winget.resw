@@ -1026,6 +1026,9 @@ Configuration is disabled due to Group Policy.</value>
   <data name="PolicyEnableHashOverride" xml:space="preserve">
     <value>Enable Windows App Installer Hash Override</value>
   </data>
+  <data name="PolicyForceLicenseDisclaimer" xml:space="preserve">
+    <value>Always show the Windows App Installer license disclaimer</value>
+  </data>
   <data name="SourceExportCommandLongDescription" xml:space="preserve">
     <value>Export current sources as JSON for Group Policy.</value>
   </data>
