@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
 #include <filesystem>
 #include <istream>
 #include <sstream>
+#include <winget/Hash.h>
 
 namespace AppInstaller::Caching
 {

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winget/Hash.h>
 #include <winget/ManifestValidation.h>
 #include <winget/Manifest.h>
 #include <winget/Yaml.h>
-#include <AppInstallerSHA256.h>
 #include <filesystem>
 
 namespace AppInstaller::Manifest::YamlParser

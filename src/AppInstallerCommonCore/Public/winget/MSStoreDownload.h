@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerArchitecture.h>
-#include <AppInstallerSHA256.h>
 #include <AppInstallerVersions.h>
 #include "winget/Authentication.h"
+#include <winget/Hash.h>
 #include "winget/ManifestCommon.h"
 
 #include <string>

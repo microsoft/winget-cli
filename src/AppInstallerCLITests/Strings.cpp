@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
-#include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
+#include <winget/Hash.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
