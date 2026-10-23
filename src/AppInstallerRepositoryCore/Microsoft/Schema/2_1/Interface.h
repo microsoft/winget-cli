@@ -48,6 +48,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1
         // read path operates on the combination. Must be called before any read.
         void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline) override;
 
+        // Gets what this delta records about the baseline it must be paired with, or nothing when
+        // this is not a delta or does not fully name one.
+        std::optional<DeltaBaselineLocator> GetDeltaBaselineLocator(const SQLite::Connection& connection) const override;
+
+        // Gets the identifier designating this index as a baseline, or nothing when it has not
+        // been designated.
+        std::optional<std::string> GetBaselineIdentifier(const SQLite::Connection& connection) const override;
+
     protected:
         // Records the baseline sequence for this index, and generates a delta index against a previous
         // baseline when the caller has supplied the paths to do so.
