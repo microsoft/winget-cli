@@ -75,6 +75,13 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
         REQUIRE(PathEscapesBaseDirectory("C:target.exe"));
         REQUIRE(PathEscapesBaseDirectory("C:"));
     }
+
+    SECTION("Paths are decoded as UTF-8")
+    {
+        // The last byte of U+4E01 is a lead byte in some code pages and would hide the next separator.
+        REQUIRE_FALSE(PathEscapesBaseDirectory("\xE4\xB8\x81\\a\\..\\..\\target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("\xE4\xB8\x81\\..\\..\\target.exe"));
+    }
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")

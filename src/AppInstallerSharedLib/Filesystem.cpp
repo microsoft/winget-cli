@@ -372,7 +372,7 @@ namespace AppInstaller::Filesystem
 
     bool PathEscapesBaseDirectory(std::string_view relativePath)
     {
-        std::filesystem::path path{ relativePath };
+        std::filesystem::path path{ Utility::ConvertToUTF16(relativePath) };
 
         // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
         // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").

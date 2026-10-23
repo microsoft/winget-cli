@@ -249,12 +249,12 @@ TEST_CASE("FileCache_RejectsInvalidFilePaths", "[file_cache]")
         "\\file.yaml", "/file.yaml", "\\\\server\\share\\file.yaml",
         "\\\\?\\C:\\file.yaml", "\\\\.\\C:\\file.yaml",
         ".. /file.yaml", "nested./file.yaml", "nested /file.yaml", "file.yaml.", "file.yaml ",
-        "file.yaml:stream");
+        "file.yaml:stream", "bad./../file.yaml", "CON", "nested/NUL.yaml");
     INFO(path);
 
     REQUIRE_THROWS_HR(cache->GetFile(path, SHA256::ComputeHash("contents")), APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
 
-    REQUIRE_THROWS_HR(cache->GetFile(std::wstring(L"nested\0/file.yaml", 17), SHA256::ComputeHash("contents")),
+    REQUIRE_THROWS_HR(cache->GetFile(std::wstring(L"nested\0/../file.yaml", 20), SHA256::ComputeHash("contents")),
         APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
 }
 

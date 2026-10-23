@@ -21,7 +21,7 @@ namespace AppInstaller::Filesystem
     // Checks if the file system at path support reparse points
     bool SupportsReparsePoints(const std::filesystem::path& path);
 
-    // Checks if a relative paths points to a location outside of the base path.
+    // Checks if a UTF-8 relative path points to a location outside of the base path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
 
     // Renames the file to a new path.
