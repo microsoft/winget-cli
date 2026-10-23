@@ -51,6 +51,7 @@ Because the alias is now created as an executable hardlink in the install locati
 * Prevented unrestricted REST searches when a source declares all requested selectors unsupported.
 * Prevented REST searches from looping indefinitely when continuation tokens repeat.
 * Fixed Unicode case-insensitive prefix matching when case folding changes character lengths.
+* Fixed package name matching when a query omits symbols such as `®` from the package name.
 * Fixed an issue where `winget search --id <msstoreId>` could fail to return a Microsoft Store package unless `--exact` was also provided.
 * Updated NUnit to v4
 * Fixed a crash (`0x8000ffff`) when using `--disable-interactivity` with the Resume experimental feature enabled during install operations.

@@ -468,7 +468,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 for (MatchType match : GetDefaultMatchTypeOrder(include.Type))
                 {
                     include.Type = match;
-                    resultsTable->SearchOnField(include);
+                    for (const auto& alternative : GetSearchAlternatives(include))
+                    {
+                        resultsTable->SearchOnField(alternative);
+                    }
                 }
             }
 
@@ -486,7 +489,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
-                resultsTable->SearchOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable->SearchOnField(alternative);
+                }
             }
 
             // Skip the filter as we already know everything matches
@@ -506,7 +512,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
-                resultsTable->FilterOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable->FilterOnField(alternative);
+                }
             }
 
             resultsTable->CompleteFilter();
@@ -628,9 +637,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Command, PackageMatchField::Tag })
             {
                 filter.Field = field;
-                resultsTable.SearchOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable.SearchOnField(alternative);
+                }
             }
         }
+    }
+
+    std::vector<PackageMatchFilter> Interface::GetSearchAlternatives(const PackageMatchFilter& filter) const
+    {
+        return { filter };
     }
 
     std::optional<std::string> Interface::GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const

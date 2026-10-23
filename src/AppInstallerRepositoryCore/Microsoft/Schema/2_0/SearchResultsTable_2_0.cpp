@@ -73,6 +73,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void SearchResultsTable::SearchOnField(const PackageMatchFilter& filter)
     {
+        SearchOnFieldInternal(filter);
+    }
+
+    void SearchResultsTable::SearchOnFieldInternal(const PackageMatchFilter& filter)
+    {
         using namespace SQLite::Builder;
 
         int sortOrdinal = m_sortOrdinalValue++;
@@ -143,6 +148,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     }
 
     void SearchResultsTable::FilterOnField(const PackageMatchFilter& filter)
+    {
+        FilterOnFieldInternal(filter);
+    }
+
+    void SearchResultsTable::FilterOnFieldInternal(const PackageMatchFilter& filter)
     {
         using namespace SQLite::Builder;
 
@@ -240,6 +250,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             break;
         case PackageMatchField::Name:
             result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::NameColumn::Name, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::NormalizedName:
+            result.push_back(NormalizedPackageNameTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
             break;
         case PackageMatchField::Moniker:
             result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::MonikerColumn::Name, manifestAlias, valueAlias, useLike));
