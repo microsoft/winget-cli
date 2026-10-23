@@ -3,6 +3,7 @@
 #pragma once
 #include "PackageMatchFilter.g.h"
 #include <AppInstallerArchitecture.h>
+#include <winget/Pin.h>
 #include <winget/RepositorySource.h>
 #include <Workflows/WorkflowBase.h>
 #include <winget/Authentication.h>
@@ -34,6 +35,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Microsoft::Management::Deployment::AddPackageCatalogStatus GetAddPackageCatalogOperationStatus(winrt::hresult hresult);
     winrt::Microsoft::Management::Deployment::RemovePackageCatalogStatus GetRemovePackageCatalogOperationStatus(winrt::hresult hresult);
     winrt::Microsoft::Management::Deployment::EditPackageCatalogStatus GetEditPackageCatalogOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::PinResultStatus GetPinOperationStatus(winrt::hresult hresult);
+    winrt::Microsoft::Management::Deployment::PackagePinType ConvertPinType(::AppInstaller::Pinning::PinType type);
     ::AppInstaller::Manifest::PlatformEnum GetPlatformEnum(winrt::Microsoft::Management::Deployment::WindowsPlatform value);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_, _downloadResultStatus_, _repairResultStatus_) \

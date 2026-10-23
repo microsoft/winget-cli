@@ -13,6 +13,9 @@ title: Microsoft.WinGet.Client Module
 Microsoft WinGet Client Module for the Windows Package Manager
 
 ## Microsoft.WinGet.Client Cmdlets
+### [Add-WinGetPin](Add-WinGetPin.md)
+Adds a WinGet package pin.
+
 ### [Add-WinGetSource](Add-WinGetSource.md)
 Adds a new WinGet source.
 
@@ -34,6 +37,9 @@ Searches configured sources for packages.
 ### [Get-WinGetPackage](Get-WinGetPackage.md)
 Gets installed packages.
 
+### [Get-WinGetPin](Get-WinGetPin.md)
+Gets WinGet package pins.
+
 ### [Get-WinGetSetting](Get-WinGetSetting.md)
 Gets WinGet settings.
 
@@ -49,6 +55,9 @@ Gets the installed version of WinGet.
 ### [Install-WinGetPackage](Install-WinGetPackage.md)
 Install a WinGet Package.
 
+### [Remove-WinGetPin](Remove-WinGetPin.md)
+Removes a WinGet package pin.
+
 ### [Remove-WinGetSource](Remove-WinGetSource.md)
 Removes a configured source.
 
@@ -57,6 +66,9 @@ Repairs a WinGet Package.
 
 ### [Repair-WinGetPackageManager](Repair-WinGetPackageManager.md)
 Repairs the WinGet client.
+
+### [Reset-WinGetPin](Reset-WinGetPin.md)
+Resets all WinGet package pins.
 
 ### [Reset-WinGetSource](Reset-WinGetSource.md)
 Resets default WinGet sources.

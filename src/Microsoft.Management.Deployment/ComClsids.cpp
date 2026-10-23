@@ -18,6 +18,7 @@
 #include "AddPackageCatalogOptions.h"
 #include "RemovePackageCatalogOptions.h"
 #include "EditPackageCatalogOptions.h"
+#include "PinPackageOptions.h"
 #pragma warning( pop )
 
 namespace winrt::Microsoft::Management::Deployment
@@ -75,6 +76,10 @@ namespace winrt::Microsoft::Management::Deployment
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_EditPackageCatalogOptions))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::EditPackageCatalogOptions);
+        }
+        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PinPackageOptions))
+        {
+            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PinPackageOptions);
         }
         else
         {

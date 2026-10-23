@@ -133,7 +133,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                     if (tableValue.value() != value)
                     {
                         SQLite::Builder::StatementBuilder updateBuilder;
-                        updateBuilder.Update(tableName).Set().Column(valueName).Equals(value).Where(SQLite::RowIDName).Equals(selectResult);
+                        updateBuilder.Update(tableName).Set().Column(valueName).AssignValue(value).Where(SQLite::RowIDName).Equals(selectResult);
 
                         updateBuilder.Execute(connection);
                     }

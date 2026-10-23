@@ -102,6 +102,10 @@ CmdletsToExport = @(
     'Reset-WinGetSource'
     'Export-WinGetPackage'
     'Repair-WinGetPackage'
+    'Get-WinGetPin'
+    'Add-WinGetPin'
+    'Remove-WinGetPin'
+    'Reset-WinGetPin'
 )
 
 # Variables to export from this module
