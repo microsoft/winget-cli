@@ -6,7 +6,6 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
-    using System.IO;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
@@ -20,10 +19,9 @@ namespace AppInstallerCLIE2ETests.Interop
     [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
     public class SourceAgreementsInterop : BaseInterop
     {
-        private const string SourceName = "TestAgreementsRestSource";
-        private const string SourceDirectoryName = "TestAgreementsRestSource";
-        private const string SourceUrl = "https://localhost:5001/TestKit/" + SourceDirectoryName;
         private const int ErrorIllegalStateChange = unchecked((int)0x8000000D);
+
+        private readonly AgreementsRestSource source = new AgreementsRestSource("TestAgreementsRestSource");
 
         private PackageManager packageManager;
 
@@ -36,15 +34,13 @@ namespace AppInstallerCLIE2ETests.Interop
         {
         }
 
-        private static string InformationFilePath => Path.Combine(TestSetup.Parameters.StaticFileRootPath, SourceDirectoryName, "information");
-
         /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
         public void Setup()
         {
-            TestCommon.RunAICLICommand("source remove", SourceName);
+            this.source.Remove();
             this.packageManager = this.TestFactory.CreatePackageManager();
         }
 
@@ -54,13 +50,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [TearDown]
         public void TearDown()
         {
-            TestCommon.RunAICLICommand("source remove", SourceName);
-
-            var directory = Path.GetDirectoryName(InformationFilePath);
-            if (Directory.Exists(directory))
-            {
-                Directory.Delete(directory, true);
-            }
+            this.source.Remove();
         }
 
         /// <summary>
@@ -70,7 +60,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task NoAgreements_Satisfied()
         {
-            WriteInformation(agreementsIdentifier: null, requiresMarket: false);
+            this.source.WriteInformation(agreementsIdentifier: null, requiresMarket: false);
             var catalogRef = await this.AddCatalogAsync();
 
             Assert.That(catalogRef.SourceAgreements.Count, Is.EqualTo(0));
@@ -85,7 +75,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task ChangedAgreements_NotSatisfiedUntilSaved()
         {
-            WriteInformation("AgreementsV1", requiresMarket: true);
+            this.source.WriteInformation("AgreementsV1", requiresMarket: true);
             var catalogRef = await this.AddCatalogAsync();
 
             Assert.That(catalogRef.SourceAgreements.Count, Is.EqualTo(1));
@@ -93,15 +83,15 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(catalogRef.SourceAgreementsSatisfied, Is.True, "Adding a source records acceptance of its agreements.");
 
             // A new reference is needed, as the source information is retrieved once per reference.
-            WriteInformation("AgreementsV2", requiresMarket: true);
-            catalogRef = this.packageManager.GetPackageCatalogByName(SourceName);
+            this.source.WriteInformation("AgreementsV2", requiresMarket: true);
+            catalogRef = this.packageManager.GetPackageCatalogByName(this.source.Name);
             Assert.That(catalogRef.SourceAgreementsSatisfied, Is.False);
 
             catalogRef.SaveAcceptedSourceAgreements();
             Assert.That(catalogRef.SourceAgreementsSatisfied, Is.True);
 
             // Verify that the acceptance was persisted.
-            catalogRef = this.packageManager.GetPackageCatalogByName(SourceName);
+            catalogRef = this.packageManager.GetPackageCatalogByName(this.source.Name);
             Assert.That(catalogRef.SourceAgreementsSatisfied, Is.True);
         }
 
@@ -112,7 +102,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task Composite_Throws()
         {
-            WriteInformation("AgreementsV1", requiresMarket: true);
+            this.source.WriteInformation("AgreementsV1", requiresMarket: true);
             var catalogRef = await this.AddCatalogAsync();
 
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
@@ -126,35 +116,11 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(() => compositeRef.SaveAcceptedSourceAgreements(), Throws.InstanceOf<Exception>().With.Property("HResult").EqualTo(ErrorIllegalStateChange));
         }
 
-        private static void WriteInformation(string agreementsIdentifier, bool requiresMarket)
-        {
-            string agreements = agreementsIdentifier == null ? string.Empty : $@",
-    ""SourceAgreements"": {{
-      ""AgreementsIdentifier"": ""{agreementsIdentifier}"",
-      ""Agreements"": [{{
-        ""AgreementLabel"": ""Test Agreement"",
-        ""Agreement"": ""Test agreement text"",
-        ""AgreementUrl"": ""https://localhost:5001/TestKit/agreement""
-      }}]
-    }}";
-
-            string market = requiresMarket ? @",
-    ""RequiredPackageMatchFields"": [ ""Market"" ]" : string.Empty;
-
-            Directory.CreateDirectory(Path.GetDirectoryName(InformationFilePath));
-            File.WriteAllText(InformationFilePath, $@"{{
-  ""Data"": {{
-    ""SourceIdentifier"": ""{SourceName}"",
-    ""ServerSupportedVersions"": [ ""1.0.0"" ]{agreements}{market}
-  }}
-}}");
-        }
-
         private async Task<PackageCatalogReference> AddCatalogAsync()
         {
             var options = this.TestFactory.CreateAddPackageCatalogOptions();
-            options.Name = SourceName;
-            options.SourceUri = SourceUrl;
+            options.Name = this.source.Name;
+            options.SourceUri = this.source.Url;
             options.Type = Constants.RestTestSourceType;
             options.TrustLevel = PackageCatalogTrustLevel.Trusted;
 
@@ -162,7 +128,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(addResult, Is.Not.Null);
             Assert.That(addResult.Status, Is.EqualTo(AddPackageCatalogStatus.Ok), $"Failed to add REST test source. Error: {addResult.ExtendedErrorCode?.HResult:X}");
 
-            var catalogRef = this.packageManager.GetPackageCatalogByName(SourceName);
+            var catalogRef = this.packageManager.GetPackageCatalogByName(this.source.Name);
             Assert.That(catalogRef, Is.Not.Null);
             return catalogRef;
         }
