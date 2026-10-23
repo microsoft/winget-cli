@@ -59,7 +59,29 @@ namespace AppInstaller::Repository::Microsoft
         // The delta is the main connection; the baseline is attached and temp views are created
         // so that existing search code operates transparently across both.
         // The disposition applies to both files, because the pair is only meaningful as a unit.
-        static SQLiteIndex OpenWithBaseline(const std::string& deltaFilePath, const std::string& baselineFilePath, OpenDisposition disposition = OpenDisposition::Read);
+        // Both files may be given to be held open for the lifetime of the index, as the caller may
+        // have extracted either of them to a temporary location.
+        static SQLiteIndex OpenWithBaseline(
+            const std::string& deltaFilePath,
+            const std::string& baselineFilePath,
+            OpenDisposition disposition = OpenDisposition::Read,
+            Utility::ManagedFile&& deltaFile = {},
+            Utility::ManagedFile&& baselineFile = {});
+
+        // What a delta records about the baseline that it must be paired with.
+        using DeltaBaselineLocator = Schema::ISQLiteIndex::DeltaBaselineLocator;
+
+        // Gets what this delta records about the baseline that it must be paired with.
+        //
+        // Returns nothing when this is not a delta, or does not fully name a baseline. Safe to
+        // ask of any index, including one whose version predates deltas.
+        std::optional<DeltaBaselineLocator> GetDeltaBaselineLocator() const;
+
+        // Gets the identifier that designates this index as a baseline, if it carries one.
+        //
+        // Returns nothing for any index that has not been designated, which is every index not
+        // prepared with DeltaMarkAsBaseline. Such an index cannot be paired with a delta.
+        std::optional<std::string> GetBaselineIdentifier() const;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
@@ -199,7 +221,7 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
-        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
+        SQLiteIndex(const SQLite::DatabaseSpecifier& specifier, std::vector<Utility::ManagedFile>&& files);
 
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);

@@ -214,8 +214,23 @@ namespace AppInstaller::Runtime
         return IsRunningAsAdmin() || IsRunningAsSystem();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsRunningAsInteractiveUser_TestHook_Override = nullptr;
+
+    void TestHook_SetIsRunningAsInteractiveUser_Override(bool* value)
+    {
+        s_IsRunningAsInteractiveUser_TestHook_Override = value;
+    }
+#endif
+
     bool IsRunningAsInteractiveUser()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsRunningAsInteractiveUser_TestHook_Override)
+        {
+            return *s_IsRunningAsInteractiveUser_TestHook_Override;
+        }
+#endif
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_INTERACTIVE_RID);
     }
 

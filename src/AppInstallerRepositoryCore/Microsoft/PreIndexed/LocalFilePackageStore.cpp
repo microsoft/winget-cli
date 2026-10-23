@@ -162,6 +162,18 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
                 }
             }
 
+            // Each slot is a file of its own, so one can be discarded without disturbing the rest.
+            // The identity is not needed; the file is found by slot.
+            void RemovePackage(const PackageKey& package, IProgressCallback&) override
+            {
+                std::filesystem::path packagePath = GetPathForSlot(package.Slot);
+
+                if (std::filesystem::remove(packagePath))
+                {
+                    AICLI_LOG(Repo, Info, << "Removed " << GetSlotName(package.Slot) << " package at: " << packagePath.u8string());
+                }
+            }
+
             // Reading extracts from the held file, so the lock must be taken first.
             bool AllowsUnlockedRead() const override { return false; }
 

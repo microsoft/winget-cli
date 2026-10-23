@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <COMContext.h>
+#include <winget/ThreadGlobals.h>
 #include <future>
 #include <set>
 
@@ -199,6 +202,41 @@ namespace
 
         ValidateFileContents(tempFile, expectedFileContents, maximumSize);
     }
+}
+
+TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")
+{
+    TestUserSettings settings;
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+
+    TempFile blocker{ "FileLogger_BlockedParent", ".tmp" };
+    {
+        std::ofstream file{ blocker.GetPath() };
+        file << "Not a directory";
+        REQUIRE(file.good());
+    }
+
+    auto logPath = blocker.GetPath() / "test.log";
+    REQUIRE_THROWS(FileLogger{ logPath });
+    REQUIRE_THROWS(FileLogger::Add(logPath));
+    REQUIRE_FALSE(Log().ContainsLogger(FileLogger::GetNameForPath(logPath)));
+
+    using namespace AppInstaller::Runtime;
+    auto restorePaths = wil::scope_exit([]()
+        {
+            TestHook_ClearPathOverrides();
+            SetTestPathOverrides();
+        });
+    AppInstaller::Filesystem::PathDetails blockedPath;
+    blockedPath.Path = blocker.GetPath() / "logs";
+    blockedPath.Create = GENERATE(false, true);
+    TestHook_SetPathOverride(PathName::DefaultLogLocation, blockedPath);
+
+    REQUIRE_NOTHROW(AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::All, Level::Verbose));
+    REQUIRE_FALSE(Log().ContainsLogger("file"));
+    REQUIRE(Log().ContainsLogger("Trace"));
+    REQUIRE_FALSE(Log().ContainsLogger("OutputDebugStringLogger"));
 }
 
 TEST_CASE("FileLogger_MaximumSize", "[logging]")

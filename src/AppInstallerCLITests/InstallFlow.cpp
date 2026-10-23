@@ -638,6 +638,7 @@ TEST_CASE("MSStoreInstallFlow_MachineScopeProvision", "[InstallFlow][MSStore]")
         false);
 
     HRESULT hr = installOperation.StartAndWaitForOperation(progress);
+    INFO("Store install HRESULT: 0x" << SetHRFormat << hr);
     REQUIRE(SUCCEEDED(hr));
 
     // Verify the package is now provisioned.

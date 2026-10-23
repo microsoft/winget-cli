@@ -1171,7 +1171,7 @@ WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_9)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_10)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_12)
 WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_28)
-WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_30)
+WINGET_VALIDATE_GOOD_MANIFEST_VERSION(1_31)
 
 void WriteSingletonManifestAndVerifyContents(const std::vector<std::string>& singleton, const std::vector<std::string>& multiFiles, std::string_view version)
 {
@@ -1224,7 +1224,7 @@ WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_9)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_10)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_12)
 WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_28)
-WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_30)
+WINGET_WRITE_VERIFY_MANIFEST_VERSION(1_31)
 
 // Since Authentication is not supported in community repo and will cause manifest validation failure,
 // we are not adding Authentication in v1_10 manifests. Instead a separate test is created for Authentication.
@@ -1325,11 +1325,11 @@ TEST_CASE("ReadWriteValidateV1_28ManifestWithPowerShellDSC", "[ManifestCreation]
 }
 
 // PowerShell DSC is not supported in the community repo and will cause manifest validation failure.
-TEST_CASE("ReadWriteValidateV1_30ManifestWithPowerShellDSC", "[ManifestCreation][ManifestVersionCreation]")
+TEST_CASE("ReadWriteValidateV1_31ManifestWithPowerShellDSC", "[ManifestCreation][ManifestVersionCreation]")
 {
     // Read manifest
     TempDirectory testDirectory{ "TestManifest" };
-    CopyTestDataFilesToFolder({ "ManifestV1_30-PowerShellDSC.yaml" }, testDirectory);
+    CopyTestDataFilesToFolder({ "ManifestV1_31-PowerShellDSC.yaml" }, testDirectory);
     Manifest testManifest = YamlParser::CreateFromPath(testDirectory);
 
     // Validate schema
@@ -1342,7 +1342,7 @@ TEST_CASE("ReadWriteValidateV1_30ManifestWithPowerShellDSC", "[ManifestCreation]
     // TODO: Update this test with similar validations
 
     // Verify content
-    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_30 });
+    REQUIRE(testManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_31 });
     REQUIRE(testManifest.Installers.size() == 1);
     REQUIRE(testManifest.Installers[0].DesiredStateConfiguration.size() == 3);
 
@@ -1364,7 +1364,7 @@ TEST_CASE("ReadWriteValidateV1_30ManifestWithPowerShellDSC", "[ManifestCreation]
     // Read back and validate content
     REQUIRE(std::filesystem::exists(exportedManifestPath));
     Manifest exportedManifest = YamlParser::CreateFromPath(exportedDirectory);
-    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_30 });
+    REQUIRE(exportedManifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ s_ManifestVersionV1_31 });
     REQUIRE(exportedManifest.Installers.size() == 1);
     REQUIRE(exportedManifest.Installers[0].DesiredStateConfiguration.size() == 3);
 
