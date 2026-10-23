@@ -272,14 +272,14 @@ namespace AppInstaller::Manifest::YamlParser
         int idx = MANIFESTSCHEMA_NO_RESOURCE;
         std::map<ManifestTypeEnum, int> resourceMap;
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_30 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_31 })
         {
             resourceMap = {
-                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_30_SINGLETON },
-                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_30_VERSION },
-                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_30_INSTALLER },
-                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_30_DEFAULTLOCALE },
-                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_30_LOCALE },
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_31_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_31_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_31_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_31_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_31_LOCALE },
             };
         }
         else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_28 })
