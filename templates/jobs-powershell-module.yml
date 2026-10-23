@@ -86,6 +86,8 @@ jobs:
       sourceDir: $(wingetSourceRoot)
       localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(buildOutDir)\E2ETests\TestSigningCert.cer'
 
+  - template: prime-windows-update.yml
+
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
     workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests

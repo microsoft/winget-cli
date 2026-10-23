@@ -12,7 +12,7 @@
 
 - [ ] Signed the [Contributor License Agreement](https://cla.opensource.microsoft.com)
 - [ ] Linked to an issue
-- [ ] Updated [Release Notes](../doc/ReleaseNotes.md) (if applicable)
+- [ ] Added a [release note fragment](../doc/release-notes/README.md) (if applicable)
 - [ ] Updated documentation (if applicable)
 - [ ] Added or updated tests (or noted why not applicable)
 - [ ] Updated [Copilot instructions](.github/copilot-instructions.md) (if build, architecture, or conventions changed)

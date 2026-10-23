@@ -277,7 +277,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(Config, Error, << "Failed to install dsc v3 package: " << productId);
                 context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
-                THROW_WIN32(ERROR_FILE_NOT_FOUND);
+                THROW_HR(installDscContext.GetTerminationHR());
             }
 
             progressScope = context.Reporter.BeginAsyncProgress(true);

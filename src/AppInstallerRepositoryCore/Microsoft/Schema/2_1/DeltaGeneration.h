@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteVersion.h>
 #include <filesystem>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -12,17 +14,23 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
 {
-    // Identifies the baseline package to a client that holds only the delta, so that it can acquire
-    // the baseline the delta was generated against. Both values are supplied by the publishing
-    // service, which is the only party that knows how its baselines are laid out and versioned.
-    struct BaselineReference
-    {
-        // The location of the baseline package, relative to the source's base location.
-        std::string RelativeSourcePath;
+    // Defined on ISQLiteIndex, because it crosses from here out to the business logic and that is
+    // the only header both sides share. It is named here without the Delta prefix that
+    // disambiguates it there, since this namespace already supplies it.
+    using BaselineLocator = ISQLiteIndex::DeltaBaselineLocator;
 
-        // The version of the baseline package.
-        std::string PackageVersion;
-    };
+    // Reads what a delta records about its baseline.
+    //
+    // Returns nothing when the database is not a delta, or when it does not carry all three
+    // values. A delta that cannot fully name its baseline is unusable, and reporting a partial
+    // locator would only invite a caller to act on half of one.
+    std::optional<BaselineLocator> ReadBaselineLocator(const SQLite::Connection& connection);
+
+    // Reads the identifier that designates a database as a baseline, if it carries one.
+    //
+    // Returns nothing for any index that has not been designated, which is every index that was
+    // not prepared with DeltaMarkAsBaseline. Such an index cannot be paired with a delta.
+    std::optional<std::string> ReadBaselineIdentifier(const SQLite::Connection& connection);
 
     // Writes a delta database describing the difference between a baseline index and the index
     // that is currently being packaged.
@@ -40,10 +48,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_1::Delta
     // Nothing appears at the output path until the delta is complete: it is built beside the
     // destination and moved into place only on success, so a failure partway through cannot leave
     // something that looks like a usable delta. An output path that already exists is refused.
+    //
+    // The two baseline values are the caller's half of the locator that the delta records: where
+    // the baseline will be published and which version it is. The third, the baseline's identity,
+    // is not the caller's to supply -- it is read from the baseline itself, which is also what
+    // establishes that the baseline was designated as one at all.
     void Generate(
         const SQLite::Connection& sourceConnection,
         const SQLite::Connection& baselineConnection,
-        const BaselineReference& baselineReference,
+        const std::string& baselineRelativeSourcePath,
+        const std::string& baselinePackageVersion,
         const std::filesystem::path& deltaOutputPath,
         const SQLite::Version& version,
         const std::vector<V2_0::PackageUpdateTrackingTable::PackageData>& changedPackages,

@@ -287,6 +287,7 @@
     <ClInclude Include="Microsoft\PreIndexed\IndexForm.h" />
     <ClInclude Include="Microsoft\PreIndexed\PackageStore.h" />
     <ClInclude Include="Microsoft\PreIndexed\RemotePackage.h" />
+    <ClInclude Include="Microsoft\PreIndexed\SourceData.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
@@ -430,11 +431,13 @@
     <ClCompile Include="Microsoft\PortableIndex.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp" />
+    <ClCompile Include="Microsoft\PreIndexed\DeltaIndexForm.cpp" />
     <ClCompile Include="Microsoft\PreIndexed\DeployedPackageStore.cpp" />
     <ClCompile Include="Microsoft\PreIndexed\FullIndexForm.cpp" />
     <ClCompile Include="Microsoft\PreIndexed\LocalFilePackageStore.cpp" />
     <ClCompile Include="Microsoft\PreIndexed\PackageStore.cpp" />
     <ClCompile Include="Microsoft\PreIndexed\RemotePackage.cpp" />
+    <ClCompile Include="Microsoft\PreIndexed\SourceData.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\CheckpointDatabase.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />

@@ -23,6 +23,9 @@ namespace WinGetSourceCreator.Model
 
         public Signature? Signature { get; set; }
 
+        // When set, a baseline and a delta are published alongside the ordinary source.
+        public DeltaSettings? Delta { get; set; }
+
         public void Validate()
         {
             if (string.IsNullOrEmpty(this.AppxManifest))
@@ -59,6 +62,11 @@ namespace WinGetSourceCreator.Model
             if (this.Signature != null)
             {
                 this.Signature.Validate();
+            }
+
+            if (this.Delta != null)
+            {
+                this.Delta.Validate();
             }
         }
 
