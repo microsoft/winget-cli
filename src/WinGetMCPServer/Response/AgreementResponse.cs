@@ -42,17 +42,17 @@ namespace WinGetMCPServer.Response
         }
 
         /// <summary>
-        /// Creates a response for when every source was excluded because its agreements were not accepted.
+        /// Creates a response for when every requested source was excluded.
         /// </summary>
         /// <param name="excludedSources">The sources that were excluded.</param>
         /// <returns>The response.</returns>
-        public static CallToolResult ForAllSourcesExcluded(IReadOnlyCollection<string> excludedSources)
+        public static CallToolResult ForAllSourcesExcluded(ExcludedSources excludedSources)
         {
             return ToolResponse.WithExcludedSources(
                 new CallToolResult()
                 {
                     IsError = true,
-                    Content = [new TextContentBlock() { Text = "No package sources are available because the user has not accepted the agreements of the requested sources." }],
+                    Content = [new TextContentBlock() { Text = "No package sources are available; the user has not accepted the agreements of the requested sources, or their agreements could not be retrieved." }],
                 },
                 excludedSources);
         }

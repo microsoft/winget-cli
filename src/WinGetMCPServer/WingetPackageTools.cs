@@ -144,7 +144,7 @@ namespace WinGetMCPServer
             [Description(AcceptSourceAgreementsParameterDescription)] bool? acceptSourceAgreements = null,
             [Description(AcceptPackageAgreementsParameterDescription)] bool? acceptPackageAgreements = null)
         {
-            List<string> excludedSources = new List<string>();
+            ExcludedSources excludedSources = new ExcludedSources();
             CallToolResult result;
 
             try
@@ -167,13 +167,13 @@ namespace WinGetMCPServer
             bool upgradeOnly,
             bool? acceptSourceAgreements,
             bool? acceptPackageAgreements,
-            List<string> excludedSources,
+            ExcludedSources excludedSources,
             CancellationToken cancellationToken)
         {
             ToolResponse.CheckGroupPolicy();
 
             PackageCatalog packageCatalog;
-            IReadOnlyCollection<string> excludedCatalogs;
+            ExcludedSources excludedCatalogs;
 
             try
             {
@@ -338,8 +338,8 @@ namespace WinGetMCPServer
         /// <summary>
         /// Connects to the requested catalogs, first obtaining consent to any source agreements.
         /// </summary>
-        /// <returns>The connected catalog and the names of any catalogs excluded because their agreements were not accepted.</returns>
-        private async Task<(PackageCatalog Catalog, IReadOnlyCollection<string> ExcludedSources)> ConnectCatalogAsync(
+        /// <returns>The connected catalog and any catalogs that were excluded.</returns>
+        private async Task<(PackageCatalog Catalog, ExcludedSources ExcludedSources)> ConnectCatalogAsync(
             McpServer server,
             bool? acceptSourceAgreements,
             CancellationToken cancellationToken,
@@ -355,7 +355,7 @@ namespace WinGetMCPServer
                     selection.Excluded));
             }
 
-            if (selection.Included.Count == 0 && selection.Excluded.Count > 0)
+            if (selection.Included.Count == 0 && !selection.Excluded.IsEmpty)
             {
                 throw new ToolResponseException(AgreementResponse.ForAllSourcesExcluded(selection.Excluded));
             }

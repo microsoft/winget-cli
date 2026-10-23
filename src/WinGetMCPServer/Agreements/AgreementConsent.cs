@@ -51,8 +51,8 @@ namespace WinGetMCPServer.Agreements
         private const string AcceptFieldName = "accept";
 
         /// <summary>
-        /// Agreement text longer than this is truncated in the elicitation message, as forms have no way
-        /// to render long or rich content.
+        /// Agreement text longer than this is truncated in the elicitation message when the agreement also
+        /// has a URL where the full terms can be read, as forms have no way to render long or rich content.
         /// </summary>
         private const int MaximumAgreementTextLength = 2000;
 
@@ -166,9 +166,10 @@ namespace WinGetMCPServer.Agreements
 
                 if (!string.IsNullOrWhiteSpace(agreement.Text))
                 {
-                    if (agreement.Text.Length > MaximumAgreementTextLength)
+                    // Long text is truncated only when the full terms remain available at the URL, which
+                    // follows; otherwise the user would be accepting terms they could not see.
+                    if (agreement.Text.Length > MaximumAgreementTextLength && !string.IsNullOrWhiteSpace(agreement.Url))
                     {
-                        // The full text remains available at the URL, which follows when present.
                         message.Append(agreement.Text, 0, MaximumAgreementTextLength);
                         message.AppendLine("\u2026");
                     }

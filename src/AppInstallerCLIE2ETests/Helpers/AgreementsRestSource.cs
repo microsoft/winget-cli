@@ -97,6 +97,14 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Deletes the information served by the source, so that requests for it fail.
+        /// </summary>
+        public void DeleteInformation()
+        {
+            File.Delete(this.InformationFilePath);
+        }
+
+        /// <summary>
         /// Removes the source and its information file.
         /// </summary>
         public void Remove()

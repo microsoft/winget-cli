@@ -22,9 +22,9 @@ namespace WinGetMCPServer.Agreements
         public List<PackageCatalogReference> Included { get; } = new List<PackageCatalogReference>();
 
         /// <summary>
-        /// Gets the names of the catalogs that were excluded because their agreements were not accepted.
+        /// Gets the catalogs that were excluded.
         /// </summary>
-        public List<string> Excluded { get; } = new List<string>();
+        public ExcludedSources Excluded { get; } = new ExcludedSources();
 
         /// <summary>
         /// Gets the agreements that must be presented to the user by the caller before continuing.
@@ -79,16 +79,16 @@ namespace WinGetMCPServer.Agreements
                 }
                 catch (Exception)
                 {
-                    // Reading the agreements requires contacting the source. Rather than turn a transient
-                    // failure into a confusing agreement error, use the catalog and let connecting to it
-                    // report the actual problem.
-                    selection.Included.Add(catalog);
+                    // Reading the agreements requires contacting the source. If that fails, the catalog cannot
+                    // be used: connecting would retry the request and, should it then succeed, use the source
+                    // without the user having seen its agreements.
+                    selection.Excluded.Unavailable.Add(name);
                     continue;
                 }
 
                 if (acceptAgreements != true && DeclinedSources.ContainsKey(name))
                 {
-                    selection.Excluded.Add(name);
+                    selection.Excluded.NotAccepted.Add(name);
                     continue;
                 }
 
@@ -118,10 +118,10 @@ namespace WinGetMCPServer.Agreements
                         break;
                     case ConsentDecision.Declined:
                         DeclinedSources.TryAdd(name, 0);
-                        selection.Excluded.Add(name);
+                        selection.Excluded.NotAccepted.Add(name);
                         break;
                     case ConsentDecision.Dismissed:
-                        selection.Excluded.Add(name);
+                        selection.Excluded.NotAccepted.Add(name);
                         break;
                     case ConsentDecision.Pending:
                         selection.Pending.AddRange(agreements);

@@ -383,6 +383,33 @@ namespace AppInstallerCLIE2ETests
             AssertExcludedAgreementsSource(result);
         }
 
+        /// <summary>
+        /// Verifies that a source whose agreements cannot be retrieved is not used, rather than being used without consent.
+        /// </summary>
+        /// <param name="acceptSourceAgreements">The value passed for acceptSourceAgreements.</param>
+        /// <returns>A task.</returns>
+        [TestCase(null)]
+        [TestCase(true)]
+        public async Task SourceAgreements_Unavailable(bool? acceptSourceAgreements)
+        {
+            this.agreementsSource.AddWithUnacceptedAgreements();
+            this.agreementsSource.DeleteInformation();
+
+            var elicitation = new ElicitationRecorder(ElicitationRecorder.Accept);
+            await using McpClient client = await CreateClientAsync(elicitation);
+
+            CallToolResult result = await FindTestPackageAsync(client, acceptSourceAgreements);
+
+            Assert.That(result.IsError, Is.Not.True, GetText(result));
+            Assert.That(elicitation.Requests.Count, Is.EqualTo(0));
+            Assert.That(GetExcludedSources(result), Is.Empty);
+            Assert.That(GetStructuredStrings(result, "unavailableSources"), Is.EquivalentTo(new[] { AgreementsSourceName }));
+
+            using JsonDocument text = JsonDocument.Parse(GetText(result));
+            Assert.That(text.RootElement.EnumerateArray().Any(p => p.GetProperty("identifier").GetString() == Constants.ExeInstallerPackageId), Is.True, "Results from the remaining sources are returned.");
+            Assert.That(result.Content.OfType<TextContentBlock>().Skip(1).Single().Text, Does.Contain(AgreementsSourceName));
+        }
+
         private static void CleanupTestPackages()
         {
             // Other tests may have installed these packages elsewhere, and the test installer's uninstaller
@@ -499,9 +526,14 @@ namespace AppInstallerCLIE2ETests
 
         private static List<string> GetExcludedSources(CallToolResult result)
         {
-            if (result.StructuredContent?.TryGetProperty("excludedSources", out JsonElement excluded) == true)
+            return GetStructuredStrings(result, "excludedSources");
+        }
+
+        private static List<string> GetStructuredStrings(CallToolResult result, string propertyName)
+        {
+            if (result.StructuredContent?.TryGetProperty(propertyName, out JsonElement values) == true)
             {
-                return excluded.EnumerateArray().Select(e => e.GetString()).ToList();
+                return values.EnumerateArray().Select(e => e.GetString()).ToList();
             }
 
             return new List<string>();
