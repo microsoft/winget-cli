@@ -38,7 +38,7 @@ namespace AppInstallerCLIE2ETests
         private readonly AgreementsRestSource agreementsSource = new AgreementsRestSource(AgreementsSourceName);
 
         /// <summary>
-        /// Ensures the server can be launched.
+        /// Ensures the server can be launched and that the test packages are not installed.
         /// </summary>
         [SetUp]
         public void Setup()
@@ -48,6 +48,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.Ignore("The MCP server requires packaged context.");
             }
 
+            CleanupTestPackages();
             this.agreementsSource.Remove();
         }
 
@@ -57,7 +58,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            TestCommon.BestEffortTestExeCleanup(Path.GetTempPath());
+            CleanupTestPackages();
             this.agreementsSource.Remove();
         }
 
@@ -380,6 +381,16 @@ namespace AppInstallerCLIE2ETests
             result = await FindTestPackageAsync(client, acceptSourceAgreements: true);
             Assert.That(elicitation.Requests.Count, Is.EqualTo(2), "The user is asked again when the caller indicates acceptance.");
             AssertExcludedAgreementsSource(result);
+        }
+
+        private static void CleanupTestPackages()
+        {
+            // Other tests may have installed these packages elsewhere, and the test installer's uninstaller
+            // does not remove the marker file that is used to detect an install to the temp directory.
+            TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
+            TestCommon.RunAICLICommand("uninstall", AgreementsPackageId);
+            File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeInstalledFileName));
+            File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeUninstallerFileName));
         }
 
         private static Task<McpClient> CreateClientAsync(ElicitationRecorder elicitation = null)
