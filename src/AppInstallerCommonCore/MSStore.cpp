@@ -305,6 +305,10 @@ namespace AppInstaller::MSStore
 
                     if (!SUCCEEDED(errorCode))
                     {
+                        AICLI_LOG(Core, Error, <<
+                            "MSStore package execution failed. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
+                            " InstallState: " << static_cast<int32_t>(status.InstallState()) <<
+                            " ErrorCode: 0x" << Logging::SetHRFormat << errorCode);
                         return errorCode;
                     }
                 }
