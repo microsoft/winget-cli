@@ -83,6 +83,7 @@ casemap
 casemappings
 ccc
 cch
+CDNs
 centralus
 certmgr
 certs
@@ -205,6 +206,7 @@ FULLWIDTH
 fundraiser
 fuzzer
 fzanollo
+Gbit
 gcpi
 GDK
 GES
@@ -345,6 +347,7 @@ MAXLENGTH
 maxvalue
 maybenull
 MBH
+Mbit
 MBs
 mcr
 mday
@@ -389,6 +392,7 @@ NESTEDINSTALLER
 netlify
 NETSDK
 Newtonsoft
+nilspep
 nlohmann
 NNS
 NOAGGREGATION
@@ -671,6 +675,7 @@ VERSIONINFO
 Verzeichnisse
 virtuals
 VIWEC
+VMs
 vns
 vscodeignore
 vsconfig
