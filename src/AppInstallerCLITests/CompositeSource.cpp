@@ -2062,9 +2062,9 @@ TEST_CASE("CompositeSource_SxS_FoldedResultIsNonPrimaryCandidate", "[CompositeSo
 {
     // Installed A is tracked to available P. Installed B correlates to P and Q, so it folds into A.
     // Installed C correlates only to Q, so B (now folded) and A (if moved into B's index) are candidates for C.
-    std::string productCodeA = "pca";
-    std::string productCodeB = "pcb";
-    std::string productCodeC = "pcc";
+    std::string productCodeA = "pc1";
+    std::string productCodeB = "pc2";
+    std::string productCodeC = "pc3";
 
     CompositeWithTrackingTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>("AvailableTestSource2");
