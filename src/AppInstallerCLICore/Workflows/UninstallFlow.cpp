@@ -430,6 +430,24 @@ namespace AppInstaller::CLI::Workflow
                     AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
                 }
 
+                // In non-interactive sessions (Session 0, SSH, WinRM, CI), the AppX deployment broker
+                // requires an interactive logon session when invoked from a packaged context, returning
+                // ERROR_NO_SUCH_LOGON_SESSION (0x80070520). If the package is not registered for the user
+                // (e.g. removed or absent), avoid reporting a false failure.
+                if (re.GetErrorCode() == HRESULT_FROM_WIN32(ERROR_NO_SUCH_LOGON_SESSION))
+                {
+                    if (!packageFamilyName.empty() && !Deployment::IsRegistered(packageFamilyName))
+                    {
+                        AICLI_LOG(CLI, Info, << "Package " << packageFamilyName << " is not registered for user; ignoring ERROR_NO_SUCH_LOGON_SESSION (0x80070520)");
+                        continue;
+                    }
+
+                    if (!Runtime::IsRunningAsInteractiveUser() || Runtime::IsRunningInPackagedContext())
+                    {
+                        AICLI_LOG(CLI, Warning, << "Non-interactive MSIX uninstall encountered ERROR_NO_SUCH_LOGON_SESSION (0x80070520) in packaged context for " << packageFamilyName);
+                    }
+                }
+
                 context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
                 context << ReportUninstallerResult("MSIXUninstall"sv, re.GetErrorCode(), /* isHResult */ true);
                 return;
