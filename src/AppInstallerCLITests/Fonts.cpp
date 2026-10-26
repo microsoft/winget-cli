@@ -23,8 +23,15 @@ namespace
     struct FontLayoutTest
     {
         FontLayoutTest() :
-            RegistryPath(L"Software\\Microsoft\\WinGet\\FontLayoutTests\\" + Directory.GetPath().filename().wstring()),
-            RegistryHive(AppInstaller::Registry::Key::Create(HKEY_CURRENT_USER, RegistryPath)),
+            FontLayoutTest(AppInstaller::Registry::Key::OpenIfExists(HKEY_CURRENT_USER, std::wstring{}, 0, KEY_ALL_ACCESS))
+        {
+        }
+
+        explicit FontLayoutTest(AppInstaller::Registry::Key registryRoot) :
+            RegistryRoot(std::move(registryRoot)),
+            // Font registration keys require non-volatile ancestors.
+            RegistryPath(L"WinGetFontLayoutTests_" + Directory.GetPath().filename().wstring()),
+            RegistryHive(AppInstaller::Registry::Key::Create(RegistryRoot, RegistryPath)),
             UserPath(AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::FontsUserInstallLocation)),
             MachinePath(AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::FontsMachineInstallLocation))
         {
@@ -40,7 +47,7 @@ namespace
             TestHook_SetFontSessionChangesDisabled(false);
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsUserInstallLocation, UserPath);
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsMachineInstallLocation, MachinePath);
-            AppInstaller::Registry::Key::DeleteTree(HKEY_CURRENT_USER, RegistryPath);
+            AppInstaller::Registry::Key::DeleteTree(RegistryRoot, RegistryPath);
         }
 
         std::filesystem::path RootPath(ScopeEnum scope) const
@@ -93,6 +100,7 @@ namespace
         }
 
         TestCommon::TempDirectory Directory{ "FontLayout" };
+        AppInstaller::Registry::Key RegistryRoot;
         std::wstring RegistryPath;
         AppInstaller::Registry::Key RegistryHive;
         AppInstaller::Filesystem::PathDetails UserPath;
@@ -116,6 +124,34 @@ namespace
         }
         return result;
     }
+}
+
+TEST_CASE("FontLayout_InstallWithVolatileSharedTestTree", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const TempDirectory directory{ "FontRegistry" };
+    const auto registryPath = directory.GetPath().filename().wstring();
+    auto cleanup = wil::scope_exit([&]()
+        {
+            AppInstaller::Registry::Key::DeleteTree(HKEY_CURRENT_USER, registryPath);
+        });
+    auto registryRoot = AppInstaller::Registry::Key::Create(HKEY_CURRENT_USER, registryPath);
+    AppInstaller::Registry::Key::Create(registryRoot, L"Software\\Microsoft\\WinGet", REG_OPTION_VOLATILE);
+    REQUIRE_THROWS_HR(
+        AppInstaller::Registry::Key::Create(registryRoot, L"Software\\Microsoft\\WinGet\\FontLayoutTests"),
+        HRESULT_FROM_WIN32(ERROR_CHILD_MUST_BE_VOLATILE));
+
+    FontLayoutTest layout{ std::move(registryRoot) };
+    auto context = layout.Context(scope);
+    const auto source = layout.Directory.GetPath() / "Source" / s_FontFile;
+    const auto destination = layout.RootPath(scope) / s_FontFile;
+    layout.CopyFont(source);
+    context.AddPackageFile(source);
+    REQUIRE(InstallFontPackage(context).HResult == S_OK);
+    REQUIRE(RegistryString(layout.Package(context), L"TestFont.ttf") == destination.wstring());
+    REQUIRE(RegistryString(layout.Root(scope), L"TestFont.ttf") ==
+        (scope == ScopeEnum::Machine ? destination.filename().wstring() : destination.wstring()));
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
 }
 
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InstallRepairAndUninstall", "[fonts][fontlayout]")
