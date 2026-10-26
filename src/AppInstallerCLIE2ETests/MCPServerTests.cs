@@ -29,6 +29,8 @@ namespace AppInstallerCLIE2ETests
         private const string InstallPackageToolName = "install-winget-package";
 
         private const string AgreementsPackageId = "AppInstallerTest.CatalogPackageMetadata";
+
+        private const string CleanupUninstallOptions = " --accept-source-agreements --disable-interactivity";
         private const string PackageAgreementLabel = "testAgreementLabel";
         private const string PackageAgreementText = "testAgreementText";
         private const string PackageAgreementUrl = "https://testAgreementUrl.net";
@@ -48,8 +50,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.Ignore("The MCP server requires packaged context.");
             }
 
-            CleanupTestPackages();
-            this.agreementsSource.Remove();
+            this.Cleanup();
         }
 
         /// <summary>
@@ -58,8 +59,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            CleanupTestPackages();
-            this.agreementsSource.Remove();
+            this.Cleanup();
         }
 
         /// <summary>
@@ -414,8 +414,8 @@ namespace AppInstallerCLIE2ETests
         {
             // Other tests may have installed these packages elsewhere, and the test installer's uninstaller
             // does not remove the marker file that is used to detect an install to the temp directory.
-            TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
-            TestCommon.RunAICLICommand("uninstall", AgreementsPackageId);
+            TestCommon.RunAICLICommand($"uninstall {CleanupUninstallOptions}", Constants.ExeInstallerPackageId);
+            TestCommon.RunAICLICommand($"uninstall {CleanupUninstallOptions}", AgreementsPackageId);
             File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeInstalledFileName));
             File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeUninstallerFileName));
         }
@@ -537,6 +537,20 @@ namespace AppInstallerCLIE2ETests
             }
 
             return new List<string>();
+        }
+
+        private void Cleanup()
+        {
+            try
+            {
+                // The source must be removed first: while its agreements are unaccepted, the CLI prompts for
+                // them and the uninstall commands would wait for input until they time out.
+                this.agreementsSource.Remove();
+            }
+            finally
+            {
+                CleanupTestPackages();
+            }
         }
 
         /// <summary>
