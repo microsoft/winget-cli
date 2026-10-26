@@ -16,6 +16,20 @@
 
 namespace AppInstaller
 {
+    template <typename Container>
+    Container InitializeFromMoveOnly(std::initializer_list<typename Container::value_type> il)
+    {
+        using Value = typename Container::value_type;
+        Container result;
+
+        for (const auto& v : il)
+        {
+            result.emplace_back(std::move(*const_cast<Value*>(&v)));
+        }
+
+        return result;
+    }
+
     // A helper type that resets itself when it is moved from.
     template <typename T>
     struct ResetWhenMovedFrom

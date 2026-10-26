@@ -138,6 +138,17 @@ namespace AppInstaller::Repository::Microsoft::PreIndexed
         // Removes everything held for the given packages.
         virtual void Remove(const std::vector<PackageKey>& packages, IProgressCallback& progress) = 0;
 
+        // Removes just the one package, leaving everything else the source holds in place.
+        //
+        // This is what discards a package that a source has stopped needing, which Remove cannot
+        // express: Remove is given every package a source could have and is free to clear the
+        // source wholesale, and a store that holds its packages together does exactly that.
+        //
+        // Removing what is not held succeeds. A store that cannot act on the key it is given --
+        // one that finds packages by identity, when the identity is not known -- logs and leaves
+        // it, since the alternative is to fail an operation that has otherwise succeeded.
+        virtual void RemovePackage(const PackageKey& package, IProgressCallback& progress) = 0;
+
         // Takes the cross process lock guarding this source's local copy.
         virtual Synchronization::CrossProcessLock Lock(IProgressCallback& progress, bool isBackground = false) = 0;
 

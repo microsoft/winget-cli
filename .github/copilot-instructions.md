@@ -158,6 +158,7 @@ void WorkflowTask(Execution::Context& context)
 ## Contributing
 
 - Review `CONTRIBUTING.md` for workflow
+- For user-visible changes, add a unique release note fragment following `doc/release-notes/README.md`; do not append to `doc/ReleaseNotes.md` or commit generated notes.
 - File/discuss issues before starting work
 - Specs required for features (stored in `doc/specs/`); see `.github/instructions/specs.instructions.md` for detailed guidance
 - Follow existing code style (see `stylecop.json`)

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Microsoft.Management.Deployment.Projection\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86;arm64</Platforms>
