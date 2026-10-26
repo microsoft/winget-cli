@@ -18,7 +18,7 @@ namespace WinGetMCPServer.Agreements
         /// Gets the agreements for the version of a package that would be installed.
         /// </summary>
         /// <param name="packageVersion">The package version that would be installed.</param>
-        /// <returns>The agreements; empty if there are none or they cannot be read.</returns>
+        /// <returns>The agreements; empty if there are none.</returns>
         public static List<AgreementInfo> GetAgreements(PackageVersionInfo? packageVersion)
         {
             List<AgreementInfo> result = new List<AgreementInfo>();
@@ -28,39 +28,32 @@ namespace WinGetMCPServer.Agreements
                 return result;
             }
 
-            try
+            // Failures propagate: treating unreadable metadata as having no agreements could install a package
+            // without presenting agreements that it requires.
+            // Uses the localization selected by the user's WinGet settings.
+            CatalogPackageMetadata? metadata = packageVersion.GetCatalogPackageMetadata();
+
+            if (metadata?.Agreements == null)
             {
-                // Uses the localization selected by the user's WinGet settings.
-                CatalogPackageMetadata? metadata = packageVersion.GetCatalogPackageMetadata();
-
-                if (metadata?.Agreements == null)
-                {
-                    return result;
-                }
-
-                string? source = packageVersion.PackageCatalog?.Info?.Name;
-
-                // Enumerating WinRT collections through IEnumerable fails with the embedded projection, so index instead.
-                var agreements = metadata.Agreements;
-                for (int i = 0; i < agreements.Count; ++i)
-                {
-                    PackageAgreement agreement = agreements[i];
-                    result.Add(new AgreementInfo()
-                    {
-                        Kind = AgreementInfo.PackageKind,
-                        Source = source,
-                        Package = packageVersion.Id,
-                        Label = NullIfEmpty(agreement.Label),
-                        Text = NullIfEmpty(agreement.Text),
-                        Url = NullIfEmpty(agreement.Url),
-                    });
-                }
+                return result;
             }
-            catch (Exception)
+
+            string? source = packageVersion.PackageCatalog?.Info?.Name;
+
+            // Enumerating WinRT collections through IEnumerable fails with the embedded projection, so index instead.
+            var agreements = metadata.Agreements;
+            for (int i = 0; i < agreements.Count; ++i)
             {
-                // Not every source can supply metadata. If none is available, there is nothing to present,
-                // and the install will report if agreements were in fact required.
-                result.Clear();
+                PackageAgreement agreement = agreements[i];
+                result.Add(new AgreementInfo()
+                {
+                    Kind = AgreementInfo.PackageKind,
+                    Source = source,
+                    Package = packageVersion.Id,
+                    Label = NullIfEmpty(agreement.Label),
+                    Text = NullIfEmpty(agreement.Text),
+                    Url = NullIfEmpty(agreement.Url),
+                });
             }
 
             return result;
