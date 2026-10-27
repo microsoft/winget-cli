@@ -552,13 +552,20 @@ namespace TestCommon
         } });
     }
 
+    const SHA256::HashBuffer& GetTestExeInstallerHash()
+    {
+        static const auto hash = SHA256::ComputeHashFromFile(TestDataFile("AppInstallerTestExeInstaller.exe"));
+        return hash;
+    }
+
     void OverrideForShellExecute(TestContext& context, int expectedUseCount)
     {
         OverrideForCheckExistingInstaller(context);
 
         context.Override({ DownloadInstallerFile, [](TestContext& context)
         {
-            context.Add<Data::DownloadHashInfo>({ {}, {} });
+            const auto& fileHash = GetTestExeInstallerHash();
+            context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
             context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         }, expectedUseCount });
 
@@ -573,7 +580,8 @@ namespace TestCommon
     {
         context.Override({ DownloadInstallerFile, [&installationLog](TestContext& context)
         {
-            context.Add<Data::DownloadHashInfo>({ {}, {} });
+            const auto& fileHash = GetTestExeInstallerHash();
+            context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
             context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
 
             auto dependency = Dependency(DependencyType::Package, context.Get<Execution::Data::Manifest>().Id, context.Get<Execution::Data::Manifest>().Version);
@@ -602,7 +610,8 @@ namespace TestCommon
     {
         context.Override({ DownloadInstallerFile, [](TestContext& context)
         {
-            context.Add<Data::DownloadHashInfo>({ {}, {} });
+            const auto& fileHash = GetTestExeInstallerHash();
+            context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
             context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         } });
 
@@ -624,8 +633,7 @@ namespace TestCommon
             std::filesystem::copy(installerPath, tempInstallerPath, std::filesystem::copy_options::overwrite_existing);
             context.Add<Data::InstallerPath>(tempInstallerPath);
 
-            std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
-            SHA256::HashBuffer fileHash = SHA256::ComputeHash(inStream);
+            const auto& fileHash = GetTestExeInstallerHash();
             context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
         } });
 
@@ -732,7 +740,8 @@ namespace TestCommon
             std::ofstream file(installerPath, std::ofstream::out | std::ofstream::trunc);
             file << installer.Url;
             file.close();
-            context.Add<Data::DownloadHashInfo>({ {}, {} });
+            auto fileHash = SHA256::ComputeHashFromFile(installerPath);
+            context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
         } });
     }
 }
