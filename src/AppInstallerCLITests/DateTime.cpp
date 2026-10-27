@@ -91,3 +91,60 @@ TEST_CASE("ShortFileTime", "[datetime]")
     INFO(longTime);
     REQUIRE(shortTime.length() < longTime.length());
 }
+
+void VerifyTryGetTimePointFromDate(std::string_view date, int year, int month, int day)
+{
+    INFO(date);
+    auto result = TryGetTimePointFromDate(date);
+    REQUIRE(result.has_value());
+
+    tm time{};
+    auto tt = system_clock::to_time_t(result.value());
+    _gmtime64_s(&time, &tt);
+
+    REQUIRE(year == time.tm_year + 1900);
+    REQUIRE(month == time.tm_mon + 1);
+    REQUIRE(day == time.tm_mday);
+    REQUIRE(0 == time.tm_hour);
+    REQUIRE(0 == time.tm_min);
+    REQUIRE(0 == time.tm_sec);
+}
+
+TEST_CASE("TryGetTimePointFromDate", "[datetime]")
+{
+    // Not a YYYY-MM-DD date
+    REQUIRE_FALSE(TryGetTimePointFromDate("").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("06/15/2024").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-6-15").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-1a").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-150").has_value());
+
+    // Years out of range
+    REQUIRE_FALSE(TryGetTimePointFromDate("1969-12-31").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("3001-01-01").has_value());
+
+    // Months out of range
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-00-15").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-13-15").has_value());
+
+    // Days out of range
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-00").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-31").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2023-02-29").has_value());
+    REQUIRE_FALSE(TryGetTimePointFromDate("2100-02-29").has_value());
+
+    // In range baseline
+    VerifyTryGetTimePointFromDate("2024-06-15", 2024, 6, 15);
+
+    // Leap days
+    VerifyTryGetTimePointFromDate("2024-02-29", 2024, 2, 29);
+    VerifyTryGetTimePointFromDate("2000-02-29", 2000, 2, 29);
+
+    // Time portion is ignored
+    VerifyTryGetTimePointFromDate("2024-06-15T00:00:00", 2024, 6, 15);
+    VerifyTryGetTimePointFromDate("2024-06-15t23:59:59-08:00", 2024, 6, 15);
+    VerifyTryGetTimePointFromDate("2024-06-15 12:00:00Z", 2024, 6, 15);
+
+    // Epoch time
+    REQUIRE(TryGetTimePointFromDate("1970-01-01").value() == system_clock::time_point{});
+}
