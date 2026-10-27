@@ -345,7 +345,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         {
             installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
         }
-        else if (installer.BaseInstallerType != InstallerTypeEnum::MSStore)
+        else if (DoesInstallerTypeRequireHash(installer.BaseInstallerType))
         {
             AICLI_LOG(Repo, Error, << "Missing installer SHA256.");
             return {};
