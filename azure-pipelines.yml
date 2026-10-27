@@ -79,12 +79,10 @@ jobs:
       feedsToUse: 'config'
       nugetConfigPath: '$(nugetConfig)'
 
-  - task: CmdLine@2
-    displayName: Enable Vcpkg Install
+  - task: PowerShell@2
+    displayName: Initialize Vcpkg
     inputs:
-      script: |
-        $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
-      workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
+      filePath: 'tools\Initialize-Vcpkg.ps1'
 
   - task: VSBuild@1
     displayName: Build Fuzzing Artifacts
@@ -94,14 +92,6 @@ jobs:
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
       maximumCpuCount: true
-
-  - task: CopyFiles@2
-    displayName: Copy vcpkg logs
-    inputs:
-      SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
-      Contents: '**\*.log'
-      TargetFolder: '$(artifactsDir)\vcpkgLogs'
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: Copy Fuzzing Artifacts for Publishing
