@@ -60,7 +60,7 @@
   -->
   <Target Name="WinGetRemoveEmbeddedWinRTRuntimeReference" AfterTargets="ResolvePackageAssets">
     <ItemGroup>
-      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'$([System.IO.Path]::GetFileName(%(HintPath)))' == 'WinRT.Runtime.dll'" />
+      <ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'$([System.IO.Path]::GetFileName(`%(HintPath)`))' == 'WinRT.Runtime.dll'" />
     </ItemGroup>
   </Target>
 
