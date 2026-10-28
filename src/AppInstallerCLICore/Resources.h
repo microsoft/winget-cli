@@ -23,6 +23,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptSourceAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminContextActionProhibited);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
@@ -499,8 +500,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSupported);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoAdminRepairForUserScopePackage);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoAdminUninstallForUserScopePackage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledFontFound);

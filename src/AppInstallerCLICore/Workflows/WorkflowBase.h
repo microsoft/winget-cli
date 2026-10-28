@@ -400,6 +400,21 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureRunningAsAdmin(Execution::Context& context);
 
+    // Rejects actions on user-writable data from the full half of a split token.
+    // Default tokens, including administrators with UAC disabled, are unchanged.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void EnsureNotRunningWithNonDefaultFullToken(Execution::Context& context);
+
+    // Checks installed scope before acting on installed-package data.
+    // Scope and type must come from the installed source, not caller options.
+    // Identity-based MSIX and Store operations remain platform-mediated.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void EnsureSupportForInstalledPackageOperation(Execution::Context& context);
+
     // Ensures that the feature is enabled.
     // Required Args: the desired feature
     // Inputs: None

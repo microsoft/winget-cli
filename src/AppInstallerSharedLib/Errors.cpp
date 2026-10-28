@@ -213,7 +213,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE, "Repair operation is not applicable."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, "Repair operation failed."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED, "The installer technology in use doesn't support repair."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED, "The requested operation is not permitted from an administrator context on packages installed within the user scope."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED, "This operation is not permitted from an elevated process because it uses data writable without administrator privileges. Try again from a non-administrator context."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED, "The SQLite connection was terminated to prevent corruption."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED, "Failed to get Microsoft Store package catalog."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE, "No applicable Microsoft Store package found from Microsoft Store package catalog."),

@@ -1728,6 +1728,29 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EnsureNotRunningWithNonDefaultFullToken(Execution::Context& context)
+    {
+        if (Runtime::IsRunningWithNonDefaultFullToken())
+        {
+            context.Reporter.Error() << Resource::String::AdminContextActionProhibited << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+        }
+    }
+
+    void EnsureSupportForInstalledPackageOperation(Execution::Context& context)
+    {
+        const auto& installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        THROW_HR_IF(E_UNEXPECTED, !installedVersion);
+        auto metadata = installedVersion->GetMetadata();
+        const auto scope = Manifest::ConvertToScopeEnum(metadata[PackageVersionMetadata::InstalledScope]);
+        const auto installedType = Manifest::ConvertToInstallerTypeEnum(metadata[PackageVersionMetadata::InstalledType]);
+
+        if (scope == Manifest::ScopeEnum::User && Manifest::InstallerDataWritableUnelevatedForUserScope(installedType))
+        {
+            context << EnsureNotRunningWithNonDefaultFullToken;
+        }
+    }
+
     void EnsureFeatureEnabled::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
