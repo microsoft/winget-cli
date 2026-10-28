@@ -30,31 +30,6 @@ namespace AppInstaller::Utility
             char FollowingSeparator;
             void (*Action)(const OutputTimePointContext&);
         };
-
-        // Returns -1 if any character is not an ASCII digit.
-        int ParseDigits(std::string_view value)
-        {
-            int result = 0;
-
-            for (char c : value)
-            {
-                if (c < '0' || c > '9')
-                {
-                    return -1;
-                }
-
-                result = result * 10 + (c - '0');
-            }
-
-            return result;
-        }
-
-        int DaysInMonth(int year, int month)
-        {
-            constexpr int s_daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-            bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-            return (month == 2 && isLeapYear) ? 29 : s_daysInMonth[month - 1];
-        }
     }
 
     void OutputTimePoint(std::ostream& stream, const std::chrono::system_clock::time_point& time, bool useRFC3339)
@@ -222,33 +197,26 @@ namespace AppInstaller::Utility
 
     std::optional<std::chrono::system_clock::time_point> TryGetTimePointFromDate(std::string_view date)
     {
-        constexpr size_t c_dateLength = 10;
-        if (date.length() < c_dateLength || date[4] != '-' || date[7] != '-')
+        tm parsed{};
+        std::istringstream stream{ std::string{ date } };
+        stream >> std::get_time(&parsed, "%Y-%m-%d");
+
+        // An ISO 8601 date and time is also accepted, but only the date is used.
+        if (stream.fail() || (stream.peek() != EOF && stream.peek() != 'T'))
         {
             return std::nullopt;
         }
 
-        // Some sources provide a full timestamp; only the calendar date is used.
-        if (date.length() > c_dateLength && date[c_dateLength] != 'T' && date[c_dateLength] != 't' && date[c_dateLength] != ' ')
+        // Limit to the range supported by _mkgmtime64, which is 1970 to 3000.
+        // _mkgmtime64 rolls days past the end of the month into the next month (2023-02-29 becomes 2023-03-01), so reject those.
+        int year = parsed.tm_year + 1900;
+        tm normalized = parsed;
+        __time64_t epochTime = _mkgmtime64(&normalized);
+        if (year < 1970 || year > 3000 || normalized.tm_mday != parsed.tm_mday)
         {
             return std::nullopt;
         }
 
-        int year = ParseDigits(date.substr(0, 4));
-        int month = ParseDigits(date.substr(5, 2));
-        int day = ParseDigits(date.substr(8, 2));
-
-        // Limit to the range supported by _mkgmtime64, which is 1970 to 3000
-        if (year < 1970 || year > 3000 || month < 1 || month > 12 || day < 1 || day > DaysInMonth(year, month))
-        {
-            return std::nullopt;
-        }
-
-        tm dateTime{};
-        dateTime.tm_year = year - 1900;
-        dateTime.tm_mon = month - 1;
-        dateTime.tm_mday = day;
-
-        return std::chrono::system_clock::from_time_t(_mkgmtime64(&dateTime));
+        return std::chrono::system_clock::from_time_t(epochTime);
     }
 }

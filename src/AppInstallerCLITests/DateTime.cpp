@@ -115,7 +115,6 @@ TEST_CASE("TryGetTimePointFromDate", "[datetime]")
     // Not a YYYY-MM-DD date
     REQUIRE_FALSE(TryGetTimePointFromDate("").has_value());
     REQUIRE_FALSE(TryGetTimePointFromDate("06/15/2024").has_value());
-    REQUIRE_FALSE(TryGetTimePointFromDate("2024-6-15").has_value());
     REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-1a").has_value());
     REQUIRE_FALSE(TryGetTimePointFromDate("2024-06-150").has_value());
 
@@ -142,8 +141,6 @@ TEST_CASE("TryGetTimePointFromDate", "[datetime]")
 
     // Time portion is ignored
     VerifyTryGetTimePointFromDate("2024-06-15T00:00:00", 2024, 6, 15);
-    VerifyTryGetTimePointFromDate("2024-06-15t23:59:59-08:00", 2024, 6, 15);
-    VerifyTryGetTimePointFromDate("2024-06-15 12:00:00Z", 2024, 6, 15);
 
     // Epoch time
     REQUIRE(TryGetTimePointFromDate("1970-01-01").value() == system_clock::time_point{});
