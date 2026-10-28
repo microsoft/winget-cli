@@ -32,7 +32,9 @@ For naming, formatting, error handling, casts, `std::move()` usage, and resource
    - For VS Community: `winget configure .config/configuration.winget`
    - For VS Professional: `winget configure .config/configuration.vsProfessional.winget`
    - For VS Enterprise: `winget configure .config/configuration.vsEnterprise.winget`
-3. Run `vcpkg integrate install` from the Developer Command Prompt / Developer PowerShell for VS. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
+3. From PowerShell at the repository root, run [`.\tools\Initialize-Vcpkg.ps1`](../tools/Initialize-Vcpkg.ps1) to enable MSBuild integration with Visual Studio's bundled vcpkg.
+   This replaces any existing vcpkg integration for the current user.
+   This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command-line methods of building a VS solution should work as well.
 

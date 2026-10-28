@@ -24,13 +24,6 @@ parameters:
 - name: additionalMSBuildArgs
   type: string
   default: ''
-# Whether the agent's own vcpkg installation, at VCPKG_INSTALLATION_ROOT, is what builds the native
-# dependencies. Set to false when a consuming repository supplies vcpkg by other means, such as an
-# MSBuild SDK; the integrate step and the port log collection below are then both meaningless,
-# because that variable points at an installation this build never uses.
-- name: useAgentVcpkg
-  type: boolean
-  default: true
 # Agent pool for this job. Leave empty to inherit the pipeline's pool, which is what a pipeline
 # with a single suitable pool wants. See the "Agent requirements" section of README.md.
 - name: pool
@@ -126,13 +119,10 @@ jobs:
       feedsToUse: 'config'
       nugetConfigPath: '$(nugetConfig)'
 
-  - ${{ if parameters.useAgentVcpkg }}:
-    - task: CmdLine@2
-      displayName: Enable Vcpkg Install
-      inputs:
-        script: |
-          $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
-        workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
+  - task: PowerShell@2
+    displayName: Initialize Vcpkg
+    inputs:
+      filePath: '${{ parameters.sourceRoot }}\tools\Initialize-Vcpkg.ps1'
 
   - ${{ if ne(parameters.releaseTagJob, '') }}:
     - task: PowerShell@2
@@ -179,15 +169,6 @@ jobs:
                          /p:AppxPackageSigningEnabled=false
                          ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
-
-  - ${{ if parameters.useAgentVcpkg }}:
-    - task: CopyFiles@2
-      displayName: Copy vcpkg logs
-      inputs:
-        SourceFolder: $(VCPKG_INSTALLATION_ROOT)\buildtrees
-        Contents: '**\*.log'
-        TargetFolder: '$(artifactsDir)\vcpkgLogs'
-      condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy specific build artifacts'
