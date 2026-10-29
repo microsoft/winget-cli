@@ -34,6 +34,10 @@ namespace AppInstaller::SQLite
         // If overwrite is given, existing destination files will be removed first.
         static void RenameSQLiteDatabase(const std::filesystem::path& source, const std::filesystem::path& destination, bool overwrite = false);
 
+        // Deletes the database file and any auxiliary files without opening them.
+        // Should only be used on an inactive database. Missing files are ignored.
+        static void DeleteSQLiteDatabase(const std::filesystem::path& path);
+
     protected:
         SQLiteStorageBase(const std::string& target, const Version& version, size_t pageSize = 0);
 

@@ -7,10 +7,57 @@
 #include <winget/SQLiteStatementBuilder.h>
 #include <winget/SQLiteMetadataTable.h>
 #include <winget/SQLiteVersion.h>
+#include <winget/SQLiteStorageBase.h>
 
 using namespace AppInstaller::SQLite;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
+
+TEST_CASE("SQLiteStorageBase_RenameAndDeleteAuxiliaryFiles", "[sqlite]")
+{
+    TestCommon::TempDirectory directory("SQLiteDatabaseFiles");
+    const auto source = directory.GetPath() / "source.db";
+    const auto destination = directory.GetPath() / "destination.db";
+    for (std::wstring_view suffix : { L"", L"-journal", L"-wal", L"-shm" })
+    {
+        auto sourceFile = source;
+        sourceFile += suffix;
+        auto destinationFile = destination;
+        destinationFile += suffix;
+        std::ofstream(sourceFile) << "source";
+        std::ofstream(destinationFile) << "destination";
+    }
+
+    SQLiteStorageBase::RenameSQLiteDatabase(source, destination, true);
+    for (std::wstring_view suffix : { L"", L"-journal", L"-wal", L"-shm" })
+    {
+        auto sourceFile = source;
+        sourceFile += suffix;
+        auto destinationFile = destination;
+        destinationFile += suffix;
+        REQUIRE_FALSE(std::filesystem::exists(sourceFile));
+        std::ifstream file(destinationFile);
+        std::string contents;
+        std::getline(file, contents);
+        REQUIRE(contents == "source");
+    }
+
+    SQLiteStorageBase::DeleteSQLiteDatabase(destination);
+    for (std::wstring_view suffix : { L"", L"-journal", L"-wal", L"-shm" })
+    {
+        auto file = destination;
+        file += suffix;
+        REQUIRE_FALSE(std::filesystem::exists(file));
+    }
+    REQUIRE_NOTHROW(SQLiteStorageBase::DeleteSQLiteDatabase(destination));
+    REQUIRE_THROWS_HR(SQLiteStorageBase::DeleteSQLiteDatabase({}), E_INVALIDARG);
+
+    std::filesystem::create_directory(destination);
+    const auto retainedFile = destination / "retained.txt";
+    std::ofstream(retainedFile) << "retain";
+    REQUIRE_THROWS_AS(SQLiteStorageBase::DeleteSQLiteDatabase(destination), std::filesystem::filesystem_error);
+    REQUIRE(std::filesystem::exists(retainedFile));
+}
 
 static const char* s_firstColumn = "first";
 static const char* s_secondColumn = "second";

@@ -392,6 +392,11 @@ namespace AppInstaller::CLI::Workflow
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
         bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
+        if (doUninstallPrevious)
+        {
+            AICLI_RETURN_IF_TERMINATED(context << EnsureSupportForInstalledPackageOperation);
+        }
+
         Synchronization::CrossProcessInstallLock lock;
         if (!ExemptFromSingleInstallLocking(m_installerType))
         {
@@ -705,6 +710,11 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
             context.Reporter.Error() << Resource::String::UpgradeBlockedByManifest << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED);
+        }
+
+        if (isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious)))
+        {
+            AICLI_RETURN_IF_TERMINATED(context << EnsureSupportForInstalledPackageOperation);
         }
 
         context <<

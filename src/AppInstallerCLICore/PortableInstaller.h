@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::Portable
     // Object representation of the metadata and functionality required for installing a Portable package. 
     struct PortableInstaller
     {
-        // These values are initialized based on the values from the entry in ARP
+        // Existing ARP values are loaded only for upgrade and uninstall operations.
         std::string DisplayName;
         std::string DisplayVersion;
         std::string HelpLink;
@@ -37,14 +37,17 @@ namespace AppInstaller::CLI::Portable
         // If we fail to create a symlink, add install directory to PATH variable
         bool InstallDirectoryAddedToPath = false;
 
-        bool IsUpdate = false;
         bool Purge = false;
         bool RecordToIndex = false;
 
         // This is the incoming target install location determined from the context args.
         std::filesystem::path TargetInstallLocation;
 
-        PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
+        PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode, Workflow::OperationType operation);
+
+        bool IsUpdate() const { return m_operation == Workflow::OperationType::Upgrade; }
+
+        bool UsesExistingInstallData() const { return m_operation != Workflow::OperationType::Install; }
 
         bool VerifyExpectedState();
 
@@ -57,9 +60,10 @@ namespace AppInstaller::CLI::Portable
         {
             m_expectedEntries = m_desiredEntries;
             m_desiredEntries = {};
+            InstallLocation = TargetInstallLocation;
         }
 
-        void Install(AppInstaller::CLI::Workflow::OperationType operation = Workflow::OperationType::Install);
+        void Install();
 
         void Uninstall();
 
@@ -94,10 +98,14 @@ namespace AppInstaller::CLI::Portable
         AppInstaller::Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntry();
 
     private:
+        Workflow::OperationType m_operation;
         PortableARPEntry m_portableARPEntry;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
         std::stringstream m_stream;
+
+        bool SupportsInstall() const { return !UsesExistingInstallData() || IsUpdate(); }
+        bool SupportsUninstall() const { return !UsesExistingInstallData() || m_operation == Workflow::OperationType::Uninstall; }
 
         std::string GetStringValue(PortableValueName valueName);
         std::filesystem::path GetPathValue(PortableValueName valueName);
@@ -107,10 +115,11 @@ namespace AppInstaller::CLI::Portable
         void RegisterARPEntry();
 
         void ApplyDesiredState();
+        void RemoveExpectedState();
         void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
         void RemoveFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
-        void CreateTargetInstallDirectory();
+        bool CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
 
         void AddToPathVariable(std::filesystem::path value);

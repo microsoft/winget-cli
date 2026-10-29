@@ -215,6 +215,9 @@ TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][wo
 
 TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][workflow]")
 {
+    const auto installedType = GENERATE("Burn", "Msi", "Wix", "Portable");
+    CAPTURE(installedType);
+
     // Simulate running with an elevated (non-default full) token.
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
 
@@ -222,12 +225,11 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
 
-    // Create a test source with a Burn installer installed at user scope.
-    // AdminExecutionShouldBlockUserScopePackages returns true for Burn/Exe/Inno/Nullsoft/Portable.
+    // Create a test source with a package installed at user scope.
     auto testSource = CreateTestSource({
         TestSourceResult(
             "AppInstallerCliTest.TestBurnInstallerUserScope"sv,
-            [](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source) {
+            [installedType](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source) {
                 auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 matches.emplace_back(
                     AppInstaller::Repository::ResultMatch(
@@ -235,7 +237,7 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
                             manifest,
                             TestCompositePackage::MetadataMap
                             {
-                                { AppInstaller::Repository::PackageVersionMetadata::InstalledType, "Burn" },
+                                { AppInstaller::Repository::PackageVersionMetadata::InstalledType, installedType },
                                 { AppInstaller::Repository::PackageVersionMetadata::InstalledScope, "User" },
                             },
                             std::vector<AppInstaller::Manifest::Manifest>{ manifest },
