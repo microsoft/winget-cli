@@ -247,7 +247,7 @@ namespace AppInstaller::Manifest
                 std::vector<FieldProcessInfo> installerOnlyFields =
                 {
                     { "Arch", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); return {}; } },
-                        { "Url", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "Url", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = value.as<std::string>(); return {}; } },
                     { "Sha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                     { "SignatureSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                     { "Language", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Locale = value.as<std::string>(); return {}; } },
@@ -307,7 +307,7 @@ namespace AppInstaller::Manifest
                     std::vector<FieldProcessInfo> v1InstallerFields =
                     {
                         { "Architecture", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); return {}; } },
-                        { "InstallerUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = Utility::Trim(value.as<std::string>()); return {}; } },
+                        { "InstallerUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Url = value.as<std::string>(); return {}; } },
                         { "InstallerSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                         { "SignatureSha256", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                         // No custom validation needed at field populating time since we have semantic validation later to block msstore and productId from community repo.

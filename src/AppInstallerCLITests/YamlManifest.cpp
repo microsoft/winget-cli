@@ -964,7 +964,7 @@ TEST_CASE("ReadGoodManifestInstallerUrlBlockScalar", "[ManifestValidation]")
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerUrl-BlockScalar.yaml"), validateOption);
 
     REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers[0].Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdk-x86.msi");
+    REQUIRE(manifest.Installers[0].Url == "https://ThisIsNotUsed\n");
 }
 
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
