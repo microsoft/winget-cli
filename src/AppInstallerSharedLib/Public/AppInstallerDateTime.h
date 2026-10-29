@@ -71,7 +71,7 @@ namespace AppInstaller::Utility
     std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version);
 
     // Converts the given ISO 8601 date (YYYY-MM-DD) into a time_point at midnight UTC of that date.
-    // An ISO 8601 date and time (YYYY-MM-DDThh:mm:ss) is also accepted, but the time is ignored.
+    // An ISO 8601 date and time (such as 2024-06-15T12:00:00Z) is also accepted, but the time is ignored.
     // If the value is not a valid date between 1970 and 3000, std::nullopt is returned.
     std::optional<std::chrono::system_clock::time_point> TryGetTimePointFromDate(std::string_view date);
 }
