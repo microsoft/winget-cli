@@ -856,7 +856,7 @@ TEST_CASE("FontInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
 {
     const bool fullToken = GENERATE(false, true);
     const auto installerType = GENERATE(InstallerTypeEnum::Font, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
-    const auto scope = GENERATE("", "user", "machine", "unknown");
+    const auto scope = GENERATE(""sv, "user"sv, "machine"sv, "unknown"sv);
     CAPTURE(fullToken, installerType, scope);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
 
@@ -870,14 +870,14 @@ TEST_CASE("FontInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
     std::ostringstream output;
     TestContext context{ output, std::cin };
     context.Add<Execution::Data::Installer>(installer);
-    if (!std::string_view{ scope }.empty())
+    if (!scope.empty())
     {
         context.Args.AddArg(Execution::Args::Type::InstallScope, scope);
     }
 
     context << EnsureSupportForFontInstall;
 
-    if (fullToken && installerType != InstallerTypeEnum::Exe && std::string_view{ scope } != "machine")
+    if (fullToken && installerType != InstallerTypeEnum::Exe && scope != "machine")
     {
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
     }
