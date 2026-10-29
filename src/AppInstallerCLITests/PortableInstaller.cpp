@@ -94,7 +94,7 @@ TEST_CASE("PortableInstaller_FreshInstallIgnoresExistingState", "[PortableInstal
         auto index = PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
         auto files = index.GetAllPortableFiles();
         REQUIRE(files.size() == 1);
-        REQUIRE(files.at(0).GetFilePath() == targetPath);
+        REQUIRE(std::filesystem::equivalent(files.at(0).GetFilePath(), targetPath));
     }
     else
     {

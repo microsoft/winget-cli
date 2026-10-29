@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
 #include <AppInstallerRuntime.h>
@@ -94,6 +95,77 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Id == "minVersion");
     // minVersion 1.5 is available but this requires 1.0 so that version is installed
     REQUIRE(dependencyPackages.at(0)->Get<Execution::Data::Manifest>().Version == "1.0");
+}
+
+TEST_CASE("DependencyGraph_UsesDependencyInstalledState", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    const bool parentIsUpdate = GENERATE(false, true);
+    const bool dependencyIsInstalled = GENERATE(false, true);
+    const bool fullToken = GENERATE(false, true);
+    CAPTURE(parentIsUpdate, dependencyIsInstalled, fullToken);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+
+    auto manifest = CreateFakeManifestWithDependencies("Root");
+    manifest.Installers[0].Dependencies.Add(Dependency(DependencyType::Package, "Dependency", "2.0"));
+
+    auto dependencyManifest = CreateFakeManifestWithDependencies("Dependency");
+    dependencyManifest.Version = "2.0";
+    dependencyManifest.Installers[0].Scope = ScopeEnum::User;
+    dependencyManifest.Installers[0].UpdateBehavior = UpdateBehaviorEnum::UninstallPrevious;
+    auto source = std::make_shared<TestSource>();
+    auto package = TestCompositePackage::Make(std::vector<Manifest>{ dependencyManifest }, source);
+    if (dependencyIsInstalled)
+    {
+        auto installedManifest = dependencyManifest;
+        installedManifest.Version = "1.0";
+        package->Installed = TestPackage::Make(
+            installedManifest,
+            TestPackageVersion::MetadataMap{
+                { PackageVersionMetadata::InstalledType, "Exe" },
+                { PackageVersionMetadata::InstalledScope, "User" },
+            },
+            source);
+    }
+    source->SearchFunction = [package](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(package, PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, "Dependency"));
+        return result;
+    };
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    if (parentIsUpdate)
+    {
+        context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    }
+    context.Add<Execution::Data::Manifest>(manifest);
+    context.Add<Execution::Data::Installer>(manifest.Installers[0]);
+    context.Override({ Workflow::OpenDependencySource, [source](TestContext& c)
+        {
+            c.Add<Execution::Data::DependencySource>(Source{ source });
+        } });
+
+    context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
+    REQUIRE_FALSE(context.IsTerminated());
+    auto& dependencies = context.Get<Execution::Data::PackageSubContexts>();
+    REQUIRE(dependencies.size() == 1);
+    auto& dependencyContext = *dependencies.at(0);
+    auto dependencyThreadGlobals = dependencyContext.SetForCurrentThread();
+    REQUIRE(WI_IsFlagSet(dependencyContext.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) == dependencyIsInstalled);
+    REQUIRE(WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) == parentIsUpdate);
+
+    REQUIRE_NOTHROW(dependencyContext << EnsureSupportForInstall);
+    INFO(output.str());
+    if (dependencyIsInstalled && fullToken)
+    {
+        REQUIRE_TERMINATED_WITH(dependencyContext, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    }
+    else
+    {
+        REQUIRE_FALSE(dependencyContext.IsTerminated());
+    }
 }
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )

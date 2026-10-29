@@ -9,3 +9,7 @@ Font protection also covers initial and forced installations, which can inspect 
 Fresh portable installations remain supported from an elevated process and no longer reuse preexisting installation metadata or cleanup records.
 
 The checks apply to the elevated half of a split UAC token. Existing behavior with UAC disabled is unchanged.
+
+### Minor Bug Fixes
+
+* Fixed installing new dependencies during an upgrade and applying upgrade protections when an installed dependency needs an update.
