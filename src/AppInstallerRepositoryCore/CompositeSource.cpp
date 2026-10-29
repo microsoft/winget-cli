@@ -1335,9 +1335,15 @@ namespace AppInstaller::Repository
                             }
                         }
 
-                        // Now exclude both our own result and any that have a different (larger) number of available packages
+                        // Now exclude our own result, any that have already been folded, any that now hold a primary result that was
+                        // moved forward into their index, and any that have a different (larger) number of available packages
                         candidateMatches.erase(std::remove_if(candidateMatches.begin(), candidateMatches.end(),
-                            [&](size_t index) { return index == i || Matches[index].Package->GetAvailablePackages().size() != currentMatch.Package->GetAvailablePackages().size(); }),
+                            [&](size_t index)
+                            {
+                                const auto& candidatePackage = Matches[index].Package;
+                                return index == i || !candidatePackage || candidatePackage->GetPrimaryAvailablePackage() ||
+                                    candidatePackage->GetAvailablePackages().size() != currentMatch.Package->GetAvailablePackages().size();
+                            }),
                             candidateMatches.end());
 
                         // All of these remaining values should be folded in to our result
