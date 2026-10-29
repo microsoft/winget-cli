@@ -720,6 +720,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
             Workflow::EnsureSupportForPortableInstall <<
+            Workflow::EnsureSupportForFontInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
 

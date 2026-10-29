@@ -17,6 +17,7 @@
 #include <winget/ManifestYamlParser.h>
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
+#include <Workflows/FontFlow.h>
 #include <Workflows/MsiInstallFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/PortableFlow.h>
@@ -849,6 +850,79 @@ TEST_CASE("InstallFlow_AdminContextWithUserScopeUninstallPrevious", "[InstallFlo
     context << Workflow::EnsureSupportForInstall;
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+}
+
+TEST_CASE("FontInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
+{
+    const bool fullToken = GENERATE(false, true);
+    const auto installerType = GENERATE(InstallerTypeEnum::Font, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
+    const auto scope = GENERATE("", "user", "machine", "unknown");
+    CAPTURE(fullToken, installerType, scope);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = installerType;
+    if (installerType == InstallerTypeEnum::Zip)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Font;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::Installer>(installer);
+    if (!std::string_view{ scope }.empty())
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, scope);
+    }
+
+    context << EnsureSupportForFontInstall;
+
+    if (fullToken && installerType != InstallerTypeEnum::Exe && std::string_view{ scope } != "machine")
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    }
+    else
+    {
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().empty());
+    }
+}
+
+TEST_CASE("FontInstallFlow_AdminContextRejectsUserScopeBeforePreparation", "[InstallFlow][workflow]")
+{
+    const bool execute = GENERATE(false, true);
+    const bool archive = GENERATE(false, true);
+    const bool update = GENERATE(false, true);
+    CAPTURE(execute, archive, update);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = archive ? InstallerTypeEnum::Zip : InstallerTypeEnum::Font;
+    if (archive)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Font;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::Installer>(installer);
+    context.Args.AddArg(Execution::Args::Type::Force);
+    if (update)
+    {
+        context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    }
+
+    if (execute)
+    {
+        context << FontInstallImpl;
+    }
+    else
+    {
+        context << EnsureSupportForInstall;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
 }
 
 TEST_CASE("PortableInstallFlow_AdminContextRejectsUserScopeUpdateBeforePreparation", "[InstallFlow][workflow]")

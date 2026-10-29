@@ -54,7 +54,7 @@ TEST_CASE("WorkflowBase_EnsureNotRunningWithNonDefaultFullToken", "[WorkflowBase
 TEST_CASE("WorkflowBase_EnsureSupportForInstalledPackageOperation", "[WorkflowBase]")
 {
     const bool fullToken = GENERATE(false, true);
-    const auto installedType = GENERATE("exe", "msi", "wix", "portable", "msix", "msstore", "unknown");
+    const auto installedType = GENERATE("exe", "msi", "wix", "portable", "font", "msix", "msstore", "unknown");
     const auto installedScope = GENERATE("user", "machine");
     CAPTURE(fullToken, installedType, installedScope);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride{ fullToken };

@@ -2,7 +2,9 @@
 
 ### Consistent elevation checks for user-scope package operations
 
-Added elevated-process protections for user-scope MSI uninstall and repair, and portable upgrades. Repair and uninstall-previous operations reject unsupported elevation before preparing the action. These operations report a consistent error directing callers to retry from a non-administrator context.
+Added elevated-process protections for user-scope MSI uninstall and repair, portable upgrades, and font installation and removal. Repair and uninstall-previous operations reject unsupported elevation before preparing the action. These operations report a consistent error directing callers to retry from a non-administrator context.
+
+Font protection also covers initial and forced installations, which can inspect or replace existing font registrations.
 
 Fresh portable installations remain supported from an elevated process and no longer reuse pre-existing installation metadata or cleanup records.
 
