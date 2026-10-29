@@ -334,7 +334,7 @@ namespace AppInstaller::CLI::Portable
     {
         if (!UsesExistingInstallData())
         {
-            // Replace the selected index slot without opening any pre-existing database or journal.
+            // Replace the selected index slot without opening any preexisting database or journal.
             SQLiteStorageBase::DeleteSQLiteDatabase(TargetInstallLocation / GetPortableIndexFileName());
         }
         else

@@ -6,6 +6,6 @@ Added elevated-process protections for user-scope MSI uninstall and repair, port
 
 Font protection also covers initial and forced installations, which can inspect or replace existing font registrations.
 
-Fresh portable installations remain supported from an elevated process and no longer reuse pre-existing installation metadata or cleanup records.
+Fresh portable installations remain supported from an elevated process and no longer reuse preexisting installation metadata or cleanup records.
 
 The checks apply to the elevated half of a split UAC token. Existing behavior with UAC disabled is unchanged.
