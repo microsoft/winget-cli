@@ -4,7 +4,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
-#include "Public/AppInstallerSHA256.h"
+#include "Public/winget/Hash.h"
 
 namespace AppInstaller::Utility
 {

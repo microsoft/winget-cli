@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/winget/Hash.h"
 #include <wininet.h>
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDownloader.h"
-#include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerTelemetry.h"

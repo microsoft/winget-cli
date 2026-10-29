@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "AppInstallerDownloader.h"
-#include "AppInstallerSHA256.h"
 #include "HttpStream/HttpLocalCache.h"
+#include "winget/Hash.h"
 
 using namespace AppInstaller;
 using namespace AppInstaller::Utility;

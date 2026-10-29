@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "winget/Hash.h"
 #include <yaml.h>
 #include "winget/Yaml.h"
 #include "AppInstallerLanguageUtilities.h"
-#include "AppInstallerSHA256.h"
 
 #include <iostream>
 #include <string_view>
