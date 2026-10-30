@@ -110,6 +110,9 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(installerInstalledStatus.InstallerInfo.NestedInstallerType, Is.EqualTo(PackageInstallerType.Unknown));
             Assert.That(installerInstalledStatus.InstallerInfo.Scope, Is.EqualTo(PackageInstallerScope.Unknown));
 
+            // The test manifest does not declare the optional ReleaseDate.
+            Assert.That(installerInstalledStatus.InstallerInfo.ReleaseDate, Is.Null);
+
             // Installer status
             Assert.That(installerInstalledStatus.InstallerInstalledStatus[0].Type, Is.EqualTo(InstalledStatusType.AppsAndFeaturesEntry));
             Assert.That(GetHResultFromInstalledStatus(installerInstalledStatus.InstallerInstalledStatus[0]), Is.EqualTo(Constants.ErrorCode.S_OK));

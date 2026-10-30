@@ -194,4 +194,29 @@ namespace AppInstaller::Utility
 
         return std::chrono::system_clock::from_time_t(_mkgmtime64(&versionTime));
     }
+
+    std::optional<std::chrono::system_clock::time_point> TryGetTimePointFromDate(std::string_view date)
+    {
+        tm parsed{};
+        std::istringstream stream{ std::string{ date } };
+        stream >> std::get_time(&parsed, "%Y-%m-%d");
+
+        // An ISO 8601 date and time is also accepted, but only the date is used.
+        if (stream.fail() || (stream.peek() != EOF && stream.peek() != 'T'))
+        {
+            return std::nullopt;
+        }
+
+        // Limit to the range supported by _mkgmtime64, which is 1970 to 3000.
+        // _mkgmtime64 rolls days past the end of the month into the next month (2023-02-29 becomes 2023-03-01), so reject those.
+        int year = parsed.tm_year + 1900;
+        tm normalized = parsed;
+        __time64_t epochTime = _mkgmtime64(&normalized);
+        if (year < 1970 || year > 3000 || normalized.tm_mday != parsed.tm_mday)
+        {
+            return std::nullopt;
+        }
+
+        return std::chrono::system_clock::from_time_t(epochTime);
+    }
 }

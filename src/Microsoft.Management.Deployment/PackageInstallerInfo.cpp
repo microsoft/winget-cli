@@ -5,6 +5,7 @@
 #include "PackageInstallerInfo.g.cpp"
 #include "AuthenticationInfo.h"
 #include "Converters.h"
+#include <AppInstallerDateTime.h>
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -48,5 +49,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 m_authenticationInfo = *authenticationInfo;
             });
         return m_authenticationInfo;
+    }
+    winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime> PackageInstallerInfo::ReleaseDate()
+    {
+        const auto releaseDate = ::AppInstaller::Utility::TryGetTimePointFromDate(m_manifestInstaller.ReleaseDate);
+        if (!releaseDate)
+        {
+            return nullptr;
+        }
+
+        return winrt::clock::from_sys(releaseDate.value());
     }
 }
