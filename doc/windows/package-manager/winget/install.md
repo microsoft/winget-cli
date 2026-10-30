@@ -51,7 +51,7 @@ The options allow you to customize the install experience to meet your needs.
 | **--force** | Override the installer hash check. |
 | **-a, --architecture** | Select the architecture |
 | **--installer-type** | Select the installer type |
-| **--locale** | Locale to use (BCP47 format) |
+| **--locale** | Locale to use (BCP 47 format, such as `en-US` or the language-only tag `en`) |
 | **--custom** | Arguments to be passed on to the installer in addition to the defaults |
 | **--ignore-security-hash** | Ignore the installer hash check failure |
 | **--skip-dependencies** | Skip processing package dependencies and Windows features |

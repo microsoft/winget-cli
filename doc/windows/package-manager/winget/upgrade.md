@@ -46,7 +46,7 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **--custom**                      | Arguments to be passed on to the installer in addition to the defaults.                                                     |
 | **--scope**                       | Select installed package scope filter (user or machine).                                                                    |
 | **-a, --architecture**            | Select the architecture to install.                                                                                         |
-| **--locale**                      | Locale to use (BCP47 format).                                                                                               |
+| **--locale**                      | Locale to use (BCP 47 format, such as `en-US` or the language-only tag `en`).                                             |
 | **--ignore-security-hash**        | Ignore the installer hash check failure.                                                                                    |
 | **--ignore-local-archive-malware-scan** | Ignore the malware scan performed as part of installing an archive-type package from a local manifest.                  |
 | **--accept-package-agreements**   | Accept all license agreements for packages.                                                                                 |

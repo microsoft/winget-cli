@@ -88,7 +88,7 @@ The `scope` behavior affects the choice between installing a package for the cur
 
 #### Locale
 
-The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses bcp47 language tag.
+The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses a BCP 47 language tag. Both regional tags such as `en-US` and language-only tags such as `en` are supported. A language-only preference can match an available regional installer locale for the user's language.
 
 ```json
     "installBehavior": {
