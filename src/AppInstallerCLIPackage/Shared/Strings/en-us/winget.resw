@@ -1429,6 +1429,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) are pinned and need to be explicitly upgraded.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
+  <data name="UpgradeNotApplicableCount" xml:space="preserve">
+    <value>{0} package(s) were skipped because an available upgrade does not apply to the selected scope or other requirements.</value>
+    <comment>{Locked="{0}"} {0} is the number of packages skipped for this reason during winget upgrade --all.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>

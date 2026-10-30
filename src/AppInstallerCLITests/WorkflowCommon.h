@@ -33,6 +33,7 @@ namespace TestCommon
         const extern TestSourceResult TestQuery_ReturnOne;
         const extern TestSourceResult TestQuery_ReturnTwo;
         const extern TestSourceResult TestInstaller_Exe;
+        const extern TestSourceResult TestInstaller_Exe_NotApplicable;
         const extern TestSourceResult TestInstaller_Exe_Dependencies;
         const extern TestSourceResult TestInstaller_Exe_DifferentInstallerType;
         const extern TestSourceResult TestInstaller_Exe_ExpectedReturnCodes;
