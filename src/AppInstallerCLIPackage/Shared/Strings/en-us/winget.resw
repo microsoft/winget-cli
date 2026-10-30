@@ -1618,8 +1618,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Archive scan detected malware. To override this check use --ignore-local-archive-malware-scan</value>
     <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
-  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
-    <value>Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan</value>
+  <data name="ArchiveMalwareScanSkipped" xml:space="preserve">
+    <value>Archive malware scan skipped due to --ignore-local-archive-malware-scan</value>
     <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">

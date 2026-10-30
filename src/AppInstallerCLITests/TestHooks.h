@@ -82,6 +82,7 @@ namespace AppInstaller
     namespace Archive
     {
         void TestHook_SetScanArchiveResult_Override(bool* status);
+        void TestHook_SetScanArchiveCalled_Override(bool* status);
     }
 
     namespace CLI::Execution
@@ -164,6 +165,27 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    struct SetScanArchiveCalled_Override
+    {
+        SetScanArchiveCalled_Override()
+        {
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(&m_status);
+        }
+
+        ~SetScanArchiveCalled_Override()
+        {
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(nullptr);
+        }
+
+        bool WasCalled() const
+        {
+            return m_status;
+        }
+
+    private:
+        bool m_status = false;
     };
 
     // Makes every source package validate as trusted, so that the pre-indexed stores can be driven
