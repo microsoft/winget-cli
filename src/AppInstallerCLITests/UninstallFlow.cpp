@@ -153,6 +153,23 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     REQUIRE(uninstallResultStr.find("microsoft.skypeapp_kzf8qxf38zg5c") != std::string::npos);
 }
 
+TEST_CASE("UninstallFlow_UninstallMsixMissingRegisteredPackage", "[UninstallFlow][workflow]")
+{
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Add<Execution::Data::PackageFamilyNames>(
+        std::vector<AppInstaller::Utility::LocIndString>{
+            AppInstaller::Utility::LocIndString{ std::string_view{ "AppInstallerCliTest.MissingPackage_8wekyb3d8bbwe" } } });
+
+    MsixUninstall(context);
+    INFO(uninstallOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
+    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::UninstallFlowUninstallSuccess).get()) == std::string::npos);
+}
+
 TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
 {
     TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
