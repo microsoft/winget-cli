@@ -218,6 +218,7 @@ namespace
         return targetFileHash;
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     Hash::HashBuffer Hash::ComputeHashFromHandle(HashAlgorithm algorithm, HANDLE fileHandle)
     {
         constexpr DWORD bufferSize = 1024 * 1024;
@@ -238,6 +239,7 @@ namespace
 
         return hasher.Get();
     }
+#endif
 
     bool Hash::AreEqual(const HashBuffer& first, const HashBuffer& second)
     {

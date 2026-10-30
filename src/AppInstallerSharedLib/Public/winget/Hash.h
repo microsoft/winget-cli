@@ -86,9 +86,11 @@ namespace AppInstaller::Cryptography {
         // Computes the hash from a given file path.
         static HashBuffer ComputeHashFromFile(HashAlgorithm algorithm, const std::filesystem::path& path);
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
         // Computes the hash from an open file HANDLE by reading sequentially from the current position.
         // The caller retains ownership of the handle.
         static HashBuffer ComputeHashFromHandle(HashAlgorithm algorithm, HANDLE fileHandle);
+#endif
 
         static std::string ConvertToString(const HashBuffer& hashBuffer, size_t hashBufferSizeInBytes);
 
@@ -156,10 +158,12 @@ namespace AppInstaller::Cryptography {
             return Hash::ComputeHashFromFile(Algorithm, path);
         }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
         static HashBuffer ComputeHashFromHandle(HANDLE fileHandle)
         {
             return Hash::ComputeHashFromHandle(Algorithm, fileHandle);
         }
+#endif
 
         static std::string ConvertToString(const HashBuffer& hashBuffer)
         {
