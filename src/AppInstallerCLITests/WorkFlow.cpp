@@ -45,7 +45,8 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     std::ostringstream updateMotwOutput;
     TestContext context{ updateMotwOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Add<Data::DownloadHashInfo>({ {}, {} });
+    auto installerHash = SHA256::ComputeHashFromFile(testInstallerPath);
+    context.Add<Data::DownloadHashInfo>({ installerHash, DownloadResult{ installerHash } });
     context.Add<Data::InstallerPath>(testInstallerPath);
     auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
     auto testSource = std::make_shared<TestSource>();
@@ -67,6 +68,55 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());
+}
+
+TEST_CASE("VerifyInstallerHash_RejectsMissingOrMismatchedHash", "[DownloadInstaller][workflow]")
+{
+    auto expectedHash = SHA256::ComputeHash("test"sv);
+    DownloadResult downloadResult{ expectedHash };
+    downloadResult.SizeInBytes = 4;
+
+    SECTION("Missing expected hash")
+    {
+        expectedHash.clear();
+    }
+    SECTION("Truncated expected hash")
+    {
+        expectedHash.pop_back();
+    }
+    SECTION("Overlong expected hash")
+    {
+        expectedHash.push_back(0);
+    }
+    SECTION("Mismatched hash")
+    {
+        expectedHash[0] ^= 0xFF;
+    }
+    SECTION("Missing downloaded hash")
+    {
+        downloadResult.Sha256Hash.clear();
+    }
+    SECTION("Truncated downloaded hash")
+    {
+        downloadResult.Sha256Hash.pop_back();
+    }
+    SECTION("Both hashes missing")
+    {
+        expectedHash.clear();
+        downloadResult.Sha256Hash.clear();
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Add<Data::Manifest>(Manifest{});
+    context.Add<Data::DownloadHashInfo>({ expectedHash, downloadResult });
+
+    context << VerifyInstallerHash;
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+    REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerHashMatched));
+    REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
 }
 
 TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")

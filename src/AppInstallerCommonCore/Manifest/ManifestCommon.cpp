@@ -964,6 +964,11 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Exe;
     }
 
+    bool DoesInstallerTypeRequireHash(InstallerTypeEnum installerType)
+    {
+        return installerType != InstallerTypeEnum::MSStore;
+    }
+
     bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType)
     {
         return

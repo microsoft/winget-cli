@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include <AppInstallerSHA256.h>
 #include <winget/ManifestCommon.h>
 #include <ExecutionContext.h>
 #include <Workflows/WorkflowBase.h>
@@ -115,6 +116,8 @@ namespace TestCommon
     void OverrideForUpdateInstallerMotw(TestContext& context);
 
     void OverrideForCheckExistingInstaller(TestContext& context);
+
+    const AppInstaller::Utility::SHA256::HashBuffer& GetTestExeInstallerHash();
 
     void OverrideForShellExecute(TestContext& context, int expectedUseCount = -1);
 

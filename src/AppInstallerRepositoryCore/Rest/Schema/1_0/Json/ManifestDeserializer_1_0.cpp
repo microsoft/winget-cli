@@ -324,12 +324,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         installer.Url = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerUrl)).value_or("");
 
-        std::optional<std::string> sha256 = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerSha256));
-        if (JSON::IsValidNonEmptyStringValue(sha256))
-        {
-            installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
-        }
-
         std::optional<std::string> arch = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(Architecture));
         if (!JSON::IsValidNonEmptyStringValue(arch))
         {
@@ -345,6 +339,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             return {};
         }
         installer.BaseInstallerType = ConvertToInstallerType(installerType.value());
+
+        std::optional<std::string> sha256 = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerSha256));
+        if (JSON::IsValidNonEmptyStringValue(sha256))
+        {
+            installer.Sha256 = Utility::SHA256::ConvertToBytes(sha256.value());
+        }
+        else if (DoesInstallerTypeRequireHash(installer.BaseInstallerType))
+        {
+            AICLI_LOG(Repo, Error, << "Missing installer SHA256.");
+            return {};
+        }
+
         installer.Locale = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
