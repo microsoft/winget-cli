@@ -295,6 +295,7 @@ jsoncpp
 JToken
 JValue
 Kaido
+Klys
 KNOWNFOLDERID
 kool
 ktf
@@ -477,6 +478,7 @@ PRODUCTICON
 propkey
 PROPVARIANT
 proxystub
+Przemyslaw
 psapi
 pscustomobject
 PSECURITY
