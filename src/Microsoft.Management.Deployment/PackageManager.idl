@@ -936,6 +936,17 @@ namespace Microsoft.Management.Deployment
         HRESULT ExtendedErrorCode { get; };
     };
 
+    /// Information that a package catalog receives implicitly as part of its use, beyond its explicit
+    /// SourceAgreements. Callers presenting agreements to the user should also disclose these.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 31)]
+    [flags]
+    enum ImplicitAgreementFields
+    {
+        None = 0x0,
+        /// The package catalog receives the market (country or region) of the user.
+        Market = 0x1,
+    };
+
     /// A reference to a catalog that callers can try to Connect.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogReference
@@ -1010,6 +1021,30 @@ namespace Microsoft.Management.Deployment
             /// Returns false if setting the handler would be blocked by policy (e.g., the
             /// BypassCertificatePinningForMicrosoftStore group policy is disabled for the MicrosoftStore catalog).
             Boolean IsConnectionValidationHandlerEnabled { get; };
+        }
+
+        /// The members in this block are not available on a composite package catalog reference and produce an
+        /// illegal state change error if used on one; use them on each non-composite PackageCatalogReference in
+        /// the composite instead. They may need to retrieve information from the package catalog's server, and
+        /// so can fail if it cannot be reached.
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 31)]
+        {
+            /// Gets a value indicating whether the user has previously accepted the current agreements of this
+            /// package catalog, as recorded by SaveAcceptedSourceAgreements. Adding a package catalog also records
+            /// acceptance of its agreements at that time.
+            /// Returns true when the package catalog has neither SourceAgreements nor ImplicitAgreementFields.
+            /// Returns false when the package catalog has only ImplicitAgreementFields and they have not
+            /// been accepted, so that the caller can disclose them.
+            Boolean SourceAgreementsSatisfied { get; };
+
+            /// Gets the information that the package catalog receives implicitly as part of its use.
+            ImplicitAgreementFields ImplicitAgreementFields { get; };
+
+            /// Records that the user has accepted the current SourceAgreements and ImplicitAgreementFields of this
+            /// package catalog, so that SourceAgreementsSatisfied returns true until they change.
+            /// Callers must only call this after the user has accepted the agreements.
+            /// This does not change AcceptSourceAgreements.
+            void SaveAcceptedSourceAgreements();
         }
     }
 

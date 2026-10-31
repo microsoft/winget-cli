@@ -43,6 +43,8 @@
   <PropertyGroup>
     <CsWinRTIncludes>
       Microsoft.Management.Deployment;
+      Windows.ApplicationModel.Resources.ResourceLoade;
+      Windows.ApplicationModel.Resources.IResourceLoade;
       Windows.Data.Text.TextSegmen;
       Windows.Devices.Geolocation;
       Windows.Foundation;
@@ -59,6 +61,8 @@
       Windows.System.ProcessorArchitectur;
       Windows.System.Use;
       Windows.System.IUse;
+      Windows.UI.UIContex;
+      Windows.UI.IUIContex;
     </CsWinRTIncludes>
     <CsWinRTExcludes>
       Windows.Foundation.PropertyType;
