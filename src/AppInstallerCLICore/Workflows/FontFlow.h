@@ -17,6 +17,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void FontInstallImpl(Execution::Context& context);
 
+    // Repairs the installed font package's files and registrations.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: OperationReturnCode
+    void FontRepairImpl(Execution::Context& context);
+
     // Uninstalls the font package.
     // Required Args: None
     // Inputs: Manifest, Scope, Rename, Location
