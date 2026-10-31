@@ -65,6 +65,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Force),
             Argument{ Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::PinNote, Resource::String::PinNoteArgumentDescription, ArgumentType::Standard },
         };
     }
 
@@ -343,4 +344,5 @@ namespace AppInstaller::CLI
                 Workflow::ReportPins;
         }
     }
+
 }

@@ -369,15 +369,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             // First attempt to update the row and then insert it if no modification occurred.
             Builder::StatementBuilder updateBuilder;
             updateBuilder.Update(s_PUTT_Table_Name).Set().
-                Column(s_PUTT_WriteTime).Equals(currentTime).
-                Column(s_PUTT_Manifest).Equals(compressedManifest).
-                Column(s_PUTT_Hash).Equals(manifestHash);
+                Column(s_PUTT_WriteTime).AssignValue(currentTime).
+                Column(s_PUTT_Manifest).AssignValue(compressedManifest).
+                Column(s_PUTT_Hash).AssignValue(manifestHash);
 
             if (removals == RemovalBehavior::Record)
             {
                 // Clear the flag in case this package was previously removed and is now being re-added.
-                updateBuilder.Column(s_PUTT_IsRemoved).Equals(0);
-                updateBuilder.Column(s_PUTT_ChangeSequence).Equals(changeSequence);
+                updateBuilder.Column(s_PUTT_IsRemoved).AssignValue(0);
+                updateBuilder.Column(s_PUTT_ChangeSequence).AssignValue(changeSequence);
             }
 
             updateBuilder.Where(s_PUTT_Package).LikeWithEscape(packageIdentifier);
