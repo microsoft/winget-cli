@@ -259,11 +259,10 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    // TODO: Optimize by applying the difference between expected and desired state.
-    void PortableInstaller::ApplyDesiredState()
+    void PortableInstaller::RemoveExpectedState()
     {
         std::filesystem::path existingIndexPath = InstallLocation / GetPortableIndexFileName();
-        if (std::filesystem::exists(existingIndexPath))
+        if (UsesExistingInstallData() && !InstallLocation.empty() && std::filesystem::exists(existingIndexPath))
         {
             bool deleteIndex = false;
             {
@@ -297,7 +296,7 @@ namespace AppInstaller::CLI::Portable
 
             if (deleteIndex)
             {
-                std::filesystem::remove(existingIndexPath);
+                SQLiteStorageBase::DeleteSQLiteDatabase(existingIndexPath);
                 AICLI_LOG(CLI, Info, << "Portable index deleted: " << existingIndexPath);
             }
         }
@@ -324,16 +323,34 @@ namespace AppInstaller::CLI::Portable
             }
         }
 
-        // Check if existing install location differs from the target install location for proper cleanup.
-        if (!TargetInstallLocation.empty() && TargetInstallLocation != InstallLocation)
+        if (!UsesExistingInstallData())
         {
-            RemoveInstallDirectory();
+            SQLiteStorageBase::DeleteSQLiteDatabase(TargetInstallLocation / GetPortableIndexFileName());
+        }
+    }
+
+    // TODO: Optimize by applying the difference between expected and desired state.
+    void PortableInstaller::ApplyDesiredState()
+    {
+        if (!UsesExistingInstallData())
+        {
+            // Replace the selected index slot without opening any preexisting database or journal.
+            SQLiteStorageBase::DeleteSQLiteDatabase(TargetInstallLocation / GetPortableIndexFileName());
+        }
+        else
+        {
+            RemoveExpectedState();
+
+            if (TargetInstallLocation != InstallLocation)
+            {
+                RemoveInstallDirectory();
+            }
         }
 
         if (RecordToIndex)
         {
             std::filesystem::path targetIndexPath = TargetInstallLocation / GetPortableIndexFileName();
-            PortableIndex targetIndex = std::filesystem::exists(targetIndexPath) ?
+            PortableIndex targetIndex = UsesExistingInstallData() && std::filesystem::exists(targetIndexPath) ?
                 PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
                 PortableIndex::CreateNew(targetIndexPath.u8string());
 
@@ -366,18 +383,23 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    void PortableInstaller::Install(Workflow::OperationType operation)
+    void PortableInstaller::Install()
     {
+        THROW_HR_IF(E_UNEXPECTED, !SupportsInstall());
+
         // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
         // leaves the system in a state where an uninstall may be possible
-        if (operation == Workflow::OperationType::Install)
+        if (!UsesExistingInstallData())
         {
             RegisterARPEntry();
         }
 
-        CreateTargetInstallDirectory();
+        const bool targetInstallDirectoryCreated = CreateTargetInstallDirectory();
 
         ApplyDesiredState();
+
+        InstallLocation = TargetInstallLocation;
+        InstallDirectoryCreated = targetInstallDirectoryCreated;
 
         if (!InstallDirectoryAddedToPath)
         {
@@ -386,7 +408,7 @@ namespace AppInstaller::CLI::Portable
 
         // If the operation is an upgrade, the ARP entry should be created last so that a catastrophic failure
         // leaves the system in a state where an upgrade can be re-attempted
-        if (operation == Workflow::OperationType::Upgrade)
+        if (UsesExistingInstallData())
         {
             RegisterARPEntry();
         }
@@ -394,7 +416,9 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::Uninstall()
     {
-        ApplyDesiredState();
+        THROW_HR_IF(E_UNEXPECTED, !SupportsUninstall() || (!UsesExistingInstallData() && TargetInstallLocation.empty()));
+
+        RemoveExpectedState();
 
         RemoveInstallDirectory();
 
@@ -412,15 +436,25 @@ namespace AppInstaller::CLI::Portable
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
     }
 
-    void PortableInstaller::CreateTargetInstallDirectory()
+    bool PortableInstaller::CreateTargetInstallDirectory()
     {
-        if (std::filesystem::create_directories(TargetInstallLocation))
+        const bool created = std::filesystem::create_directories(TargetInstallLocation);
+        if (created)
         {
             AICLI_LOG(Core, Info, << "Created target install directory: " << TargetInstallLocation);
-            CommitToARPEntry(PortableValueName::InstallDirectoryCreated, true);
         }
 
+        const bool targetInstallDirectoryCreated = created || (TargetInstallLocation == InstallLocation && InstallDirectoryCreated);
+        if (!UsesExistingInstallData())
+        {
+            InstallLocation = TargetInstallLocation;
+            InstallDirectoryCreated = targetInstallDirectoryCreated;
+        }
+
+        CommitToARPEntry(PortableValueName::InstallDirectoryCreated, targetInstallDirectoryCreated);
         CommitToARPEntry(PortableValueName::InstallLocation, TargetInstallLocation);
+
+        return targetInstallDirectoryCreated;
     }
 
     void PortableInstaller::RemoveInstallDirectory()
@@ -533,7 +567,7 @@ namespace AppInstaller::CLI::Portable
     {
         const auto& indexPath = InstallLocation / GetPortableIndexFileName();
 
-        if (std::filesystem::exists(indexPath))
+        if (!InstallLocation.empty() && std::filesystem::exists(indexPath))
         {
             PortableIndex portableIndex = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
             m_expectedEntries = portableIndex.GetAllPortableFiles();
@@ -576,9 +610,17 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    PortableInstaller::PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode) :
+    PortableInstaller::PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode, Workflow::OperationType operation) :
+        m_operation(operation),
         m_portableARPEntry(PortableARPEntry(scope, arch, productCode))
     {
+        THROW_HR_IF(E_INVALIDARG, !SupportsInstall() && !SupportsUninstall());
+
+        if (!UsesExistingInstallData())
+        {
+            return;
+        }
+
         if (ARPEntryExists())
         {
             DisplayName = GetStringValue(PortableValueName::DisplayName);
@@ -604,6 +646,12 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::RegisterARPEntry()
     {
+        if (!UsesExistingInstallData())
+        {
+            // Stale registration values must not become installed state for a later operation.
+            Registry::Key::DeleteTree(m_portableARPEntry.GetKey(), {});
+        }
+
         CommitToARPEntry(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
         CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
         CommitToARPEntry(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());

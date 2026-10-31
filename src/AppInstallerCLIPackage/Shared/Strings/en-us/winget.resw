@@ -2915,11 +2915,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="RepairOperationNotSupported" xml:space="preserve">
     <value>The installer technology in use does not support repair.</value>
   </data>
-  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
-    <value>The package installed for user scope cannot be repaired when running with administrator privileges.</value>
+  <data name="AdminContextActionProhibited" xml:space="preserve">
+    <value>This operation is not permitted from an elevated process because it uses data writable without administrator privileges. Try again from a non-administrator context.</value>
+    <comment>An operation was blocked because the process is running with the elevated half of a split UAC token and would act on user-writable data. Ask the caller to retry without elevation; this does not require changing accounts.</comment>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED" xml:space="preserve">
-    <value>The requested operation is not permitted from an administrator context on packages installed within the user scope.</value>
+    <value>This operation is not permitted from an elevated process because it uses data writable without administrator privileges. Try again from a non-administrator context.</value>
+    <comment>An operation was blocked because the process is running with the elevated half of a split UAC token and would act on user-writable data. Ask the caller to retry without elevation; this does not require changing accounts.</comment>
   </data>
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Repair failed with exit code: {0}</value>
@@ -3680,8 +3682,5 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
     <value>The DSC processor path no longer refers to the file that was verified.</value>
     <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
-  </data>
-  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
-    <value>The package installed for user scope cannot be uninstalled when running with administrator privileges.</value>
   </data>
 </root>

@@ -340,6 +340,7 @@
     <ClCompile Include="TestCertificates.cpp" />
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="TestMsixPackage.cpp" />
+    <ClCompile Include="WorkflowBase.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="Yaml.cpp" />

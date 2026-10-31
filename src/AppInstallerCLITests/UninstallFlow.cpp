@@ -5,6 +5,7 @@
 #include "WorkflowCommon.h"
 #include <Commands/UninstallCommand.h>
 #include <winget/ManifestYamlParser.h>
+#include <Workflows/FontFlow.h>
 #include <Workflows/PortableFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/UninstallFlow.h>
@@ -232,6 +233,9 @@ TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][wo
 
 TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][workflow]")
 {
+    const auto installedType = GENERATE("Burn", "Msi", "Wix", "Portable", "Font");
+    CAPTURE(installedType);
+
     // Simulate running with an elevated (non-default full) token.
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
 
@@ -239,12 +243,11 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
 
-    // Create a test source with a Burn installer installed at user scope.
-    // AdminExecutionShouldBlockUserScopePackages returns true for Burn/Exe/Inno/Nullsoft/Portable.
+    // Create a test source with a package installed at user scope.
     auto testSource = CreateTestSource({
         TestSourceResult(
             "AppInstallerCliTest.TestBurnInstallerUserScope"sv,
-            [](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source) {
+            [installedType](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source) {
                 auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 matches.emplace_back(
                     AppInstaller::Repository::ResultMatch(
@@ -252,7 +255,7 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
                             manifest,
                             TestCompositePackage::MetadataMap
                             {
-                                { AppInstaller::Repository::PackageVersionMetadata::InstalledType, "Burn" },
+                                { AppInstaller::Repository::PackageVersionMetadata::InstalledType, installedType },
                                 { AppInstaller::Repository::PackageVersionMetadata::InstalledScope, "User" },
                             },
                             std::vector<AppInstaller::Manifest::Manifest>{ manifest },
@@ -270,4 +273,39 @@ TEST_CASE("UninstallFlow_AdminContextWithUserScopeInstall", "[UninstallFlow][wor
     INFO(uninstallOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+}
+
+TEST_CASE("FontUninstallFlow_AdminContextRejectsUserScopeOverrides", "[UninstallFlow][workflow]")
+{
+    using namespace AppInstaller::Repository;
+
+    const bool prepare = GENERATE(false, true);
+    const auto scopeSource = GENERATE("installed", "user-argument", "machine-argument");
+    CAPTURE(prepare, scopeSource);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::InstalledPackageVersion>(TestPackageVersion::Make(
+        AppInstaller::Manifest::Manifest{},
+        TestPackageVersion::MetadataMap{
+            { PackageVersionMetadata::InstalledType, "Font" },
+            { PackageVersionMetadata::InstalledScope, !prepare && std::string_view{ scopeSource } == "user-argument" ? "Machine" : "User" },
+        }));
+    if (std::string_view{ scopeSource } != "installed")
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, std::string_view{ scopeSource } == "machine-argument" ? "machine"sv : "user"sv);
+    }
+
+    if (prepare)
+    {
+        context << GetUninstallInfo;
+    }
+    else
+    {
+        context << FontUninstallImpl;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
 }

@@ -23,6 +23,30 @@ namespace AppInstaller::CLI::Workflow
     {
         constexpr std::string_view s_DefaultSource = "*DefaultSource"sv;
 
+        ScopeEnum GetPortableInstallScope(Execution::Context& context)
+        {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) &&
+                context.Contains(Execution::Data::InstalledPackageVersion))
+            {
+                const auto& installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+                if (installedVersion)
+                {
+                    auto metadata = installedVersion->GetMetadata();
+                    auto scope = metadata.find(PackageVersionMetadata::InstalledScope);
+                    return scope != metadata.end() ? ConvertToScopeEnum(scope->second) : ScopeEnum::Unknown;
+                }
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::InstallScope))
+            {
+                return ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            }
+
+            const auto requiredScope = Settings::User().Get<Settings::Setting::InstallScopeRequirement>();
+            return requiredScope != ScopeEnum::Unknown ?
+                requiredScope : Settings::User().Get<Settings::Setting::InstallScopePreference>();
+        }
+
         std::string GetPortableProductCode(Execution::Context& context)
         {
             const std::string& packageId = context.Get<Execution::Data::Manifest>().Id;
@@ -61,7 +85,7 @@ namespace AppInstaller::CLI::Workflow
 
         void EnsureVolumeSupportsReparsePoints(Execution::Context& context)
         {
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            Manifest::ScopeEnum scope = GetPortableInstallScope(context);
             const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(scope);
 
             if (!AppInstaller::Filesystem::SupportsReparsePoints(symlinkDirectory))
@@ -97,7 +121,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
-        if (portableInstaller.ARPEntryExists())
+        if (portableInstaller.UsesExistingInstallData() && portableInstaller.ARPEntryExists())
         {
             if (packageIdentifier != portableInstaller.WinGetPackageIdentifier || sourceIdentifier != portableInstaller.WinGetSourceIdentifier)
             {
@@ -121,43 +145,18 @@ namespace AppInstaller::CLI::Workflow
 
     void InitializePortableInstaller(Execution::Context& context)
     {
-        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
-        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-        std::shared_ptr<Repository::IPackageVersion> installedVersion;
-        if (context.Contains(Execution::Data::InstalledPackageVersion))
+        const bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        const auto scope = GetPortableInstallScope(context);
+        if (isUpdate && scope != ScopeEnum::Machine)
         {
-            installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        }
-        if (isUpdate && installedVersion)
-        {
-            IPackageVersion::Metadata installationMetadata = installedVersion->GetMetadata();
-            auto installerScopeItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledScope);
-            if (installerScopeItr != installationMetadata.end())
-            {
-                scope = Manifest::ConvertToScopeEnum(installerScopeItr->second);
-            }
-        }
-        else
-        {
-            if (context.Args.Contains(Execution::Args::Type::InstallScope))
-            {
-                scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            }
-            else
-            {
-                Manifest::ScopeEnum requiredScope = Settings::User().Get<Settings::Setting::InstallScopeRequirement>();
-                Manifest::ScopeEnum preferredScope = Settings::User().Get<Settings::Setting::InstallScopePreference>();
-
-                scope = requiredScope != Manifest::ScopeEnum::Unknown ? requiredScope : preferredScope;
-            }
+            AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
         }
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         Utility::Architecture arch = installer.Arch;
         const std::string& productCode = GetPortableProductCode(context);
 
-        PortableInstaller portableInstaller = PortableInstaller(scope, arch, productCode);
-        portableInstaller.IsUpdate = isUpdate;
+        PortableInstaller portableInstaller = PortableInstaller(scope, arch, productCode, isUpdate ? OperationType::Upgrade : OperationType::Install);
 
         if (IsArchiveType(installer.BaseInstallerType) && installer.ArchiveBinariesDependOnPath)
         {
@@ -302,8 +301,6 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableInstallImpl(Execution::Context& context)
     {
-        OperationType installType = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) ? OperationType::Upgrade : OperationType::Install;
-        
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
         try
         {
@@ -327,7 +324,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            portableInstaller.Install(installType);
+            portableInstaller.Install();
             context.Add<Execution::Data::CorrelatedAppsAndFeaturesEntries>({ portableInstaller.GetAppsAndFeaturesEntry() });
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
             context.Reporter.Warn() << portableInstaller.GetOutputMessage();
@@ -336,11 +333,11 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
 
-            if (!portableInstaller.IsUpdate)
+            if (!portableInstaller.UsesExistingInstallData())
             {
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
                 portableInstaller.PrepareForCleanUp();
-;               portableInstaller.Uninstall();
+                portableInstaller.Uninstall();
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
             }
         }
@@ -368,7 +365,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             portableInstaller.Purge = context.Args.Contains(Execution::Args::Type::Purge) ||
-                (!portableInstaller.IsUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve));
+                (!portableInstaller.IsUpdate() && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve));
 
             portableInstaller.Uninstall();
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
@@ -386,6 +383,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (installerType == InstallerTypeEnum::Portable)
         {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) &&
+                GetPortableInstallScope(context) != ScopeEnum::Machine)
+            {
+                AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
+            }
+
             context <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;

@@ -341,6 +341,15 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
+                if (itr->second.InstalledPackageVersion)
+                {
+                    dependencyContext.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+                }
+                else
+                {
+                    dependencyContext.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+                }
+
                 if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
                 {
                     dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / L"Dependencies");
