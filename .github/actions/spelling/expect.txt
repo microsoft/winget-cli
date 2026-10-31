@@ -124,6 +124,7 @@ CTL
 ctwgcy
 currentuser
 dacl
+dakehero
 datetimeoffset
 Dbg
 Dcom
@@ -139,6 +140,7 @@ deliveryoptimization
 deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
+desktopicon
 devblogs
 devhome
 DFX
@@ -153,6 +155,7 @@ Dns
 Dobbeleer
 Downcasting
 DONOT
+Doubao
 dsc
 dupenv
 dustojnikhummer
@@ -340,6 +343,7 @@ Madhusudhan
 MAJORVERSION
 malware
 mapdatafolding
+MERGETASKS
 Maxed
 MAXLENGTH
 maxvalue
@@ -393,6 +397,7 @@ nlohmann
 NNS
 NOAGGREGATION
 NOCLOSE
+NODESKLINK
 NOCRLF
 NOEXPAND
 NOLINKINFO
@@ -552,6 +557,7 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+setupcmdline
 sev
 sfs
 sfsclient
@@ -656,6 +662,7 @@ UParse
 upgradable
 upgradeable
 upgradecode
+upvotes
 URLZONE
 USEDEFAULT
 userfilesetting
