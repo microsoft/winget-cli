@@ -540,6 +540,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     OverrideForMSStore(context, true);
     OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -554,6 +555,22 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicable", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_NotApplicable }));
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeNotApplicableCount(1)) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")

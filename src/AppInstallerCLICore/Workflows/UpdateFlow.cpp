@@ -217,6 +217,7 @@ namespace AppInstaller::CLI::Workflow
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
         int packagesSkippedInstallTechnologyMismatch = 0;
+        int packagesSkippedNotApplicable = 0;
 
         for (const auto& match : matches)
         {
@@ -253,6 +254,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
+                ++packagesSkippedNotApplicable;
                 continue;
             }
 
@@ -313,6 +315,12 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << packagesSkippedInstallTechnologyMismatch << " package(s) skipped due to install technology mismatch");
             context.Reporter.Info() << Resource::String::UpgradeInstallTechnologyMismatchCount(packagesSkippedInstallTechnologyMismatch) << std::endl;
+        }
+
+        if (packagesSkippedNotApplicable > 0)
+        {
+            AICLI_LOG(CLI, Info, << packagesSkippedNotApplicable << " package(s) skipped because the available upgrade was not applicable");
+            context.Reporter.Info() << Resource::String::UpgradeNotApplicableCount(packagesSkippedNotApplicable) << std::endl;
         }
     }
 
