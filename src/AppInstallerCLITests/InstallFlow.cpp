@@ -486,13 +486,15 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
     EnableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
+    TestHook::SetScanArchiveCalled_Override scanArchiveCalled;
 
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify override message is displayed to the user.
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScanOverridden).get()) != std::string::npos);
+    // Verify the scan is skipped and the user is notified.
+    REQUIRE_FALSE(scanArchiveCalled.WasCalled());
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveMalwareScanSkipped).get()) != std::string::npos);
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));

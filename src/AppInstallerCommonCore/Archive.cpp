@@ -51,16 +51,27 @@ namespace AppInstaller::Archive
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static bool* s_ScanArchiveResult_TestHook_Override = nullptr;
+    static bool* s_ScanArchiveCalled_TestHook_Override = nullptr;
 
     void TestHook_SetScanArchiveResult_Override(bool* status)
     {
         s_ScanArchiveResult_TestHook_Override = status;
+    }
+
+    void TestHook_SetScanArchiveCalled_Override(bool* status)
+    {
+        s_ScanArchiveCalled_TestHook_Override = status;
     }
 #endif
 
     bool ScanZipFile(const std::filesystem::path& zipPath)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_ScanArchiveCalled_TestHook_Override)
+        {
+            *s_ScanArchiveCalled_TestHook_Override = true;
+        }
+
         if (s_ScanArchiveResult_TestHook_Override)
         {
             return *s_ScanArchiveResult_TestHook_Override;
