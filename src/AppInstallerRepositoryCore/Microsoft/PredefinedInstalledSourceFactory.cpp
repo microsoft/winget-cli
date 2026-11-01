@@ -243,14 +243,19 @@ namespace AppInstaller::Repository::Microsoft
                 filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
             {
                 ARPHelper arpHelper;
-                if (filter != PredefinedInstalledSourceFactory::Filter::User)
+                auto scopeFilter = Manifest::ScopeEnum::Unknown;
+                if (filter == PredefinedInstalledSourceFactory::Filter::User)
                 {
-                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
+                    scopeFilter = Manifest::ScopeEnum::User;
                 }
-                if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
+                else if (filter == PredefinedInstalledSourceFactory::Filter::Machine)
                 {
-                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
+                    scopeFilter = Manifest::ScopeEnum::Machine;
                 }
+                // The ARP hive is not authoritative for MSI context. Scan both
+                // locations and filter by resolved context, including for --scope.
+                arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine, scopeFilter);
+                arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User, scopeFilter);
             }
 
             if (filter == PredefinedInstalledSourceFactory::Filter::None ||
