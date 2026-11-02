@@ -318,6 +318,7 @@ namespace AppInstaller::Settings
 
     protected:
         UserSettingsType m_type = UserSettingsType::Default;
+        UserSettingsType m_adminType = UserSettingsType::Default;
         std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 

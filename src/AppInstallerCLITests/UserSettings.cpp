@@ -498,6 +498,7 @@ TEST_CASE("UserSettingsFilePaths", "[settings]")
     auto settingsPath = UserSettings::SettingsFilePath();
     auto expectedPath = GetPathTo(PathName::UserFileSettings) / "settings.json";
     REQUIRE(settingsPath == expectedPath);
+    REQUIRE(UserSettings::AdminSettingsFilePath() == GetPathTo(Stream::PrimaryAdminSettingsFile));
 }
 
 TEST_CASE("UserSettingsType", "[settings]")

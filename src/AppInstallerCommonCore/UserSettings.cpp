@@ -830,6 +830,7 @@ namespace AppInstaller::Settings
         }
 
         m_type = sources.User.Type;
+        m_adminType = sources.Admin.Type;
         if (sources.Admin.Failed)
         {
             AICLI_LOG(Core, Warning, << "Protected settings could not be loaded. Ignoring file-backed settings and using default values.");
@@ -863,23 +864,18 @@ namespace AppInstaller::Settings
         {
             if (IsRunningAsAdminOrSystem())
             {
-                Stream primarySettings{ Stream::PrimaryAdminSettingsFile };
-                auto stream = primarySettings.Get();
-                if (!stream)
+                if (m_adminType == UserSettingsType::Standard)
                 {
-                    CreateAdminSettingsFile();
+                    auto stream = Stream{ Stream::PrimaryAdminSettingsFile }.Get();
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND), !stream);
+                    auto content = Utility::ReadEntireStream(*stream);
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_READ_FAULT), stream->fail());
+                    THROW_HR_IF(E_UNEXPECTED, !Stream{ Stream::BackupAdminSettingsFile }.Set(content));
+                    AICLI_LOG(Core, Info, << "Copied protected settings to backup file");
                 }
                 else
                 {
-                    auto content = Utility::ReadEntireStream(*stream);
-                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_READ_FAULT), stream->fail());
-                    std::vector<Warning> warnings;
-                    auto root = ParseSettingsContent(content, Stream::PrimaryAdminSettingsFile.Name, warnings);
-                    if (root && root->isObject())
-                    {
-                        THROW_HR_IF(E_UNEXPECTED, !Stream{ Stream::BackupAdminSettingsFile }.Set(content));
-                        AICLI_LOG(Core, Info, << "Copied protected settings to backup file");
-                    }
+                    CreateAdminSettingsFile();
                 }
             }
         }

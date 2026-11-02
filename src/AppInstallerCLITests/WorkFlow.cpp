@@ -4,11 +4,13 @@
 #include "WorkflowCommon.h"
 #include "TestSettings.h"
 #include <AppInstallerDownloader.h>
+#include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
 #include <Workflows/DownloadFlow.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/SettingsCommand.h>
 #include <Commands/ValidateCommand.h>
+#include <Workflows/SettingsFlow.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -162,6 +164,7 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
 
         auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
         REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+        REQUIRE(json["adminSettingsFile"].asString() == UserSettings::AdminSettingsFilePath().u8string());
     }
 
     {
@@ -185,5 +188,126 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
 
         auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
         REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+        REQUIRE(json["adminSettingsFile"].asString() == UserSettings::AdminSettingsFilePath().u8string());
     }
+}
+
+TEST_CASE("Settings_AdminFileArguments", "[Settings][workflow]")
+{
+    SettingsCommand command({});
+    Args args;
+    args.AddArg(Args::Type::AdminSettingsFile);
+    REQUIRE_NOTHROW(command.ValidateArguments(args));
+    args.AddArg(Args::Type::CreateAdminSettingsFile);
+    REQUIRE_NOTHROW(command.ValidateArguments(args));
+
+    SECTION("Enable is not a file operation")
+    {
+        args.AddArg(Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+        REQUIRE_THROWS(command.ValidateArguments(args));
+    }
+    SECTION("Disable is not a file operation")
+    {
+        args.AddArg(Args::Type::AdminSettingDisable, "LocalManifestFiles"sv);
+        REQUIRE_THROWS(command.ValidateArguments(args));
+    }
+    SECTION("Create requires admin target")
+    {
+        Args createOnly;
+        createOnly.AddArg(Args::Type::CreateAdminSettingsFile);
+        REQUIRE_THROWS(command.ValidateArguments(createOnly));
+    }
+    SECTION("Create does not open the editor")
+    {
+        std::ostringstream output;
+        TestContext context{ output, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.Args.AddArg(Args::Type::AdminSettingsFile);
+        context.Args.AddArg(Args::Type::CreateAdminSettingsFile);
+        context.Override({ EnsureRunningAsAdmin, [](TestContext&) {}, 1 });
+        context.Override({ CreateAdminSettingsFile, [](TestContext&) {}, 1 });
+        command.Execute(context);
+        REQUIRE_FALSE(context.IsTerminated());
+    }
+}
+
+TEST_CASE("Settings_WarningDisplay", "[Settings][workflow]")
+{
+    struct SettingsWithWarnings : TestUserSettings
+    {
+        SettingsWithWarnings() { m_warnings.clear(); }
+        using UserSettings::m_warnings;
+    } settings;
+    UserSettings::Warning field{ AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue, ".visual.progressBar", "invalid" };
+    field.Source = LocIndString{ "admin-settings.json" };
+    settings.m_warnings.push_back(field);
+    UserSettings::Warning migration{ AppInstaller::StringResource::String::SettingsWarningIgnoredWithFullToken, ".downloadBehavior.defaultDownloadDirectory" };
+    migration.Source = LocIndString{ "settings.json" };
+    migration.IsMigrationWarning = true;
+    settings.m_warnings.push_back(migration);
+
+    const auto warningType = GENERATE(SettingsWarningType::Migration, SettingsWarningType::NonMigration);
+    const bool migrationOnly = warningType == SettingsWarningType::Migration;
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context << ShowSettingsWarnings{ warningType };
+    const auto& expected = migrationOnly ? migration : field;
+    const auto& absent = migrationOnly ? field : migration;
+    REQUIRE(output.str().find(expected.Message(expected.Path, expected.Data, expected.Source).get()) != std::string::npos);
+    REQUIRE(output.str().find(absent.Path.get()) == std::string::npos);
+    REQUIRE(output.str().find("{0}") == std::string::npos);
+    REQUIRE(output.str().find("{1}") == std::string::npos);
+    REQUIRE(output.str().find("{2}") == std::string::npos);
+
+    SECTION("Shared command reporting does not duplicate migration warnings")
+    {
+        std::ostringstream commandOutput;
+        TestContext commandContext{ commandOutput, std::cin };
+        auto commandThreadGlobals = commandContext.SetForCurrentThread();
+        commandContext.Override({ OpenUserSetting, [](TestContext& ctx) { ctx << ShowSettingsWarnings{ SettingsWarningType::NonMigration }; }, 1 });
+        SettingsCommand command({});
+        ExecuteWithoutLoggingSuccess(commandContext, &command);
+        REQUIRE_FALSE(commandContext.IsTerminated());
+        const auto text = migration.Message(migration.Path, migration.Data, migration.Source);
+        const auto position = commandOutput.str().find(text.get());
+        REQUIRE(position != std::string::npos);
+        REQUIRE(commandOutput.str().find(text.get(), position + text.get().size()) == std::string::npos);
+        REQUIRE(commandOutput.str().find(field.Path.get()) != std::string::npos);
+    }
+
+    SECTION("Machine-readable export suppresses warnings")
+    {
+        std::ostringstream exportOutput;
+        TestContext exportContext{ exportOutput, std::cin };
+        auto exportThreadGlobals = exportContext.SetForCurrentThread();
+        SettingsExportCommand command({});
+        ExecuteWithoutLoggingSuccess(exportContext, &command);
+        REQUIRE_FALSE(exportContext.IsTerminated());
+        auto json = ConvertToJson(exportOutput.str());
+        REQUIRE(json["adminSettingsFile"].asString() == UserSettings::AdminSettingsFilePath().u8string());
+        REQUIRE(exportOutput.str().find(migration.Path.get()) == std::string::npos);
+    }
+}
+
+TEST_CASE("Settings_AdminFileMissingReadOnly", "[Settings][workflow]")
+{
+    if (AppInstaller::Runtime::IsRunningAsAdminOrSystem())
+    {
+        WARN("Test requires a non-administrator token. Skipped.");
+        return;
+    }
+
+    auto files = DeleteUserSettingsFiles();
+    TestUserSettings settings;
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Args::Type::AdminSettingsFile);
+    OpenUserSetting(context);
+
+    REQUIRE_TERMINATED_WITH(context, E_ACCESSDENIED);
+    REQUIRE(output.str().find(UserSettings::AdminSettingsFilePath().u8string()) != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(UserSettings::AdminSettingsFilePath()));
+    REQUIRE_FALSE(std::filesystem::exists(GetPathTo(Stream::BackupAdminSettingsFile)));
 }

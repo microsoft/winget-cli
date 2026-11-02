@@ -121,8 +121,9 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::ResetAllAdminSettingsSucceeded << std::endl;
     }
 
-    void ShowSettingsWarnings(Execution::Context& context, bool migrationOnly)
+    void ShowSettingsWarnings::operator()(Execution::Context& context) const
     {
+        const bool migrationOnly = m_type == SettingsWarningType::Migration;
         bool headerShown = false;
         for (const auto& warning : User().GetWarnings())
         {
@@ -145,7 +146,7 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenUserSetting(Execution::Context& context)
     {
-        ShowSettingsWarnings(context, false);
+        context << ShowSettingsWarnings{ SettingsWarningType::NonMigration };
         const bool admin = context.Args.Contains(Execution::Args::Type::AdminSettingsFile);
         const auto filePath = admin ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath();
         if (admin && !Runtime::IsRunningAsAdminOrSystem() && !std::filesystem::exists(filePath))

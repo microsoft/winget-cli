@@ -1078,7 +1078,7 @@ namespace AppInstaller::CLI
         {
             if (!WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
-                Workflow::ShowSettingsWarnings(context);
+                context << Workflow::ShowSettingsWarnings{ Workflow::SettingsWarningType::Migration };
                 if (std::any_of(Settings::User().GetWarnings().begin(), Settings::User().GetWarnings().end(),
                     [](const auto& warning) { return !warning.IsMigrationWarning; }))
                 {
