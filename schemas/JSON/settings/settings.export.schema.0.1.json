@@ -47,6 +47,11 @@
       "description": "Path for the winget's user settings file.",
       "type": "string",
       "maxLength": 32767
+    },
+    "AdminSettingsFile": {
+      "description": "Path for winget's protected per-user administrator settings file.",
+      "type": "string",
+      "maxLength": 32767
     }
   },
   "allOf": [
@@ -59,6 +64,12 @@
     {
       "properties": {
         "userSettingsFile": { "$ref": "#/definitions/UserSettingsFile" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "adminSettingsFile": { "$ref": "#/definitions/AdminSettingsFile" }
       },
       "additionalItems": true
     }

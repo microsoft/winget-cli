@@ -272,6 +272,7 @@ namespace AppInstaller::Settings
         // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
         struct Warning
         {
+            // Message placeholders are {0} = Path, {1} = Data, and {2} = Source.
             Warning(StringResource::StringId message) : Message(message) {}
             Warning(StringResource::StringId message, std::string_view settingPath) : Message(message), Path(settingPath) {}
             Warning(StringResource::StringId message, std::string_view settingPath, std::string_view settingValue, bool isField = true) :
@@ -288,6 +289,8 @@ namespace AppInstaller::Settings
         static UserSettings const& Instance(const std::optional<std::string>& content = std::nullopt);
 
         static std::filesystem::path SettingsFilePath(bool forDisplay = false);
+        static std::filesystem::path AdminSettingsFilePath();
+        static void CreateAdminSettingsFile();
 
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;
@@ -298,7 +301,7 @@ namespace AppInstaller::Settings
         UserSettingsType GetType() const { return m_type; }
         std::vector<Warning> const& GetWarnings() const { return m_warnings; }
 
-        void PrepareToShellExecuteFile() const;
+        void PrepareToShellExecuteFile(bool admin = false) const;
 
         // Gets setting value, if its not in the map it returns the default value.
         template <Setting S>

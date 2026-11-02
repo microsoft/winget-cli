@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Displays migration warnings, or non-migration warnings when requested.
+    void ShowSettingsWarnings(Execution::Context& context, bool migrationOnly = true);
+
+    // Creates the protected settings file without opening it or creating a backup.
+    void CreateAdminSettingsFile(Execution::Context& context);
+
     // Enables an admin setting.
     // Required Args: AdminSettingEnable
     // Inputs: None
@@ -35,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ResetAllAdminSettings(Execution::Context& context);
 
-    // Opens the user settings.
+    // Opens the ordinary or protected per-user settings file.
     // Required Args: None
     // Inputs: None
     // Outputs: None

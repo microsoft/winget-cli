@@ -846,28 +846,66 @@ namespace AppInstaller::Settings
         }
     }
 
-    void UserSettings::PrepareToShellExecuteFile() const
+    void UserSettings::CreateAdminSettingsFile()
     {
-        UserSettingsType userSettingType = GetType();
-
-        if (userSettingType == UserSettingsType::Default)
+        THROW_HR_IF(E_ACCESSDENIED, !IsRunningAsAdminOrSystem());
+        Stream primarySettings{ Stream::PrimaryAdminSettingsFile };
+        if (!std::filesystem::exists(primarySettings.GetPath()))
         {
-            Stream primarySettings{ Stream::PrimaryUserSettings };
+            THROW_HR_IF(E_UNEXPECTED, !primarySettings.Set(s_SettingEmpty));
+            AICLI_LOG(Core, Info, << "Created new protected settings file");
+        }
+    }
 
-            // Create settings file if it doesn't exist.
-            if (!std::filesystem::exists(primarySettings.GetPath()))
+    void UserSettings::PrepareToShellExecuteFile(bool admin) const
+    {
+        if (admin)
+        {
+            if (IsRunningAsAdminOrSystem())
             {
-                std::ignore = primarySettings.Set(s_SettingEmpty);
-                AICLI_LOG(Core, Info, << "Created new settings file");
+                Stream primarySettings{ Stream::PrimaryAdminSettingsFile };
+                auto stream = primarySettings.Get();
+                if (!stream)
+                {
+                    CreateAdminSettingsFile();
+                }
+                else
+                {
+                    auto content = Utility::ReadEntireStream(*stream);
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_READ_FAULT), stream->fail());
+                    std::vector<Warning> warnings;
+                    auto root = ParseSettingsContent(content, Stream::PrimaryAdminSettingsFile.Name, warnings);
+                    if (root && root->isObject())
+                    {
+                        THROW_HR_IF(E_UNEXPECTED, !Stream{ Stream::BackupAdminSettingsFile }.Set(content));
+                        AICLI_LOG(Core, Info, << "Copied protected settings to backup file");
+                    }
+                }
             }
         }
-        else if (userSettingType == UserSettingsType::Standard)
+        else
         {
-            // Settings file was loaded correctly, create backup.
-            auto from = SettingsFilePath();
-            auto to = Stream{ Stream::BackupUserSettings }.GetPath();
-            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-            AICLI_LOG(Core, Info, << "Copied settings to backup file");
+            UserSettingsType userSettingType = GetType();
+
+            if (userSettingType == UserSettingsType::Default)
+            {
+                Stream primarySettings{ Stream::PrimaryUserSettings };
+
+                // Create settings file if it doesn't exist.
+                if (!std::filesystem::exists(primarySettings.GetPath()))
+                {
+                    std::ignore = primarySettings.Set(s_SettingEmpty);
+                    AICLI_LOG(Core, Info, << "Created new settings file");
+                }
+            }
+            else if (userSettingType == UserSettingsType::Standard)
+            {
+                // Settings file was loaded correctly, create backup.
+                auto from = SettingsFilePath();
+                auto to = Stream{ Stream::BackupUserSettings }.GetPath();
+                std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+                AICLI_LOG(Core, Info, << "Copied settings to backup file");
+            }
         }
     }
 
@@ -881,5 +919,10 @@ namespace AppInstaller::Settings
         }
 
         return path;
+    }
+
+    std::filesystem::path UserSettings::AdminSettingsFilePath()
+    {
+        return Stream{ Stream::PrimaryAdminSettingsFile }.GetPath();
     }
 }

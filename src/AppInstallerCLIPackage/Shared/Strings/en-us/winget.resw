@@ -998,31 +998,37 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
-    <value>Invalid field format.</value>
+    <value>Invalid field format. Source: {2}. Field: {0}.</value>
+    <comment>{Locked="{0}", "{2}"} {0} is the setting path and {2} is its settings file or custom-content source. {1} is unused.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
-    <value>Invalid field value.</value>
+    <value>Invalid field value. Source: {2}. Field: {0}. Value: {1}.</value>
+    <comment>{Locked="{0}", "{1}", "{2}"} {0} is the setting path, {1} is the invalid value, and {2} is its settings file or custom-content source.</comment>
   </data>
   <data name="SettingsWarningInvalidFileFormat" xml:space="preserve">
-    <value>The settings file must contain a JSON object.</value>
-    <comment>Warning for a settings file whose JSON root is not an object. The file name is displayed separately.</comment>
+    <value>The settings file '{0}' must contain a JSON object.</value>
+    <comment>{Locked="{0}"} {0} is the settings file name.</comment>
   </data>
   <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
-    <value>Invalid setting from Group Policy.</value>
+    <value>Invalid setting from Group Policy. Field: {0}. Value: {1}.</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the setting path and {1} is the invalid policy value.</comment>
   </data>
   <data name="SettingsWarningIgnoredWithFullToken" xml:space="preserve">
-    <value>This user setting is ignored when running with the elevated token. The default is used unless Group Policy supplies a value. Configure an administrator-approved value in admin-settings.json using 'winget settings --admin'.</value>
-    <comment>{Locked="admin-settings.json"} {Locked="winget settings --admin"} Migration warning for a setting from a medium-writable user settings file that is ignored with the non-default full token of a split token. The setting key is displayed separately. No valid protected-file replacement was configured.</comment>
+    <value>The setting '{0}' from '{2}' is ignored when running with the elevated token. The default is used unless Group Policy supplies a value. Configure an administrator-approved value in admin-settings.json using 'winget settings --admin'.</value>
+    <comment>{Locked="{0}", "{2}", "admin-settings.json", "winget settings --admin"} {0} is the ignored setting path and {2} is its unprotected settings file name. {1} is unused. No eligible protected replacement was configured.</comment>
   </data>
   <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
-    <value>Loaded settings from backup file.</value>
+    <value>Loaded settings from backup file '{2}'.</value>
+    <comment>{Locked="{2}"} {2} is the backup settings file name. {0} and {1} are unused.</comment>
   </data>
   <data name="SettingsWarningParseError" xml:space="preserve">
-    <value>Error parsing file:</value>
+    <value>Error parsing settings file '{0}':
+{1}</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the settings file or custom-content source name and {1} is the parser diagnostic.</comment>
   </data>
   <data name="SettingsWarningReadError" xml:space="preserve">
-    <value>Error reading the settings file:</value>
-    <comment>Warning when an ordinary or protected settings file could not be read. The file name and any available diagnostic details are displayed separately.</comment>
+    <value>Error reading settings file '{0}'. {1}</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the settings file name and {1} is an optional read-error diagnostic.</comment>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
     <value>Value: {0}</value>
@@ -1295,6 +1301,18 @@ Do you agree to the terms?</value>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>Enables the specific administrator setting</value>
+  </data>
+  <data name="AdminSettingsFileArgumentDescription" xml:space="preserve">
+    <value>Opens the per-user administrator settings file</value>
+    <comment>Describes the --admin flag of winget settings, not the existing administrator capability controls.</comment>
+  </data>
+  <data name="AdminSettingsFileCreateArgumentDescription" xml:space="preserve">
+    <value>Creates the settings file without opening it</value>
+    <comment>Hidden headless provisioning flag used by PowerShell. Requires --admin and administrator privileges.</comment>
+  </data>
+  <data name="AdminSettingsFileRequiresCreation" xml:space="preserve">
+    <value>The administrator settings file does not exist: {0}. Run 'winget settings --admin' as administrator to create it.</value>
+    <comment>{Locked="{0}", "winget settings --admin"} {0} is the full protected settings file path. Displayed when an unelevated open cannot create it.</comment>
   </data>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disables the specific administrator setting</value>
@@ -1703,7 +1721,8 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
-    <value>Settings file couldn't load. Using default values.</value>
+    <value>Settings file '{2}' couldn't load. Using default values.</value>
+    <comment>{Locked="{2}"} {2} is the settings file whose primary/backup load failed. {0} and {1} are unused.</comment>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Select installed package scope filter (user or machine)</value>
