@@ -246,6 +246,135 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_FileAndRegistryCollisions", "[fonts
     REQUIRE(UninstallFontPackage(second).HResult == S_OK);
 }
 
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_DistinctSourceNamesShareDestinationCandidate", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    auto context = Context(scope);
+    const auto existing = RootPath(scope) / s_FontFile;
+    const auto firstSource = Directory.GetPath() / "Source" / s_FontFile;
+    const auto secondSource = Directory.GetPath() / "Source" / "TestFont0.ttf";
+    const auto firstDestination = RootPath(scope) / "TestFont0.ttf";
+    const auto secondDestination = RootPath(scope) / "TestFont00.ttf";
+    CopyFont(existing);
+    CopyFont(firstSource);
+    CopyFont(secondSource);
+    context.AddPackageFile(firstSource);
+    context.AddPackageFile(secondSource);
+
+    REQUIRE(InstallFontPackage(context).HResult == S_OK);
+    REQUIRE(std::filesystem::exists(firstDestination));
+    REQUIRE(std::filesystem::exists(secondDestination));
+    REQUIRE(RegistryString(Package(context), L"TestFont.ttf") == firstDestination.wstring());
+    REQUIRE(RegistryString(Package(context), L"TestFont0.ttf") == secondDestination.wstring());
+    REQUIRE(ValidateFontPackage(context).Status == FontStatus::OK);
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(RegistryString(Package(context), L"TestFont.ttf") == firstDestination.wstring());
+    REQUIRE(RegistryString(Package(context), L"TestFont0.ttf") == secondDestination.wstring());
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(firstDestination));
+    REQUIRE_FALSE(std::filesystem::exists(secondDestination));
+    REQUIRE(std::filesystem::exists(existing));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_LongFilenamesWithCollisions", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const auto nameLength = GENERATE(size_t{ 128 }, size_t{ 129 });
+    auto context = Context(scope);
+    const auto stem = std::string(nameLength - 4, 'f');
+    const std::filesystem::path name = stem + ".ttf";
+    const auto existing = RootPath(scope) / name;
+    const auto source = Directory.GetPath() / "Source" / name;
+    const auto destination = RootPath(scope) / (stem + "0.ttf");
+    CopyFont(existing);
+    CopyFont(source);
+    context.AddPackageFile(source);
+
+    REQUIRE(InstallFontPackage(context).HResult == S_OK);
+    REQUIRE(std::filesystem::exists(destination));
+    REQUIRE(RegistryString(Package(context), name.wstring()) == destination.wstring());
+    REQUIRE(ValidateFontPackage(context).Status == FontStatus::OK);
+    Root(scope).DeleteValue(destination.filename().wstring());
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(RegistryString(Package(context), name.wstring()) == destination.wstring());
+    REQUIRE(RegistryString(Root(scope), destination.filename().wstring()) ==
+        (scope == ScopeEnum::Machine ? destination.filename().wstring() : destination.wstring()));
+    REQUIRE(GetInstalledFontFiles().size() == 1);
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(destination));
+    REQUIRE_FALSE(Root(scope)[destination.filename().wstring()].has_value());
+    REQUIRE(std::filesystem::exists(existing));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RejectsUnsafeFilenames", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const std::string unsafeName = GENERATE("", "..\\Font.ttf", "NUL.ttf", "Font.ttf:stream", "Font.ttf. ");
+    const bool invalidPath = GENERATE(false, true);
+    auto context = Context(scope);
+    const auto installed = RootPath(scope) / s_FontFile;
+    CopyFont(installed);
+    const auto registryName = invalidPath ? std::wstring{ L"TestFont.ttf" } : AppInstaller::Utility::ConvertToUTF16(unsafeName);
+    const auto filePath = invalidPath ? RootPath(scope) / unsafeName : installed;
+    Package(context).SetValue(registryName, filePath.wstring());
+
+    REQUIRE(RepairFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
+    REQUIRE(UninstallFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
+    REQUIRE(RegistryString(Package(context), registryName) == filePath.wstring());
+    REQUIRE(std::filesystem::exists(installed));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidPackage", "[fonts][fontlayout]")
+{
+    const bool nonStringValue = GENERATE(false, true);
+    auto invalidContext = Context(ScopeEnum::Machine);
+    invalidContext.PackageId = L"InvalidPackage";
+    const auto invalidPackageFont = RootPath(invalidContext.Scope) / "InvalidPackage.ttf";
+    CopyFont(invalidPackageFont);
+    Package(invalidContext).SetValue(L"InvalidPackage.ttf", invalidPackageFont.wstring());
+    if (nonStringValue)
+    {
+        Package(invalidContext).SetValue(L"Invalid.ttf", DWORD{ 1 });
+    }
+    else
+    {
+        Package(invalidContext).SetValue(L"Invalid.ttf", (Directory.GetPath() / "Outside.ttf").wstring());
+    }
+
+    for (const auto scope : { ScopeEnum::Machine, ScopeEnum::User })
+    {
+        auto context = Context(scope);
+        const auto installed = RootPath(scope) / s_FontFile;
+        CopyFont(installed);
+        Package(context).SetValue(L"TestFont.ttf", installed.wstring());
+        Root(scope).SetValue(L"TestFont.ttf",
+            scope == ScopeEnum::Machine ? installed.filename().wstring() : installed.wstring());
+    }
+    const auto external = RootPath(ScopeEnum::Machine) / "External.ttf";
+    CopyFont(external);
+    Root(ScopeEnum::Machine).SetValue(L"External.ttf", external.filename().wstring());
+
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == 3);
+    for (const auto scope : { ScopeEnum::Machine, ScopeEnum::User })
+    {
+        REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+            {
+                return font.Scope == scope && font.PackageId == L"TestPackage" &&
+                    font.InstallerSource == InstallerSource::WinGet &&
+                    font.FilePath == RootPath(scope) / s_FontFile;
+            }) == 1);
+    }
+    REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+        {
+            return font.Scope == ScopeEnum::Machine && font.InstallerSource == InstallerSource::Unknown &&
+                font.FilePath == external;
+        }) == 1);
+    REQUIRE(RepairFontPackage(invalidContext).HResult == APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
+    REQUIRE(UninstallFontPackage(invalidContext).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
+    REQUIRE(std::filesystem::exists(invalidPackageFont));
+}
+
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairMigratesPackageDirectory", "[fonts][fontlayout]")
 {
     const bool keepDirectory = GENERATE(false, true);

@@ -236,6 +236,7 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::RepairString>(repairCommand);
         }
 
+        // MSI, font, and non-Store MSIX repair use installed metadata without an available installer.
         bool IsInstallerMappingRequired(Execution::Context& context)
         {
             InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
@@ -517,8 +518,6 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectApplicableInstallerIfNecessary(Execution::Context& context)
     {
-        // For MSI installers, the platform provides built-in support for repair via msiexec, hence no need to select an installer.
-        // Similarly, for MSIX packages that are not from the Microsoft Store, selecting an installer is not required.
         if (IsInstallerMappingRequired(context))
         {
             context <<
