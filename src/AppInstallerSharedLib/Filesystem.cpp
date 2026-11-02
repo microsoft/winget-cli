@@ -370,6 +370,24 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
+    bool PathEscapesBaseDirectory(const std::filesystem::path& relativePath)
+    {
+        // Root components include drive-relative paths.
+        if (relativePath.has_root_path())
+        {
+            return true;
+        }
+
+        auto resolvedPath = relativePath.lexically_normal();
+
+        if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     bool PathEscapesBaseDirectory(std::string_view relativePath)
     {
         return PathEscapesBaseDirectory(std::filesystem::path{ Utility::ConvertToUTF16(relativePath) });

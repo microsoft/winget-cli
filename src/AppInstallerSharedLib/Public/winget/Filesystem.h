@@ -22,30 +22,17 @@ namespace AppInstaller::Filesystem
     // Checks if the file system at path support reparse points
     bool SupportsReparsePoints(const std::filesystem::path& path);
 
-    // Checks if a UTF-8 relative path points to a location outside of the base path.
+    // Checks whether a relative path escapes its base directory.
+    bool PathEscapesBaseDirectory(const std::filesystem::path& relativePath);
+
+    // Checks a UTF-8 relative path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
 
-    // Checks a relative path directly. Only a path matches, so strings still use the UTF-8 overload.
-    template <typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
+    // Ensures string inputs use the UTF-8 overload.
+    template <typename T, std::enable_if_t<std::is_convertible_v<const T&, std::string_view>, int> = 0>
     bool PathEscapesBaseDirectory(const T& relativePath)
     {
-        // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
-        // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").
-        if (relativePath.has_root_path())
-        {
-            return true;
-        }
-
-        // Resolve any "." and ".." components lexically (i.e. without touching the filesystem).
-        auto resolvedPath = relativePath.lexically_normal();
-
-        // If the normalized path still begins with "..", it points to a parent of the base directory.
-        if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
-        {
-            return true;
-        }
-
-        return false;
+        return PathEscapesBaseDirectory(std::string_view{ relativePath });
     }
 
     // Checks if any part of the path, other than "." and "..", is changed or rejected by Utility::MakeSuitablePathPart.

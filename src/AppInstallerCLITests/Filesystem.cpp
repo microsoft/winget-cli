@@ -89,6 +89,16 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
         REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"\u4E01\\..\\..\\target.exe" }));
         REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"C:\\target.exe" }));
     }
+
+    SECTION("String and string-view inputs retain UTF-8 decoding")
+    {
+        std::string containedPath = "\xE4\xB8\x81\\a\\..\\..\\target.exe";
+        std::string escapingPath = "\xE4\xB8\x81\\..\\..\\target.exe";
+        REQUIRE_FALSE(PathEscapesBaseDirectory(containedPath));
+        REQUIRE(PathEscapesBaseDirectory(escapingPath));
+        REQUIRE_FALSE(PathEscapesBaseDirectory(std::string_view{ containedPath }));
+        REQUIRE(PathEscapesBaseDirectory(std::string_view{ escapingPath }));
+    }
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")
