@@ -128,6 +128,39 @@ Describe 'WinGetUserSettings' {
     }
 }
 
+Describe 'WinGetUserSettings protected target' {
+    BeforeAll {
+        $protectedPath = (Get-WinGetSetting).adminSettingsFile
+        $protectedExisted = Test-Path -LiteralPath $protectedPath
+        if ($protectedExisted) {
+            $protectedContent = [System.IO.File]::ReadAllBytes($protectedPath)
+        }
+        $ordinaryPath = (Get-WinGetSetting).userSettingsFile
+        $ordinaryContent = [System.IO.File]::ReadAllBytes($ordinaryPath)
+    }
+
+    It 'Routes Get, Test, and Set to the protected file' {
+        $desired = @{ visual = @{ progressBar = 'rainbow' } }
+        $properties = @{ Settings = $desired; Admin = $true }
+        InvokeWinGetDSC -Name WinGetUserSettings -Method Set -Property $properties
+        $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property $properties
+        $result.Admin | Should -Be $true
+        $result.Settings.visual.progressBar | Should -Be 'rainbow'
+        (InvokeWinGetDSC -Name WinGetUserSettings -Method Test -Property $properties).InDesiredState | Should -Be $true
+        [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($ordinaryPath)) |
+            Should -Be ([Convert]::ToBase64String($ordinaryContent))
+    }
+
+    AfterAll {
+        if ($protectedExisted) {
+            [System.IO.File]::WriteAllBytes($protectedPath, $protectedContent)
+        }
+        elseif (Test-Path -LiteralPath $protectedPath) {
+            Remove-Item -LiteralPath $protectedPath
+        }
+    }
+}
+
 Describe 'WinGetSource' {
     BeforeAll {
         $testSourceName = 'TestSource'
