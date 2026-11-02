@@ -3460,7 +3460,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage user settings file</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Manage the user settings of WinGet.</value>
+    <value>Manage the ordinary or protected per-user settings file of WinGet.</value>
     <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
@@ -3468,6 +3468,10 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
     <value>The action used to apply the settings.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAdmin" xml:space="preserve">
+    <value>Select the protected per-user administrator settings file instead of the ordinary user settings file. Set requires administrator privileges; Get, Test, and Export do not. This does not select administrator capability controls.</value>
+    <comment>Describes the optional Boolean admin property on the native DSCv3 UserSettingsFile resource. The default is false.</comment>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
     <value>Value is logged for correlation</value>

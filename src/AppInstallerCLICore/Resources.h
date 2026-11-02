@@ -255,6 +255,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsFileLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileAction);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceName);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);

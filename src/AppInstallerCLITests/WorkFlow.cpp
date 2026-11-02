@@ -7,6 +7,7 @@
 #include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
 #include <Workflows/DownloadFlow.h>
+#include <Commands/DscUserSettingsFileResource.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/SettingsCommand.h>
 #include <Commands/ValidateCommand.h>
@@ -310,4 +311,143 @@ TEST_CASE("Settings_AdminFileMissingReadOnly", "[Settings][workflow]")
     REQUIRE(output.str().find(UserSettings::AdminSettingsFilePath().u8string()) != std::string::npos);
     REQUIRE_FALSE(std::filesystem::exists(UserSettings::AdminSettingsFilePath()));
     REQUIRE_FALSE(std::filesystem::exists(GetPathTo(Stream::BackupAdminSettingsFile)));
+}
+
+TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool admin = GENERATE(false, true);
+    const std::string action = GENERATE("Partial", "Full");
+    CAPTURE(admin, action);
+    auto ordinary = ConvertToJson(R"({ "file": "ordinary", "retained": true, "array": [1, 2] })");
+    auto protectedSettings = ConvertToJson(R"({ "file": "protected", "retained": true, "array": [1, 2] })");
+    SetSetting(Stream::PrimaryUserSettings, Json::writeString(Json::StreamWriterBuilder{}, ordinary));
+    {
+        const auto path = UserSettings::AdminSettingsFilePath();
+        std::filesystem::create_directories(path.parent_path());
+        std::ofstream file{ path, std::ios::binary };
+        file << Json::writeString(Json::StreamWriterBuilder{}, protectedSettings);
+        file.close();
+        REQUIRE_FALSE(file.fail());
+    }
+
+    Json::Value input{ Json::ValueType::objectValue };
+    if (admin)
+    {
+        input["admin"] = true;
+    }
+    auto invoke = [&](Args::Type function)
+    {
+        std::istringstream inputStream{ Json::writeString(Json::StreamWriterBuilder{}, input) };
+        std::ostringstream output;
+        TestContext context{ output, inputStream };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.Args.AddArg(function);
+        DscUserSettingsFileResource command({});
+        command.Execute(context);
+        INFO(output.str());
+        REQUIRE(context.GetTerminationHR() == S_OK);
+
+        std::vector<Json::Value> result;
+        std::istringstream outputStream{ output.str() };
+        for (std::string line; std::getline(outputStream, line);)
+        {
+            result.emplace_back(ConvertToJson(line));
+        }
+        REQUIRE_FALSE(result.empty());
+        return result;
+    };
+
+    auto expected = admin ? protectedSettings : ordinary;
+    for (auto function : { Args::Type::DscResourceFunctionGet, Args::Type::DscResourceFunctionExport })
+    {
+        auto result = invoke(function);
+        REQUIRE(result.size() == 1);
+        REQUIRE(result[0]["admin"].isBool());
+        REQUIRE(result[0]["admin"].asBool() == admin);
+        REQUIRE(result[0]["settings"] == expected);
+    }
+
+    auto schema = invoke(Args::Type::DscResourceFunctionSchema)[0];
+    REQUIRE(schema["properties"]["admin"]["type"].asString() == "boolean");
+    REQUIRE(schema["properties"]["admin"]["default"] == Json::Value{ false });
+
+    input["action"] = action;
+    input["settings"] = expected;
+    auto result = invoke(Args::Type::DscResourceFunctionTest);
+    REQUIRE(result.size() == 2);
+    REQUIRE(result[0]["admin"].asBool() == admin);
+    REQUIRE(result[0]["_inDesiredState"].asBool());
+    REQUIRE(result[1].empty());
+
+    input["settings"] = ConvertToJson(R"({ "array": [3], "downloadBehavior": { "defaultDownloadDirectory": null } })");
+    result = invoke(Args::Type::DscResourceFunctionTest);
+    REQUIRE(result.size() == 2);
+    REQUIRE_FALSE(result[0]["_inDesiredState"].asBool());
+    REQUIRE(result[1][0].asString() == "settings");
+    REQUIRE_FALSE(Stream{ Stream::BackupAdminSettingsFile }.Get());
+
+    if (admin && !AppInstaller::Runtime::IsRunningAsAdminOrSystem())
+    {
+        WARN("Protected Set requires admin privilege. Read-only operations were checked.");
+        return;
+    }
+
+    const bool createFile = GENERATE(false, true);
+    CAPTURE(createFile);
+    if (createFile)
+    {
+        const auto path = admin ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath();
+        REQUIRE(std::filesystem::remove(path));
+        result = invoke(Args::Type::DscResourceFunctionGet);
+        REQUIRE(result[0]["settings"] == Json::Value{ Json::ValueType::objectValue });
+        REQUIRE_FALSE(std::filesystem::exists(path));
+    }
+
+    if (createFile || action == "Full")
+    {
+        expected = input["settings"];
+    }
+    else
+    {
+        expected["array"] = input["settings"]["array"];
+        expected["downloadBehavior"] = input["settings"]["downloadBehavior"];
+    }
+    result = invoke(Args::Type::DscResourceFunctionSet);
+    REQUIRE(result.size() == 2);
+    REQUIRE(result[0]["admin"].asBool() == admin);
+    REQUIRE(result[0]["settings"] == expected);
+    REQUIRE(result[1][0].asString() == "settings");
+    result = invoke(Args::Type::DscResourceFunctionTest);
+    REQUIRE(result.size() == 2);
+    REQUIRE(result[0]["_inDesiredState"].asBool());
+    REQUIRE(result[1].empty());
+    REQUIRE_FALSE(Stream{ Stream::BackupAdminSettingsFile }.Get());
+
+    auto selected = Stream{ admin ? Stream::PrimaryAdminSettingsFile : Stream::PrimaryUserSettings }.Get();
+    REQUIRE(selected);
+    REQUIRE(ConvertToJson(ReadEntireStream(*selected)) == expected);
+    auto unselected = Stream{ admin ? Stream::PrimaryUserSettings : Stream::PrimaryAdminSettingsFile }.Get();
+    REQUIRE(unselected);
+    REQUIRE(ConvertToJson(ReadEntireStream(*unselected)) == (admin ? ordinary : protectedSettings));
+}
+
+TEST_CASE("Settings_DscUserSettingsFileAdminRequiresElevation", "[Settings][workflow]")
+{
+    auto files = DeleteUserSettingsFiles();
+    std::istringstream input{ R"({ "admin": true, "settings": {} })" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Args::Type::DscResourceFunctionSet);
+    context.Override({ EnsureRunningAsAdmin, [](TestContext& ctx)
+    {
+        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+    }, 1 });
+    DscUserSettingsFileResource command({});
+    command.Execute(context);
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+    REQUIRE_FALSE(std::filesystem::exists(UserSettings::AdminSettingsFilePath()));
+    REQUIRE_FALSE(std::filesystem::exists(UserSettings::SettingsFilePath()));
 }
