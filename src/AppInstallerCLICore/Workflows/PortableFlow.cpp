@@ -121,7 +121,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
-        if (portableInstaller.UsesExistingInstallData() && portableInstaller.ARPEntryExists())
+        if (portableInstaller.ARPEntryExists())
         {
             if (packageIdentifier != portableInstaller.WinGetPackageIdentifier || sourceIdentifier != portableInstaller.WinGetSourceIdentifier)
             {
@@ -147,7 +147,7 @@ namespace AppInstaller::CLI::Workflow
     {
         const bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         const auto scope = GetPortableInstallScope(context);
-        if (isUpdate && scope != ScopeEnum::Machine)
+        if (scope != ScopeEnum::Machine)
         {
             AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
         }
@@ -302,6 +302,11 @@ namespace AppInstaller::CLI::Workflow
     void PortableInstallImpl(Execution::Context& context)
     {
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
+        if (portableInstaller.GetScope() != ScopeEnum::Machine)
+        {
+            AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
+        }
+
         try
         {
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
@@ -333,7 +338,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
 
-            if (!portableInstaller.UsesExistingInstallData())
+            if (!portableInstaller.IsUpdate())
             {
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
                 portableInstaller.PrepareForCleanUp();
@@ -383,8 +388,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (installerType == InstallerTypeEnum::Portable)
         {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) &&
-                GetPortableInstallScope(context) != ScopeEnum::Machine)
+            if (GetPortableInstallScope(context) != ScopeEnum::Machine)
             {
                 AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
             }

@@ -262,7 +262,7 @@ namespace AppInstaller::CLI::Portable
     void PortableInstaller::RemoveExpectedState()
     {
         std::filesystem::path existingIndexPath = InstallLocation / GetPortableIndexFileName();
-        if (UsesExistingInstallData() && !InstallLocation.empty() && std::filesystem::exists(existingIndexPath))
+        if (!InstallLocation.empty() && std::filesystem::exists(existingIndexPath))
         {
             bool deleteIndex = false;
             {
@@ -322,35 +322,22 @@ namespace AppInstaller::CLI::Portable
                 std::rethrow_exception(firstRemoveException);
             }
         }
-
-        if (!UsesExistingInstallData())
-        {
-            SQLiteStorageBase::DeleteSQLiteDatabase(TargetInstallLocation / GetPortableIndexFileName());
-        }
     }
 
     // TODO: Optimize by applying the difference between expected and desired state.
     void PortableInstaller::ApplyDesiredState()
     {
-        if (!UsesExistingInstallData())
-        {
-            // Replace the selected index slot without opening any preexisting database or journal.
-            SQLiteStorageBase::DeleteSQLiteDatabase(TargetInstallLocation / GetPortableIndexFileName());
-        }
-        else
-        {
-            RemoveExpectedState();
+        RemoveExpectedState();
 
-            if (TargetInstallLocation != InstallLocation)
-            {
-                RemoveInstallDirectory();
-            }
+        if (TargetInstallLocation != InstallLocation)
+        {
+            RemoveInstallDirectory();
         }
 
         if (RecordToIndex)
         {
             std::filesystem::path targetIndexPath = TargetInstallLocation / GetPortableIndexFileName();
-            PortableIndex targetIndex = UsesExistingInstallData() && std::filesystem::exists(targetIndexPath) ?
+            PortableIndex targetIndex = std::filesystem::exists(targetIndexPath) ?
                 PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
                 PortableIndex::CreateNew(targetIndexPath.u8string());
 
@@ -389,17 +376,23 @@ namespace AppInstaller::CLI::Portable
 
         // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
         // leaves the system in a state where an uninstall may be possible
-        if (!UsesExistingInstallData())
+        if (!IsUpdate())
         {
             RegisterARPEntry();
         }
 
         const bool targetInstallDirectoryCreated = CreateTargetInstallDirectory();
-
-        ApplyDesiredState();
-
-        InstallLocation = TargetInstallLocation;
-        InstallDirectoryCreated = targetInstallDirectoryCreated;
+        {
+            // Reconcile the old location first, but retain target ownership even if registration or installation fails.
+            auto updateInstallLocation = wil::scope_exit([&]()
+                {
+                    InstallLocation = TargetInstallLocation;
+                    InstallDirectoryCreated = targetInstallDirectoryCreated;
+                });
+            CommitToARPEntry(PortableValueName::InstallDirectoryCreated, targetInstallDirectoryCreated);
+            CommitToARPEntry(PortableValueName::InstallLocation, TargetInstallLocation);
+            ApplyDesiredState();
+        }
 
         if (!InstallDirectoryAddedToPath)
         {
@@ -408,7 +401,7 @@ namespace AppInstaller::CLI::Portable
 
         // If the operation is an upgrade, the ARP entry should be created last so that a catastrophic failure
         // leaves the system in a state where an upgrade can be re-attempted
-        if (UsesExistingInstallData())
+        if (IsUpdate())
         {
             RegisterARPEntry();
         }
@@ -416,7 +409,7 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::Uninstall()
     {
-        THROW_HR_IF(E_UNEXPECTED, !SupportsUninstall() || (!UsesExistingInstallData() && TargetInstallLocation.empty()));
+        THROW_HR_IF(E_UNEXPECTED, !SupportsUninstall());
 
         RemoveExpectedState();
 
@@ -444,17 +437,7 @@ namespace AppInstaller::CLI::Portable
             AICLI_LOG(Core, Info, << "Created target install directory: " << TargetInstallLocation);
         }
 
-        const bool targetInstallDirectoryCreated = created || (TargetInstallLocation == InstallLocation && InstallDirectoryCreated);
-        if (!UsesExistingInstallData())
-        {
-            InstallLocation = TargetInstallLocation;
-            InstallDirectoryCreated = targetInstallDirectoryCreated;
-        }
-
-        CommitToARPEntry(PortableValueName::InstallDirectoryCreated, targetInstallDirectoryCreated);
-        CommitToARPEntry(PortableValueName::InstallLocation, TargetInstallLocation);
-
-        return targetInstallDirectoryCreated;
+        return created || (TargetInstallLocation == InstallLocation && InstallDirectoryCreated);
     }
 
     void PortableInstaller::RemoveInstallDirectory()
@@ -616,11 +599,6 @@ namespace AppInstaller::CLI::Portable
     {
         THROW_HR_IF(E_INVALIDARG, !SupportsInstall() && !SupportsUninstall());
 
-        if (!UsesExistingInstallData())
-        {
-            return;
-        }
-
         if (ARPEntryExists())
         {
             DisplayName = GetStringValue(PortableValueName::DisplayName);
@@ -646,12 +624,6 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::RegisterARPEntry()
     {
-        if (!UsesExistingInstallData())
-        {
-            // Stale registration values must not become installed state for a later operation.
-            Registry::Key::DeleteTree(m_portableARPEntry.GetKey(), {});
-        }
-
         CommitToARPEntry(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
         CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
         CommitToARPEntry(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());

@@ -965,11 +965,110 @@ TEST_CASE("PortableInstallFlow_AdminContextRejectsUserScopeUpdateBeforePreparati
     REQUIRE_FALSE(context.Contains(Execution::Data::PortableInstaller));
 }
 
-TEST_CASE("PortableInstallFlow_AdminContextAllowsFreshUserScope", "[InstallFlow][workflow]")
+TEST_CASE("PortableInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
+{
+    const bool fullToken = GENERATE(false, true);
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Unknown, ScopeEnum::Machine);
+    const auto installerType = GENERATE(InstallerTypeEnum::Portable, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
+    CAPTURE(fullToken, scope, installerType);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    ManifestInstaller installer;
+    installer.BaseInstallerType = installerType;
+    if (installerType == InstallerTypeEnum::Zip)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Portable;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(scope));
+    context.Add<Execution::Data::Installer>(installer);
+    context << Workflow::EnsureSupportForPortableInstall;
+
+    INFO(output.str());
+    if (fullToken && scope != ScopeEnum::Machine && installerType != InstallerTypeEnum::Exe)
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    }
+    else
+    {
+        REQUIRE_FALSE(context.IsTerminated());
+    }
+}
+
+TEST_CASE("PortableInstallFlow_AdminContextRejectsFreshUserScopeBeforePreparation", "[InstallFlow][workflow]")
+{
+    const bool initialize = GENERATE(false, true);
+    const bool archive = GENERATE(false, true);
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Unknown);
+    const auto scopeSource = GENERATE("argument", "requirement", "preference");
+    CAPTURE(initialize, archive, scope, scopeSource);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::Unknown);
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    if (std::string_view{ scopeSource } == "argument")
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(scope));
+    }
+    else if (std::string_view{ scopeSource } == "requirement")
+    {
+        settings.Set<Setting::InstallScopeRequirement>(scope);
+        settings.Set<Setting::InstallScopePreference>(scope);
+    }
+    else
+    {
+        settings.Set<Setting::InstallScopePreference>(scope);
+    }
+
+    if (initialize)
+    {
+        context << Workflow::InitializePortableInstaller;
+    }
+    else
+    {
+        ManifestInstaller installer;
+        installer.BaseInstallerType = archive ? InstallerTypeEnum::Zip : InstallerTypeEnum::Portable;
+        installer.NestedInstallerType = archive ? InstallerTypeEnum::Portable : InstallerTypeEnum::Unknown;
+        context.Add<Execution::Data::Installer>(installer);
+        context << Workflow::EnsureSupportForPortableInstall;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::PortableInstaller));
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
+}
+
+TEST_CASE("PortableInstallFlow_AdminContextRejectsExecutionBeforeIndexedState", "[InstallFlow][workflow]")
+{
+    const bool recordToIndex = GENERATE(false, true);
+    CAPTURE(recordToIndex);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    const std::string productCode = "PortableExecutionElevationTest";
+    AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    AppInstaller::CLI::Portable::PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.RecordToIndex = recordToIndex;
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::PortableInstaller>(std::move(installer));
+    context << Workflow::PortableInstallImpl;
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
+    REQUIRE_FALSE(context.Contains(Execution::Data::CorrelatedAppsAndFeaturesEntries));
+}
+
+TEST_CASE("PortableInstallFlow_NonFullContextChecksExistingRegistration", "[InstallFlow][workflow]")
 {
     const auto scopeSource = GENERATE("argument", "requirement", "preference");
-    CAPTURE(scopeSource);
-    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    const bool identifiersMatch = GENERATE(false, true);
+    CAPTURE(scopeSource, identifiersMatch);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
     TestUserSettings settings;
     settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::Unknown);
     settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
@@ -980,8 +1079,9 @@ TEST_CASE("PortableInstallFlow_AdminContextAllowsFreshUserScope", "[InstallFlow]
     const auto productCode = MakeSuitablePathPart(manifest.Id + "_*DefaultSource");
     AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
     auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
-    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetPackageIdentifier, "old-package"sv);
-    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetSourceIdentifier, "old-source"sv);
+    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetPackageIdentifier,
+        identifiersMatch ? "Portable.FreshElevation"sv : "old-package"sv);
+    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetSourceIdentifier, "*DefaultSource"sv);
 
     std::ostringstream output;
     TestContext context{ output, std::cin };
@@ -1007,6 +1107,12 @@ TEST_CASE("PortableInstallFlow_AdminContextAllowsFreshUserScope", "[InstallFlow]
         Workflow::VerifyPackageAndSourceMatch;
 
     INFO(output.str());
+    if (!identifiersMatch)
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
+        return;
+    }
+
     REQUIRE_FALSE(context.IsTerminated());
     auto& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
     REQUIRE_FALSE(portableInstaller.IsUpdate());

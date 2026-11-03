@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::Portable
     // Object representation of the metadata and functionality required for installing a Portable package. 
     struct PortableInstaller
     {
-        // Existing ARP values are loaded only for upgrade and uninstall operations.
+        // These values are initialized from the existing ARP entry.
         std::string DisplayName;
         std::string DisplayVersion;
         std::string HelpLink;
@@ -46,8 +46,6 @@ namespace AppInstaller::CLI::Portable
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode, Workflow::OperationType operation);
 
         bool IsUpdate() const { return m_operation == Workflow::OperationType::Upgrade; }
-
-        bool UsesExistingInstallData() const { return m_operation != Workflow::OperationType::Install; }
 
         bool VerifyExpectedState();
 
@@ -104,8 +102,8 @@ namespace AppInstaller::CLI::Portable
         std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
         std::stringstream m_stream;
 
-        bool SupportsInstall() const { return !UsesExistingInstallData() || IsUpdate(); }
-        bool SupportsUninstall() const { return !UsesExistingInstallData() || m_operation == Workflow::OperationType::Uninstall; }
+        bool SupportsInstall() const { return m_operation == Workflow::OperationType::Install || IsUpdate(); }
+        bool SupportsUninstall() const { return m_operation == Workflow::OperationType::Install || m_operation == Workflow::OperationType::Uninstall; }
 
         std::string GetStringValue(PortableValueName valueName);
         std::filesystem::path GetPathValue(PortableValueName valueName);

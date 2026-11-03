@@ -25,105 +25,12 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::CLI::Workflow;
 using namespace TestCommon;
 
-TEST_CASE("PortableInstaller_FreshInstallIgnoresExistingState", "[PortableInstaller]")
-{
-    const bool recordToIndex = GENERATE(false, true);
-    CAPTURE(recordToIndex);
-    const std::string productCode = "PortableFreshStateTest";
-    TempDirectory oldDirectory("PortableOldState", true);
-    TempDirectory targetDirectory("PortableFreshState", true);
-    TempFile source("PortableFreshSource.exe");
-    std::ofstream(source.GetPath()) << "fresh";
-    const auto oldFile = oldDirectory.GetPath() / "untouched.exe";
-    std::ofstream(oldFile) << "old";
-    const auto oldIndexPath = oldDirectory.GetPath() / (productCode + ".db");
-    std::ofstream(oldIndexPath) << "not a database";
-    const auto targetPath = targetDirectory.GetPath() / "fresh.exe";
-    std::ofstream(targetPath) << "replace me";
-    const auto targetIndexPath = targetDirectory.GetPath() / (productCode + ".db");
-    {
-        auto index = PortableIndex::CreateNew(targetIndexPath.u8string());
-        index.AddPortableFile(PortableFileEntry::CreateFileEntry(oldFile, oldFile, {}));
-    }
-    for (std::wstring_view suffix : { L"-journal", L"-wal", L"-shm" })
-    {
-        auto sidecarPath = targetIndexPath;
-        sidecarPath += suffix;
-        std::ofstream(sidecarPath) << "old journal";
-    }
-
-    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
-    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
-    arpEntry.SetValue(PortableValueName::InstallLocation, oldDirectory.GetPath());
-    arpEntry.SetValue(PortableValueName::PortableTargetFullPath, oldFile);
-    arpEntry.SetValue(PortableValueName::PortableSymlinkFullPath, oldDirectory.GetPath() / "old-link.exe");
-    arpEntry.SetValue(PortableValueName::WinGetPackageIdentifier, "old-package"s);
-    arpEntry.SetValue(PortableValueName::WinGetSourceIdentifier, "old-source"s);
-    bool oldFlag = true;
-    arpEntry.SetValue(PortableValueName::InstallDirectoryCreated, oldFlag);
-    arpEntry.SetValue(PortableValueName::InstallDirectoryAddedToPath, oldFlag);
-
-    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
-    REQUIRE(installer.InstallLocation.empty());
-    REQUIRE(installer.WinGetPackageIdentifier.empty());
-    REQUIRE(installer.VerifyExpectedState());
-    installer.TargetInstallLocation = targetDirectory.GetPath();
-    installer.WinGetPackageIdentifier = "new-package";
-    installer.WinGetSourceIdentifier = "new-source";
-    installer.RecordToIndex = recordToIndex;
-    installer.SetDesiredState({ PortableFileEntry::CreateFileEntry(source.GetPath(), targetPath, {}) });
-    installer.Install();
-
-    REQUIRE(std::filesystem::exists(oldFile));
-    REQUIRE(std::filesystem::exists(oldIndexPath));
-    REQUIRE(std::filesystem::exists(targetPath));
-    {
-        std::ifstream installedFile(targetPath);
-        std::string contents;
-        std::getline(installedFile, contents);
-        REQUIRE(contents == "fresh");
-    }
-    for (std::wstring_view suffix : { L"-journal", L"-wal", L"-shm" })
-    {
-        auto sidecarPath = targetIndexPath;
-        sidecarPath += suffix;
-        REQUIRE_FALSE(std::filesystem::exists(sidecarPath));
-    }
-    if (recordToIndex)
-    {
-        auto index = PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
-        auto files = index.GetAllPortableFiles();
-        REQUIRE(files.size() == 1);
-        REQUIRE(std::filesystem::equivalent(files.at(0).GetFilePath(), targetPath));
-    }
-    else
-    {
-        REQUIRE_FALSE(std::filesystem::exists(targetIndexPath));
-    }
-
-    PortableInstaller uninstaller(ScopeEnum::User, Architecture::X64, productCode, OperationType::Uninstall);
-    REQUIRE(uninstaller.InstallLocation == targetDirectory.GetPath());
-    REQUIRE_FALSE(uninstaller.InstallDirectoryCreated);
-    REQUIRE_FALSE(uninstaller.InstallDirectoryAddedToPath);
-    REQUIRE(uninstaller.WinGetPackageIdentifier == "new-package");
-    REQUIRE(uninstaller.WinGetSourceIdentifier == "new-source");
-    if (recordToIndex)
-    {
-        REQUIRE(uninstaller.PortableTargetFullPath.empty());
-        REQUIRE(uninstaller.PortableSymlinkFullPath.empty());
-    }
-    uninstaller.Uninstall();
-    REQUIRE_FALSE(std::filesystem::exists(targetPath));
-    REQUIRE(std::filesystem::exists(targetDirectory.GetPath()));
-    REQUIRE(std::filesystem::exists(oldFile));
-    REQUIRE(std::filesystem::exists(oldIndexPath));
-}
-
-TEST_CASE("PortableInstaller_UpgradeLoadsAndReplacesInstalledState", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_InstallAndUpgradeReplaceInstalledState", "[PortableInstaller]")
 {
     const bool recordToIndex = GENERATE(false, true);
     const bool targetAlreadyExists = GENERATE(false, true);
-    CAPTURE(recordToIndex, targetAlreadyExists);
+    const auto operation = GENERATE(OperationType::Install, OperationType::Upgrade);
+    CAPTURE(recordToIndex, targetAlreadyExists, operation);
     const std::string productCode = "PortableUpgradeStateTest";
     TempDirectory oldDirectory("PortableBeforeUpgrade", false);
     TempDirectory newDirectory("PortableAfterUpgrade", targetAlreadyExists);
@@ -142,7 +49,8 @@ TEST_CASE("PortableInstaller_UpgradeLoadsAndReplacesInstalledState", "[PortableI
     installer.SetDesiredState({ PortableFileEntry::CreateFileEntry(oldSource.GetPath(), oldPath, std::string(64, '0')) });
     installer.Install();
 
-    PortableInstaller updater(ScopeEnum::User, Architecture::X64, productCode, OperationType::Upgrade);
+    PortableInstaller updater(ScopeEnum::User, Architecture::X64, productCode, operation);
+    REQUIRE(updater.IsUpdate() == (operation == OperationType::Upgrade));
     REQUIRE_FALSE(updater.VerifyExpectedState());
     updater.TargetInstallLocation = newDirectory.GetPath();
     updater.RecordToIndex = recordToIndex;
@@ -157,7 +65,7 @@ TEST_CASE("PortableInstaller_UpgradeLoadsAndReplacesInstalledState", "[PortableI
     REQUIRE(std::filesystem::exists(newDirectory.GetPath()) == targetAlreadyExists);
 }
 
-TEST_CASE("PortableInstaller_FreshRollbackUsesInMemoryState", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_RollbackRemovesPartialInstall", "[PortableInstaller]")
 {
     const std::string productCode = "PortableRollbackStateTest";
     TempDirectory targetDirectory("PortableRollbackState", false);
@@ -179,12 +87,7 @@ TEST_CASE("PortableInstaller_FreshRollbackUsesInMemoryState", "[PortableInstalle
     REQUIRE(std::filesystem::exists(targetPath));
 
     const auto indexPath = targetDirectory.GetPath() / installer.GetPortableIndexFileName();
-    std::filesystem::remove(indexPath);
-    {
-        std::ofstream corruptIndex(indexPath);
-        corruptIndex << "not a database";
-        REQUIRE(corruptIndex.good());
-    }
+    REQUIRE(std::filesystem::exists(indexPath));
     installer.PrepareForCleanUp();
     installer.Uninstall();
     REQUIRE_FALSE(std::filesystem::exists(targetDirectory.GetPath()));

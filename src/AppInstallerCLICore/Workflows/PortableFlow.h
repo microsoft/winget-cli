@@ -17,19 +17,19 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void PortableUninstallImpl(Execution::Context& context);
 
-    // Verifies that the portable install operation is supported.
+    // Verifies that the portable install operation is supported, including elevation checks for user scope.
     // Required Args: None
     // Inputs: Installer, InstalledPackageVersion?
     // Outputs: None
     void EnsureSupportForPortableInstall(Execution::Context& context);
 
-    // Initializes the portable installer, loading installed state only for an update.
+    // Initializes the portable installer after elevation checks.
     // Required Args: None
     // Inputs: Architecture, Manifest, Installer, InstalledPackageVersion?
     // Outputs: None
     void InitializePortableInstaller(Execution::Context& context);
 
-    // For updates, verifies that the package and source identifiers match the loaded ARP entry.
+    // Verifies that the package and source identifiers match the loaded ARP entry.
     // Required Args: None
     // Inputs: Manifest, PackageVersion, PortableInstaller
     // Outputs: None
