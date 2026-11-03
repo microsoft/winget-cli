@@ -1,7 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.Client.Cmdlets.dll-Help.xml
 Module Name: Microsoft.WinGet.Client
-ms.date: 08/01/2024
+ms.date: 11/03/2026
 online version:
 schema: 2.0.0
 title: Set-WinGetUserSetting
@@ -32,6 +32,8 @@ selected file, not the effective overlay or administrator capability controls. I
 a backup. Existing `-Merge` behavior is unchanged, including ignoring input nulls during merge;
 omit `-Merge` to write an explicit null that selects a built-in default when the protected
 value is eligible for the current token context.
+An eligible protected null prevents ordinary-file fallback without a validation or migration
+warning. Existing Group Policy handling still takes precedence.
 
 ## EXAMPLES
 
@@ -71,6 +73,22 @@ Set-WinGetUserSetting -UserSettings @{
     }
 }
 ```
+
+### Example 4: Select the built-in download directory with protected settings
+
+Run from an elevated PowerShell session:
+
+```powershell
+Set-WinGetUserSetting -Admin -UserSettings @{
+    downloadBehavior = @{
+        defaultDownloadDirectory = $null
+    }
+}
+```
+
+Replaces the protected file's settings with an explicit default selection. The ordinary file
+cannot override this download directory in either token context. Include any other protected
+settings you want to retain; do not use `-Merge` to persist an input null.
 
 ## PARAMETERS
 

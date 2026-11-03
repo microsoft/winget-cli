@@ -1,7 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.DSC.psm1-Help.xml
 Module Name: Microsoft.WinGet.DSC
-ms.date: 08/28/2024
+ms.date: 11/03/2026
 online version:
 schema: 2.0.0
 title: WinGetUserSettings
@@ -22,6 +22,9 @@ elevation; Set requires elevation and creates the protected file if needed. This
 raw file contents, not the effective overlay or the capability controls managed by
 `WinGetAdminSettings`. Partial updates retain the existing merge behavior, which ignores
 input nulls; use `Full` to write an explicit null.
+An eligible protected null selects the built-in default without a validation or migration
+warning and prevents ordinary-file fallback. Protected module-root and default-install-root
+values apply only with the non-default full token. Existing Group Policy handling takes precedence.
 
 ## PARAMETERS
 
