@@ -276,7 +276,7 @@ Use `PathName::DefaultConfigurationModules` through the existing
 `GetPathDetailsFor`/`GetPathTo` initialization rather than custom path getters.
 `PathName::ConfigurationModules` continues to select the effective configured
 root, delegating an empty value to that built-in default. Initialize the
-protected parent before creating module descendants; noncreating default
+protected parent before creating module descendants; non-creating default
 lookups return a literal path without display anonymization.
 
 The internal native export

@@ -8,6 +8,7 @@ addportablefile
 addstore
 admins
 AFX
+anonymization
 appinstaller
 appmodel
 appxbundle
