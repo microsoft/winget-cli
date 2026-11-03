@@ -540,7 +540,6 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     OverrideForMSStore(context, true);
     OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::All);
-    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -562,7 +561,11 @@ TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicable", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_NotApplicable }));
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_NotApplicable,
+        TSR::TestInstaller_Exe_LatestInstalled,
+        TSR::TestInstaller_Msix_UpgradeRequiresExplicit,
+        }));
     context.Args.AddArg(Execution::Args::Type::All);
     context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 

@@ -191,6 +191,11 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH);
             }
 
+            if (isUpgrade && upgradeVersionAvailable && !packagePinned)
+            {
+                context.Add<Execution::Data::InstallerInapplicable>(true);
+            }
+
             AICLI_TERMINATE_CONTEXT(isUpgrade ? APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE : APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
     }
@@ -254,7 +259,11 @@ namespace AppInstaller::CLI::Workflow
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
-                ++packagesSkippedNotApplicable;
+                if (updateContext.Contains(Execution::Data::InstallerInapplicable))
+                {
+                    ++packagesSkippedNotApplicable;
+                }
+
                 continue;
             }
 
