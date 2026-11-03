@@ -4,9 +4,51 @@
 #include "winget/NetworkSettings.h"
 #include "winget/AdminSettings.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerStrings.h"
 
 namespace AppInstaller::Settings
 {
+    namespace
+    {
+        std::string GetProxyUriForLog(std::string_view proxyUri)
+        {
+            constexpr auto invalidProxyUri = "[invalid proxy URI]";
+            if (proxyUri.empty())
+            {
+                return invalidProxyUri;
+            }
+
+            try
+            {
+                winrt::Windows::Foundation::Uri uri{ Utility::ConvertToUTF16(proxyUri) };
+                const auto host = uri.Host();
+                // The parser can treat an extra '@' in credentials as part of the host.
+                if (host.empty() || std::wstring_view{ host }.find(L'@') != std::wstring_view::npos)
+                {
+                    return invalidProxyUri;
+                }
+
+                std::string result = Utility::ConvertToUTF8(uri.AbsoluteCanonicalUri());
+                if (!uri.UserName().empty() || !uri.Password().empty())
+                {
+                    const auto userInfoStart = uri.SchemeName().size() + 3;
+                    const auto userInfoEnd = result.find('@', userInfoStart);
+                    if (userInfoEnd == std::string::npos)
+                    {
+                        return invalidProxyUri;
+                    }
+
+                    result.replace(userInfoStart, userInfoEnd - userInfoStart, "[redacted]");
+                }
+                return result;
+            }
+            catch (const winrt::hresult_invalid_argument&)
+            {
+                return invalidProxyUri;
+            }
+        }
+    }
+
     void NetworkSettings::SetProxyUri(const std::optional<std::string>& proxyUri)
     {
         AICLI_LOG(Core, Info, << "Setting proxy");
@@ -14,7 +56,7 @@ namespace AppInstaller::Settings
         if (proxyUri)
         {
             m_proxyUri = proxyUri.value();
-            AICLI_LOG(Core, Info, << "New value for proxy is " << m_proxyUri.value());
+            AICLI_LOG(Core, Info, << "New value for proxy is " << GetProxyUriForLog(m_proxyUri.value()));
         }
         else
         {

@@ -7,6 +7,7 @@
 #include <AppInstallerStrings.h>
 #include <COMContext.h>
 #include <winget/ThreadGlobals.h>
+#include <winget/NetworkSettings.h>
 #include <future>
 #include <set>
 
@@ -202,6 +203,45 @@ namespace
 
         ValidateFileContents(tempFile, expectedFileContents, maximumSize);
     }
+}
+
+TEST_CASE("NetworkSettings_ProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ "https://proxy.invalid:8080", "https://proxy.invalid:8080/" },
+        std::pair{ "HTTPS://Proxy.Invalid:443", "https://proxy.invalid/" },
+        std::pair{ "https://ProxyUser:ProxyPassword@[2001:db8::1]:8080/path@tag?x=@tag#fragment",
+            "https://[redacted]@[2001:db8::1]:8080/path@tag?x=@tag#fragment" },
+        std::pair{ "https://:ProxyPassword%40tail@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ "ProxyUser:ProxyPassword@proxy.invalid:8080", "[invalid proxy URI]" },
+        std::pair{ "https://ProxyUser:ProxyPassword@proxy.invalid:bad", "[invalid proxy URI]" },
+        std::pair{ "", "[invalid proxy URI]" },
+        std::pair{ "https://ProxyUser:ProxyPassword@tail@proxy.invalid:8080", "[invalid proxy URI]" });
+    const std::string proxyUri = testCase.first;
+    const std::string expectedProxyUri = testCase.second;
+    CAPTURE(proxyUri);
+
+    TestUserSettings userSettings;
+    TempFile logFile{ "NetworkSettings_ProxyLog", ".log" };
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+
+    struct TestNetworkSettings : AppInstaller::Settings::NetworkSettings {};
+    TestNetworkSettings networkSettings;
+
+    Log().SetEnabledChannels(DefaultChannel);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    networkSettings.SetProxyUri(proxyUri);
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(networkSettings.GetProxyUri() == proxyUri);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    REQUIRE(logContents.find("New value for proxy is " + expectedProxyUri + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }
 
 TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")
