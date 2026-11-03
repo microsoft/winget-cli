@@ -58,6 +58,7 @@ a single installer and a single locale. If more than one installer or locale is 
 
 The partitioning scheme was added to help with GitHub's UX. Folders with thousands of children do not render well in the browser.
 
+Locale fields use BCP 47 language tags. Both regional tags such as `en-US` and language-only tags such as `en` are supported; a language-only tag can match an available regional locale for the user's language.
 
 ```YAML
 PackageIdentifier:  # Publisher.package format.
