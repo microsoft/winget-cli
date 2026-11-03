@@ -21,6 +21,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
@@ -240,10 +241,10 @@ TEST_CASE("Settings_WarningDisplay", "[Settings][workflow]")
         using UserSettings::m_warnings;
     } settings;
     UserSettings::Warning field{ AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue, ".visual.progressBar", "invalid" };
-    field.Source = LocIndString{ "admin-settings.json" };
+    field.Source = "admin-settings.json"_lis;
     settings.m_warnings.push_back(field);
     UserSettings::Warning migration{ AppInstaller::StringResource::String::SettingsWarningIgnoredWithFullToken, ".downloadBehavior.defaultDownloadDirectory" };
-    migration.Source = LocIndString{ "settings.json" };
+    migration.Source = "settings.json"_lis;
     migration.IsMigrationWarning = true;
     settings.m_warnings.push_back(migration);
 
@@ -442,7 +443,7 @@ TEST_CASE("Settings_DscUserSettingsFileAdminRequiresElevation", "[Settings][work
     context.Args.AddArg(Args::Type::DscResourceFunctionSet);
     context.Override({ EnsureRunningAsAdmin, [](TestContext& ctx)
     {
-        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+        AICLI_TERMINATE_CONTEXT_ARGS(ctx,APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN,);
     }, 1 });
     DscUserSettingsFileResource command({});
     command.Execute(context);

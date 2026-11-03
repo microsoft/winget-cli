@@ -264,6 +264,7 @@ prioritization
 processthreadsapi
 PRODUCTNAME
 PRODUCTVERSION
+PROGRAMDATA
 PROGRESSONLY
 promptrestart
 PROPERTYDUMP
