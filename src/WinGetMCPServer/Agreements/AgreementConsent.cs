@@ -109,6 +109,10 @@ namespace WinGetMCPServer.Agreements
                 {
                     ElicitResult result = await server.ElicitAsync(CreateRequest(introduction, agreements, question), cancellationToken);
 
+                    // The user has now responded directly, so an earlier fallback presentation must not
+                    // authorize a later call.
+                    PresentedAgreements.TryRemove(key, out _);
+
                     if (result.IsAccepted &&
                         result.Content != null &&
                         result.Content.TryGetValue(AcceptFieldName, out JsonElement value) &&
