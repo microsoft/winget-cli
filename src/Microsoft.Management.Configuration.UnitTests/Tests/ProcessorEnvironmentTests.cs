@@ -283,6 +283,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [InlineData(@"C:\Modules\.;C:\Other;C:\Modules\", @"C:\Other")]
         [InlineData(@"C:\ModulesChild;C:\Modules\Child;C:\Modules", @"C:\ModulesChild;C:\Modules\Child")]
         [InlineData(@";C:\Modules;", ";")]
+        [InlineData(@"C:\Other; ;C:\Modules", @"C:\Other")]
+        [InlineData(" \t;C:\\Modules;C:\\Other", @"C:\Other")]
+        [InlineData(@"; ;C:\Modules;", ";")]
         public void HostedEnvironment_CleanupPSModulePath_WholeEntries(string input, string expected)
         {
             var environment = this.fixture.PrepareTestProcessorEnvironment();

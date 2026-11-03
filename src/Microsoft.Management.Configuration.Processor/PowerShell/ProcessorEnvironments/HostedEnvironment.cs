@@ -490,16 +490,32 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
         public void CleanupPSModulePath(string path)
         {
             string normalizedPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            string newModulePath = string.Join(
-                ";",
-                this.GetVariable<string>(Variables.PSModulePath)
-                    .Split(';')
-                    .Where(entry => entry.Length == 0 || !string.Equals(
+            var remainingPaths = new List<string>();
+            foreach (string entry in this.GetVariable<string>(Variables.PSModulePath).Split(';'))
+            {
+                if (entry.Length > 0 && string.IsNullOrWhiteSpace(entry))
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Warning, "Ignoring whitespace-only PSModulePath entry.");
+                    continue;
+                }
+
+                try
+                {
+                    if (entry.Length == 0 || !string.Equals(
                         Path.GetFullPath(entry).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
                         normalizedPath,
-                        StringComparison.OrdinalIgnoreCase)));
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        remainingPaths.Add(entry);
+                    }
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException)
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Warning, $"Ignoring invalid PSModulePath entry '{entry}': {ex.Message}");
+                }
+            }
 
-            this.SetPSModulePath(newModulePath);
+            this.SetPSModulePath(string.Join(";", remainingPaths));
         }
 
         /// <inheritdoc/>

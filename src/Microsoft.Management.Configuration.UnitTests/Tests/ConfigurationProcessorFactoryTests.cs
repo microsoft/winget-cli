@@ -233,7 +233,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var environment = this.fixture.PrepareTestProcessorEnvironment();
             environment.SetPSModulePath(@"C:\Other\Modules");
-            factory.ConfigureModulePaths(environment, true, @"C:\Protected\Default", @"C:\Protected\Configured");
+            string effectiveModulePath = explicitLocation.HasValue ? @"C:\Protected\Default" : @"C:\Protected\Configured";
+            factory.ConfigureModulePaths(environment, true, @"C:\Protected\Default", effectiveModulePath);
 
             string[] paths = environment.GetVariable<string>(Variables.PSModulePath).Split(';');
             Assert.Contains(@"C:\Protected\Default", paths);
