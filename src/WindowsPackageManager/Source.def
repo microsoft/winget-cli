@@ -13,3 +13,4 @@ EXPORTS
     WindowsPackageManagerInProcModuleGetActivationFactory
     WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization
     WindowsPackageManagerServerLog
+    WindowsPackageManagerConfigurationGetModulePath

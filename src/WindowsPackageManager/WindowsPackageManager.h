@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <hstring.h>
+#include <OleAuto.h>
 
 // Forward declaration
 namespace wil { struct FailureInfo; }
@@ -51,4 +52,8 @@ extern "C"
 
     // Allows logging from callers.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerLog(const char* message);
+
+    // Gets the context-specific module path, optionally applying this process's effective user settings.
+    // The caller owns the returned BSTR and must free it with SysFreeString.
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerConfigurationGetModulePath(BOOL useSettings, BOOL* fullToken, BSTR* path);
 }

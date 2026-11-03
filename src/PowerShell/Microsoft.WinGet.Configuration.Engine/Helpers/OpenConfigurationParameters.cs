@@ -93,6 +93,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         public PowerShellConfigurationProcessorLocation Location { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether the caller explicitly selected a module path.
+        /// </summary>
+        public bool HasExplicitModulePath { get; private set; }
+
+        /// <summary>
         /// Gets the custom location to install modules.
         /// </summary>
         public string? CustomLocation { get; private set; }
@@ -159,8 +164,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
 
         private void InitializeModulePath(string modulePath)
         {
+            this.HasExplicitModulePath = !string.IsNullOrEmpty(modulePath);
             // TODO: Create cmdlet that specify the global custom location for a PowerShell session.
-            if (!string.IsNullOrEmpty(modulePath))
+            if (this.HasExplicitModulePath)
             {
                 if (string.Compare(modulePath, Default, true) == 0)
                 {

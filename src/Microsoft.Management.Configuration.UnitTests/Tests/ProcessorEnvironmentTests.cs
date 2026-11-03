@@ -7,6 +7,9 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.Collections.Generic;
+    using Microsoft.Management.Configuration.Processor;
+    using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Moq;
@@ -33,6 +36,27 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             this.fixture = fixture;
             this.log = log;
+        }
+
+        /// <summary>
+        /// DSC import waits until paths are configured and the runspace is validated.
+        /// </summary>
+        /// <param name="type">The processor type.</param>
+        [Theory]
+        [InlineData(PowerShellConfigurationProcessorType.Default)]
+        [InlineData(PowerShellConfigurationProcessorType.Hosted)]
+        public void CreateEnvironment_DefersDscImport(PowerShellConfigurationProcessorType type)
+        {
+            var environment = new ProcessorEnvironmentFactory(type).CreateEnvironment(
+                null,
+                PowerShellConfigurationProcessorPolicy.Unrestricted);
+            using var runspace = environment.Runspace;
+            var specification = new DscModuleV2().ModuleSpecification;
+
+            Assert.Null(environment.GetImportedModule(specification));
+            environment.PrependPSModulePath(this.fixture.ExternalModulesPath);
+            environment.ValidateRunspace();
+            Assert.NotNull(environment.GetImportedModule(specification));
         }
 
         /// <summary>
@@ -246,6 +270,25 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             psModulePathExpected = "CleanupPSModulePathPath2;CleanupPSModulePathPath3";
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
             Assert.Equal(psModulePathExpected, psModulePath);
+        }
+
+        /// <summary>
+        /// Cleanup removes equivalent complete entries, including a sole entry, without removing siblings.
+        /// </summary>
+        /// <param name="input">The inherited module path.</param>
+        /// <param name="expected">The remaining module path.</param>
+        [Theory]
+        [InlineData(@"C:\Modules", "")]
+        [InlineData(@"c:/MODULES/", "")]
+        [InlineData(@"C:\Modules\.;C:\Other;C:\Modules\", @"C:\Other")]
+        [InlineData(@"C:\ModulesChild;C:\Modules\Child;C:\Modules", @"C:\ModulesChild;C:\Modules\Child")]
+        [InlineData(@";C:\Modules;", ";")]
+        public void HostedEnvironment_CleanupPSModulePath_WholeEntries(string input, string expected)
+        {
+            var environment = this.fixture.PrepareTestProcessorEnvironment();
+            environment.SetPSModulePath(input);
+            environment.CleanupPSModulePath(@"C:\Modules");
+            Assert.Equal(expected, environment.GetVariable<string>(Variables.PSModulePath));
         }
     }
 }

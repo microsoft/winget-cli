@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestSettings.h"
+#include <ConfigurationCommon.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
@@ -12,6 +13,7 @@
 #include <Commands/SettingsCommand.h>
 #include <Commands/ValidateCommand.h>
 #include <Workflows/SettingsFlow.h>
+#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -22,6 +24,101 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
+
+namespace
+{
+    namespace ConfigurationAPI = winrt::Microsoft::Management::Configuration;
+    namespace ProcessorFactory = ConfigurationAPI::SetProcessorFactory;
+
+    struct ModulePathTestSettings : TestUserSettings
+    {
+        ModulePathTestSettings(UserSettingsType type) { m_type = type; }
+    };
+
+    struct ModulePathTestFactory : winrt::implements<ModulePathTestFactory,
+        ConfigurationAPI::IConfigurationSetProcessorFactory, ProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>
+    {
+        ConfigurationAPI::IConfigurationSetProcessor CreateSetProcessor(const ConfigurationAPI::ConfigurationSet&) { THROW_HR(E_NOTIMPL); }
+        winrt::event_token Diagnostics(const winrt::Windows::Foundation::EventHandler<ConfigurationAPI::IDiagnosticInformation>&) { THROW_HR(E_NOTIMPL); }
+        void Diagnostics(const winrt::event_token&) noexcept {}
+        ConfigurationAPI::DiagnosticLevel MinimumLevel() { THROW_HR(E_NOTIMPL); }
+        void MinimumLevel(ConfigurationAPI::DiagnosticLevel) { THROW_HR(E_NOTIMPL); }
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::hstring> AdditionalModulePaths() const { THROW_HR(E_NOTIMPL); }
+        void AdditionalModulePaths(const winrt::Windows::Foundation::Collections::IVectorView<winrt::hstring>&) { THROW_HR(E_NOTIMPL); }
+        ProcessorFactory::PwshConfigurationProcessorPolicy Policy() const { THROW_HR(E_NOTIMPL); }
+        void Policy(ProcessorFactory::PwshConfigurationProcessorPolicy) { THROW_HR(E_NOTIMPL); }
+        ProcessorFactory::PwshConfigurationProcessorLocation Location() const { return LocationValue; }
+        void Location(ProcessorFactory::PwshConfigurationProcessorLocation value) { LocationValue = value; LocationSet = true; }
+        winrt::hstring CustomLocation() const { return CustomLocationValue; }
+        void CustomLocation(winrt::hstring value) { CustomLocationValue = value; }
+
+        ProcessorFactory::PwshConfigurationProcessorLocation LocationValue = ProcessorFactory::PwshConfigurationProcessorLocation::Default;
+        bool LocationSet = false;
+        winrt::hstring CustomLocationValue;
+    };
+}
+
+TEST_CASE("ConfigurationModulePath_FileSettingsResolvedInReceiver", "[configuration][workflow]")
+{
+    ModulePathTestSettings settings(GENERATE(UserSettingsType::Default, UserSettingsType::Standard, UserSettingsType::Backup));
+    settings.Set<Setting::ConfigureDefaultModuleRoot>("C:\\MediumSettings\\Modules");
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto factory = winrt::make_self<ModulePathTestFactory>();
+
+    Configuration::SetModulePath(context, factory.as<ConfigurationAPI::IConfigurationSetProcessorFactory>());
+
+    REQUIRE_FALSE(factory->LocationSet);
+    REQUIRE(factory->CustomLocationValue.empty());
+}
+
+TEST_CASE("ConfigurationModulePath_ExplicitSelection", "[configuration][workflow]")
+{
+    ModulePathTestSettings settings(GENERATE(UserSettingsType::Standard, UserSettingsType::Custom));
+    settings.Set<Setting::ConfigureDefaultModuleRoot>("C:\\Settings\\Modules");
+    const std::string argument = GENERATE("default", "currentuser", "allusers", "C:\\Explicit\\Modules");
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Args::Type::ConfigurationModulePath, argument);
+    auto factory = winrt::make_self<ModulePathTestFactory>();
+
+    Configuration::SetModulePath(context, factory.as<ConfigurationAPI::IConfigurationSetProcessorFactory>());
+
+    REQUIRE(factory->LocationSet);
+    if (argument == "C:\\Explicit\\Modules")
+    {
+        REQUIRE(factory->LocationValue == ProcessorFactory::PwshConfigurationProcessorLocation::Custom);
+        REQUIRE(factory->CustomLocationValue == L"C:\\Explicit\\Modules");
+    }
+    else
+    {
+        const auto expected = argument == "currentuser" ? ProcessorFactory::PwshConfigurationProcessorLocation::CurrentUser :
+            argument == "allusers" ? ProcessorFactory::PwshConfigurationProcessorLocation::AllUsers :
+            ProcessorFactory::PwshConfigurationProcessorLocation::Default;
+        REQUIRE(factory->LocationValue == expected);
+        REQUIRE(factory->CustomLocationValue.empty());
+    }
+}
+
+TEST_CASE("ConfigurationModulePath_CustomContentForwarded", "[configuration][workflow]")
+{
+    ModulePathTestSettings settings(UserSettingsType::Custom);
+    const bool configured = GENERATE(false, true);
+    if (configured)
+    {
+        settings.Set<Setting::ConfigureDefaultModuleRoot>("C:\\Authoritative\\Modules");
+    }
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto factory = winrt::make_self<ModulePathTestFactory>();
+
+    Configuration::SetModulePath(context, factory.as<ConfigurationAPI::IConfigurationSetProcessorFactory>());
+
+    REQUIRE(factory->LocationSet);
+    REQUIRE(factory->LocationValue == (configured ? ProcessorFactory::PwshConfigurationProcessorLocation::Custom :
+        ProcessorFactory::PwshConfigurationProcessorLocation::Default));
+    REQUIRE(factory->CustomLocationValue == (configured ? L"C:\\Authoritative\\Modules" : L""));
+}
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {

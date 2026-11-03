@@ -78,9 +78,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
                 throw new NotSupportedException("Only PowerShell Core is supported.");
             }
 
-            // If opening a runspace has failures, like one of the modules in ImportPSModule is not found, it won't throw but
-            // write to the error output. This is not a fatal error, since we install PSDesiredStateConfiguration
-            // module if not found, so unless there's a real reason keep it in verbose.
+            // Report nonfatal runspace initialization errors before validating required modules.
             var errors = this.GetVariable<ArrayList>(Variables.Error);
             if (errors.Count > 0)
             {
@@ -491,9 +489,15 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
         /// <inheritdoc/>
         public void CleanupPSModulePath(string path)
         {
-            string newModulePath = this.GetVariable<string>(Variables.PSModulePath)
-                                       .Replace($"{path};", null)
-                                       .Replace($";{path}", null);
+            string normalizedPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string newModulePath = string.Join(
+                ";",
+                this.GetVariable<string>(Variables.PSModulePath)
+                    .Split(';')
+                    .Where(entry => entry.Length == 0 || !string.Equals(
+                        Path.GetFullPath(entry).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                        normalizedPath,
+                        StringComparison.OrdinalIgnoreCase)));
 
             this.SetPSModulePath(newModulePath);
         }
