@@ -167,14 +167,14 @@ namespace TestHook
         bool m_status;
     };
 
-    struct SetScanArchiveCalled_Override
+    struct SetScanArchiveCalled_Signal
     {
-        SetScanArchiveCalled_Override()
+        SetScanArchiveCalled_Signal()
         {
             AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(&m_status);
         }
 
-        ~SetScanArchiveCalled_Override()
+        ~SetScanArchiveCalled_Signal()
         {
             AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(nullptr);
         }

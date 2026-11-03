@@ -486,7 +486,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
     EnableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
-    TestHook::SetScanArchiveCalled_Override scanArchiveCalled;
+    TestHook::SetScanArchiveCalled_Signal scanArchiveCalled;
 
     InstallCommand install({});
     install.Execute(context);
