@@ -226,6 +226,9 @@
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
     <ClCompile Include="AppShutdown.cpp" />
+    <ClCompile Include="..\Microsoft.Management.Configuration\ShutdownSynchronization.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Archive.cpp" />
     <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />

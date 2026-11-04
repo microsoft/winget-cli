@@ -96,17 +96,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ShutdownSynchronization::BlockNewWork()
     {
+        std::lock_guard<std::mutex> lock{ m_workLock };
         m_disabled = true;
     }
 
     void ShutdownSynchronization::RegisterWorkBegin(CancellableWeakPtr&& ptr)
     {
+        std::lock_guard<std::mutex> lock{ m_workLock };
+
         if (m_disabled)
         {
             THROW_HR(E_ABORT);
         }
 
-        std::lock_guard<std::mutex> lock{ m_workLock };
         m_work.emplace(std::move(ptr));
         m_noActiveWork.ResetEvent();
     }
@@ -131,15 +133,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         std::lock_guard<std::mutex> lock{ m_workLock };
 
-        for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+        for (auto itr = m_work.begin(); itr != m_work.end();)
         {
             if (auto locked = itr->lock())
             {
                 locked->Cancel();
+                ++itr;
             }
             else
             {
-                m_work.erase(itr);
+                itr = m_work.erase(itr);
             }
         }
 
@@ -157,11 +160,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 std::lock_guard<std::mutex> lock{ m_workLock };
 
                 // Check for any inactive work before waiting
-                for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+                for (auto itr = m_work.begin(); itr != m_work.end();)
                 {
                     if (!itr->lock())
                     {
-                        m_work.erase(itr);
+                        itr = m_work.erase(itr);
+                    }
+                    else
+                    {
+                        ++itr;
                     }
                 }
 
