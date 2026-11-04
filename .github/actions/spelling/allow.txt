@@ -278,6 +278,7 @@ rclsid
 REBOOTPROMPT
 Redistributable
 REFCLSID
+reinstaller
 removemanifest
 removepin
 removeportablefile
