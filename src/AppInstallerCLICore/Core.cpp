@@ -6,6 +6,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
+#include <winget/NetworkSettings.h>
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
@@ -99,6 +100,24 @@ namespace AppInstaller::CLI
         }
     }
 
+    void Invocation::Log(const Execution::Args& args) const
+    {
+        AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
+            const auto proxy = args.GetArg(Execution::Args::Type::Proxy);
+            const auto proxyForLog = proxy.empty() ? std::string{} : Settings::GetProxyUriForLog(proxy);
+            std::stringstream strstr;
+            for (auto arg : m_args)
+            {
+                if (!proxy.empty())
+                {
+                    Utility::FindAndReplace(arg, proxy, proxyForLog);
+                }
+                strstr << " '" << arg << '\'';
+            }
+            return strstr.str();
+        }());
+    }
+
     int CoreMain(int argc, wchar_t const** argv) try
     {
         // This prevents the OS package management from terminating the CLI process before it has had a chance to gracefully exit.
@@ -169,15 +188,6 @@ namespace AppInstaller::CLI
             utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
         }
 
-        AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
-                std::stringstream strstr;
-                for (const auto& arg : utf8Args)
-                {
-                    strstr << " '" << arg << '\'';
-                }
-                return strstr.str();
-            }());
-
         Invocation invocation{ std::move(utf8Args) };
 
         // The root command is our fallback in the event of very bad or very little input
@@ -185,6 +195,8 @@ namespace AppInstaller::CLI
 
         try
         {
+            auto logArguments = wil::scope_exit([&]() { invocation.Log(context.Args); });
+
             // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
             if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
             {

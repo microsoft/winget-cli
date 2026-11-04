@@ -10,6 +10,7 @@
 #include <AppInstallerStrings.h>
 #include <COMContext.h>
 #include <Commands/DscAdminSettingsResource.h>
+#include <Commands/RootCommand.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/NetworkSettings.h>
 #include <winget/AdminSettings.h>
@@ -480,6 +481,60 @@ TEST_CASE("DscInputJson_ProxyLogRedactsCredentials", "[logging]")
     auto expectedJson = Json::writeString(Json::StreamWriterBuilder{}, expectedInput);
     AppInstaller::Utility::FindAndReplace(expectedJson, "\n", "\r\n");
     REQUIRE(logContents.find(expectedJson) != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080" },
+            "https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{ "https://proxy.invalid:8080" }, "https://proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{}, "" });
+    const auto& proxyUri = testCase.first;
+    const bool inlineValue = GENERATE(false, true);
+    CAPTURE(proxyUri, inlineValue);
+    std::vector<std::string> values{ "install", "--help" };
+    std::string expectedLog = "WinGet invoked with arguments: 'install' '--help'";
+    if (proxyUri)
+    {
+        if (inlineValue)
+        {
+            values.emplace_back("--proxy=\"" + proxyUri.value() + "\"");
+            expectedLog += " '--proxy=\"" + std::string{ testCase.second } + "\"'";
+        }
+        else
+        {
+            values.emplace_back("--proxy");
+            values.emplace_back(proxyUri.value());
+            expectedLog += " '--proxy' '" + std::string{ testCase.second } + "'";
+        }
+    }
+
+    TestUserSettings userSettings;
+    GroupPolicyTestOverride policies;
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    AppInstaller::CLI::Invocation invocation{ std::move(values) };
+    AppInstaller::CLI::RootCommand root;
+    const auto command = root.FindSubCommand(invocation);
+    REQUIRE(command);
+    AppInstaller::CLI::Execution::Args args;
+    REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+
+    TempFile logFile{ "Invocation_ProxyLog", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    invocation.Log(args);
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(args.GetArg(AppInstaller::CLI::Execution::Args::Type::Proxy) == proxyUri.value_or(""));
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find(expectedLog + "\r\n") != std::string::npos);
     REQUIRE(logContents.find("ProxyUser") == std::string::npos);
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }

@@ -6,6 +6,11 @@
 
 namespace AppInstaller::CLI
 {
+    namespace Execution
+    {
+        struct Args;
+    }
+
     // Contains the raw command line arguments and functionality to iterate and consume them.
     struct Invocation
     {
@@ -40,6 +45,8 @@ namespace AppInstaller::CLI
         iterator begin() { return { m_currentFirstArg, m_args }; }
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }
+
+        void Log(const Execution::Args& args) const;
 
     private:
         std::vector<std::string> m_args;
