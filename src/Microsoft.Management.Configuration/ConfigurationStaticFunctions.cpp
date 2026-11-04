@@ -8,7 +8,7 @@
 #include "ConfigurationProcessor.h"
 #include "ConfigurationParameter.h"
 #include "FindUnitProcessorsOptions.h"
-#include "ShutdownSynchronization.h"
+#include <winget/ShutdownSynchronization.h>
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 
@@ -67,19 +67,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::BlockNewWorkForShutdown()
     {
-        ShutdownSynchronization::Instance().BlockNewWork();
+        AppInstaller::WinRT::ShutdownSynchronization::Instance().BlockNewWork();
         return S_OK;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::BeginShutdown()
     {
-        ShutdownSynchronization::Instance().CancelAllWork();
+        AppInstaller::WinRT::ShutdownSynchronization::Instance().CancelAllWork();
         return S_OK;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::WaitForShutdown()
     {
-        ShutdownSynchronization::Instance().Wait();
+        AppInstaller::WinRT::ShutdownSynchronization::Instance().Wait();
         return S_OK;
     }
 }

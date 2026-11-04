@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ShutdownSynchronization.h"
+#include <winget/ShutdownSynchronization.h>
 
-namespace winrt::Microsoft::Management::Configuration::implementation
+namespace AppInstaller::WinRT
 {
     ShutdownAwareAsyncCancellation::ShutdownAwareAsyncCancellation()
     {
@@ -40,7 +40,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ShutdownSynchronization::Instance().RegisterWorkBegin(m_cancellation->GetWeak());
     }
 
-    Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationPromise::Status() noexcept
+    winrt::Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationPromise::Status() noexcept
     {
         return m_status.load(std::memory_order_acquire);
     }
@@ -48,9 +48,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ShutdownAwareAsyncCancellationPromise::cancellation_callback(winrt::delegate<>&& cancel) noexcept
     {
         {
-            slim_lock_guard const guard(m_lock);
+            winrt::slim_lock_guard const guard(m_lock);
 
-            if (m_status.load(std::memory_order_relaxed) != Windows::Foundation::AsyncStatus::Canceled)
+            if (m_status.load(std::memory_order_relaxed) != winrt::Windows::Foundation::AsyncStatus::Canceled)
             {
                 m_cancel = std::move(cancel);
                 return;
@@ -73,11 +73,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         winrt::delegate<> cancel;
 
         {
-            slim_lock_guard const guard(m_lock);
+            winrt::slim_lock_guard const guard(m_lock);
 
-            if (m_status.load(std::memory_order_relaxed) == Windows::Foundation::AsyncStatus::Started)
+            if (m_status.load(std::memory_order_relaxed) == winrt::Windows::Foundation::AsyncStatus::Started)
             {
-                m_status.store(Windows::Foundation::AsyncStatus::Canceled, std::memory_order_relaxed);
+                m_status.store(winrt::Windows::Foundation::AsyncStatus::Canceled, std::memory_order_relaxed);
                 cancel = std::move(m_cancel);
             }
         }

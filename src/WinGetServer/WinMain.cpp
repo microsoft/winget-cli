@@ -250,7 +250,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
     RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
 
-    WindowsPackageManagerServerLog(manualActivation ? "Initializing manually activated COM server." : "Initializing packaged COM server.");
+    WindowsPackageManagerServerLog(manualActivation ? "Initializing manually activated COM server." : "Initializing COM server.");
     _comServerExitEvent.create();
     RETURN_IF_FAILED(WindowsPackageManagerServerModuleCreate(&_releaseNotifier));
     WindowsPackageManagerServerLog("COM server module created.");

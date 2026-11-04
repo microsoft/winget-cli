@@ -4,7 +4,7 @@
 #include "TestCommon.h"
 #include <winget/Runtime.h>
 #include "Commands/TestCommand.h"
-#include "..\Microsoft.Management.Configuration\ShutdownSynchronization.h"
+#include <winget/ShutdownSynchronization.h>
 
 using namespace AppInstaller::CLI;
 
@@ -27,9 +27,9 @@ TEST_CASE("AppShutdown_WindowMessage", "[appShutdown]")
     REQUIRE(S_OK == context.GetTerminationHR());
 }
 
-TEST_CASE("ConfigurationShutdown_CancelExpiredWork", "[appShutdown]")
+TEST_CASE("ShutdownSynchronization_CancelExpiredWork", "[appShutdown]")
 {
-    using namespace winrt::Microsoft::Management::Configuration::implementation;
+    using namespace AppInstaller::WinRT;
 
     ShutdownSynchronization synchronization;
     ShutdownAwareAsyncCancellationPromise promise;
@@ -49,9 +49,9 @@ TEST_CASE("ConfigurationShutdown_CancelExpiredWork", "[appShutdown]")
     synchronization.Wait();
 }
 
-TEST_CASE("ConfigurationShutdown_WaitForExpiredWork", "[appShutdown]")
+TEST_CASE("ShutdownSynchronization_WaitForExpiredWork", "[appShutdown]")
 {
-    using namespace winrt::Microsoft::Management::Configuration::implementation;
+    using namespace AppInstaller::WinRT;
 
     ShutdownSynchronization synchronization;
     ShutdownAwareAsyncCancellationPromise promise;

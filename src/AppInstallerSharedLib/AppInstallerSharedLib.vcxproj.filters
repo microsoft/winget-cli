@@ -59,6 +59,9 @@
     <ClInclude Include="Public\winget\SharedThreadGlobals.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ShutdownSynchronization.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\LocIndependent.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -179,6 +182,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SharedThreadGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShutdownSynchronization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">
