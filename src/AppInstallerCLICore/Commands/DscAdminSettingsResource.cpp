@@ -5,6 +5,7 @@
 #include "DscComposableObject.h"
 #include "Resources.h"
 #include <winget/AdminSettings.h>
+#include <winget/NetworkSettings.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Repository;
@@ -130,7 +131,8 @@ namespace AppInstaller::CLI
                             else
                             {
                                 value = propertyNode.asString();
-                                AICLI_LOG(Config, Info, << "String admin setting: " << property << " => `" << value.value() << "`");
+                                AICLI_LOG(Config, Info, << "String admin setting: " << property << " => `"
+                                    << (stringSetting == Settings::StringAdminSetting::DefaultProxy ? Settings::GetProxyUriForLog(value.value()) : value.value()) << "`");
                             }
 
                             InputSettings.emplace_back(std::make_unique<AdminSettingsDetails::AdminSetting_String>(stringSetting, std::move(value)));

@@ -4,10 +4,12 @@
 #include "TestCommon.h"
 #include "TestHooks.h"
 #include "TestSettings.h"
+#include "WorkflowCommon.h"
 #include <AppInstallerDownloader.h>
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <COMContext.h>
+#include <Commands/DscAdminSettingsResource.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/NetworkSettings.h>
 #include <winget/AdminSettings.h>
@@ -356,6 +358,60 @@ TEST_CASE("HttpClientHelper_ProxyLogRedactsCredentials", "[logging]")
     Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
 
     REQUIRE(networkSettings.GetProxyUri() == proxyUri);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find(expectedLog + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("DscAdminSettings_ProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080" },
+            "`https://[redacted]@proxy.invalid:8080/`" },
+        std::pair{ std::optional<std::string>{ "https://proxy.invalid:8080" }, "`https://proxy.invalid:8080/`" },
+        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:bad" }, "`[invalid proxy URI]`" },
+        std::pair{ std::optional<std::string>{}, "null" });
+    const auto& proxyUri = testCase.first;
+    const std::string propertyName = GENERATE("DefaultProxy", "dEfAuLtPrOxY");
+    const std::string expectedLog = "String admin setting: " + propertyName + " => " + testCase.second;
+    CAPTURE(proxyUri, propertyName);
+
+    GroupPolicyTestOverride policies;
+    RemoveSetting(AppInstaller::Settings::Stream::AdminSettings);
+    auto removeAdminSettings = wil::scope_exit([]() { RemoveSetting(AppInstaller::Settings::Stream::AdminSettings); });
+    if (proxyUri)
+    {
+        REQUIRE(AppInstaller::Settings::SetAdminSetting(AppInstaller::Settings::StringAdminSetting::DefaultProxy, proxyUri.value()));
+    }
+
+    TestUserSettings userSettings;
+    Json::Value input{ Json::objectValue };
+    input["settings"][propertyName] = proxyUri ? Json::Value{ proxyUri.value() } : Json::Value{};
+    std::istringstream inputStream{ Json::writeString(Json::StreamWriterBuilder{}, input) };
+    std::ostringstream output;
+    TestContext context{ output, inputStream };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(AppInstaller::CLI::Execution::Args::Type::DscResourceFunctionTest);
+
+    TempFile logFile{ "DscAdminSettings_ProxyLog", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::Config);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    AppInstaller::CLI::DscAdminSettingsResource command({});
+    command.Execute(context);
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    std::istringstream outputStream{ output.str() };
+    std::string outputLine;
+    REQUIRE(static_cast<bool>(std::getline(outputStream, outputLine)));
+    const auto result = ConvertToJson(outputLine);
+    REQUIRE(result["_inDesiredState"].asBool());
+    REQUIRE(result["settings"]["DefaultProxy"] == input["settings"][propertyName]);
+
     std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
     const auto logContents = ReadEntireStream(logStream);
     INFO("Log contents:\n" << logContents);
