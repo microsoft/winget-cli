@@ -972,6 +972,17 @@ TEST_CASE("PortableInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
     const auto installerType = GENERATE(InstallerTypeEnum::Portable, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
     CAPTURE(fullToken, scope, installerType);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    TempDirectory machineLinks("PortableElevationMachineLinks", true);
+    const auto originalMachineLinks = AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::PortableLinksMachineLocation);
+    auto restoreMachineLinks = wil::scope_exit([&]()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, originalMachineLinks);
+        });
+    AppInstaller::Filesystem::PathDetails machineLinksDetails;
+    machineLinksDetails.Path = machineLinks.GetPath();
+    machineLinksDetails.Create = false;
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, machineLinksDetails);
+
     ManifestInstaller installer;
     installer.BaseInstallerType = installerType;
     if (installerType == InstallerTypeEnum::Zip)
