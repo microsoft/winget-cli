@@ -94,6 +94,132 @@ TEST_CASE("PortableInstaller_RollbackRemovesPartialInstall", "[PortableInstaller
     REQUIRE(std::filesystem::exists(blockedAlias.GetPath()));
 }
 
+TEST_CASE("PortableInstaller_ReinstallReplacesDirectoryTarget", "[PortableInstaller]")
+{
+    const bool trackedDirectory = GENERATE(false, true);
+    CAPTURE(trackedDirectory);
+    const std::string productCode = "PortableDirectoryReinstallTest";
+    TempDirectory installRoot("PortableDirectoryReinstallRoot", true);
+    TempDirectory oldSource("PortableDirectoryReinstallOld", true);
+    TempDirectory newSource("PortableDirectoryReinstallNew", true);
+    std::ofstream(oldSource.GetPath() / "old.txt") << "old";
+    std::ofstream(newSource.GetPath() / "new.txt") << "new";
+    const auto directoryPath = installRoot.GetPath() / "package";
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+
+    if (trackedDirectory)
+    {
+        PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+        installer.TargetInstallLocation = installRoot.GetPath();
+        installer.RecordToIndex = true;
+        installer.SetDesiredState({ PortableFileEntry::CreateDirectoryEntry(oldSource.GetPath(), directoryPath) });
+        installer.Install();
+        REQUIRE(std::filesystem::exists(directoryPath / "old.txt"));
+    }
+    else
+    {
+        std::filesystem::create_directory(directoryPath);
+    }
+
+    PortableInstaller reinstaller(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    reinstaller.TargetInstallLocation = installRoot.GetPath();
+    reinstaller.RecordToIndex = true;
+    reinstaller.SetDesiredState({ PortableFileEntry::CreateDirectoryEntry(newSource.GetPath(), directoryPath) });
+    REQUIRE_FALSE(reinstaller.IsUpdate());
+    reinstaller.Install();
+    REQUIRE(std::filesystem::exists(directoryPath / "new.txt"));
+    REQUIRE_FALSE(std::filesystem::exists(directoryPath / "old.txt"));
+
+    PortableInstaller uninstaller(ScopeEnum::User, Architecture::X64, productCode, OperationType::Uninstall);
+    uninstaller.Uninstall();
+    REQUIRE_FALSE(std::filesystem::exists(directoryPath));
+    REQUIRE(std::filesystem::exists(installRoot.GetPath()));
+}
+
+TEST_CASE("PortableInstaller_RollbackPreservesUnappliedDirectories", "[PortableInstaller]")
+{
+    const bool recordToIndex = GENERATE(false, true);
+    const bool installFileFirst = GENERATE(false, true);
+    CAPTURE(recordToIndex, installFileFirst);
+    const std::string productCode = "PortableUnappliedDirectoriesTest";
+    TempDirectory installRoot("PortableUnappliedDirectoriesRoot", true);
+    TempDirectory directorySource("PortableUnappliedDirectorySource", true);
+    TempFile fileSource("PortableAppliedFile.txt");
+    std::ofstream(fileSource.GetPath()) << "new";
+    const auto installedFile = installRoot.GetPath() / "new.txt";
+    const auto failedDirectory = installRoot.GetPath() / "existing";
+    const auto unattemptedDirectory = installRoot.GetPath() / "unattempted";
+    std::filesystem::create_directory(failedDirectory);
+    std::filesystem::create_directory(unattemptedDirectory);
+    std::ofstream(failedDirectory / "keep.txt") << "existing";
+    std::ofstream(unattemptedDirectory / "keep.txt") << "unattempted";
+
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.TargetInstallLocation = installRoot.GetPath();
+    installer.RecordToIndex = recordToIndex;
+    std::vector<PortableFileEntry> desiredEntries;
+    if (installFileFirst)
+    {
+        desiredEntries.emplace_back(PortableFileEntry::CreateFileEntry(fileSource.GetPath(), installedFile, {}));
+    }
+    desiredEntries.emplace_back(PortableFileEntry::CreateDirectoryEntry(directorySource.GetPath(), failedDirectory));
+    desiredEntries.emplace_back(PortableFileEntry::CreateDirectoryEntry(directorySource.GetPath(), unattemptedDirectory));
+    installer.SetDesiredState(desiredEntries);
+    REQUIRE_THROWS_HR(installer.Install(), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+    REQUIRE(std::filesystem::exists(installedFile) == installFileFirst);
+    REQUIRE(std::filesystem::exists(directorySource.GetPath()));
+
+    const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
+    if (recordToIndex)
+    {
+        auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(index.GetAllPortableFiles().size() == (installFileFirst ? 1 : 0));
+    }
+
+    installer.PrepareForCleanUp();
+    installer.Uninstall();
+    REQUIRE_FALSE(std::filesystem::exists(installedFile));
+    REQUIRE_FALSE(std::filesystem::exists(indexPath));
+    for (const auto& directory : { failedDirectory, unattemptedDirectory })
+    {
+        std::ifstream file(directory / "keep.txt");
+        std::string contents;
+        std::getline(file, contents);
+        REQUIRE(contents == (directory == failedDirectory ? "existing" : "unattempted"));
+    }
+}
+
+TEST_CASE("PortableInstaller_RollbackHandlesUnindexedReplacement", "[PortableInstaller]")
+{
+    const std::string productCode = "PortableUnindexedReplacementTest";
+    TempDirectory installRoot("PortableUnindexedReplacementRoot", false);
+    TempFile source("PortableUnindexedReplacementSource.txt");
+    std::ofstream(source.GetPath()) << "source";
+    const auto targetPath = installRoot.GetPath() / "missing.txt";
+    auto desiredEntry = PortableFileEntry::CreateFileEntry(source.GetPath(), targetPath, {});
+    std::filesystem::remove(source.GetPath());
+
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.TargetInstallLocation = installRoot.GetPath();
+    installer.RecordToIndex = true;
+    installer.SetDesiredState({ desiredEntry });
+    REQUIRE_THROWS(installer.Install());
+
+    {
+        const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
+        auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(index.IsEmpty());
+    }
+    installer.PrepareForCleanUp();
+    REQUIRE_NOTHROW(installer.Uninstall());
+    REQUIRE_FALSE(std::filesystem::exists(installRoot.GetPath()));
+}
+
 TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
 {
     TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", false);

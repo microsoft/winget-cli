@@ -5,6 +5,7 @@
 #include "winget/PortableFileEntry.h"
 #include <Workflows/WorkflowBase.h>
 #include <filesystem>
+#include <utility>
 
 using namespace AppInstaller::Registry::Portable;
 
@@ -56,7 +57,7 @@ namespace AppInstaller::CLI::Portable
 
         void PrepareForCleanUp()
         {
-            m_expectedEntries = m_desiredEntries;
+            m_expectedEntries = std::move(m_cleanupEntries);
             m_desiredEntries = {};
             InstallLocation = TargetInstallLocation;
         }
@@ -100,6 +101,8 @@ namespace AppInstaller::CLI::Portable
         PortableARPEntry m_portableARPEntry;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
+        // Rollback owns only destinations vacated or created by this installation.
+        std::vector<AppInstaller::Portable::PortableFileEntry> m_cleanupEntries;
         std::stringstream m_stream;
 
         bool SupportsInstall() const { return m_operation == Workflow::OperationType::Install || IsUpdate(); }

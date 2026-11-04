@@ -116,6 +116,9 @@ namespace AppInstaller::CLI::Portable
 
             AICLI_LOG(Core, Info, << "Moving portable exe to: " << filePath);
 
+            // Include partial replacements if moving or copying to the now-vacant target fails.
+            m_cleanupEntries.push_back(entry);
+
             if (!RecordToIndex)
             {
                 CommitToARPEntry(PortableValueName::PortableTargetFullPath, filePath);
@@ -126,15 +129,26 @@ namespace AppInstaller::CLI::Portable
         }
         else if (fileType == PortableFileType::Directory)
         {
+            if (std::filesystem::exists(filePath))
+            {
+                THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS),
+                    !std::filesystem::is_directory(filePath) || !std::filesystem::is_empty(filePath),
+                    "Portable directory target already exists: %ls", filePath.c_str());
+                std::filesystem::remove(filePath);
+            }
+
             if (Filesystem::IsSameVolume(entry.CurrentPath, filePath))
             {
                 AICLI_LOG(Core, Info, << "Renaming directory to: " << filePath);
-                Filesystem::RenameFile(entry.CurrentPath, filePath);
+                std::filesystem::rename(entry.CurrentPath, filePath);
+                m_cleanupEntries.push_back(entry);
             }
             else
             {
                 // Copy directory instead of renaming as there is a known issue with renaming across drives.
                 AICLI_LOG(Core, Info, << "Copying directory to: " << filePath);
+                THROW_WIN32_IF(ERROR_ALREADY_EXISTS, !std::filesystem::create_directory(filePath));
+                m_cleanupEntries.push_back(entry);
                 std::filesystem::copy(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
             }
         }
@@ -147,6 +161,8 @@ namespace AppInstaller::CLI::Portable
             }
 
             AICLI_LOG(Core, Info, << "Creating hardlink at: " << filePath << " pointing to: " << entry.CurrentPath);
+
+            m_cleanupEntries.push_back(entry);
 
             // Try to create hardlink
             if (Filesystem::CreateHardlink(entry.CurrentPath, filePath))
@@ -175,6 +191,7 @@ namespace AppInstaller::CLI::Portable
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
                 std::filesystem::path installDirectory = symlinkTargetPath.parent_path();
                 AddToPathVariable(installDirectory);
+                m_cleanupEntries.push_back(entry);
                 // Only remove the links directory if there are no links in it
                 RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                 AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
@@ -199,6 +216,8 @@ namespace AppInstaller::CLI::Portable
                     AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
                     m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
                 }
+
+                m_cleanupEntries.push_back(entry);
 
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
@@ -274,7 +293,10 @@ namespace AppInstaller::CLI::Portable
                     try
                     {
                         RemoveFile(expectedEntry);
-                        existingIndex.RemovePortableFile(expectedEntry);
+                        if (existingIndex.Exists(expectedEntry))
+                        {
+                            existingIndex.RemovePortableFile(expectedEntry);
+                        }
                     }
                     catch (...)
                     {
@@ -343,8 +365,8 @@ namespace AppInstaller::CLI::Portable
 
             for (auto desiredEntry : m_desiredEntries)
             {
-                targetIndex.AddOrUpdatePortableFile(desiredEntry);
                 InstallFile(desiredEntry);
+                targetIndex.AddOrUpdatePortableFile(desiredEntry);
             }
         }
         else
@@ -373,6 +395,8 @@ namespace AppInstaller::CLI::Portable
     void PortableInstaller::Install()
     {
         THROW_HR_IF(E_UNEXPECTED, !SupportsInstall());
+        m_cleanupEntries.clear();
+        m_cleanupEntries.reserve(m_desiredEntries.size());
 
         // If the operation is an install, the ARP entry should be created first so that a catastrophic failure
         // leaves the system in a state where an uninstall may be possible
