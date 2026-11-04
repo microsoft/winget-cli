@@ -173,27 +173,6 @@ namespace AppInstaller::CLI
         // Move the arguments into an Invocation for future use.
         m_argsBeforeWord = std::make_unique<CLI::Invocation>(std::move(argsBeforeWord));
         m_argsAfterWord = std::make_unique<CLI::Invocation>(std::move(argsAfterWord));
-
-        AICLI_LOG(CLI, Info, << "Completion invoked for arguments:" << [&]() {
-            std::stringstream strstr;
-            for (const auto& arg : *m_argsBeforeWord)
-            {
-                strstr << " '" << arg << '\'';
-            }
-            if (m_word.empty())
-            {
-                strstr << " << [insert] >> ";
-            }
-            else
-            {
-                strstr << " << [replace] '" << m_word << "' >> ";
-            }
-            for (const auto& arg : *m_argsAfterWord)
-            {
-                strstr << " '" << arg << '\'';
-            }
-            return strstr.str();
-            }());
     }
 
     void CompletionData::ParseInto(std::string_view line, std::vector<std::string>& args, bool skipFirst)

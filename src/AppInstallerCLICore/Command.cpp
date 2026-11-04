@@ -930,27 +930,63 @@ namespace AppInstaller::CLI
             }
         }
 
-        AICLI_LOG(CLI, Info, << "Completing word '" << ([&]() {
-            std::string wordForLog = word;
-            if (typeToComplete == Execution::Args::Type::Proxy && !word.empty())
+        if (Logging::Log().IsEnabled(Logging::Channel::CLI, Logging::Level::Info))
+        {
+            std::vector<std::string> argumentsForLog;
+            for (const auto& arg : data.BeforeWord())
             {
-                wordForLog = Settings::GetProxyUriForLog(word);
+                argumentsForLog.emplace_back(arg);
             }
-            else if (!state.Type() && !stateMachine.OnlyPositionalRemain())
+            if (!word.empty())
             {
-                Execution::Args wordArgs;
-                Invocation wordInvocation{ std::vector<std::string>{ word } };
-                ParseArgumentsStateMachine wordStateMachine{ wordInvocation, wordArgs, stateMachine.Arguments() };
-                while (wordStateMachine.Step());
+                argumentsForLog.emplace_back(word);
+            }
+            for (const auto& arg : data.AfterWord())
+            {
+                argumentsForLog.emplace_back(arg);
+            }
 
-                const auto proxy = wordArgs.GetArg(Execution::Args::Type::Proxy);
-                if (!proxy.empty())
+            Execution::Args argsForLog;
+            Invocation invocationForLog{ std::move(argumentsForLog) };
+            ParseArgumentsStateMachine loggingStateMachine{ invocationForLog, argsForLog, stateMachine.Arguments() };
+            auto redactNextArgument = [&](std::string arg) {
+                const auto proxyCount = argsForLog.GetCount(Execution::Args::Type::Proxy);
+                loggingStateMachine.Step();
+                if (argsForLog.GetCount(Execution::Args::Type::Proxy) > proxyCount)
                 {
-                    Utility::FindAndReplace(wordForLog, proxy, Settings::GetProxyUriForLog(proxy));
+                    const auto& proxy = argsForLog.GetArgs(Execution::Args::Type::Proxy)->back();
+                    if (!proxy.empty())
+                    {
+                        Utility::FindAndReplace(arg, proxy, Settings::GetProxyUriForLog(proxy));
+                    }
                 }
+                return arg;
+            };
+
+            std::stringstream argumentsLog;
+            const auto& beforeWord = data.BeforeWord().GetArgs();
+            const auto commandArgumentCount = data.BeforeWord().begin().index();
+            for (size_t i = 0; i < beforeWord.size(); ++i)
+            {
+                argumentsLog << " '" << (i < commandArgumentCount ? beforeWord[i] : redactNextArgument(beforeWord[i])) << '\'';
             }
-            return wordForLog;
-        }()) << '\'');
+            std::string wordForLog = word;
+            if (word.empty())
+            {
+                argumentsLog << " << [insert] >> ";
+            }
+            else
+            {
+                wordForLog = redactNextArgument(word);
+                argumentsLog << " << [replace] '" << wordForLog << "' >> ";
+            }
+            for (const auto& arg : data.AfterWord())
+            {
+                argumentsLog << " '" << redactNextArgument(arg) << '\'';
+            }
+            AICLI_LOG(CLI, Info, << "Completing word '" << wordForLog << '\'');
+            AICLI_LOG(CLI, Info, << "Completion invoked for arguments:" << argumentsLog.str());
+        }
 
         // To enable more complete scenarios, also attempt to parse any arguments after the word to complete.
         // This will allow these later values to affect the result of the completion (for instance, if a specific source is listed).
