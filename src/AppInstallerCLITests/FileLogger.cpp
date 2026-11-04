@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "TestHooks.h"
 #include "TestSettings.h"
+#include <AppInstallerDownloader.h>
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <COMContext.h>
@@ -12,6 +13,8 @@
 #include <winget/AdminSettings.h>
 #include <future>
 #include <set>
+#include <tuple>
+#include <wininet.h>
 
 using namespace AppInstaller::Logging;
 using namespace AppInstaller::Utility;
@@ -282,6 +285,43 @@ TEST_CASE("NetworkSettings_DefaultProxyLogRedactsCredentials", "[logging]")
     const auto logContents = ReadEntireStream(logStream);
     INFO("Log contents:\n" << logContents);
     REQUIRE(logContents.find("Default proxy is " + expectedProxyUri + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("WinINet_ProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::tuple{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/", E_INVALIDARG },
+        std::tuple{ "https://proxy.invalid:8080", "https://proxy.invalid:8080/", HRESULT_FROM_WIN32(ERROR_INTERNET_UNRECOGNIZED_SCHEME) });
+    const std::string proxyUri = std::get<0>(testCase);
+    const std::string expectedProxyUri = std::get<1>(testCase);
+    CAPTURE(proxyUri);
+
+    TestUserSettings userSettings;
+    TempFile logFile{ "WinINet_ProxyLog", ".log" };
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+
+    auto& networkSettings = AppInstaller::Settings::Network();
+    const auto previousProxyUri = networkSettings.GetProxyUri();
+    auto restoreProxyUri = wil::scope_exit([&]() { networkSettings.SetProxyUri(previousProxyUri); });
+    networkSettings.SetProxyUri(proxyUri);
+
+    Log().SetEnabledChannels(DefaultChannel);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    std::ostringstream destination;
+    AppInstaller::ProgressCallback progress;
+    REQUIRE_THROWS_HR(DownloadToStream("invalid://proxy-log-test", destination, DownloadType::Manifest, progress),
+        std::get<2>(testCase));
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(networkSettings.GetProxyUri() == proxyUri);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find("Using proxy " + expectedProxyUri + "\r\n") != std::string::npos);
     REQUIRE(logContents.find("ProxyUser") == std::string::npos);
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }

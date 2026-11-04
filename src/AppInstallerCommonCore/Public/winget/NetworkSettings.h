@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::Settings
@@ -30,4 +31,7 @@ namespace AppInstaller::Settings
     };
 
     NetworkSettings& Network();
+
+    // Formats a proxy URI for logging without exposing userinfo.
+    std::string GetProxyUriForLog(std::string_view proxyUri);
 }
