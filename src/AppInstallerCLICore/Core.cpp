@@ -102,25 +102,45 @@ namespace AppInstaller::CLI
 
     void Invocation::Log(const Execution::Args& args, std::wstring_view commandLine) const
     {
+        std::vector<std::string_view> proxies;
+        if (const auto* parsedProxies = args.GetArgs(Execution::Args::Type::Proxy))
+        {
+            proxies.assign(parsedProxies->begin(), parsedProxies->end());
+            // Match longer values first so shorter proxies cannot alter them.
+            std::sort(proxies.begin(), proxies.end(), [](std::string_view a, std::string_view b)
+            {
+                return a.size() == b.size() ? a > b : a.size() > b.size();
+            });
+            proxies.erase(std::unique(proxies.begin(), proxies.end()), proxies.end());
+        }
+
         AICLI_LOG(Core, Info, << "Command line Args: " << [&]() {
             auto commandLineForLog = Utility::ConvertToUTF8(commandLine);
-            const auto proxy = args.GetArg(Execution::Args::Type::Proxy);
-            if (!proxy.empty())
+            for (const auto proxy : proxies)
             {
-                Utility::FindAndReplace(commandLineForLog, proxy, Settings::GetProxyUriForLog(proxy));
+                if (!proxy.empty())
+                {
+                    Utility::FindAndReplace(commandLineForLog, proxy, Settings::GetProxyUriForLog(proxy));
+                }
             }
             return commandLineForLog;
         }());
         AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
-            const auto proxy = args.GetArg(Execution::Args::Type::Proxy);
-            const auto proxyForLog = proxy.empty() ? std::string{} : Settings::GetProxyUriForLog(proxy);
-            std::stringstream strstr;
-            for (auto arg : m_args)
+            auto argsForLog = m_args;
+            for (const auto proxy : proxies)
             {
                 if (!proxy.empty())
                 {
-                    Utility::FindAndReplace(arg, proxy, proxyForLog);
+                    const auto proxyForLog = Settings::GetProxyUriForLog(proxy);
+                    for (auto& arg : argsForLog)
+                    {
+                        Utility::FindAndReplace(arg, proxy, proxyForLog);
+                    }
                 }
+            }
+            std::stringstream strstr;
+            for (const auto& arg : argsForLog)
+            {
                 strstr << " '" << arg << '\'';
             }
             return strstr.str();

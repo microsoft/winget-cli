@@ -488,34 +488,53 @@ TEST_CASE("DscInputJson_ProxyLogRedactsCredentials", "[logging]")
 
 TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
 {
-    const auto testCase = GENERATE(
-        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080" },
-            "https://[redacted]@proxy.invalid:8080/" },
-        std::pair{ std::optional<std::string>{ "https://proxy.invalid:8080" }, "https://proxy.invalid:8080/" },
-        std::pair{ std::optional<std::string>{}, "" });
-    const auto& proxyUri = testCase.first;
+    using ProxyValues = std::vector<std::pair<std::string, std::string>>;
+    auto proxies = GENERATE(
+        ProxyValues{ { "https://ProxyUser:ProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" } },
+        ProxyValues{ { "https://proxy.invalid:8080", "https://proxy.invalid:8080/" } },
+        ProxyValues{},
+        ProxyValues{
+            { "https://ProxyUser:ProxyPassword@first.invalid:8080", "https://[redacted]@first.invalid:8080/" },
+            { "https://OtherProxyUser:OtherProxyPassword@second.invalid:8080", "https://[redacted]@second.invalid:8080/" } },
+        ProxyValues{
+            { "https://ProxyUser:ProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" },
+            { "https://ProxyUser:ProxyPassword@proxy.invalid:8080/path", "https://[redacted]@proxy.invalid:8080/path" } },
+        ProxyValues{
+            { "https://proxy.invalid:8080", "https://proxy.invalid:8080/" },
+            { "https://other.invalid:8080", "https://other.invalid:8080/" },
+            { "https://proxy.invalid:8080", "https://proxy.invalid:8080/" } },
+        ProxyValues{
+            { "", "" },
+            { "https://OtherProxyUser:OtherProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" } });
+    const bool reverseOrder = GENERATE(false, true);
+    if (reverseOrder)
+    {
+        std::reverse(proxies.begin(), proxies.end());
+    }
     const bool inlineValue = GENERATE(false, true);
-    CAPTURE(proxyUri, inlineValue);
+    CAPTURE(proxies, reverseOrder, inlineValue);
     std::vector<std::string> values{ "install", "--help" };
+    std::vector<std::string> expectedProxies;
     std::string expectedLog = "WinGet invoked with arguments: 'install' '--help'";
     std::string commandLine = "\"winget client.exe\"  install\t--help";
     std::string expectedCommandLine = commandLine;
-    if (proxyUri)
+    for (const auto& [proxyUri, proxyForLog] : proxies)
     {
+        expectedProxies.emplace_back(proxyUri);
         if (inlineValue)
         {
-            values.emplace_back("--proxy=\"" + proxyUri.value() + "\"");
-            expectedLog += " '--proxy=\"" + std::string{ testCase.second } + "\"'";
-            commandLine += "  --proxy=\"" + proxyUri.value() + "\"";
-            expectedCommandLine += "  --proxy=\"" + std::string{ testCase.second } + "\"";
+            values.emplace_back("--proxy=\"" + proxyUri + "\"");
+            expectedLog += " '--proxy=\"" + proxyForLog + "\"'";
+            commandLine += "  --proxy=\"" + proxyUri + "\"";
+            expectedCommandLine += "  --proxy=\"" + proxyForLog + "\"";
         }
         else
         {
             values.emplace_back("--proxy");
-            values.emplace_back(proxyUri.value());
-            expectedLog += " '--proxy' '" + std::string{ testCase.second } + "'";
-            commandLine += "  --proxy  \"" + proxyUri.value() + "\"";
-            expectedCommandLine += "  --proxy  \"" + std::string{ testCase.second } + "\"";
+            values.emplace_back(proxyUri);
+            expectedLog += " '--proxy' '" + proxyForLog + "'";
+            commandLine += "  --proxy  \"" + proxyUri + "\"";
+            expectedCommandLine += "  --proxy  \"" + proxyForLog + "\"";
         }
     }
 
@@ -523,6 +542,7 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     GroupPolicyTestOverride policies;
     AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
     auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    const auto originalValues = values;
     AppInstaller::CLI::Invocation invocation{ std::move(values) };
     AppInstaller::CLI::RootCommand root;
     const auto command = root.FindSubCommand(invocation);
@@ -537,14 +557,21 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     invocation.Log(args, ConvertToUTF16(commandLine));
     Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
 
-    REQUIRE(args.GetArg(AppInstaller::CLI::Execution::Args::Type::Proxy) == proxyUri.value_or(""));
+    CHECK(invocation.GetArgs() == originalValues);
+    CHECK(args.GetCount(AppInstaller::CLI::Execution::Args::Type::Proxy) == expectedProxies.size());
+    if (!expectedProxies.empty())
+    {
+        const auto* parsedProxies = args.GetArgs(AppInstaller::CLI::Execution::Args::Type::Proxy);
+        REQUIRE(parsedProxies);
+        CHECK(*parsedProxies == expectedProxies);
+    }
     std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
     const auto logContents = ReadEntireStream(logStream);
     INFO("Log contents:\n" << logContents);
-    REQUIRE(logContents.find(expectedLog + "\r\n") != std::string::npos);
-    REQUIRE(logContents.find("Command line Args: " + expectedCommandLine + "\r\n") != std::string::npos);
-    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
-    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+    CHECK(logContents.find(expectedLog + "\r\n") != std::string::npos);
+    CHECK(logContents.find("Command line Args: " + expectedCommandLine + "\r\n") != std::string::npos);
+    CHECK(logContents.find("ProxyUser") == std::string::npos);
+    CHECK(logContents.find("ProxyPassword") == std::string::npos);
 }
 
 TEST_CASE("Telemetry_StartupCommandLineLogging", "[logging]")
