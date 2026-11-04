@@ -55,6 +55,8 @@ namespace AppInstaller::CLI::Workflow
         bool versionFound = false;
         bool installedTypeInapplicable = false;
         bool packagePinned = false;
+        bool upgradeVersionPassedPin = false;
+        bool installerInapplicable = false;
 
         if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
@@ -109,12 +111,14 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
+                upgradeVersionPassedPin = true;
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
                 auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    installerInapplicable = true;
                     // If there is at least one installer whose only reason is InstalledType.
                     auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), Manifest::InapplicabilityFlags::InstalledType);
                     if (onlyInstalledType != inapplicabilities.end())
@@ -191,7 +195,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH);
             }
 
-            if (isUpgrade && upgradeVersionAvailable && !packagePinned)
+            if (isUpgrade && upgradeVersionPassedPin && installerInapplicable)
             {
                 context.Add<Execution::Data::InstallerInapplicable>(true);
             }
