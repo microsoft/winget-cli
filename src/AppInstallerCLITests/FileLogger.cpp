@@ -3,11 +3,13 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <COMContext.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/NetworkSettings.h>
+#include <winget/AdminSettings.h>
 #include <future>
 #include <set>
 
@@ -240,6 +242,46 @@ TEST_CASE("NetworkSettings_ProxyLogRedactsCredentials", "[logging]")
     std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
     const auto logContents = ReadEntireStream(logStream);
     REQUIRE(logContents.find("New value for proxy is " + expectedProxyUri + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("NetworkSettings_DefaultProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080" },
+            "https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{ "https://proxy.invalid:8080" }, "https://proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{}, "not set" });
+    const auto& proxyUri = testCase.first;
+    const std::string expectedProxyUri = testCase.second;
+    CAPTURE(proxyUri);
+
+    GroupPolicyTestOverride policies;
+    RemoveSetting(AppInstaller::Settings::Stream::AdminSettings);
+    auto removeAdminSettings = wil::scope_exit([]() { RemoveSetting(AppInstaller::Settings::Stream::AdminSettings); });
+    if (proxyUri)
+    {
+        REQUIRE(AppInstaller::Settings::SetAdminSetting(AppInstaller::Settings::StringAdminSetting::DefaultProxy, proxyUri.value()));
+    }
+
+    TestUserSettings userSettings;
+    TempFile logFile{ "NetworkSettings_DefaultProxyLog", ".log" };
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+
+    Log().SetEnabledChannels(DefaultChannel);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    struct TestNetworkSettings : AppInstaller::Settings::NetworkSettings {};
+    TestNetworkSettings networkSettings;
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(networkSettings.GetProxyUri() == proxyUri);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find("Default proxy is " + expectedProxyUri + "\r\n") != std::string::npos);
     REQUIRE(logContents.find("ProxyUser") == std::string::npos);
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }

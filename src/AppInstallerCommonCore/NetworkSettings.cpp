@@ -94,7 +94,7 @@ namespace AppInstaller::Settings
             m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
         }
         CATCH_LOG()
-        AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? m_proxyUri.value() : "not set"));
+        AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? GetProxyUriForLog(m_proxyUri.value()) : "not set"));
     }
 
     NetworkSettings& NetworkSettings::Instance()
