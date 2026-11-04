@@ -10,6 +10,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -20,6 +21,8 @@
 
 namespace AppInstaller::CLI
 {
+    struct CompletionData;
+
     struct CommandException
     {
         CommandException(Resource::LocString message) : m_message(std::move(message)) {}
@@ -112,6 +115,9 @@ namespace AppInstaller::CLI
         virtual std::unique_ptr<Command> FindSubCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
         virtual void ValidateArguments(Execution::Args& execArgs) const;
+
+        // Maps unconsumed completion-token indices to proxy values.
+        std::map<size_t, std::string> GetCompletionProxiesForLog(const CompletionData& data) const;
 
         virtual void Complete(Execution::Context& context) const;
         virtual void Complete(Execution::Context& context, Execution::Args::Type valueType) const;

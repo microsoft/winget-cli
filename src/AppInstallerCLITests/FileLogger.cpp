@@ -574,6 +574,122 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     CHECK(logContents.find("ProxyPassword") == std::string::npos);
 }
 
+TEST_CASE("Invocation_CompletionProxyLogRedactsCredentials", "[logging][complete]")
+{
+    using namespace AppInstaller::CLI;
+    const bool inlineValue = GENERATE(false, true);
+    const bool includeOuterProxy = GENERATE(false, true);
+    const std::string proxyUri = "https://ProxyUser:ProxyPassword@proxy.invalid:8080";
+    const std::string proxyForLog = "https://[redacted]@proxy.invalid:8080/";
+    const std::string proxyArgument = (inlineValue ? "--proxy=" : "--proxy ") + proxyUri;
+    const std::string proxyArgumentForLog = (inlineValue ? "--proxy=" : "--proxy ") + proxyForLog;
+    using CompletionInput = std::tuple<std::string, std::string, std::string, std::string>;
+    const auto input = GENERATE_COPY(
+        CompletionInput{ "--he", "winget install " + proxyArgument + " --he",
+            "--he", "winget install " + proxyArgumentForLog + " --he" },
+        CompletionInput{ inlineValue ? proxyArgument : proxyUri, "winget install " + proxyArgument,
+            inlineValue ? proxyArgumentForLog : proxyForLog, "winget install " + proxyArgumentForLog },
+        CompletionInput{ "--he", "winget install --he " + proxyArgument,
+            "--he", "winget install --he " + proxyArgumentForLog },
+        CompletionInput{ "", "winget install " + proxyArgument,
+            "", "winget install " + proxyArgumentForLog },
+        CompletionInput{ "--he", "winget source add " + proxyArgument + " --he",
+            "--he", "winget source add " + proxyArgumentForLog + " --he" },
+        CompletionInput{ "--he", "winget install " + proxyArgument + " " + proxyArgument + "/path " + proxyArgument + " --he",
+            "--he", "winget install " + proxyArgumentForLog + " " + proxyArgumentForLog + "path " + proxyArgumentForLog + " --he" },
+        CompletionInput{ "--he", "winget install --source " + proxyArgument + " --he",
+            "--he", "winget install --source " + proxyArgument + " --he" },
+        CompletionInput{ "--he", "winget install --he", "--he", "winget install --he" });
+    const auto& [word, nestedCommandLine, expectedWord, expectedNestedCommandLine] = input;
+    const auto cursor = word.empty() ?
+        nestedCommandLine.find(inlineValue ? "--proxy" : proxyUri) :
+        nestedCommandLine.rfind(word) + word.size();
+    const auto position = std::to_string(cursor);
+    CAPTURE(inlineValue, includeOuterProxy, word, nestedCommandLine, position);
+    std::vector<std::string> values{ "complete", "--word", word, "--commandline", nestedCommandLine, "--position", position };
+    std::string expectedLog = "WinGet invoked with arguments: 'complete' '--word' '" + expectedWord +
+        "' '--commandline' '" + expectedNestedCommandLine + "' '--position' '" + position + "'";
+    std::string commandLine = "winget complete --word \"" + word + "\" --commandline \"" + nestedCommandLine + "\" --position " + position;
+    std::string expectedCommandLine = "winget complete --word \"" + expectedWord +
+        "\" --commandline \"" + expectedNestedCommandLine + "\" --position " + position;
+    const std::string outerProxy = "https://OuterProxyUser:OuterProxyPassword@outer.invalid:8181";
+    if (includeOuterProxy)
+    {
+        values.emplace_back("--proxy");
+        values.emplace_back(outerProxy);
+        expectedLog += " '--proxy' 'https://[redacted]@outer.invalid:8181/'";
+        commandLine += " --proxy " + outerProxy;
+        expectedCommandLine += " --proxy https://[redacted]@outer.invalid:8181/";
+    }
+
+    TestUserSettings userSettings;
+    GroupPolicyTestOverride policies;
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    const auto originalValues = values;
+    Invocation invocation{ std::move(values) };
+    RootCommand root;
+    const auto command = root.FindSubCommand(invocation);
+    REQUIRE(command);
+    Execution::Args args;
+    REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+
+    TempFile logFile{ "Invocation_CompletionProxyLog", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI | AppInstaller::Logging::Channel::Core);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    REQUIRE_NOTHROW(invocation.Log(args, ConvertToUTF16(commandLine)));
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    CHECK(invocation.GetArgs() == originalValues);
+    CHECK(args.GetArg(Execution::Args::Type::Word) == word);
+    CHECK(args.GetArg(Execution::Args::Type::CommandLine) == nestedCommandLine);
+    CHECK(args.GetArg(Execution::Args::Type::Position) == position);
+    CHECK(args.GetCount(Execution::Args::Type::Proxy) == static_cast<size_t>(includeOuterProxy));
+    if (includeOuterProxy)
+    {
+        CHECK(args.GetArg(Execution::Args::Type::Proxy) == outerProxy);
+    }
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    CHECK(logContents.find(expectedLog + "\r\n") != std::string::npos);
+    CHECK(logContents.find("Command line Args: " + expectedCommandLine + "\r\n") != std::string::npos);
+    if (expectedNestedCommandLine.find(proxyUri) == std::string::npos)
+    {
+        CHECK(logContents.find("ProxyUser") == std::string::npos);
+        CHECK(logContents.find("ProxyPassword") == std::string::npos);
+    }
+}
+
+TEST_CASE("Invocation_InvalidCompletionInputLogging", "[logging][complete]")
+{
+    using namespace AppInstaller::CLI;
+    TestUserSettings userSettings;
+    GroupPolicyTestOverride policies;
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    Invocation invocation{ { "complete", "--word", "--he", "--commandline", "winget install --he", "--position", "invalid" } };
+    RootCommand root;
+    const auto command = root.FindSubCommand(invocation);
+    REQUIRE(command);
+    Execution::Args args;
+    REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+    const std::wstring commandLine = L"winget complete --word --he --commandline \"winget install --he\" --position invalid";
+
+    TempFile logFile{ "Invocation_InvalidCompletionInput", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI | AppInstaller::Logging::Channel::Core);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    REQUIRE_NOTHROW(invocation.Log(args, commandLine));
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    CHECK(logContents.find("WinGet invoked with arguments: 'complete' '--word' '--he' '--commandline' 'winget install --he' '--position' 'invalid'\r\n") != std::string::npos);
+    CHECK(logContents.find("Command line Args: " + ConvertToUTF8(commandLine) + "\r\n") != std::string::npos);
+}
+
 TEST_CASE("Telemetry_StartupCommandLineLogging", "[logging]")
 {
     const bool logCommandLine = GENERATE(false, true);

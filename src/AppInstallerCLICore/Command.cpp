@@ -840,6 +840,40 @@ namespace AppInstaller::CLI
         ValidateArgumentsInternal(execArgs);
     }
 
+    std::map<size_t, std::string> Command::GetCompletionProxiesForLog(const CompletionData& data) const
+    {
+        std::vector<std::string> argumentsForLog;
+        for (const auto& arg : data.BeforeWord())
+        {
+            argumentsForLog.emplace_back(arg);
+        }
+        if (!data.Word().empty())
+        {
+            argumentsForLog.emplace_back(data.Word());
+        }
+        for (const auto& arg : data.AfterWord())
+        {
+            argumentsForLog.emplace_back(arg);
+        }
+
+        auto definedArgs = GetArguments();
+        Argument::GetCommon(definedArgs);
+        Execution::Args argsForLog;
+        Invocation invocationForLog{ std::move(argumentsForLog) };
+        ParseArgumentsStateMachine loggingStateMachine{ invocationForLog, argsForLog, std::move(definedArgs) };
+        std::map<size_t, std::string> proxies;
+        for (size_t i = 0; i < invocationForLog.GetArgs().size(); ++i)
+        {
+            const auto proxyCount = argsForLog.GetCount(Execution::Args::Type::Proxy);
+            loggingStateMachine.Step();
+            if (argsForLog.GetCount(Execution::Args::Type::Proxy) > proxyCount)
+            {
+                proxies.emplace(i, argsForLog.GetArgs(Execution::Args::Type::Proxy)->back());
+            }
+        }
+        return proxies;
+    }
+
     // Completion can produce one of several things if the completion context is appropriate:
     //  1. Sub commands, if the context is immediately after this command.
     //  2. Argument names, if a value is not expected.
@@ -932,33 +966,14 @@ namespace AppInstaller::CLI
 
         if (Logging::Log().IsEnabled(Logging::Channel::CLI, Logging::Level::Info))
         {
-            std::vector<std::string> argumentsForLog;
-            for (const auto& arg : data.BeforeWord())
+            const auto proxies = GetCompletionProxiesForLog(data);
+            size_t argumentIndex = 0;
+            auto redactNextArgument = [&](std::string arg)
             {
-                argumentsForLog.emplace_back(arg);
-            }
-            if (!word.empty())
-            {
-                argumentsForLog.emplace_back(word);
-            }
-            for (const auto& arg : data.AfterWord())
-            {
-                argumentsForLog.emplace_back(arg);
-            }
-
-            Execution::Args argsForLog;
-            Invocation invocationForLog{ std::move(argumentsForLog) };
-            ParseArgumentsStateMachine loggingStateMachine{ invocationForLog, argsForLog, stateMachine.Arguments() };
-            auto redactNextArgument = [&](std::string arg) {
-                const auto proxyCount = argsForLog.GetCount(Execution::Args::Type::Proxy);
-                loggingStateMachine.Step();
-                if (argsForLog.GetCount(Execution::Args::Type::Proxy) > proxyCount)
+                const auto proxy = proxies.find(argumentIndex++);
+                if (proxy != proxies.end() && !proxy->second.empty())
                 {
-                    const auto& proxy = argsForLog.GetArgs(Execution::Args::Type::Proxy)->back();
-                    if (!proxy.empty())
-                    {
-                        Utility::FindAndReplace(arg, proxy, Settings::GetProxyUriForLog(proxy));
-                    }
+                    Utility::FindAndReplace(arg, proxy->second, Settings::GetProxyUriForLog(proxy->second));
                 }
                 return arg;
             };

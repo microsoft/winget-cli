@@ -4,11 +4,49 @@
 #include "CompleteCommand.h"
 #include "RootCommand.h"
 #include "Resources.h"
+#include <functional>
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Execution;
+
+    namespace
+    {
+        void WithCompletionCommand(const Args& args, const std::function<void(const Command&, CompletionData&&)>& action)
+        {
+            try
+            {
+                CompletionData data{
+                    args.GetArg(Args::Type::Word),
+                    args.GetArg(Args::Type::CommandLine),
+                    args.GetArg(Args::Type::Position) };
+
+                std::unique_ptr<Command> command = std::make_unique<RootCommand>();
+
+                std::unique_ptr<Command> subCommand = command->FindSubCommand(data.BeforeWord());
+                while (subCommand)
+                {
+                    command = std::move(subCommand);
+                    subCommand = command->FindSubCommand(data.BeforeWord());
+                }
+
+                action(*command, std::move(data));
+            }
+            catch (const CommandException& ce)
+            {
+                AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
+            }
+            catch (const Settings::GroupPolicyException& e)
+            {
+                AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: Blocked by Group Policy " << Settings::TogglePolicy::GetPolicy(e.Policy()).RegValueName());
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring...");
+            }
+        }
+    }
 
     std::vector<Argument> CompleteCommand::GetArguments() const
     {
@@ -34,24 +72,26 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-complete"_liv;
     }
 
+    Args CompleteCommand::GetArgumentsForLog(const Args& args)
+    {
+        Args argsForLog = args;
+        if (args.Contains(Args::Type::Word) && args.Contains(Args::Type::CommandLine) && args.Contains(Args::Type::Position))
+        {
+            WithCompletionCommand(args, [&](const Command& command, CompletionData&& data)
+            {
+                for (const auto& proxy : command.GetCompletionProxiesForLog(data))
+                {
+                    argsForLog.AddArg(Args::Type::Proxy, proxy.second);
+                }
+            });
+        }
+        return argsForLog;
+    }
+
     void CompleteCommand::ExecuteInternal(Execution::Context& context) const
     {
-        try
+        WithCompletionCommand(context.Args, [&](const Command& command, CompletionData&& data)
         {
-            CompletionData data{
-                context.Args.GetArg(Args::Type::Word),
-                context.Args.GetArg(Args::Type::CommandLine),
-                context.Args.GetArg(Args::Type::Position) };
-
-            std::unique_ptr<Command> command = std::make_unique<RootCommand>();
-
-            std::unique_ptr<Command> subCommand = command->FindSubCommand(data.BeforeWord());
-            while (subCommand)
-            {
-                command = std::move(subCommand);
-                subCommand = command->FindSubCommand(data.BeforeWord());
-            }
-
             // Create a new Context to execute the Complete from
             auto subContextPtr = context.CreateSubContext();
             Context& subContext = *subContextPtr;
@@ -63,20 +103,8 @@ namespace AppInstaller::CLI
             // Disable all telemetry while doing a completion
             Logging::DisableTelemetryScope disable;
 
-            AICLI_LOG(CLI, Info, << "Complete handing off to command " << command->FullName());
-            command->Complete(subContext);
-        }
-        catch (const CommandException& ce)
-        {
-            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
-        }
-        catch (const Settings::GroupPolicyException& e)
-        {
-            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: Blocked by Group Policy " << Settings::TogglePolicy::GetPolicy(e.Policy()).RegValueName());
-        }
-        catch (...)
-        {
-            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring...");
-        }
+            AICLI_LOG(CLI, Info, << "Complete handing off to command " << command.FullName());
+            command.Complete(subContext);
+        });
     }
 }

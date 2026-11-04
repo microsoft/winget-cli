@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
+#include "Commands/CompleteCommand.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
@@ -102,8 +103,15 @@ namespace AppInstaller::CLI
 
     void Invocation::Log(const Execution::Args& args, std::wstring_view commandLine) const
     {
+        if (!Logging::Log().IsEnabled(Logging::Channel::Core, Logging::Level::Info) &&
+            !Logging::Log().IsEnabled(Logging::Channel::CLI, Logging::Level::Info))
+        {
+            return;
+        }
+
+        const auto parsedArgsForLog = CompleteCommand::GetArgumentsForLog(args);
         std::vector<std::string_view> proxies;
-        if (const auto* parsedProxies = args.GetArgs(Execution::Args::Type::Proxy))
+        if (const auto* parsedProxies = parsedArgsForLog.GetArgs(Execution::Args::Type::Proxy))
         {
             proxies.assign(parsedProxies->begin(), parsedProxies->end());
             // Match longer values first so shorter proxies cannot alter them.
