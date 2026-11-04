@@ -96,6 +96,23 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
+        /// A source that changes its agreements identifier without declaring any agreements has nothing to accept.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task EmptyAgreements_Satisfied()
+        {
+            this.source.WriteInformation("AgreementsV1", requiresMarket: false);
+            await this.AddCatalogAsync();
+
+            this.source.WriteInformation("AgreementsV2", requiresMarket: false, includeAgreements: false);
+            var catalogRef = this.packageManager.GetPackageCatalogByName(this.source.Name);
+
+            Assert.That(catalogRef.SourceAgreements.Count, Is.EqualTo(0));
+            Assert.That(catalogRef.SourceAgreementsSatisfied, Is.True);
+        }
+
+        /// <summary>
         /// The agreement members are not available on a composite catalog reference.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>

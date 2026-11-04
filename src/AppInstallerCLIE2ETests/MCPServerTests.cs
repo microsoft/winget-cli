@@ -410,6 +410,29 @@ namespace AppInstallerCLIE2ETests
             Assert.That(result.Content.OfType<TextContentBlock>().Skip(1).Single().Text, Does.Contain(AgreementsSourceName));
         }
 
+        /// <summary>
+        /// Verifies that a source whose agreements identifier changed without declaring any agreements is used,
+        /// as there is nothing to consent to.
+        /// </summary>
+        /// <returns>A task.</returns>
+        [Test]
+        public async Task SourceAgreements_EmptyAgreements()
+        {
+            this.agreementsSource.AddWithUnacceptedAgreements();
+            this.agreementsSource.WriteInformation("AgreementsV3", requiresMarket: false, includeAgreements: false);
+
+            var elicitation = new ElicitationRecorder(ElicitationRecorder.Respond("decline", false));
+            await using McpClient client = await CreateClientAsync(elicitation);
+
+            CallToolResult result = await FindTestPackageAsync(client, acceptSourceAgreements: null);
+
+            Assert.That(result.IsError, Is.Not.True, GetText(result));
+            Assert.That(elicitation.Requests.Count, Is.EqualTo(0));
+            Assert.That(HasAgreements(result), Is.False, GetText(result));
+            Assert.That(GetExcludedSources(result), Is.Empty);
+            Assert.That(GetStructuredStrings(result, "unavailableSources"), Is.Empty);
+        }
+
         private static void CleanupTestPackages()
         {
             // Other tests may have installed these packages elsewhere, and the test installer's uninstaller

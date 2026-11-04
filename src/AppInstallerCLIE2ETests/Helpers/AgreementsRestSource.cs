@@ -56,16 +56,19 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         /// <param name="agreementsIdentifier">The agreements identifier, or null for a source without agreements.</param>
         /// <param name="requiresMarket">Whether the source requires the market, which is an implicit agreement.</param>
-        public void WriteInformation(string agreementsIdentifier, bool requiresMarket)
+        /// <param name="includeAgreements">Whether the agreements identifier is accompanied by an agreement.</param>
+        public void WriteInformation(string agreementsIdentifier, bool requiresMarket, bool includeAgreements = true)
         {
-            string agreements = agreementsIdentifier == null ? string.Empty : $@",
-    ""SourceAgreements"": {{
-      ""AgreementsIdentifier"": ""{agreementsIdentifier}"",
-      ""Agreements"": [{{
+            string agreementEntries = includeAgreements ? $@"{{
         ""AgreementLabel"": ""{AgreementLabel}"",
         ""Agreement"": ""{AgreementText}"",
         ""AgreementUrl"": ""{AgreementUrl}""
-      }}]
+      }}" : string.Empty;
+
+            string agreements = agreementsIdentifier == null ? string.Empty : $@",
+    ""SourceAgreements"": {{
+      ""AgreementsIdentifier"": ""{agreementsIdentifier}"",
+      ""Agreements"": [{agreementEntries}]
     }}";
 
             string market = requiresMarket ? @",
