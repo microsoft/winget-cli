@@ -82,7 +82,7 @@ namespace AppInstaller
     namespace Archive
     {
         void TestHook_SetScanArchiveResult_Override(bool* status);
-        void TestHook_SetScanArchiveCalled_Override(bool* status);
+        void TestHook_SetScanArchiveCalled_Signal(bool* status);
     }
 
     namespace CLI::Execution
@@ -171,12 +171,12 @@ namespace TestHook
     {
         SetScanArchiveCalled_Signal()
         {
-            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(&m_status);
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Signal(&m_status);
         }
 
         ~SetScanArchiveCalled_Signal()
         {
-            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Override(nullptr);
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Signal(nullptr);
         }
 
         bool WasCalled() const
