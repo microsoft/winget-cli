@@ -242,6 +242,10 @@ src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw
 
 **Do not edit** any file under `Localization/Resources/<locale>/`; those files are owned by Microsoft's localization pipeline and will be overwritten automatically.
 
+Use sentence case and a terminal period for standalone error messages, including error-code descriptions: `Opening manifest failed.` Preserve the spelling and capitalization of command names, options, identifiers, and acronyms; introduce a literal command with words when needed, for example, `The winget upgrade --all command completed with failures.`
+
+Do not add periods indiscriminately to all resources. Diagnostic prefixes that introduce additional output can end in a colon, argument-value templates can end in the quoted value, and interactive questions should retain their question marks. Help descriptions, headings, and labels follow their surrounding UI conventions rather than the standalone-error rule.
+
 Every new or modified string entry must include a `<comment>` element that gives translators enough context. This is especially important for:
 
 - Short or single-word values (column headers, status labels) where the word has multiple meanings
