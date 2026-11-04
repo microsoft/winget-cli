@@ -9,6 +9,7 @@
 #include <winget/Locale.h>
 #include <winget/Reboot.h>
 #include <winget/Authentication.h>
+#include <winget/NetworkSettings.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -928,6 +929,28 @@ namespace AppInstaller::CLI
                 typeToComplete = nextPositional->ExecArgType();
             }
         }
+
+        AICLI_LOG(CLI, Info, << "Completing word '" << ([&]() {
+            std::string wordForLog = word;
+            if (typeToComplete == Execution::Args::Type::Proxy && !word.empty())
+            {
+                wordForLog = Settings::GetProxyUriForLog(word);
+            }
+            else if (!state.Type() && !stateMachine.OnlyPositionalRemain())
+            {
+                Execution::Args wordArgs;
+                Invocation wordInvocation{ std::vector<std::string>{ word } };
+                ParseArgumentsStateMachine wordStateMachine{ wordInvocation, wordArgs, stateMachine.Arguments() };
+                while (wordStateMachine.Step());
+
+                const auto proxy = wordArgs.GetArg(Execution::Args::Type::Proxy);
+                if (!proxy.empty())
+                {
+                    Utility::FindAndReplace(wordForLog, proxy, Settings::GetProxyUriForLog(proxy));
+                }
+            }
+            return wordForLog;
+        }()) << '\'');
 
         // To enable more complete scenarios, also attempt to parse any arguments after the word to complete.
         // This will allow these later values to affect the result of the completion (for instance, if a specific source is listed).

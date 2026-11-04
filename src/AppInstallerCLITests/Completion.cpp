@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSettings.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerFileLogger.h>
 #include <Command.h>
 #include <Commands/CompleteCommand.h>
 #include <Commands/RootCommand.h>
@@ -262,6 +264,59 @@ struct CompletionTestContext
     std::stringstream in;
     Context context;
 };
+
+TEST_CASE("CommandComplete_ProxyWordLogRedactsCredentials", "[complete][logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080", "https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ "https://proxy.invalid:8080", "https://proxy.invalid:8080/" });
+    const bool inlineValue = GENERATE(false, true);
+    const bool proxyContext = GENERATE(false, true);
+    CAPTURE(testCase, inlineValue, proxyContext);
+    const std::string word = (inlineValue ? "--proxy="s : ""s) + testCase.first;
+    const std::string expectedWord = proxyContext ?
+        (inlineValue ? "--proxy="s : ""s) + testCase.second : word;
+    std::string commandLine = "winget ";
+    if (!inlineValue || !proxyContext)
+    {
+        commandLine += proxyContext ? "--proxy " : "--source ";
+    }
+    commandLine += "\"" + word + "\"";
+
+    TestUserSettings settings;
+    GroupPolicyTestOverride policies;
+    CompletionTestContext ctc{ word, commandLine, std::to_string(commandLine.size()) };
+    auto previousThreadGlobals = ctc.context.SetForCurrentThread();
+    CompletionTestCommand command;
+    command.Arguments = { Argument::ForType(Args::Type::Source) };
+    command.ArgumentValueCallback = [&](Context& context, Args::Type type)
+    {
+        REQUIRE_FALSE((proxyContext && inlineValue));
+        REQUIRE(type == (proxyContext ? Args::Type::Proxy : Args::Type::Source));
+        REQUIRE(context.Get<Data::CompletionData>().Word() == word);
+        context.Reporter.Completion() << "completion-result" << std::endl;
+    };
+
+    TempFile logFile{ "CommandComplete_ProxyWordLog", ".log" };
+    Logging::Log().SetEnabledChannels(Logging::Channel::CLI);
+    Logging::Log().SetLevel(Logging::Level::Info);
+    Logging::FileLogger::Add(logFile.GetPath());
+    command.Complete(ctc.context);
+    Logging::Log().RemoveLogger(Logging::FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(ctc.context.Get<Data::CompletionData>().Word() == word);
+    REQUIRE(ctc.out.str() == (proxyContext && inlineValue ? "" : "completion-result\n"));
+    REQUIRE_FALSE(ctc.context.Args.Contains(Args::Type::Proxy));
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = Utility::ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find("Completing word '" + expectedWord + "'\r\n") != std::string::npos);
+    if (proxyContext)
+    {
+        REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+        REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+    }
+}
 
 TEST_CASE("CommandComplete_Simple", "[complete]")
 {
