@@ -8,6 +8,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerTelemetry.h>
 #include <COMContext.h>
 #include <Commands/DscAdminSettingsResource.h>
 #include <Commands/RootCommand.h>
@@ -497,18 +498,24 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     CAPTURE(proxyUri, inlineValue);
     std::vector<std::string> values{ "install", "--help" };
     std::string expectedLog = "WinGet invoked with arguments: 'install' '--help'";
+    std::string commandLine = "\"winget client.exe\"  install\t--help";
+    std::string expectedCommandLine = commandLine;
     if (proxyUri)
     {
         if (inlineValue)
         {
             values.emplace_back("--proxy=\"" + proxyUri.value() + "\"");
             expectedLog += " '--proxy=\"" + std::string{ testCase.second } + "\"'";
+            commandLine += "  --proxy=\"" + proxyUri.value() + "\"";
+            expectedCommandLine += "  --proxy=\"" + std::string{ testCase.second } + "\"";
         }
         else
         {
             values.emplace_back("--proxy");
             values.emplace_back(proxyUri.value());
             expectedLog += " '--proxy' '" + std::string{ testCase.second } + "'";
+            commandLine += "  --proxy  \"" + proxyUri.value() + "\"";
+            expectedCommandLine += "  --proxy  \"" + std::string{ testCase.second } + "\"";
         }
     }
 
@@ -524,10 +531,10 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
 
     TempFile logFile{ "Invocation_ProxyLog", ".log" };
-    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI);
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI | AppInstaller::Logging::Channel::Core);
     Log().SetLevel(DefaultLevel);
     FileLogger::Add(logFile.GetPath());
-    invocation.Log(args);
+    invocation.Log(args, ConvertToUTF16(commandLine));
     Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
 
     REQUIRE(args.GetArg(AppInstaller::CLI::Execution::Args::Type::Proxy) == proxyUri.value_or(""));
@@ -535,8 +542,41 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     const auto logContents = ReadEntireStream(logStream);
     INFO("Log contents:\n" << logContents);
     REQUIRE(logContents.find(expectedLog + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("Command line Args: " + expectedCommandLine + "\r\n") != std::string::npos);
     REQUIRE(logContents.find("ProxyUser") == std::string::npos);
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("Telemetry_StartupCommandLineLogging", "[logging]")
+{
+    const bool logCommandLine = GENERATE(false, true);
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::TelemetryDisable>(true);
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    TempFile logFile{ "Telemetry_StartupCommandLine", ".log" };
+    Log().SetEnabledChannels(DefaultChannel);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    if (logCommandLine)
+    {
+        Telemetry().LogStartup();
+    }
+    else
+    {
+        Telemetry().LogStartup(false, false);
+    }
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find("WinGet, version [") != std::string::npos);
+    REQUIRE((logContents.find("Command line Args: ") != std::string::npos) == logCommandLine);
+    if (logCommandLine)
+    {
+        REQUIRE(logContents.find("Command line Args: " + ConvertToUTF8(GetCommandLineW()) + "\r\n") != std::string::npos);
+    }
 }
 
 TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")

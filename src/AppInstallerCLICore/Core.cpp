@@ -100,8 +100,17 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Invocation::Log(const Execution::Args& args) const
+    void Invocation::Log(const Execution::Args& args, std::wstring_view commandLine) const
     {
+        AICLI_LOG(Core, Info, << "Command line Args: " << [&]() {
+            auto commandLineForLog = Utility::ConvertToUTF8(commandLine);
+            const auto proxy = args.GetArg(Execution::Args::Type::Proxy);
+            if (!proxy.empty())
+            {
+                Utility::FindAndReplace(commandLineForLog, proxy, Settings::GetProxyUriForLog(proxy));
+            }
+            return commandLineForLog;
+        }());
         AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
             const auto proxy = args.GetArg(Execution::Args::Type::Proxy);
             const auto proxyForLog = proxy.empty() ? std::string{} : Settings::GetProxyUriForLog(proxy);
@@ -167,7 +176,8 @@ namespace AppInstaller::CLI
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
         Logging::Telemetry().SetCaller("winget-cli");
-        Logging::Telemetry().LogStartup();
+        // Defer the raw command-line log until proxy arguments have been parsed.
+        Logging::Telemetry().LogStartup(false, false);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
@@ -195,7 +205,7 @@ namespace AppInstaller::CLI
 
         try
         {
-            auto logArguments = wil::scope_exit([&]() { invocation.Log(context.Args); });
+            auto logArguments = wil::scope_exit([&]() { invocation.Log(context.Args, GetCommandLineW()); });
 
             // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
             if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))

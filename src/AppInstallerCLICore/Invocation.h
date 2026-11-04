@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <map>
+#include <string_view>
 #include <vector>
 
 namespace AppInstaller::CLI
@@ -46,7 +47,7 @@ namespace AppInstaller::CLI
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }
 
-        void Log(const Execution::Args& args) const;
+        void Log(const Execution::Args& args, std::wstring_view commandLine) const;
 
     private:
         std::vector<std::string> m_args;
