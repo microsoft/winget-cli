@@ -420,6 +420,70 @@ TEST_CASE("DscAdminSettings_ProxyLogRedactsCredentials", "[logging]")
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }
 
+TEST_CASE("DscInputJson_ProxyLogRedactsCredentials", "[logging]")
+{
+    struct InputCommand : AppInstaller::CLI::DscAdminSettingsResource
+    {
+        using DscAdminSettingsResource::DscAdminSettingsResource;
+        using DscCommandBase::GetJsonFromInput;
+    };
+
+    Json::Value input;
+    Json::Value expectedInput;
+    SECTION("Proxy fields")
+    {
+        const auto testCase = GENERATE(
+            std::pair{ R"("https://ProxyUser:ProxyPassword@proxy.invalid:8080")", R"("https://[redacted]@proxy.invalid:8080/")" },
+            std::pair{ R"("https://proxy.invalid:8080")", R"("https://proxy.invalid:8080/")" },
+            std::pair{ R"("https://ProxyUser:ProxyPassword@proxy.invalid:bad")", R"("[invalid proxy URI]")" },
+            std::pair{ "null", "null" },
+            std::pair{ R"(["ProxyUser","ProxyPassword"])", R"("[invalid proxy URI]")" },
+            std::pair{ R"({"secret":"ProxyPassword"})", R"("[invalid proxy URI]")" },
+            std::pair{ "42", R"("[invalid proxy URI]")" },
+            std::pair{ "true", R"("[invalid proxy URI]")" });
+        const std::string propertyName = GENERATE("DefaultProxy", "dEfAuLtPrOxY");
+        CAPTURE(testCase.first, propertyName);
+        input["settings"][propertyName] = ConvertToJson(testCase.first);
+        input["settings"]["LocalManifestFiles"] = true;
+        input["unrelated"] = "https://UnrelatedUser:UnrelatedPassword@other.invalid";
+        expectedInput = input;
+        expectedInput["settings"][propertyName] = ConvertToJson(testCase.second);
+    }
+    SECTION("Other input shapes")
+    {
+        const auto json = GENERATE("{}", "[]", R"({"settings":[]})",
+            R"({"settings":{"OtherSetting":"https://UnrelatedUser:UnrelatedPassword@other.invalid"}})");
+        CAPTURE(json);
+        input = ConvertToJson(json);
+        expectedInput = input;
+    }
+
+    TestUserSettings userSettings;
+    std::istringstream inputStream{ Json::writeString(Json::StreamWriterBuilder{}, input) };
+    std::ostringstream output;
+    TestContext context{ output, inputStream };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    TempFile logFile{ "DscInputJson_ProxyLog", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    InputCommand command("");
+    const auto result = command.GetJsonFromInput(context);
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == input);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    auto expectedJson = Json::writeString(Json::StreamWriterBuilder{}, expectedInput);
+    AppInstaller::Utility::FindAndReplace(expectedJson, "\n", "\r\n");
+    REQUIRE(logContents.find(expectedJson) != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
 TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")
 {
     TestUserSettings settings;
