@@ -11,6 +11,7 @@
 #include <winget/ThreadGlobals.h>
 #include <winget/NetworkSettings.h>
 #include <winget/AdminSettings.h>
+#include <winget/HttpClientHelper.h>
 #include <future>
 #include <set>
 #include <tuple>
@@ -322,6 +323,43 @@ TEST_CASE("WinINet_ProxyLogRedactsCredentials", "[logging]")
     const auto logContents = ReadEntireStream(logStream);
     INFO("Log contents:\n" << logContents);
     REQUIRE(logContents.find("Using proxy " + expectedProxyUri + "\r\n") != std::string::npos);
+    REQUIRE(logContents.find("ProxyUser") == std::string::npos);
+    REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
+}
+
+TEST_CASE("HttpClientHelper_ProxyLogRedactsCredentials", "[logging]")
+{
+    const auto testCase = GENERATE(
+        std::pair{ std::optional<std::string>{ "https://ProxyUser:ProxyPassword@proxy.invalid:8080" },
+            "Setting proxy for REST HTTP Client helper to https://[redacted]@proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{ "https://proxy.invalid:8080" },
+            "Setting proxy for REST HTTP Client helper to https://proxy.invalid:8080/" },
+        std::pair{ std::optional<std::string>{}, "REST HTTP Client helper does not use proxy" });
+    const auto& proxyUri = testCase.first;
+    const std::string expectedLog = testCase.second;
+    CAPTURE(proxyUri);
+
+    TestUserSettings userSettings;
+    TempFile logFile{ "HttpClientHelper_ProxyLog", ".log" };
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+
+    auto& networkSettings = AppInstaller::Settings::Network();
+    const auto previousProxyUri = networkSettings.GetProxyUri();
+    auto restoreProxyUri = wil::scope_exit([&]() { networkSettings.SetProxyUri(previousProxyUri); });
+    networkSettings.SetProxyUri(proxyUri);
+
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::Repo);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    REQUIRE_NOTHROW(AppInstaller::Http::HttpClientHelper{});
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    REQUIRE(networkSettings.GetProxyUri() == proxyUri);
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find(expectedLog + "\r\n") != std::string::npos);
     REQUIRE(logContents.find("ProxyUser") == std::string::npos);
     REQUIRE(logContents.find("ProxyPassword") == std::string::npos);
 }
