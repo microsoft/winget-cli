@@ -200,6 +200,25 @@ TEST_CASE("Search_ManifestResolution_BeforeSourcePriority", "[RestSource][Source
     REQUIRE(lookups == 1);
 }
 
+TEST_CASE("SearchRequestForSingle_ProductCodeIsCaseInsensitive", "[workflow]")
+{
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Query, "Fiddler2"sv);
+
+    context << GetSearchRequestForSingle;
+
+    const auto& searchRequest = context.Get<Execution::Data::SearchRequest>();
+    auto productCode = std::find_if(searchRequest.Inclusions.begin(), searchRequest.Inclusions.end(), [](const auto& filter)
+    {
+        return filter.Field == PackageMatchField::ProductCode;
+    });
+    REQUIRE(productCode != searchRequest.Inclusions.end());
+    REQUIRE(productCode->Value == "Fiddler2");
+    REQUIRE(productCode->Type == MatchType::CaseInsensitive);
+}
+
 TEST_CASE("SourcePriority_SourceOutput", "[SourcePriority][workflow]")
 {
     GroupPolicyTestOverride policies;
