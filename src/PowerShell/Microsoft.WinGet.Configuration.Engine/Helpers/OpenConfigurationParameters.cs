@@ -165,6 +165,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         private void InitializeModulePath(string modulePath)
         {
             this.HasExplicitModulePath = !string.IsNullOrEmpty(modulePath);
+
             // TODO: Create cmdlet that specify the global custom location for a PowerShell session.
             if (this.HasExplicitModulePath)
             {
