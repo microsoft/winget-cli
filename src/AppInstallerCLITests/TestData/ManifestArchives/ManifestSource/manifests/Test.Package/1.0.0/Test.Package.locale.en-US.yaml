@@ -1,0 +1,9 @@
+PackageIdentifier: Test.Package
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: Test Publisher
+PackageName: Test Package
+License: MIT
+ShortDescription: Manifest archive test package
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

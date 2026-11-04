@@ -49,6 +49,9 @@
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CLI\ManifestProviders">
+      <UniqueIdentifier>{809de54e-57b7-48f5-a9c2-ef05a245c3de}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Common">
       <UniqueIdentifier>{d055e02a-59c9-4ae4-9405-579dac6ff59b}</UniqueIdentifier>
     </Filter>
@@ -272,6 +275,15 @@
     <ClCompile Include="WorkFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="ManifestProviders\LocalManifestProvider.cpp">
+      <Filter>Source Files\CLI\ManifestProviders</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\RemoteManifestProvider.cpp">
+      <Filter>Source Files\CLI\ManifestProviders</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\ManifestProvider.cpp">
+      <Filter>Source Files\CLI\ManifestProviders</Filter>
+    </ClCompile>
     <ClCompile Include="WorkflowGroupPolicy.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
@@ -443,6 +455,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
+    <None Include="TestData\ManifestArchives\**\*.yaml">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
@@ -730,6 +745,15 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestZip.zip">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\WrappedManifest.zip">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\ManifestSource.zip">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\MultipleManifests.zip">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">

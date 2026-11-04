@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "ManifestProviders/ManifestProvider.h"
 #include "ExecutionContext.h"
 #include "PackageTableSortHelper.h"
 #include "PromptFlow.h"
@@ -1627,24 +1628,24 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestFromArg(Execution::Context& context)
     {
-        Logging::Telemetry().LogIsManifestLocal(true);
-
-        context <<
-            VerifyPath(Execution::Args::Type::Manifest) <<
-            [](Execution::Context& context)
+        const auto argument = context.Args.GetArg(Execution::Args::Type::Manifest);
+        auto provider = CreateManifestProvider(argument);
+        auto result = provider->Load(context);
+        if (!result)
         {
-            Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
+            return;
+        }
+        auto manifest = std::move(*result);
+        Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
 
-            std::string targetLocale;
-            if (context.Args.Contains(Execution::Args::Type::Locale))
-            {
-                targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
-            }
-            manifest.ApplyLocale(targetLocale);
+        std::string targetLocale;
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            targetLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+        }
+        manifest.ApplyLocale(targetLocale);
 
-            context.Add<Execution::Data::Manifest>(std::move(manifest));
-        };
+        context.Add<Execution::Data::Manifest>(std::move(manifest));
     }
 
     void ReportPackageIdentity(Execution::Context& context)
