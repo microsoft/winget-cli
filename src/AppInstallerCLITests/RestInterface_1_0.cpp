@@ -6,6 +6,7 @@
 #include <Rest/RestSource.h>
 #include <Rest/Schema/1_0/Interface.h>
 #include <Rest/Schema/1_4/Interface.h>
+#include <Rest/Schema/1_28/Json/ManifestDeserializer.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
@@ -2270,6 +2271,68 @@ TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource][Interface_1_0]")
     REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
+TEST_CASE("GetManifests_BadResponse_InstallerHash", "[RestSource][Interface_1_0]")
+{
+    auto response = web::json::value::parse(GetGoodManifest_RequiredFields());
+    auto& installers = response[L"Data"][L"Versions"][0][L"Installers"];
+    auto& installer = installers[0];
+
+    SECTION("Missing hash")
+    {
+        installer.as_object().erase(L"InstallerSha256");
+    }
+    SECTION("Empty hash")
+    {
+        installer[L"InstallerSha256"] = web::json::value::string(L"");
+    }
+    SECTION("Null hash")
+    {
+        installer[L"InstallerSha256"] = web::json::value::null();
+    }
+    SECTION("Non-string hash")
+    {
+        installer[L"InstallerSha256"] = web::json::value::number(42);
+    }
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, response.serialize()) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    REQUIRE_THROWS_HR(V1_28::Json::ManifestDeserializer{}.Deserialize(response), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+}
+
+TEST_CASE("GetManifests_SkipsInstallerWithoutHash", "[RestSource][Interface_1_0][Interface_1_28]")
+{
+    auto response = web::json::value::parse(GetGoodManifest_RequiredFields());
+    auto& installers = response[L"Data"][L"Versions"][0][L"Installers"];
+    auto validInstaller = installers[0];
+    installers[0].as_object().erase(L"InstallerSha256");
+    installers[1] = std::move(validInstaller);
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, response.serialize()) };
+    Interface v1{ TestRestUriString, std::move(helper) };
+    for (const auto& manifests : { v1.GetManifests("Foo.Bar"), V1_28::Json::ManifestDeserializer{}.Deserialize(response) })
+    {
+        REQUIRE(manifests.size() == 1);
+        REQUIRE(manifests[0].Installers.size() == 1);
+        REQUIRE(manifests[0].Installers[0].Sha256 == SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
+    }
+}
+
+TEST_CASE("ManifestDeserializer_MSStoreWithoutInstallerHash", "[RestSource][Interface_1_28]")
+{
+    auto response = web::json::value::parse(GetGoodManifest_RequiredFields());
+    auto& installer = response[L"Data"][L"Versions"][0][L"Installers"][0];
+    installer[L"InstallerType"] = web::json::value::string(L"msstore");
+    installer[L"MSStoreProductIdentifier"] = web::json::value::string(L"9nblggh4nns1");
+    installer.as_object().erase(L"InstallerUrl");
+    installer.as_object().erase(L"InstallerSha256");
+
+    auto manifests = V1_28::Json::ManifestDeserializer{}.Deserialize(response);
+    REQUIRE(manifests.size() == 1);
+    REQUIRE(manifests[0].Installers.size() == 1);
+    REQUIRE(manifests[0].Installers[0].BaseInstallerType == InstallerTypeEnum::MSStore);
+    REQUIRE(manifests[0].Installers[0].Sha256.empty());
+}
+
 TEST_CASE("GetManifests_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
@@ -2296,6 +2359,7 @@ TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_
                     "Installers": [
                         {
                             "Architecture": "x64",
+                            "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
                             "InstallerType": "msstore",
                             "MSStoreProductIdentifier": "9nblggh4nns1"
                         }
