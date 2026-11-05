@@ -32,6 +32,6 @@ namespace AppInstaller::Settings
 
     NetworkSettings& Network();
 
-    // Formats a proxy URI for logging without exposing userinfo.
+    // Formats a proxy URI for logging without exposing credentials.
     std::string GetProxyUriForLog(std::string_view proxyUri);
 }
