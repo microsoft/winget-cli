@@ -176,7 +176,7 @@ TEST_CASE("PortableInstaller_RollbackPreservesUnappliedDirectories", "[PortableI
     if (recordToIndex)
     {
         auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
-        REQUIRE(index.GetAllPortableFiles().size() == (installFileFirst ? 1 : 0));
+        REQUIRE(index.GetAllPortableFiles().size() == static_cast<size_t>(installFileFirst ? 1 : 0));
     }
 
     installer.PrepareForCleanUp();
