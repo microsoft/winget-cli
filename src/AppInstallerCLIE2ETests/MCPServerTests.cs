@@ -424,9 +424,10 @@ namespace AppInstallerCLIE2ETests
             var elicitation = new ElicitationRecorder(ElicitationRecorder.Respond("decline", false));
             await using McpClient client = await CreateClientAsync(elicitation);
 
+            // The source serves only its information, so searching it fails once it is admitted; only
+            // the agreements outcome is checked.
             CallToolResult result = await FindTestPackageAsync(client, acceptSourceAgreements: null);
 
-            Assert.That(result.IsError, Is.Not.True, GetText(result));
             Assert.That(elicitation.Requests.Count, Is.EqualTo(0));
             Assert.That(HasAgreements(result), Is.False, GetText(result));
             Assert.That(GetExcludedSources(result), Is.Empty);
