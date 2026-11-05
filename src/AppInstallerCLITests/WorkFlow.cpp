@@ -100,7 +100,7 @@ TEST_CASE("ConfigurationModulePath_ExplicitSelection", "[configuration][workflow
     }
 }
 
-TEST_CASE("ConfigurationModulePath_CustomContentForwarded", "[configuration][workflow]")
+TEST_CASE("ConfigurationModulePath_CustomContentNotForwarded", "[configuration][workflow]")
 {
     ModulePathTestSettings settings(UserSettingsType::Custom);
     const bool configured = GENERATE(false, true);
@@ -114,10 +114,8 @@ TEST_CASE("ConfigurationModulePath_CustomContentForwarded", "[configuration][wor
 
     Configuration::SetModulePath(context, factory.as<ConfigurationAPI::IConfigurationSetProcessorFactory>());
 
-    REQUIRE(factory->LocationSet);
-    REQUIRE(factory->LocationValue == (configured ? ProcessorFactory::PwshConfigurationProcessorLocation::Custom :
-        ProcessorFactory::PwshConfigurationProcessorLocation::Default));
-    REQUIRE(factory->CustomLocationValue == (configured ? L"C:\\Authoritative\\Modules" : L""));
+    REQUIRE_FALSE(factory->LocationSet);
+    REQUIRE(factory->CustomLocationValue.empty());
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
