@@ -263,7 +263,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
-                if (updateContext.Contains(Execution::Data::InstallerInapplicable) && updateContext.Get(Execution::Data::InstallerInapplicable))
+                if (updateContext.Contains(Execution::Data::InstallerInapplicable) && updateContext.Get<Execution::Data::InstallerInapplicable>())
                 {
                     ++packagesSkippedNotApplicable;
                 }
