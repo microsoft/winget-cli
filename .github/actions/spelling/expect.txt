@@ -87,6 +87,7 @@ centralus
 certmgr
 certs
 cgi
+Cim
 cinq
 CLASSNOTREG
 CLOSEAPP

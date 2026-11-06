@@ -29,6 +29,8 @@
 #include <winget/Hash.h>
 
 using namespace std::chrono_literals;
+using AppInstaller::WinRT::ShutdownAwareAsyncCancellation;
+using AppInstaller::WinRT::ShutdownAwareAsyncProgress;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
