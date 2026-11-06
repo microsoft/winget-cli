@@ -163,6 +163,8 @@ TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
 
     std::ostringstream updateOutput;
@@ -180,6 +182,8 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     // Update portable with symlink creation failure verify that it succeeds.
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream updateOutput;
@@ -333,6 +337,8 @@ TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
 
     std::ostringstream updateOutput;
@@ -519,6 +525,8 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
 
 TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
@@ -558,6 +566,8 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
@@ -693,6 +703,8 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
@@ -774,6 +786,8 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
 
 TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
 
@@ -918,6 +932,8 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
 
 TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
     TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");

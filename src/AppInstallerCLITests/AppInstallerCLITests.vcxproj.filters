@@ -329,6 +329,9 @@
     <ClCompile Include="SourceFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="WorkflowBase.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="WorkflowCommon.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>

@@ -500,6 +500,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer requires admin for install.
     bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType);
 
+    // Whether user-scope installed data must be treated as writable without elevation.
+    bool InstallerDataWritableUnelevatedForUserScope(InstallerTypeEnum installerType);
+
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
 

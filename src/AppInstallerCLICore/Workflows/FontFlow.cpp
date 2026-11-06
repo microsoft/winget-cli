@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "FontFlow.h"
 #include "TableOutput.h"
+#include "WorkflowBase.h"
 #include <winget/Fonts.h>
 #include <AppInstallerRuntime.h>
 using namespace AppInstaller::Utility;
@@ -15,6 +16,13 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
+        Manifest::ScopeEnum GetFontInstallScope(Execution::Context& context)
+        {
+            return context.Args.Contains(Args::Type::InstallScope) ?
+                Manifest::ConvertToScopeEnum(context.Args.GetArg(Args::Type::InstallScope)) :
+                Manifest::ScopeEnum::User;
+        }
+
         struct InstalledFontFamiliesTableLine
         {
             InstalledFontFamiliesTableLine(Utility::LocIndString familyName, int faceCount)
@@ -189,16 +197,24 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EnsureSupportForFontInstall(Execution::Context& context)
+    {
+        if (context.Get<Data::Installer>().value().EffectiveInstallerType() == Manifest::InstallerTypeEnum::Font &&
+            GetFontInstallScope(context) != Manifest::ScopeEnum::Machine)
+        {
+            context << EnsureNotRunningWithNonDefaultFullToken;
+        }
+    }
+
     void FontInstallImpl(Execution::Context& context)
     {
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-        // We will default to User scope.
-        Manifest::ScopeEnum scope = Manifest::ScopeEnum::User;
-        if (context.Args.Contains(Execution::Args::Type::InstallScope))
+        const auto scope = GetFontInstallScope(context);
+        if (scope != Manifest::ScopeEnum::Machine)
         {
-            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
         }
+
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         Fonts::FontContext fontContext;
         fontContext.InstallerSource = InstallerSource::WinGet;
@@ -286,16 +302,22 @@ namespace AppInstaller::CLI::Workflow
 
     void FontUninstallImpl(Execution::Context& context)
     {
-        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
-
         try
         {
             // We will default to installed scope.
-            auto scope = Manifest::ConvertToScopeEnum(context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope]);
+            const auto installedScope = Manifest::ConvertToScopeEnum(context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope]);
+            auto scope = installedScope;
             if (context.Args.Contains(Execution::Args::Type::InstallScope))
             {
                 scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             }
+
+            if (installedScope != Manifest::ScopeEnum::Machine || scope != Manifest::ScopeEnum::Machine)
+            {
+                AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
+            }
+
+            context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
             Fonts::FontContext fontContext;
             fontContext.InstallerSource = InstallerSource::WinGet;
