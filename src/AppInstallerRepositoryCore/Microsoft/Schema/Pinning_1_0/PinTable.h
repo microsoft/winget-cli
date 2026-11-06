@@ -10,6 +10,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     struct PinTable
     {
+        static inline constexpr std::string_view s_PinTable_Table_Name = "pin";
+        static inline constexpr std::string_view s_PinTable_PackageId_Column = "package_id";
+        static inline constexpr std::string_view s_PinTable_SourceId_Column = "source_id";
+        static inline constexpr std::string_view s_PinTable_Type_Column = "type";
+        static inline constexpr std::string_view s_PinTable_Version_Column = "version";
+        static inline constexpr std::string_view s_PinTable_Index = "pin_index";
+
         // Get the table name.
         static std::string_view TableName();
 
