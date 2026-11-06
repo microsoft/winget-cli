@@ -197,6 +197,7 @@ FOF
 FOLDERID
 FONTCHANGE
 FONTHASH
+fontlayout
 FORPARSING
 foundfr
 fsanitize
