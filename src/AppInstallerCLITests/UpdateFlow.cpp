@@ -1063,7 +1063,7 @@ TEST_CASE("ListCommand_UpgradeAvailable_LatestInstalled", "[ListCommand][workflo
     TestContext context{ listOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LatestInstalled }));
-    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_LatestInstalled.Query);
+    context.Args.AddArg(Execution::Args::Type::Id, TSR::TestInstaller_Exe_LatestInstalled.Query);
     context.Args.AddArg(Execution::Args::Type::Upgrade);
 
     ListCommand list({});
@@ -1073,7 +1073,28 @@ TEST_CASE("ListCommand_UpgradeAvailable_LatestInstalled", "[ListCommand][workflo
     REQUIRE_FALSE(context.IsTerminated());
     REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
-    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoPackagesNeedUpdate).get()) == std::string::npos);
+}
+
+TEST_CASE("ListCommand_UpgradeAvailable_NoPackageId_LatestInstalled", "[ListCommand][workflow]")
+{
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LatestInstalled }));
+    context.Args.AddArg(Execution::Args::Type::Upgrade);
+
+    ListCommand list({});
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoPackagesNeedUpdate).get()) != std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) == std::string::npos);
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) == std::string::npos);
 }
 
@@ -1083,7 +1104,7 @@ TEST_CASE("ListCommand_UpgradeAvailable_NotInstalled", "[ListCommand][workflow]"
     TestContext context{ listOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({}));
-    context.Args.AddArg(Execution::Args::Type::Query, std::string{ "NonExistentApp" });
+    context.Args.AddArg(Execution::Args::Type::Id, std::string{ "NonExistentApp" });
     context.Args.AddArg(Execution::Args::Type::Upgrade);
 
     ListCommand list({});
@@ -1093,4 +1114,5 @@ TEST_CASE("ListCommand_UpgradeAvailable_NotInstalled", "[ListCommand][workflow]"
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
     REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) == std::string::npos);
+    REQUIRE(listOutput.str().find(Resource::LocString(Resource::String::NoPackagesNeedUpdate).get()) == std::string::npos);
 }
