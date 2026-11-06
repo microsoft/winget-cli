@@ -9,7 +9,7 @@
 # Script module or binary module file associated with this manifest.
 RootModule = if ($PSEdition -like 'Core')
 {
-    "net8.0-windows10.0.26100.0\Microsoft.WinGet.Client.Cmdlets.dll"
+    "net10.0-windows10.0.26100.0\Microsoft.WinGet.Client.Cmdlets.dll"
 }
 else
 {
@@ -38,7 +38,14 @@ Copyright = '(c) Microsoft Corporation. All rights reserved.'
 Description = 'PowerShell Module for the Windows Package Manager Client.'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1.0'
+PowerShellVersion = if ($PSEdition -like 'Core')
+{
+    '7.6'
+}
+else
+{
+    '5.1.0'
+}
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''

@@ -141,7 +141,7 @@ namespace Microsoft.WinGetSourceCreator
         }
 
         // If in the future we edit more elements, this should be a nice wrapper class.
-        public static void ModifyAppxManifestIdentity(string manifestFile, string? identityPublisher)
+        public static void ModifyAppxManifestIdentity(string manifestFile, string? identityPublisher, string? identityName = null, string? identityVersion = null)
         {
             if (!File.Exists(manifestFile))
             {
@@ -166,6 +166,26 @@ namespace Microsoft.WinGetSourceCreator
                     throw new NullReferenceException("Publisher attribute");
                 }
                 attr.Value = identityPublisher;
+            }
+
+            if (!string.IsNullOrEmpty(identityName))
+            {
+                var attr = identityNode.Attributes?["Name"];
+                if (attr == null)
+                {
+                    throw new NullReferenceException("Name attribute");
+                }
+                attr.Value = identityName;
+            }
+
+            if (!string.IsNullOrEmpty(identityVersion))
+            {
+                var attr = identityNode.Attributes?["Version"];
+                if (attr == null)
+                {
+                    throw new NullReferenceException("Version attribute");
+                }
+                attr.Value = identityVersion;
             }
 
             xmlDoc.Save(manifestFile);

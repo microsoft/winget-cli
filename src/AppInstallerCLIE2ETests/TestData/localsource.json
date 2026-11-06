@@ -53,5 +53,17 @@
   "Signature": {
     "CertFile": "%TestSigningCert_PfxPath%",
     "Password": "%TestSigningCert_Password%"
+  },
+  "Delta": {
+    "RelativeDirectory": "deltaSource",
+    "IdentityName": "WingetE2EDelta.Tests",
+    "DeltaIdentityName": "WingetE2EDelta.Tests.Delta",
+    "BaselineIdentityName": "WingetE2EDelta.Tests.Baseline",
+    "Version": "2020.805.713.335",
+    "BaselineVersion": "2020.805.713.334",
+    "BaselineRelativePath": "baseline/source2.msix",
+    "ManifestsNotInBaseline": [
+      "TestExampleInstaller.yaml"
+    ]
   }
 }

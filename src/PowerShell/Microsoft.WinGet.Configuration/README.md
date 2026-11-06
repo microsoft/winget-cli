@@ -27,7 +27,7 @@ Complete-WinGetConfiguration -ConfigurationJob <PSConfigurationJob> [<CommonPara
 
 ## Prerequisites
 
-Minimum PowerShell 7 version: 7.2.8
+Minimum PowerShell 7 version: 7.6
 
 ## Telemetry
 Telemetry is enabled by default. To disable it one should set the POWERSHELL_TELEMETRY_OPTOUT env variable to “1”, “yes” or “true”.

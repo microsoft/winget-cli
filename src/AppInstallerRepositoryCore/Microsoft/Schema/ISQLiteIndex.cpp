@@ -39,6 +39,18 @@ namespace AppInstaller::Repository::Microsoft::Schema
         THROW_WIN32(ERROR_NOT_SUPPORTED);
     }
 
+    std::optional<ISQLiteIndex::DeltaBaselineLocator> ISQLiteIndex::GetDeltaBaselineLocator(const SQLite::Connection&) const
+    {
+        // A version that predates deltas cannot be one.
+        return std::nullopt;
+    }
+
+    std::optional<std::string> ISQLiteIndex::GetBaselineIdentifier(const SQLite::Connection&) const
+    {
+        // A version that predates deltas cannot have been designated as a baseline.
+        return std::nullopt;
+    }
+
     std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version)
     {
         if (version.MajorVersion == 1 ||

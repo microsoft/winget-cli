@@ -53,6 +53,29 @@ namespace AppInstallerCLIE2ETests
         public const string RestTestSourceUrl = @"https://localhost:5001/TestKit/TestData/TestRestSource";
         public const string RestTestSourceType = "Microsoft.Rest";
 
+        // The delta capable test source. It is published separately from the source above so that a
+        // client that knows nothing about deltas keeps seeing exactly what it saw before.
+        public const string DeltaTestSourceName = @"TestDeltaSource";
+        public const string DeltaTestSourceDirectory = @"deltaSource";
+        public const string DeltaTestSourceUrl = @"https://localhost:5001/TestKit/" + DeltaTestSourceDirectory;
+        public const string DeltaTestSourceIdentityName = @"WingetE2EDelta.Tests";
+        public const string DeltaTestSourceDeltaIdentityName = @"WingetE2EDelta.Tests.Delta";
+        public const string DeltaTestSourceBaselineIdentityName = @"WingetE2EDelta.Tests.Baseline";
+        public const string DeltaTestSourceIdentifier = DeltaTestSourceIdentityName + "_" + AICLIPackagePublisherHash;
+        public const string DeltaTestSourceDeltaIdentifier = DeltaTestSourceDeltaIdentityName + "_" + AICLIPackagePublisherHash;
+        public const string DeltaTestSourceBaselineIdentifier = DeltaTestSourceBaselineIdentityName + "_" + AICLIPackagePublisherHash;
+
+        // The baseline is published older than the full index, because a baseline is captured once
+        // and then described by a succession of deltas.
+        public const string DeltaTestSourceVersion = @"2020.805.713.335";
+        public const string DeltaTestSourceBaselineVersion = @"2020.805.713.334";
+        public const string DeltaTestSourceBaselineRelativePath = @"baseline/source2.msix";
+
+        // Left out of the baseline, so that it exists only in the delta. Finding it is what tells a
+        // merged result apart from either half read on its own.
+        public const string DeltaOnlyManifestFileName = @"TestExampleInstaller.yaml";
+        public const string DeltaOnlyPackageIdentifier = @"AppInstallerTest.TestExampleInstaller";
+
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
         public const string AICLIPackagePublisherHash = "8wekyb3d8bbwe";

@@ -74,12 +74,15 @@ namespace AppInstaller::Deployment
 
         IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> StartAddPackage(PackageManager& packageManager, const winrt::Windows::Foundation::Uri& uri, const Options& options)
         {
+            DeploymentOptions deploymentOptions = options.AllowDowngrade ? DeploymentOptions::ForceUpdateFromAnyVersion : DeploymentOptions::None;
+
             if (!options.ExpectedDigests.empty())
             {
                 // Must use API that supports digests
                 THROW_WIN32_IF(ERROR_NOT_SUPPORTED, !IsExpectedDigestsSupported());
 
                 AddPackageOptions addPackageOptions;
+                addPackageOptions.ForceUpdateFromAnyVersion(options.AllowDowngrade);
 
                 for (const auto& digest : options.ExpectedDigests)
                 {
@@ -93,7 +96,7 @@ namespace AppInstaller::Deployment
                 return packageManager.AddPackageAsync(
                     uri,
                     nullptr, /*dependencyPackageUris*/
-                    DeploymentOptions::None,
+                    deploymentOptions,
                     nullptr, /*targetVolume*/
                     nullptr, /*optionalAndRelatedPackageFamilyNames*/
                     nullptr, /*optionalPackageUris*/
@@ -104,7 +107,7 @@ namespace AppInstaller::Deployment
                 return packageManager.RequestAddPackageAsync(
                     uri,
                     nullptr, /*dependencyPackageUris*/
-                    DeploymentOptions::None,
+                    deploymentOptions,
                     nullptr, /*targetVolume*/
                     nullptr, /*optionalAndRelatedPackageFamilyNames*/
                     nullptr /*relatedPackageUris*/);
@@ -138,7 +141,7 @@ namespace AppInstaller::Deployment
 
     std::ostream& operator<<(std::ostream& out, const Options& options)
     {
-        out << " { SkipReputationCheck = " << options.SkipReputationCheck << ", ExpectedDigests = {";
+        out << " { SkipReputationCheck = " << options.SkipReputationCheck << ", AllowDowngrade = " << options.AllowDowngrade << ", ExpectedDigests = {";
 
         for (const auto& digest : options.ExpectedDigests)
         {
@@ -202,12 +205,12 @@ namespace AppInstaller::Deployment
             size_t id = GetDeploymentOperationId();
             AICLI_LOG(Core, Info, << "Starting RequestAddPackageAsync operation #" << id << ": " << uri);
 
-            DeploymentOptions deploymentOptions = DeploymentOptions::None;
+            DeploymentOptions deploymentOptions = options.AllowDowngrade ? DeploymentOptions::ForceUpdateFromAnyVersion : DeploymentOptions::None;
             // Optimization to keep files if the package is in use. Only available in a newer OS per:
             // https://docs.microsoft.com/en-us/uwp/api/Windows.Management.Deployment.DeploymentOptions
             if (Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version{ "10.0.18362.0" }))
             {
-                deploymentOptions = DeploymentOptions::RetainFilesOnFailure;
+                deploymentOptions |= DeploymentOptions::RetainFilesOnFailure;
             }
 
             IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> deployOperation = packageManager.RequestAddPackageAsync(
@@ -247,7 +250,10 @@ namespace AppInstaller::Deployment
             AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFullName);
 
             IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> registerOperation =
-                packageManager.RegisterPackageByFullNameAsync(packageFullNameWide, nullptr, DeploymentOptions::None);
+                packageManager.RegisterPackageByFullNameAsync(
+                    packageFullNameWide,
+                    nullptr,
+                    options.AllowDowngrade ? DeploymentOptions::ForceUpdateFromAnyVersion : DeploymentOptions::None);
             HRESULT hr = WaitForDeployment(registerOperation, id, progress, false);
 
             if (hr == HRESULT_FROM_WIN32(ERROR_PACKAGES_IN_USE))
@@ -342,7 +348,10 @@ namespace AppInstaller::Deployment
                 AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFullName);
 
                 IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> registerOperation =
-                    packageManager.RegisterPackageByFullNameAsync(packageFullNameWide, nullptr, DeploymentOptions::None);
+                    packageManager.RegisterPackageByFullNameAsync(
+                        packageFullNameWide,
+                        nullptr,
+                        options.AllowDowngrade ? DeploymentOptions::ForceUpdateFromAnyVersion : DeploymentOptions::None);
                 WaitForDeployment(registerOperation, id, progress);
             }
             catch (...)

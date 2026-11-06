@@ -90,7 +90,11 @@ namespace ConfigurationShim
             auto& diagnosticsLogger = m_threadGlobals.GetDiagnosticLogger();
             diagnosticsLogger.SetEnabledChannels(AppInstaller::Logging::Channel::All);
             diagnosticsLogger.SetLevel(AppInstaller::Logging::Level::Verbose);
-            diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("WinGetCFG"sv));
+            try
+            {
+                diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("WinGetCFG"sv));
+            }
+            CATCH_LOG();
 
             if (IsConfigurationAvailable())
             {

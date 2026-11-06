@@ -5,7 +5,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
-#include "Public/AppInstallerSHA256.h"
+#include "Public/winget/Hash.h"
 #include "Public/winget/Yaml.h"
 
 namespace AppInstaller::Settings

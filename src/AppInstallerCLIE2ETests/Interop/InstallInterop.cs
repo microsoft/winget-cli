@@ -710,6 +710,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.That(packageInstallerInfo.NestedInstallerType, Is.EqualTo(PackageInstallerType.Exe));
             Assert.That(packageInstallerInfo.Scope, Is.EqualTo(PackageInstallerScope.User));
             Assert.That(packageInstallerInfo.Locale, Is.EqualTo("en-US"));
+            Assert.That(packageInstallerInfo.ReleaseDate, Is.EqualTo(new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero)));
         }
 
         /// <summary>

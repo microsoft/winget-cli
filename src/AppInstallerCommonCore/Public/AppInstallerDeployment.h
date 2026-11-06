@@ -16,6 +16,10 @@ namespace AppInstaller::Deployment
         // Avoid using APIs that make a reputation check.
         bool SkipReputationCheck = false;
 
+        // Allow the deployed version to move backward.
+        // Deployment refuses a package whose version is lower than the installed one unless this is set.
+        bool AllowDowngrade = false;
+
         // The pairs of URI+Digest to enforce.
         std::vector<std::pair<std::string, std::wstring>> ExpectedDigests;
     };

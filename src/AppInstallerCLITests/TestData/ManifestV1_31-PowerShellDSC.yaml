@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.30.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.31.0.schema.json
 
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
@@ -223,4 +223,4 @@ Installers:
     DownloadCommandProhibited: false
     ArchiveBinariesDependOnPath: false
 ManifestType: singleton
-ManifestVersion: 1.30.0
+ManifestVersion: 1.31.0

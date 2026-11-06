@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <mutex>
+#include <vector>
 
 namespace AppInstaller::SQLite
 {
@@ -15,6 +16,9 @@ namespace AppInstaller::SQLite
     {
         // The disposition for opening the database.
         using OpenDisposition = DatabaseDisposition;
+
+        SQLiteStorageBase(SQLiteStorageBase&&) = default;
+        SQLiteStorageBase& operator=(SQLiteStorageBase&& other) noexcept;
 
         // Gets the last write time for the database.
         std::chrono::system_clock::time_point GetLastWriteTime() const;
@@ -37,12 +41,15 @@ namespace AppInstaller::SQLite
 
         SQLiteStorageBase(const DatabaseSpecifier& specifier, Utility::ManagedFile&& indexFile);
 
+        SQLiteStorageBase(const DatabaseSpecifier& specifier, std::vector<Utility::ManagedFile>&& files);
+
         SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source);
 
         // Sets the last write time metadata value in the database.
         void SetLastWriteTime();
 
-        Utility::ManagedFile m_indexFile;
+        // Keep every backing file alive until after the connection (including attachments) closes.
+        std::vector<Utility::ManagedFile> m_files;
         SQLite::Connection m_dbconn;
         Version m_version;
         std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();

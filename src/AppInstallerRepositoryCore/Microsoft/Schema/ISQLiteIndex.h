@@ -169,10 +169,47 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Version 2.1
 
+        // Everything that a delta records about the baseline it must be paired with, which is all
+        // a client holding only the delta needs in order to acquire the baseline.
+        //
+        // The location and version are supplied by the publishing service, which is the only party
+        // that knows how its baselines are laid out and versioned; the identifier is read from the
+        // baseline itself during generation.
+        struct DeltaBaselineLocator
+        {
+            // The baseline identifier that the delta names. A baseline acquired for this delta
+            // must carry the same value, or the two were not generated as a pair.
+            std::string Identifier;
+
+            // The location of the baseline package, relative to the source's base location.
+            std::string RelativeSourcePath;
+
+            // The version of the baseline package.
+            std::string PackageVersion;
+        };
+
         // Sets this index up to read the combination of a delta and the baseline that it was
         // generated against, so that every subsequent read sees the merged data. Must be called
         // before any read.
         virtual void SetupDeltaReadMode(SQLite::Connection& connection, const SQLite::DatabaseSpecifier& baseline);
+
+        // Gets what this delta records about the baseline that it must be paired with.
+        //
+        // Returns nothing when this is not a delta, or when it does not carry all three values.
+        // A delta that cannot fully name its baseline is unusable, and reporting a partial locator
+        // would only invite a caller to act on half of one.
+        //
+        // Unlike the operations above this does not throw for a version that predates deltas:
+        // such an index is definitively not a delta, so nothing is the true answer rather than a
+        // refusal, and a caller can ask without first establishing the version.
+        virtual std::optional<DeltaBaselineLocator> GetDeltaBaselineLocator(const SQLite::Connection& connection) const;
+
+        // Gets the identifier that designates this index as a baseline, if it carries one.
+        //
+        // Returns nothing for any index that has not been designated, which is every index that
+        // was not prepared with DeltaMarkAsBaseline, and every version that predates deltas. Such
+        // an index cannot be paired with a delta.
+        virtual std::optional<std::string> GetBaselineIdentifier(const SQLite::Connection& connection) const;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

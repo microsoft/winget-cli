@@ -14,9 +14,9 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/SelfManagement.h>
 #include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
@@ -277,7 +277,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(Config, Error, << "Failed to install dsc v3 package: " << productId);
                 context.Reporter.Error() << Resource::String::ConfigurationInstallDscPackageFailed << std::endl;
-                THROW_WIN32(ERROR_FILE_NOT_FOUND);
+                THROW_HR(installDscContext.GetTerminationHR());
             }
 
             progressScope = context.Reporter.BeginAsyncProgress(true);

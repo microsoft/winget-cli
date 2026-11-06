@@ -4,8 +4,8 @@
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
-#include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Hash.h"
 #include "Public/winget/ThreadGlobals.h"
 #include "winget/Filesystem.h"
 #include "winget/UserSettings.h"
@@ -599,9 +599,9 @@ namespace AppInstaller::Logging
 
         AICLI_LOG(CLI, Error,
             << "Package hash verification failed. SHA256 in manifest ["
-            << Utility::SHA256::ConvertToString(expected)
+            << Utility::ConvertToHexString(expected)
             << "] does not match download ["
-            << Utility::SHA256::ConvertToString(actual)
+            << Utility::ConvertToHexString(actual)
             << "] with file size [" << downloadSizeInBytes << "] and content type [" << actualContentType << "]");
     }
 

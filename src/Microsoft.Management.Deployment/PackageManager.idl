@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(30)] // For version 1.30
+    [contractversion(31)] // For version 1.31
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -531,6 +531,13 @@ namespace Microsoft.Management.Deployment
         {
             /// Authentication info from the package installer.
             AuthenticationInfo AuthenticationInfo { get; };
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 31)]
+        {
+            /// The package installer release date declared in the manifest, as midnight UTC of that date.
+            /// Null if the manifest does not declare a release date or the value is not a valid date.
+            Windows.Foundation.IReference<Windows.Foundation.DateTime> ReleaseDate { get; };
         }
     };
 

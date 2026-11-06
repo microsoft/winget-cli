@@ -57,8 +57,8 @@ namespace AppInstaller::Manifest
     // V1.28 manifest version
     constexpr std::string_view s_ManifestVersionV1_28 = "1.28.0"sv;
 
-    // V1.30 manifest version
-    constexpr std::string_view s_ManifestVersionV1_30 = "1.30.0"sv;
+    // V1.31 manifest version
+    constexpr std::string_view s_ManifestVersionV1_31 = "1.31.0"sv;
 
     // Any new manifest version must also be added to src\WinGetUtilInterop\Manifest\ManifestVersion.cs.
 
@@ -502,6 +502,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer requires RepairBehavior for repair.
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer type requires an installer hash.
+    bool DoesInstallerTypeRequireHash(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type uses MSI properties in its command line.
     bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType);

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DotNetVersion>net8.0</DotNetVersion>
+    <DotNetVersion>net10.0</DotNetVersion>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <TargetFramework>$(DotNetVersion)-windows10.0.26100.0</TargetFramework>
     <Nullable>enable</Nullable>

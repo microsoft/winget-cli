@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "IconDefs.h"
-#include "winget/IconExtraction.h"
 #include "Microsoft/ARPHelper.h"
-#include <AppInstallerSHA256.h>
+#include "winget/IconExtraction.h"
+#include <winget/Hash.h>
 #include <winget/Filesystem.h>
 
 namespace AppInstaller::Repository

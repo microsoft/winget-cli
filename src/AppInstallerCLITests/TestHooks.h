@@ -4,6 +4,7 @@
 #include "TestSettings.h"
 
 #include <SourceFactory.h>
+#include <Microsoft/PreIndexed/PackageStore.h>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -35,6 +36,7 @@ namespace AppInstaller
         void TestHook_SetPathOverride(PathName target, const Filesystem::PathDetails& details);
         void TestHook_ClearPathOverrides();
         void TestHook_SetIsRunningWithNonDefaultFullToken_Override(bool* value);
+        void TestHook_SetIsRunningAsInteractiveUser_Override(bool* value);
     }
 
     namespace Repository
@@ -53,6 +55,12 @@ namespace AppInstaller
 
         using GetFontRegistryRootFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
         void TestHook_SetGetFontRegistryRootFunc(GetFontRegistryRootFunc value);
+    }
+
+    namespace Repository::Microsoft::PreIndexed
+    {
+        void TestHook_SetSourcePackageTrustValidation_Override(bool* result);
+        void TestHook_SetDeployedPackageStore_Override(std::function<std::unique_ptr<IPackageStore>(const SourceDetails&)>* value);
     }
 
     namespace Logging
@@ -156,6 +164,64 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    // Makes every source package validate as trusted, so that the pre-indexed stores can be driven
+    // against packages built by the test rather than against signed test data.
+    struct SetSourcePackageTrustValidation_Override
+    {
+        SetSourcePackageTrustValidation_Override(bool status = true) : m_status(status)
+        {
+            AppInstaller::Repository::Microsoft::PreIndexed::TestHook_SetSourcePackageTrustValidation_Override(&m_status);
+        }
+
+        ~SetSourcePackageTrustValidation_Override()
+        {
+            AppInstaller::Repository::Microsoft::PreIndexed::TestHook_SetSourcePackageTrustValidation_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
+    };
+
+    // Takes the place of the deployed package store.
+    struct SetDeployedPackageStore_Override
+    {
+        using Factory = std::function<std::unique_ptr<AppInstaller::Repository::Microsoft::PreIndexed::IPackageStore>(const AppInstaller::Repository::SourceDetails&)>;
+
+        SetDeployedPackageStore_Override(Factory factory) : m_factory(std::move(factory))
+        {
+            AppInstaller::Repository::Microsoft::PreIndexed::TestHook_SetDeployedPackageStore_Override(&m_factory);
+        }
+
+        ~SetDeployedPackageStore_Override()
+        {
+            AppInstaller::Repository::Microsoft::PreIndexed::TestHook_SetDeployedPackageStore_Override(nullptr);
+        }
+
+    private:
+        Factory m_factory;
+    };
+
+    // Whether the process appears to be running for an interactively logged on user.
+    struct SetIsRunningAsInteractiveUser_Override
+    {
+        SetIsRunningAsInteractiveUser_Override(bool value) : m_value(value)
+        {
+            AppInstaller::Runtime::TestHook_SetIsRunningAsInteractiveUser_Override(&m_value);
+        }
+
+        ~SetIsRunningAsInteractiveUser_Override()
+        {
+            AppInstaller::Runtime::TestHook_SetIsRunningAsInteractiveUser_Override(nullptr);
+        }
+
+        // The point of most of these tests is what happens when this changes, so it is settable
+        // rather than requiring a new scope.
+        void Set(bool value) { m_value = value; }
+
+    private:
+        bool m_value;
     };
 
     struct SetPinningIndex_Override
@@ -453,9 +519,11 @@ namespace TestHook
 
     struct SetSingleExperimentalFeature_Override
     {
-        SetSingleExperimentalFeature_Override(AppInstaller::Settings::ExperimentalFeature::Feature feature)
+        // Forcing a feature off matters as much as forcing it on, so that a test of the behavior
+        // behind a disabled feature does not depend on the settings of the machine running it.
+        SetSingleExperimentalFeature_Override(AppInstaller::Settings::ExperimentalFeature::Feature feature, bool enabled = true)
         {
-            m_overrides[feature] = true;
+            m_overrides[feature] = enabled;
             AppInstaller::Settings::SetExperimentalFeatureOverride(&m_overrides);
         }
 

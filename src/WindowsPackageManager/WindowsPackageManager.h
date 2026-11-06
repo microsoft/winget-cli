@@ -34,7 +34,7 @@ extern "C"
     // Creates an out-of-proc instance for manual activation scenarios.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out);
 
-    // Creates module for in-proc COM invocation.
+    // Initializes the module and CLI infrastructure for in-proc COM invocation. Must be called outside DllMain.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize();
 
     // Try to terminate the module for in-proc COM. Returns false if there's still active objects.

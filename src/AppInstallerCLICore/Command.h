@@ -5,11 +5,11 @@
 #include "ExecutionContext.h"
 #include "Invocation.h"
 #include "Resources.h"
+#include <AppInstallerLanguageUtilities.h>
 #include <winget/UserSettings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
 
-#include <initializer_list>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -137,20 +137,6 @@ namespace AppInstaller::CLI
         bool m_selectCurrentCommandIfUnrecognizedSubcommandFound = false;
         std::string m_commandArguments;
     };
-
-    template <typename Container>
-    Container InitializeFromMoveOnly(std::initializer_list<typename Container::value_type> il)
-    {
-        using Value = typename Container::value_type;
-        Container result;
-
-        for (const auto& v : il)
-        {
-            result.emplace_back(std::move(*const_cast<Value*>(&v)));
-        }
-
-        return result;
-    }
 
     void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command);
 

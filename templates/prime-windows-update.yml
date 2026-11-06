@@ -1,0 +1,26 @@
+steps:
+- task: PowerShell@2
+  displayName: Prime Windows Update backend
+  timeoutInMinutes: 10
+  retryCountOnTaskFailure: 3
+  continueOnError: true
+  inputs:
+    targetType: inline
+    script: |
+      $session = New-Object -ComObject Microsoft.Update.Session
+      $session.ClientApplicationID = "WinGet CI"
+      $searcher = $session.CreateUpdateSearcher()
+      $searcher.ServerSelection = 2 # ssWindowsUpdate
+      $searcher.Online = $true
+
+      Write-Host "Performing an online Windows Update scan without downloading or installing updates."
+      $result = $searcher.Search("IsInstalled=0")
+      foreach ($warning in $result.Warnings) {
+          Write-Warning ("Windows Update scan warning: {0} (HRESULT: 0x{1:X8})" -f $warning.Message, $warning.HResult)
+      }
+
+      if ($result.ResultCode -ne 2) { # orcSucceeded
+          throw "Windows Update scan did not fully succeed. ResultCode: $($result.ResultCode)"
+      }
+
+      Write-Host "Windows Update scan succeeded. Found $($result.Updates.Count) updates."
