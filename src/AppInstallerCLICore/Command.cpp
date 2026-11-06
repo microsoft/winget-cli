@@ -4,11 +4,13 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include <winget/AdminSettings.h>
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
 #include <winget/Reboot.h>
 #include <winget/Authentication.h>
+#include <winget/NetworkSettings.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -839,6 +841,51 @@ namespace AppInstaller::CLI
         ValidateArgumentsInternal(execArgs);
     }
 
+    std::map<size_t, std::string> Command::GetCompletionProxiesForLog(const CompletionData& data) const
+    {
+        std::vector<std::string> argumentsForLog;
+        for (const auto& arg : data.BeforeWord())
+        {
+            argumentsForLog.emplace_back(arg);
+        }
+        if (!data.Word().empty())
+        {
+            argumentsForLog.emplace_back(data.Word());
+        }
+        for (const auto& arg : data.AfterWord())
+        {
+            argumentsForLog.emplace_back(arg);
+        }
+
+        auto definedArgs = GetArguments();
+        Argument::GetCommon(definedArgs);
+        Execution::Args argsForLog;
+        Invocation invocationForLog{ std::move(argumentsForLog) };
+        ParseArgumentsStateMachine loggingStateMachine{ invocationForLog, argsForLog, std::move(definedArgs) };
+        std::map<size_t, std::string> proxies;
+        std::map<size_t, std::string> settingValues;
+        for (size_t i = 0; i < invocationForLog.GetArgs().size(); ++i)
+        {
+            const auto proxyCount = argsForLog.GetCount(Execution::Args::Type::Proxy);
+            const auto settingValueCount = argsForLog.GetCount(Execution::Args::Type::SettingValue);
+            loggingStateMachine.Step();
+            if (argsForLog.GetCount(Execution::Args::Type::Proxy) > proxyCount)
+            {
+                proxies.emplace(i, argsForLog.GetArgs(Execution::Args::Type::Proxy)->back());
+            }
+            if (argsForLog.GetCount(Execution::Args::Type::SettingValue) > settingValueCount)
+            {
+                settingValues.emplace(i, argsForLog.GetArgs(Execution::Args::Type::SettingValue)->back());
+            }
+        }
+        if (Settings::StringToStringAdminSetting(argsForLog.GetArg(Execution::Args::Type::SettingName)) ==
+            Settings::StringAdminSetting::DefaultProxy)
+        {
+            proxies.merge(settingValues);
+        }
+        return proxies;
+    }
+
     // Completion can produce one of several things if the completion context is appropriate:
     //  1. Sub commands, if the context is immediately after this command.
     //  2. Argument names, if a value is not expected.
@@ -927,6 +974,45 @@ namespace AppInstaller::CLI
             {
                 typeToComplete = nextPositional->ExecArgType();
             }
+        }
+
+        if (Logging::Log().IsEnabled(Logging::Channel::CLI, Logging::Level::Info))
+        {
+            const auto proxies = GetCompletionProxiesForLog(data);
+            size_t argumentIndex = 0;
+            auto redactNextArgument = [&](std::string arg)
+            {
+                const auto proxy = proxies.find(argumentIndex++);
+                if (proxy != proxies.end() && !proxy->second.empty())
+                {
+                    Utility::FindAndReplace(arg, proxy->second, Settings::GetProxyUriForLog(proxy->second));
+                }
+                return arg;
+            };
+
+            std::stringstream argumentsLog;
+            const auto& beforeWord = data.BeforeWord().GetArgs();
+            const auto commandArgumentCount = data.BeforeWord().begin().index();
+            for (size_t i = 0; i < beforeWord.size(); ++i)
+            {
+                argumentsLog << " '" << (i < commandArgumentCount ? beforeWord[i] : redactNextArgument(beforeWord[i])) << '\'';
+            }
+            std::string wordForLog = word;
+            if (word.empty())
+            {
+                argumentsLog << " << [insert] >> ";
+            }
+            else
+            {
+                wordForLog = redactNextArgument(word);
+                argumentsLog << " << [replace] '" << wordForLog << "' >> ";
+            }
+            for (const auto& arg : data.AfterWord())
+            {
+                argumentsLog << " '" << redactNextArgument(arg) << '\'';
+            }
+            AICLI_LOG(CLI, Info, << "Completing word '" << wordForLog << '\'');
+            AICLI_LOG(CLI, Info, << "Completion invoked for arguments:" << argumentsLog.str());
         }
 
         // To enable more complete scenarios, also attempt to parse any arguments after the word to complete.

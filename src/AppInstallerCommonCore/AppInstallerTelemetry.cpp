@@ -228,7 +228,7 @@ namespace AppInstaller::Logging
             }());
     }
 
-    void TelemetryTraceLogger::LogStartup(bool isCOMCall) const noexcept
+    void TelemetryTraceLogger::LogStartup(bool isCOMCall, bool logCommandLine) const noexcept
     {
         LocIndString version = Runtime::GetClientVersion();
         LocIndString packageVersion;
@@ -267,7 +267,10 @@ namespace AppInstaller::Logging
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Level[" << executionLevel << "], Offset: " << &__ImageBase);
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
-        AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
+        if (logCommandLine)
+        {
+            AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
+        }
         if (Runtime::IsRunningInPackagedContext())
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
