@@ -316,6 +316,9 @@
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="WindowsFeature.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
+    <ClCompile Include="ManifestProviders\LocalManifestProvider.cpp" />
+    <ClCompile Include="ManifestProviders\RemoteManifestProvider.cpp" />
+    <ClCompile Include="ManifestProviders\ManifestProvider.cpp" />
     <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="main.cpp">
@@ -507,6 +510,16 @@
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\WrappedManifest.zip">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\ManifestSource.zip">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(IntDir)ManifestSourceArchives\MultipleManifests.zip">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <None Include="TestData\ManifestArchives\**\*.yaml" />
     <None Include="Run-TestsInPackage.ps1" />
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
@@ -1163,6 +1176,21 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup>
+    <ManifestArchiveInput Include="$(ProjectDir)TestData\ManifestArchives\**\*.yaml" />
+    <ManifestArchive Include="WrappedManifest;ManifestSource;MultipleManifests" />
+  </ItemGroup>
+  <Target Name="CreateManifestArchives" BeforeTargets="PrepareForBuild"
+          Inputs="$(MSBuildProjectFullPath);@(ManifestArchiveInput)"
+          Outputs="$(IntDir)ManifestSourceArchives\WrappedManifest.zip;$(IntDir)ManifestSourceArchives\ManifestSource.zip;$(IntDir)ManifestSourceArchives\MultipleManifests.zip">
+    <MakeDir Directories="$(IntDir)ManifestSourceArchives" />
+    <ZipDirectory SourceDirectory="$(ProjectDir)TestData\ManifestArchives\%(ManifestArchive.Identity)"
+                  DestinationFile="$(IntDir)ManifestSourceArchives\%(ManifestArchive.Identity).zip"
+                  Overwrite="true" />
+    <ItemGroup>
+      <FileWrites Include="$(IntDir)ManifestSourceArchives\WrappedManifest.zip;$(IntDir)ManifestSourceArchives\ManifestSource.zip;$(IntDir)ManifestSourceArchives\MultipleManifests.zip" />
+    </ItemGroup>
+  </Target>
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.250325.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
     <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.3.0.260520.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.3.0.260520.1\build\native\Microsoft.Windows.CppWinRT.targets')" />

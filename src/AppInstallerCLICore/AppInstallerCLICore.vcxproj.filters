@@ -12,6 +12,9 @@
     <Filter Include="Commands">
       <UniqueIdentifier>{4b0dcf8b-b4a1-47e5-9c28-e8a3440178e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ManifestProviders">
+      <UniqueIdentifier>{15b6319a-e86a-4211-ae8d-b1bb462eaabe}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Public">
       <UniqueIdentifier>{00cc3138-2893-4fc4-8595-d3cf9d26be1c}</UniqueIdentifier>
     </Filter>
@@ -52,6 +55,18 @@
     </ClInclude>
     <ClInclude Include="Workflows\PackageTableSortHelper.h">
       <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestProviders\ManifestProvider.h">
+      <Filter>ManifestProviders</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestProviders\ManifestArchive.h">
+      <Filter>ManifestProviders</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestProviders\LocalManifestProvider.h">
+      <Filter>ManifestProviders</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestProviders\RemoteManifestProvider.h">
+      <Filter>ManifestProviders</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\WorkflowBase.h">
       <Filter>Workflows</Filter>
@@ -390,6 +405,18 @@
     </ClCompile>
     <ClCompile Include="Workflows\CompletionFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\ManifestProvider.cpp">
+      <Filter>ManifestProviders</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\ManifestArchive.cpp">
+      <Filter>ManifestProviders</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\LocalManifestProvider.cpp">
+      <Filter>ManifestProviders</Filter>
+    </ClCompile>
+    <ClCompile Include="ManifestProviders\RemoteManifestProvider.cpp">
+      <Filter>ManifestProviders</Filter>
     </ClCompile>
     <ClCompile Include="ChannelStreams.cpp">
       <Filter>Source Files</Filter>

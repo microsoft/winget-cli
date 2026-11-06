@@ -16,6 +16,7 @@ namespace AppInstaller::Settings
     namespace
     {
         constexpr Utility::LocIndView s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFiles"_liv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_RemoteManifestFiles = "RemoteManifestFiles"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_InstallerHashOverride = "InstallerHashOverride"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_LocalArchiveMalwareScanOverride = "LocalArchiveMalwareScanOverride"_liv;
@@ -43,6 +44,7 @@ namespace AppInstaller::Settings
         struct AdminSettingValues
         {
             bool LocalManifestFiles = false;
+            bool RemoteManifestFiles = false;
             bool BypassCertificatePinningForMicrosoftStore = false;
             bool InstallerHashOverride = false;
             bool LocalArchiveMalwareScanOverride = false;
@@ -112,6 +114,9 @@ namespace AppInstaller::Settings
                     case BoolAdminSetting::LocalManifestFiles:
                         m_settingValues.LocalManifestFiles = enabled;
                         return true;
+                    case BoolAdminSetting::RemoteManifestFiles:
+                        m_settingValues.RemoteManifestFiles = enabled;
+                        return true;
                     case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
                         m_settingValues.BypassCertificatePinningForMicrosoftStore = enabled;
                         return true;
@@ -154,6 +159,8 @@ namespace AppInstaller::Settings
             {
             case BoolAdminSetting::LocalManifestFiles:
                 return m_settingValues.LocalManifestFiles;
+            case BoolAdminSetting::RemoteManifestFiles:
+                return m_settingValues.RemoteManifestFiles;
             case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
                 return m_settingValues.BypassCertificatePinningForMicrosoftStore;
             case BoolAdminSetting::InstallerHashOverride:
@@ -235,6 +242,7 @@ namespace AppInstaller::Settings
             }
 
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalManifestFiles, m_settingValues.LocalManifestFiles);
+            TryReadScalar<bool>(document, s_AdminSettingsYaml_RemoteManifestFiles, m_settingValues.RemoteManifestFiles);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, m_settingValues.BypassCertificatePinningForMicrosoftStore);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_InstallerHashOverride, m_settingValues.InstallerHashOverride);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalArchiveMalwareScanOverride, m_settingValues.LocalArchiveMalwareScanOverride);
@@ -255,6 +263,7 @@ namespace AppInstaller::Settings
             YAML::Emitter out;
             out << YAML::BeginMap;
             out << YAML::Key << s_AdminSettingsYaml_LocalManifestFiles << YAML::Value << m_settingValues.LocalManifestFiles;
+            out << YAML::Key << s_AdminSettingsYaml_RemoteManifestFiles << YAML::Value << m_settingValues.RemoteManifestFiles;
             out << YAML::Key << s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore << YAML::Value << m_settingValues.BypassCertificatePinningForMicrosoftStore;
             out << YAML::Key << s_AdminSettingsYaml_InstallerHashOverride << YAML::Value << m_settingValues.InstallerHashOverride;
             out << YAML::Key << s_AdminSettingsYaml_LocalArchiveMalwareScanOverride << YAML::Value << m_settingValues.LocalArchiveMalwareScanOverride;
@@ -274,7 +283,7 @@ namespace AppInstaller::Settings
         auto GetPolicyStateForSetting(BoolAdminSetting setting)
         {
             auto policy = GetAdminSettingPolicy(setting);
-            return GroupPolicies().GetState(policy);
+            return policy == TogglePolicy::Policy::None ? PolicyState::NotConfigured : GroupPolicies().GetState(policy);
         }
 
         std::optional<std::string> GetPolicyStateForSetting(StringAdminSetting setting)
@@ -296,6 +305,10 @@ namespace AppInstaller::Settings
         if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_LocalManifestFiles, in))
         {
             result = BoolAdminSetting::LocalManifestFiles;
+        }
+        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_RemoteManifestFiles, in))
+        {
+            result = BoolAdminSetting::RemoteManifestFiles;
         }
         else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, in))
         {
@@ -339,6 +352,8 @@ namespace AppInstaller::Settings
         {
         case BoolAdminSetting::LocalManifestFiles:
             return s_AdminSettingsYaml_LocalManifestFiles;
+        case BoolAdminSetting::RemoteManifestFiles:
+            return s_AdminSettingsYaml_RemoteManifestFiles;
         case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
             return s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore;
         case BoolAdminSetting::InstallerHashOverride:

@@ -364,7 +364,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>The path to the manifest of the package</value>
+    <value>The local manifest path or HTTPS URL to a .yaml, .yml, or .zip manifest</value>
+    <comment>Remote ZIP files must contain manifests for exactly one package version. Local file and directory paths remain supported.</comment>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifest validation failed.</value>

@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include "ManifestProviders/ManifestProvider.h"
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
@@ -687,9 +688,16 @@ namespace AppInstaller::CLI
                 throw GroupPolicyException(arg.GroupPolicy());
             }
 
-            if (arg.AdminSetting() != BoolAdminSetting::Unknown && !Settings::IsAdminSettingEnabled(arg.AdminSetting()) && execArgs.Contains(arg.ExecArgType()))
+            auto adminSetting = arg.AdminSetting();
+            if (arg.ExecArgType() == Execution::Args::Type::Manifest &&
+                adminSetting != BoolAdminSetting::Unknown && execArgs.Contains(arg.ExecArgType()))
             {
-                auto setting = Settings::AdminSettingToString(arg.AdminSetting());
+                adminSetting = Workflow::CreateManifestProvider(execArgs.GetArg(arg.ExecArgType()))->RequiredAdminSetting();
+            }
+
+            if (adminSetting != BoolAdminSetting::Unknown && !Settings::IsAdminSettingEnabled(adminSetting) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto setting = Settings::AdminSettingToString(adminSetting);
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
                 throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage(setting));
             }
