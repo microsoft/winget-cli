@@ -120,9 +120,10 @@ jobs:
       nugetConfigPath: '$(nugetConfig)'
 
   - task: PowerShell@2
-    displayName: Initialize Vcpkg
+    displayName: Initialize and Restore Vcpkg
     inputs:
       filePath: '${{ parameters.sourceRoot }}\tools\Initialize-Vcpkg.ps1'
+      arguments: '-Triplet "$(buildPlatform)-release"'
 
   - ${{ if ne(parameters.releaseTagJob, '') }}:
     - task: PowerShell@2
@@ -147,6 +148,7 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly
                     /p:PreferredToolArchitecture=x64
                     /p:WingetDisableIncrementalLinkTimeCodeGeneration=true
+                    /p:VcpkgManifestInstall=false
                     ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
 
@@ -167,6 +169,7 @@ jobs:
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false
+                         /p:VcpkgManifestInstall=false
                          ${{ parameters.additionalMSBuildArgs }}'
       maximumCpuCount: true
 
