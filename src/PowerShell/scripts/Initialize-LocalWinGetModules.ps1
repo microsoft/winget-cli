@@ -223,6 +223,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     $module.PrepareScriptFiles()
     $additionalFiles = @(
         "Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
+        "WindowsPackageManager\WindowsPackageManager.dll"
     )
     $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(

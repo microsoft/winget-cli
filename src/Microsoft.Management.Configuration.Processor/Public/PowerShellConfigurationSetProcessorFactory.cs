@@ -9,6 +9,7 @@ namespace Microsoft.Management.Configuration.Processor
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Factory;
@@ -33,6 +34,7 @@ namespace Microsoft.Management.Configuration.Processor
         private IReadOnlyList<string>? implicitModulePaths;
         private PowerShellConfigurationProcessorPolicy policy = PowerShellConfigurationProcessorPolicy.Default;
         private PowerShellConfigurationProcessorLocation location = PowerShellConfigurationProcessorLocation.Default;
+        private bool useSettingsForModulePath = true;
         private string? customLocation;
 
         /// <summary>
@@ -198,6 +200,7 @@ namespace Microsoft.Management.Configuration.Processor
                 }
 
                 this.location = value;
+                this.useSettingsForModulePath = false;
             }
         }
 
@@ -232,14 +235,25 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <summary>
-        /// Gets the winget module path.
+        /// Gets the unsecured winget module path, including for inherited-path cleanup.
         /// </summary>
-        /// <returns>The winget module path.</returns>
-        internal static string GetWinGetModulePath()
+        /// <returns>The unsecured winget module path.</returns>
+        internal static string GetUnsecuredDefaultWinGetModulePath()
         {
             return Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     @"Microsoft\WinGet\Configuration\Modules");
+        }
+
+        /// <summary>
+        /// Gets the default winget module path.
+        /// </summary>
+        /// <param name="allowSettingsOverride">Whether to allow settings override.</param>
+        /// <returns>The default winget module path.</returns>
+        internal static (string, bool) GetDefaultWinGetModulePath(bool allowSettingsOverride = false)
+        {
+            WindowsPackageManagerConfigurationGetModulePath(allowSettingsOverride, out bool fullToken, out string defaultModulePath);
+            return (defaultModulePath, fullToken);
         }
 
         /// <summary>
@@ -281,26 +295,36 @@ namespace Microsoft.Management.Configuration.Processor
             }
         }
 
-        /// <inheritdoc />
-        protected override IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode)
+        /// <summary>
+        /// Configures discovery before importing modules, preserving explicit caller paths.
+        /// </summary>
+        /// <param name="processorEnvironment">The processor environment.</param>
+        /// <param name="fullToken">Whether the native runtime selected the full-token context.</param>
+        /// <param name="defaultModulePath">The context-specific native default module path.</param>
+        /// <param name="effectiveModulePath">The locally resolved effective root, or the built-in default for explicit selections.</param>
+        internal void ConfigureModulePaths(IProcessorEnvironment processorEnvironment, bool fullToken, string defaultModulePath, string effectiveModulePath)
         {
-            var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
-            var processorEnvironment = envFactory.CreateEnvironment(
-                this,
-                this.Policy);
+            // If the native runtime selected the full-token context, we need to clean up inherited paths to remove the unsecured default winget module path.
+            if (fullToken)
+            {
+                processorEnvironment.CleanupPSModulePath(GetUnsecuredDefaultWinGetModulePath());
+            }
 
             if (this.AdditionalModulePaths is not null)
             {
                 processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
             }
 
-            // Always add the winget path.
-            var wingetModulePath = GetWinGetModulePath();
-            processorEnvironment.PrependPSModulePath(wingetModulePath);
+            // Always add the context-specific winget path.
+            processorEnvironment.PrependPSModulePath(defaultModulePath);
             if (this.Location == PowerShellConfigurationProcessorLocation.WinGetModulePath)
             {
-                this.OnDiagnostics(DiagnosticLevel.Verbose, "Using winget module path");
-                processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, wingetModulePath);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, "Using locally resolved winget module path");
+                processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, effectiveModulePath);
+                if (effectiveModulePath != defaultModulePath)
+                {
+                    processorEnvironment.PrependPSModulePath(effectiveModulePath);
+                }
             }
             else if (this.Location == PowerShellConfigurationProcessorLocation.Custom)
             {
@@ -316,6 +340,24 @@ namespace Microsoft.Management.Configuration.Processor
             {
                 processorEnvironment.SetLocation(this.Location, null);
             }
+        }
+
+        /// <inheritdoc />
+        protected override IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode)
+        {
+            (string defaultModulePath, bool fullToken) = GetDefaultWinGetModulePath(false);
+            string settingsModulePath = defaultModulePath;
+            if (this.useSettingsForModulePath)
+            {
+                (settingsModulePath, fullToken) = GetDefaultWinGetModulePath(true);
+            }
+
+            var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
+            var processorEnvironment = envFactory.CreateEnvironment(
+                this,
+                this.Policy);
+
+            this.ConfigureModulePaths(processorEnvironment, fullToken, defaultModulePath, settingsModulePath);
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
 
@@ -323,5 +365,11 @@ namespace Microsoft.Management.Configuration.Processor
 
             return new PowerShellConfigurationSetProcessor(processorEnvironment, set, isLimitMode) { SetProcessorFactory = this };
         }
+
+        [DllImport("WindowsPackageManager.dll", ExactSpelling = true, PreserveSig = false)]
+        private static extern void WindowsPackageManagerConfigurationGetModulePath(
+            [MarshalAs(UnmanagedType.Bool)] bool useSettings,
+            [MarshalAs(UnmanagedType.Bool)] out bool fullToken,
+            [MarshalAs(UnmanagedType.BStr)] out string path);
     }
 }

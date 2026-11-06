@@ -24,8 +24,13 @@ This command gets the WinGet configuration settings. The settings include:
 - the schema
 - administrative settings
 - the location of the user settings file
+- the location of the protected per-user administrator settings file (`adminSettingsFile`)
 For more information about WinGet settings, see
 [WinGet CLI Settings](https://aka.ms/winget-settings).
+
+`adminSettings` contains the existing capability controls. It is separate from the
+schema-compatible JSON file identified by `adminSettingsFile`. Path discovery does not
+create the protected file and remains available when its contents cannot be loaded.
 
 ## EXAMPLES
 

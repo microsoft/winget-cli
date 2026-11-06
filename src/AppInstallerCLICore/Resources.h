@@ -28,6 +28,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingHeader);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingsFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingsFileCreateArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingsFileRequiresCreation);
         WINGET_DEFINE_RESOURCE_STRINGID(AllowRebootArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
@@ -252,6 +255,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DscUserSettingsFileLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileAction);
+        WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionUserSettingsFileAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceName);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(DscResourcePropertyDescriptionSourceType);

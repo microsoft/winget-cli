@@ -88,6 +88,12 @@ namespace AppInstaller::CLI
 
         void SetModulePath(Execution::Context& context, IConfigurationSetProcessorFactory const& factory)
         {
+            // Ignore settings as the server will retrieve the effective module path from the settings file if needed.
+            if (!context.Args.Contains(Execution::Args::Type::ConfigurationModulePath))
+            {
+                return;
+            }
+
             auto pwshFactory = factory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>();
             auto modulePath = GetModulePathInfo(context.Args);
 

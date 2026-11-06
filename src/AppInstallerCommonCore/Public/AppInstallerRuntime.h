@@ -66,6 +66,8 @@ namespace AppInstaller::Runtime
         FontsMachineInstallLocation,
         // The location that standard type settings are stored in files.
         StandardFileSettings,
+        // The context-specific configuration module default, without consulting user settings.
+        DefaultConfigurationModules,
         // Always one more than the last path; for being able to iterate paths in tests.
         Max
     };

@@ -49,6 +49,11 @@
     <ProjectReference Include="..\WinGetTestCommon\WinGetTestCommon.csproj">
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
   </ItemGroup>
 
   <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />

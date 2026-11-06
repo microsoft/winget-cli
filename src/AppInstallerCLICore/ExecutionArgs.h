@@ -97,6 +97,8 @@ namespace AppInstaller::CLI::Execution
             OSVersion,
 
             // Setting Command
+            AdminSettingsFile,
+            CreateAdminSettingsFile,
             AdminSettingEnable,
             AdminSettingDisable,
             SettingName,

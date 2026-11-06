@@ -46,6 +46,8 @@ namespace AppInstaller::Settings
         Encrypted,
         // A setting stream has should be stored in a file, removing the limitations of the Standard type.
         StandardFile,
+        // An editable file in the protected settings directory; only admins can modify it.
+        AdminFile,
     };
 
     // Converts the Type enum to a string.
@@ -80,6 +82,10 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
         // The admin settings.
         constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
+        // The schema-compatible settings file in the protected directory.
+        constexpr static StreamDefinition PrimaryAdminSettingsFile{ Type::AdminFile, "admin-settings.json"sv };
+        // The backup of the schema-compatible settings file in the protected directory.
+        constexpr static StreamDefinition BackupAdminSettingsFile{ Type::AdminFile, "admin-settings.json.backup"sv };
         // The REST information cache.
         constexpr static StreamDefinition RestInformationCache{ Type::Encrypted, "rest_information"sv };
 

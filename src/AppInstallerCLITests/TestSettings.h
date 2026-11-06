@@ -38,7 +38,7 @@ namespace TestCommon
     void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream);
     std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream);
 
-    // This type removes the settings file on creation and destruction to ensure that a test that modifies them can do so cleanly.
+    // Removes ordinary and protected settings files under the test path overrides on creation and destruction.
     struct UserSettingsFileGuard
     {
         UserSettingsFileGuard();
@@ -49,6 +49,7 @@ namespace TestCommon
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {
+        UserSettingsTest(const std::optional<std::string>& content = std::nullopt) : UserSettings(content) {}
     };
 
     struct GroupPolicyTestOverride : AppInstaller::Settings::GroupPolicy

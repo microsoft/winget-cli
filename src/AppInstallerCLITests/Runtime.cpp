@@ -289,6 +289,75 @@ TEST_CASE("ApplyACL_BothOwners", "[runtime]")
     }
 }
 
+TEST_CASE("ConfigurationModuleDefaults_TokenContext", "[runtime]")
+{
+    const bool fullToken = GENERATE(false, true);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::AnonymizePathForDisplay>(false);
+
+    Runtime::TestHook_ClearPathOverrides();
+    auto restorePaths = wil::scope_exit([]() { TestCommon::SetTestPathOverrides(); });
+    const auto details = Runtime::GetPathDetailsFor(Runtime::PathName::ConfigurationModules, true);
+    REQUIRE_FALSE(details.Create);
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == details.Path);
+
+    if (fullToken)
+    {
+        const auto protectedPath = Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead, true).Path;
+        REQUIRE(details.Path == protectedPath / "Configuration\\Modules");
+        REQUIRE(details.Owner == ACEPrincipal::Admins);
+        REQUIRE(details.ACL.at(ACEPrincipal::Admins) == ACEPermissions::All);
+        REQUIRE(details.ACL.at(ACEPrincipal::System) == ACEPermissions::All);
+        if (!IsRunningAsSystem())
+        {
+            REQUIRE(details.ACL.at(ACEPrincipal::CurrentUser) == ACEPermissions::ReadExecute);
+        }
+    }
+    else
+    {
+        REQUIRE(details.Path == Filesystem::GetKnownFolderPath(FOLDERID_LocalAppData) / "Microsoft\\WinGet\\Configuration\\Modules");
+        REQUIRE_FALSE(details.Owner.has_value());
+        REQUIRE(details.ACL.empty());
+    }
+
+    settings.Set<AppInstaller::Settings::Setting::ConfigureDefaultModuleRoot>("C:\\Explicit\\Modules");
+    const auto customDetails = Runtime::GetPathDetailsFor(Runtime::PathName::ConfigurationModules, true);
+    REQUIRE(customDetails.Path == "C:\\Explicit\\Modules");
+    REQUIRE_FALSE(customDetails.Create);
+    REQUIRE(customDetails.ACL.empty());
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == details.Path);
+    settings.Set<AppInstaller::Settings::Setting::AnonymizePathForDisplay>(true);
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == details.Path);
+}
+
+TEST_CASE("ConfigurationModuleDefaults_ProtectedStorage", "[runtime]")
+{
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TempDirectory directory("ProtectedModuleDefault", false);
+    Runtime::TestHook_ClearPathOverrides();
+    auto restorePaths = wil::scope_exit([]() { TestCommon::SetTestPathOverrides(); });
+    auto parentDetails = Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForWrite, true);
+    parentDetails.Path = directory;
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, parentDetails);
+
+    const auto expectedPath = directory.GetPath() / "Configuration\\Modules";
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == expectedPath);
+    REQUIRE_FALSE(std::filesystem::exists(directory));
+
+    if (!IsRunningAsAdminOrSystem())
+    {
+        WARN("Protected module directory creation requires administrator or SYSTEM privileges.");
+        return;
+    }
+
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules) == expectedPath);
+    REQUIRE(std::filesystem::is_directory(expectedPath));
+    RequireAdminOwner(directory);
+    RequireAdminOwner(expectedPath);
+    REQUIRE_FALSE(parentDetails.ShouldApplyACL());
+}
+
 TEST_CASE("ApplyACL_CurrentUserOwner_SystemAll", "[runtime]")
 {
     TempDirectory directory("UserAndSystem");
