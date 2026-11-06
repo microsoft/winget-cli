@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.4.0.schema.json
+
+PackageIdentifier: AppInstallerTest.NestedInstallerPaths
+PackageVersion: 1.0.0
+PackageName: NestedInstallerPaths
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for nested installer path validation.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: '<RELATIVEFILEPATH>'
+      - RelativeFilePath: 'bin\helper.exe'
+ManifestType: singleton
+ManifestVersion: 1.4.0
