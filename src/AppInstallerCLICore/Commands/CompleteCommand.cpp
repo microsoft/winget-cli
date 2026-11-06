@@ -75,7 +75,7 @@ namespace AppInstaller::CLI
     Args CompleteCommand::GetArgumentsForLog(const Args& args)
     {
         Args argsForLog = args;
-        if (args.Contains(Args::Type::Word) && args.Contains(Args::Type::CommandLine) && args.Contains(Args::Type::Position))
+        if (args.Contains(Args::Type::Word, Args::Type::CommandLine, Args::Type::Position))
         {
             WithCompletionCommand(args, [&](const Command& command, CompletionData&& data)
             {
