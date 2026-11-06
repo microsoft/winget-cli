@@ -270,6 +270,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return std::make_unique<V1_2::SearchResultsTable>(connection);
     }
 
+    std::vector<PackageMatchFilter> Interface::GetSearchAlternatives(const PackageMatchFilter& filter) const
+    {
+        std::vector<PackageMatchFilter> result{ filter };
+        if (filter.Field == PackageMatchField::Name && filter.Type != MatchType::Exact)
+        {
+            Utility::NormalizedString normalizedName = m_normalizer.NormalizeName(Utility::FoldCase(filter.Value)).GetNormalizedName(Utility::NormalizationField::None);
+            if (!normalizedName.empty())
+            {
+                result.emplace_back(PackageMatchField::NormalizedName, filter.Type, std::move(normalizedName));
+            }
+        }
+
+        return result;
+    }
+
     ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
     {
         if (request.Purpose == SearchPurpose::CorrelationToInstalled)

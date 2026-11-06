@@ -24,6 +24,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             matchField = Microsoft::Management::Deployment::PackageMatchField::Moniker;
             break;
         case ::AppInstaller::Repository::PackageMatchField::Name:
+        case ::AppInstaller::Repository::PackageMatchField::NormalizedName:
             matchField = Microsoft::Management::Deployment::PackageMatchField::Name;
             break;
         case ::AppInstaller::Repository::PackageMatchField::Tag:

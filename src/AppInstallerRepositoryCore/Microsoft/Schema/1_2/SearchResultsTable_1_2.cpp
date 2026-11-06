@@ -19,6 +19,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
     {
         switch (field)
         {
+        case PackageMatchField::NormalizedName:
+            return V1_0::ManifestTable::BuildSearchStatement<NormalizedPackageNameTable>(builder, manifestAlias, valueAlias, useLike);
         case PackageMatchField::NormalizedNameAndPublisher:
             return V1_0::ManifestTable::BuildSearchStatement<NormalizedPackageNameTable, NormalizedPackagePublisherTable>(builder, manifestAlias, valueAlias, useLike);
         default:
