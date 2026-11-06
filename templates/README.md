@@ -83,7 +83,8 @@ can be rooted, and `EnableDetectorVcpkg`, so Component Governance detects the vc
 
 **A Windows agent** with Visual Studio 2022 or newer and its vcpkg component installed. The `Build` job
 runs [tools\Initialize-Vcpkg.ps1](../tools/Initialize-Vcpkg.ps1) to enable user-wide MSBuild integration
-with Visual Studio's bundled vcpkg.
+with Visual Studio's bundled vcpkg and restore dependencies for the build's triplet before MSBuild.
+Implicit MSBuild restore is disabled so recovered download errors cannot fail an otherwise successful restore.
 **The `Test` and `BuildPowerShellModule` jobs need more than the `Build` job does — see "Agent requirements" below.**
 
 **Outbound network access.** The test jobs reach several public endpoints, which is worth checking

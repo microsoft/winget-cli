@@ -1,7 +1,13 @@
 <#
 .SYNOPSIS
-    Enables user-wide MSBuild integration for Visual Studio's bundled vcpkg.
+    Enables MSBuild integration for Visual Studio's bundled vcpkg and optionally restores dependencies.
 #>
+
+[CmdletBinding()]
+param(
+    [ValidateNotNullOrEmpty()]
+    [string]$Triplet
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -29,4 +35,26 @@ Write-Host "Running: `"$vcpkg`" integrate install"
 if ($LASTEXITCODE -ne 0)
 {
     throw "vcpkg integrate install failed with exit code $LASTEXITCODE."
+}
+
+if ($Triplet)
+{
+    $sourceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\src')).Path
+    $overlayScript = Join-Path $sourceRoot 'VcpkgPortOverlay\CreatePortOverlay.ps1'
+    $overlayStamp = Join-Path $sourceRoot 'VcpkgPortOverlay\.created'
+
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $overlayScript -StampFile $overlayStamp
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "Creating the vcpkg port overlay failed with exit code $LASTEXITCODE."
+    }
+
+    # Restore outside MSBuild so recovered download errors are not parsed as build failures.
+    Write-Host "Restoring vcpkg dependencies for $Triplet"
+    & $vcpkg install --x-wait-for-lock --triplet $Triplet `
+        "--x-manifest-root=$sourceRoot" "--x-install-root=$sourceRoot\vcpkg_installed"
+    if ($LASTEXITCODE -ne 0)
+    {
+        throw "vcpkg install failed with exit code $LASTEXITCODE."
+    }
 }
