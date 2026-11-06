@@ -40,6 +40,31 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test that a source whose agreements identifier changed without declaring any agreements is used without
+        /// requiring acceptance, as there is nothing to accept.
+        /// </summary>
+        [Test]
+        public void SourceWithEmptyAgreements_NotPrompted()
+        {
+            var agreementsSource = new AgreementsRestSource("TestEmptyAgreementsRestSource");
+
+            try
+            {
+                agreementsSource.AddWithUnacceptedAgreements();
+                agreementsSource.WriteInformation("AgreementsV3", requiresMarket: false, includeAgreements: false);
+
+                // Only the agreements outcome is checked, not the search results.
+                var result = TestCommon.RunAICLICommand("search", $"TestPackage -s {agreementsSource.Name} --disable-interactivity");
+                Assert.That(result.ExitCode, Is.Not.EqualTo(Constants.ErrorCode.ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED), result.StdOut);
+                Assert.That(result.StdOut, Does.Not.Contain("requires that you view the following agreements"));
+            }
+            finally
+            {
+                agreementsSource.Remove();
+            }
+        }
+
+        /// <summary>
         /// Test source add with trust level.
         /// </summary>
         [Test]
