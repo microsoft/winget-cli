@@ -6,6 +6,7 @@
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
+#include <winget/AdminSettings.h>
 #include <winget/UserSettings.h>
 #include <winget/NetworkSettings.h>
 #include "Commands/InstallCommand.h"
@@ -114,13 +115,21 @@ namespace AppInstaller::CLI
         if (const auto* parsedProxies = parsedArgsForLog.GetArgs(Execution::Args::Type::Proxy))
         {
             proxies.assign(parsedProxies->begin(), parsedProxies->end());
-            // Match longer values first so shorter proxies cannot alter them.
-            std::sort(proxies.begin(), proxies.end(), [](std::string_view a, std::string_view b)
-            {
-                return a.size() == b.size() ? a > b : a.size() > b.size();
-            });
-            proxies.erase(std::unique(proxies.begin(), proxies.end()), proxies.end());
         }
+        if (Settings::StringToStringAdminSetting(parsedArgsForLog.GetArg(Execution::Args::Type::SettingName)) ==
+            Settings::StringAdminSetting::DefaultProxy)
+        {
+            if (const auto* settingValues = parsedArgsForLog.GetArgs(Execution::Args::Type::SettingValue))
+            {
+                proxies.insert(proxies.end(), settingValues->begin(), settingValues->end());
+            }
+        }
+        // Match longer values first so shorter proxies cannot alter them.
+        std::sort(proxies.begin(), proxies.end(), [](std::string_view a, std::string_view b)
+        {
+            return a.size() == b.size() ? a > b : a.size() > b.size();
+        });
+        proxies.erase(std::unique(proxies.begin(), proxies.end()), proxies.end());
 
         AICLI_LOG(Core, Info, << "Command line Args: " << [&]() {
             auto commandLineForLog = Utility::ConvertToUTF8(commandLine);
@@ -153,6 +162,7 @@ namespace AppInstaller::CLI
             }
             return strstr.str();
         }());
+        Logging::Log().SetTag(Logging::Tag::HeadersComplete);
     }
 
     int CoreMain(int argc, wchar_t const** argv) try

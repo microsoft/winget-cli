@@ -433,6 +433,72 @@ TEST_CASE("CommandComplete_ProxyArgumentLogPreservesUnrelatedValues", "[complete
         argument + "' << [replace] '" + proxy + "' >> \r\n") != std::string::npos);
 }
 
+TEST_CASE("CommandComplete_DefaultProxyLogRedactsCredentials", "[complete][logging]")
+{
+    const auto setting = GENERATE(
+        std::pair{ "DefaultProxy", true },
+        std::pair{ "dEfAuLtPrOxY", true },
+        std::pair{ "OtherSetting", false });
+    const bool valueBeforeName = GENERATE(false, true);
+    const bool completingValue = GENERATE(false, true);
+    CAPTURE(setting, valueBeforeName, completingValue);
+    const std::string settingName = setting.first;
+    const std::string proxy = "https://ProxyUser:ProxyPassword@proxy.invalid:8080";
+    const std::string valueForLog = setting.second ? "https://[redacted]@proxy.invalid:8080/" : proxy;
+    const std::string valuePrefix = valueBeforeName ? "--value=" : "";
+    const std::string word = completingValue ? valuePrefix + proxy : "--he";
+    const std::string expectedWord = completingValue ? valuePrefix + valueForLog : word;
+    const std::string prefix = "winget settings set " + (valueBeforeName ? "" : settingName + " ") +
+        (completingValue ? "" : valuePrefix + proxy + " ");
+    const std::string suffix = valueBeforeName ? " --setting " + settingName : "";
+    const std::string expectedBefore = " 'settings' 'set'"s + (valueBeforeName ? "" : " '" + settingName + "'") +
+        (completingValue ? "" : " '" + valuePrefix + valueForLog + "'");
+    const std::string expectedAfter = valueBeforeName ? " '--setting' '" + settingName + "'" : "";
+
+    TestUserSettings settings;
+    GroupPolicyTestOverride policies;
+    CompletionTestContext ctc{ word, prefix + word + suffix, std::to_string(prefix.size() + word.size()) };
+    auto previousThreadGlobals = ctc.context.SetForCurrentThread();
+    auto& data = ctc.context.Get<Data::CompletionData>();
+    const auto before = data.BeforeWord().GetArgs();
+    const auto after = data.AfterWord().GetArgs();
+    RootCommand root;
+    const auto settingsCommand = root.FindSubCommand(data.BeforeWord());
+    REQUIRE(settingsCommand);
+    const auto command = settingsCommand->FindSubCommand(data.BeforeWord());
+    REQUIRE(command);
+
+    TempFile logFile{ "CommandComplete_DefaultProxyLog", ".log" };
+    Logging::Log().SetEnabledChannels(Logging::Channel::CLI);
+    Logging::Log().SetLevel(Logging::Level::Info);
+    Logging::FileLogger::Add(logFile.GetPath());
+    command->Complete(ctc.context);
+    Logging::Log().RemoveLogger(Logging::FileLogger::GetNameForPath(logFile.GetPath()));
+
+    CHECK(data.Word() == word);
+    CHECK(data.BeforeWord().GetArgs() == before);
+    CHECK(data.AfterWord().GetArgs() == after);
+    CHECK(ctc.context.Args.GetArg(Args::Type::SettingName) == settingName);
+    CHECK(ctc.context.Args.GetArg(Args::Type::SettingValue) == (completingValue ? "" : proxy));
+    std::stringstream expectedOutput;
+    if (!completingValue)
+    {
+        OutputAllArgumentNames(*command, expectedOutput, "he");
+    }
+    CHECK(ctc.out.str() == expectedOutput.str());
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = Utility::ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    CHECK(logContents.find("Completing word '" + expectedWord + "'\r\n") != std::string::npos);
+    CHECK(logContents.find("Completion invoked for arguments:" + expectedBefore +
+        " << [replace] '" + expectedWord + "' >> " + expectedAfter + "\r\n") != std::string::npos);
+    if (setting.second)
+    {
+        CHECK(logContents.find("ProxyUser") == std::string::npos);
+        CHECK(logContents.find("ProxyPassword") == std::string::npos);
+    }
+}
+
 TEST_CASE("CommandComplete_Simple", "[complete]")
 {
     CompletionTestContext ctc{ "", "winget ", "7" };

@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include <winget/AdminSettings.h>
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
@@ -862,14 +863,25 @@ namespace AppInstaller::CLI
         Invocation invocationForLog{ std::move(argumentsForLog) };
         ParseArgumentsStateMachine loggingStateMachine{ invocationForLog, argsForLog, std::move(definedArgs) };
         std::map<size_t, std::string> proxies;
+        std::map<size_t, std::string> settingValues;
         for (size_t i = 0; i < invocationForLog.GetArgs().size(); ++i)
         {
             const auto proxyCount = argsForLog.GetCount(Execution::Args::Type::Proxy);
+            const auto settingValueCount = argsForLog.GetCount(Execution::Args::Type::SettingValue);
             loggingStateMachine.Step();
             if (argsForLog.GetCount(Execution::Args::Type::Proxy) > proxyCount)
             {
                 proxies.emplace(i, argsForLog.GetArgs(Execution::Args::Type::Proxy)->back());
             }
+            if (argsForLog.GetCount(Execution::Args::Type::SettingValue) > settingValueCount)
+            {
+                settingValues.emplace(i, argsForLog.GetArgs(Execution::Args::Type::SettingValue)->back());
+            }
+        }
+        if (Settings::StringToStringAdminSetting(argsForLog.GetArg(Execution::Args::Type::SettingName)) ==
+            Settings::StringAdminSetting::DefaultProxy)
+        {
+            proxies.merge(settingValues);
         }
         return proxies;
     }

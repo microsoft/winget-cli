@@ -574,6 +574,70 @@ TEST_CASE("Invocation_ProxyLogRedactsCredentials", "[logging]")
     CHECK(logContents.find("ProxyPassword") == std::string::npos);
 }
 
+TEST_CASE("Invocation_DefaultProxyLogRedactsCredentials", "[logging]")
+{
+    using namespace AppInstaller::CLI;
+    const auto setting = GENERATE(
+        std::pair{ "DefaultProxy", true },
+        std::pair{ "dEfAuLtPrOxY", true },
+        std::pair{ "OtherSetting", false });
+    const bool valueBeforeName = GENERATE(false, true);
+    CAPTURE(setting, valueBeforeName);
+    const std::string proxy = "https://ProxyUser:ProxyPassword@proxy.invalid:8080";
+    std::vector<std::string> values = valueBeforeName ?
+        std::vector<std::string>{ "settings", "set", "--value=" + proxy, "--setting", setting.first } :
+        std::vector<std::string>{ "settings", "set", setting.first, proxy };
+    std::string commandLine = "winget";
+    std::string expectedLog = "WinGet invoked with arguments:";
+    for (const auto& value : values)
+    {
+        commandLine += " " + value;
+        expectedLog += " '" + value + "'";
+    }
+    std::string expectedCommandLine = commandLine;
+    if (setting.second)
+    {
+        FindAndReplace(expectedCommandLine, proxy, "https://[redacted]@proxy.invalid:8080/");
+        FindAndReplace(expectedLog, proxy, "https://[redacted]@proxy.invalid:8080/");
+    }
+
+    TestUserSettings userSettings;
+    GroupPolicyTestOverride policies;
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    const auto originalValues = values;
+    Invocation invocation{ std::move(values) };
+    RootCommand root;
+    const auto settingsCommand = root.FindSubCommand(invocation);
+    REQUIRE(settingsCommand);
+    const auto command = settingsCommand->FindSubCommand(invocation);
+    REQUIRE(command);
+    Execution::Args args;
+    REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+
+    TempFile logFile{ "Invocation_DefaultProxyLog", ".log" };
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI | AppInstaller::Logging::Channel::Core);
+    Log().SetLevel(DefaultLevel);
+    FileLogger::Add(logFile.GetPath());
+    invocation.Log(args, ConvertToUTF16(commandLine));
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    CHECK(invocation.GetArgs() == originalValues);
+    CHECK(args.GetArg(Execution::Args::Type::SettingName) == setting.first);
+    CHECK(args.GetArg(Execution::Args::Type::SettingValue) == proxy);
+    CHECK_FALSE(args.Contains(Execution::Args::Type::Proxy));
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    CHECK(logContents.find(expectedLog + "\r\n") != std::string::npos);
+    CHECK(logContents.find("Command line Args: " + expectedCommandLine + "\r\n") != std::string::npos);
+    if (setting.second)
+    {
+        CHECK(logContents.find("ProxyUser") == std::string::npos);
+        CHECK(logContents.find("ProxyPassword") == std::string::npos);
+    }
+}
+
 TEST_CASE("Invocation_CompletionProxyLogRedactsCredentials", "[logging][complete]")
 {
     using namespace AppInstaller::CLI;
@@ -599,6 +663,16 @@ TEST_CASE("Invocation_CompletionProxyLogRedactsCredentials", "[logging][complete
             "--he", "winget install " + proxyArgumentForLog + " " + proxyArgumentForLog + "path " + proxyArgumentForLog + " --he" },
         CompletionInput{ "--he", "winget install --source " + proxyArgument + " --he",
             "--he", "winget install --source " + proxyArgument + " --he" },
+        CompletionInput{ proxyUri, "winget settings set DefaultProxy " + proxyUri,
+            proxyForLog, "winget settings set DefaultProxy " + proxyForLog },
+        CompletionInput{ "--he", "winget settings set dEfAuLtPrOxY " + proxyUri + " --he",
+            "--he", "winget settings set dEfAuLtPrOxY " + proxyForLog + " --he" },
+        CompletionInput{ "--value=" + proxyUri, "winget settings set --value=" + proxyUri + " --setting DefaultProxy",
+            "--value=" + proxyForLog, "winget settings set --value=" + proxyForLog + " --setting DefaultProxy" },
+        CompletionInput{ "--he", "winget settings set --value=" + proxyUri + " --he --setting DefaultProxy",
+            "--he", "winget settings set --value=" + proxyForLog + " --he --setting DefaultProxy" },
+        CompletionInput{ proxyUri, "winget settings set OtherSetting " + proxyUri,
+            proxyUri, "winget settings set OtherSetting " + proxyUri },
         CompletionInput{ "--he", "winget install --he", "--he", "winget install --he" });
     const auto& [word, nestedCommandLine, expectedWord, expectedNestedCommandLine] = input;
     const auto cursor = word.empty() ?
@@ -720,6 +794,42 @@ TEST_CASE("Telemetry_StartupCommandLineLogging", "[logging]")
     {
         REQUIRE(logContents.find("Command line Args: " + ConvertToUTF8(GetCommandLineW()) + "\r\n") != std::string::npos);
     }
+}
+
+TEST_CASE("Invocation_StartupLogsSurviveWrapping", "[logging]")
+{
+    using namespace AppInstaller::CLI;
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::TelemetryDisable>(true);
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    const std::string proxy = "https://ProxyUser:ProxyPassword@proxy.invalid:8080";
+    Invocation invocation{ { "install", "--proxy", proxy } };
+    Execution::Args args;
+    args.AddArg(Execution::Args::Type::Proxy, proxy);
+
+    TempFile logFile{ "Invocation_StartupLogsWrapping", ".log" };
+    auto logger = std::make_unique<FileLogger>(logFile.GetPath());
+    auto* fileLogger = logger.get();
+    Log().SetEnabledChannels(AppInstaller::Logging::Channel::CLI | AppInstaller::Logging::Channel::Core);
+    Log().SetLevel(DefaultLevel);
+    Log().AddLogger(std::move(logger));
+    Telemetry().LogStartup(false, false);
+    invocation.Log(args, ConvertToUTF16("winget install --proxy " + proxy));
+    const auto headerSize = std::filesystem::file_size(logFile.GetPath());
+    fileLogger->SetMaximumSize(static_cast<std::ofstream::off_type>(headerSize + 32));
+    fileLogger->WriteDirect(DefaultChannel, DefaultLevel, std::string(static_cast<size_t>(headerSize + 64), 'x'));
+    Log().RemoveLogger(FileLogger::GetNameForPath(logFile.GetPath()));
+
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+    REQUIRE(logContents.find(WrapIndicator) != std::string::npos);
+    CHECK(logContents.find("WinGet, version [") != std::string::npos);
+    CHECK(logContents.find("Command line Args: winget install --proxy https://[redacted]@proxy.invalid:8080/\r\n") != std::string::npos);
+    CHECK(logContents.find("WinGet invoked with arguments: 'install' '--proxy' 'https://[redacted]@proxy.invalid:8080/'\r\n") != std::string::npos);
+    CHECK(logContents.find("ProxyUser") == std::string::npos);
+    CHECK(logContents.find("ProxyPassword") == std::string::npos);
 }
 
 TEST_CASE("COMFileLogging_InitializationFailureIsNonFatal", "[logging]")
