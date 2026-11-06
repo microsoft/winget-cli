@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AllowRebootArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveMalwareScanSkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
         WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationAccountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationModeArgumentDescription);
