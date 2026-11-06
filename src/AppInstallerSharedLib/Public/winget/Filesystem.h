@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 #include <shtypes.h>
 
@@ -47,8 +48,21 @@ namespace AppInstaller::Filesystem
     // Checks if the file system at path support reparse points
     bool SupportsReparsePoints(const std::filesystem::path& path);
 
-    // Checks if a relative paths points to a location outside of the base path.
+    // Checks whether a relative path escapes its base directory.
+    bool PathEscapesBaseDirectory(const std::filesystem::path& relativePath);
+
+    // Checks a UTF-8 relative path.
     bool PathEscapesBaseDirectory(std::string_view relativePath);
+
+    // Ensures string inputs use the UTF-8 overload.
+    template <typename T, std::enable_if_t<std::is_convertible_v<const T&, std::string_view>, int> = 0>
+    bool PathEscapesBaseDirectory(const T& relativePath)
+    {
+        return PathEscapesBaseDirectory(std::string_view{ relativePath });
+    }
+
+    // Checks if any part of the path, other than "." and "..", is changed or rejected by Utility::MakeSuitablePathPart.
+    bool PathHasUnsuitableParts(const std::filesystem::path& relativePath);
 
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);

@@ -46,7 +46,7 @@ The following options are available.
 | **--scope** | Select install scope (user or machine). |
 | **-a, --architecture** | Select the architecture. |
 | **--installer-type** | Select the installer type. |
-| **--locale** | Locale to use (BCP47 format). |
+| **--locale** | Locale to use (BCP 47 format, such as `en-US` or the language-only tag `en`). |
 | **--header** | Optional Windows-Package-Manager REST source HTTP header. |
 | **--accept-source-agreements** | Accept all source agreements during source operations. |
 | **-?, --help** | Gets additional help on this command. |

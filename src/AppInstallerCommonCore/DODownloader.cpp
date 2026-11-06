@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "DODownloader.h"
 #include "Public/AppInstallerLogging.h"
-#include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Hash.h"
 #include "winget/UserSettings.h"
 
 // TODO: Get this from the Windows SDK when available

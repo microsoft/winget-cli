@@ -53,11 +53,8 @@ Paths that belong to the agent or to the build output are deliberately **not** r
 they do not move with the subtree:
 
 - `$(Build.ArtifactStagingDirectory)`, `$(Pipeline.Workspace)`
-- `$(Agent.TempDirectory)`, `$(VCPKG_INSTALLATION_ROOT)`
+- `$(Agent.TempDirectory)`
 - `$(buildOutDir)`, `$(buildOutDirAnyCpu)`, `$(artifactsDir)`, `$(packageLayoutDir)`
-
-`$(VCPKG_INSTALLATION_ROOT)` is the exception worth calling out: it is correctly *not* rooted, but a
-consumer may not use the installation it points at. See `useAgentVcpkg` below.
 
 Nested template references need no help. Azure Pipelines resolves a `- template:` reference inside a
 template file relative to *that file*, so the job templates find their siblings at any depth. Only
@@ -84,9 +81,10 @@ is neither a parameter nor a path in this directory.
 **Pipeline variables.** None. `jobs-build.yml` sets what it needs at job scope — `solution`, so it
 can be rooted, and `EnableDetectorVcpkg`, so Component Governance detects the vcpkg dependencies.
 
-**A Windows agent** with Visual Studio 2022 and vcpkg, exposing `VCPKG_INSTALLATION_ROOT`. The
-Microsoft-hosted `windows-2025` image qualifies. **The `Test` and `BuildPowerShellModule` jobs need
-more than the `Build` job does — see "Agent requirements" below.**
+**A Windows agent** with Visual Studio 2022 or newer and its vcpkg component installed. The `Build` job
+runs [tools\Initialize-Vcpkg.ps1](../tools/Initialize-Vcpkg.ps1) to enable user-wide MSBuild integration
+with Visual Studio's bundled vcpkg.
+**The `Test` and `BuildPowerShellModule` jobs need more than the `Build` job does — see "Agent requirements" below.**
 
 **Outbound network access.** The test jobs reach several public endpoints, which is worth checking
 before wiring this up on a restricted network:
@@ -193,24 +191,6 @@ does not even build.
       /p:WingetDisableTestHooks=false
       /p:UseProdCLSIDs=false
 ```
-
-## `useAgentVcpkg`
-
-Defaults to `true`, matching the Microsoft-hosted images, where `VCPKG_INSTALLATION_ROOT` points at
-a real vcpkg installation that this pipeline integrates and builds the native dependencies with.
-
-Set it to `false` when the consuming repository supplies vcpkg some other way — for example through
-an MSBuild SDK that restores the ports itself. `VCPKG_INSTALLATION_ROOT` may well still be defined in
-that case, since the agent image sets it, but nothing builds there. Two steps then become
-meaningless and are dropped together:
-
-- *Enable Vcpkg Install*, which integrates an installation the build does not use.
-- *Copy vcpkg logs*, which reads `$(VCPKG_INSTALLATION_ROOT)\buildtrees` — a directory that will not
-  exist, failing the job after a successful build.
-
-Dropping the log collection loses no real diagnostics: `Build Solution` writes an MSBuild binary log
-to `$(artifactsDir)\msbuild.binlog`, which is published with the rest of the build artifacts and
-records the vcpkg invocation and its output.
 
 ## `releaseTagJob`
 

@@ -4,22 +4,23 @@
 #include <winget/AsyncTokens.h>
 #include <wil/resource.h>
 #include <atomic>
+#include <mutex>
 #include <set>
 
-namespace winrt::Microsoft::Management::Configuration::implementation
+namespace AppInstaller::WinRT
 {
     // Promise type implementation for cancellation_token
     struct ShutdownAwareAsyncCancellationPromise
     {
-        Windows::Foundation::AsyncStatus Status() noexcept;
+        winrt::Windows::Foundation::AsyncStatus Status() noexcept;
         void cancellation_callback(winrt::delegate<>&& cancel) noexcept;
         bool enable_cancellation_propagation(bool value) noexcept;
         void Cancel() noexcept;
 
     private:
-        slim_mutex m_lock;
+        winrt::slim_mutex m_lock;
         winrt::delegate<> m_cancel;
-        std::atomic<Windows::Foundation::AsyncStatus> m_status{ Windows::Foundation::AsyncStatus::Started };
+        std::atomic<winrt::Windows::Foundation::AsyncStatus> m_status{ winrt::Windows::Foundation::AsyncStatus::Started };
     };
 
     // An AsyncCancellation that registers with ShutdownSynchronization.
@@ -77,7 +78,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Wait();
 
     private:
-        std::atomic_bool m_disabled{ false };
+        bool m_disabled = false;
         std::mutex m_workLock;
         std::set<CancellableWeakPtr, std::owner_less<CancellableWeakPtr>> m_work;
         wil::slim_event_manual_reset m_noActiveWork{ true };

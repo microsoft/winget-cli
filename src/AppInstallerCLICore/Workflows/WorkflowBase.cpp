@@ -12,10 +12,10 @@
 #include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
-#include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 #include <winget/IconExtraction.h>
@@ -951,9 +951,10 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
 
-            // Regardless of match type, always use an exact match for the system reference strings.
+            // Package family names use folded exact matching in the local index. Product codes
+            // must be case-insensitive for REST sources, which may preserve manifest casing.
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));

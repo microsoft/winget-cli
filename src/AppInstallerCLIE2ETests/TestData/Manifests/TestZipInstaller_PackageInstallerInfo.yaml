@@ -19,5 +19,6 @@ Installers:
       - RelativeFilePath: AppInstallerTestExeInstaller.exe
     ElevationRequirement: elevationRequired
     InstallerLocale: en-US
+    ReleaseDate: 2024-06-15
 ManifestType: singleton
 ManifestVersion: 1.4.0

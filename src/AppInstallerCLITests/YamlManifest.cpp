@@ -3,9 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSettings.h"
-#include <AppInstallerSHA256.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
+#include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/Yaml.h>

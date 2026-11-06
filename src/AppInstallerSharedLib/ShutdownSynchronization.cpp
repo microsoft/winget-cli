@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ShutdownSynchronization.h"
+#include <winget/ShutdownSynchronization.h>
 
-namespace winrt::Microsoft::Management::Configuration::implementation
+namespace AppInstaller::WinRT
 {
     ShutdownAwareAsyncCancellation::ShutdownAwareAsyncCancellation()
     {
@@ -40,7 +40,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ShutdownSynchronization::Instance().RegisterWorkBegin(m_cancellation->GetWeak());
     }
 
-    Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationPromise::Status() noexcept
+    winrt::Windows::Foundation::AsyncStatus ShutdownAwareAsyncCancellationPromise::Status() noexcept
     {
         return m_status.load(std::memory_order_acquire);
     }
@@ -48,9 +48,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ShutdownAwareAsyncCancellationPromise::cancellation_callback(winrt::delegate<>&& cancel) noexcept
     {
         {
-            slim_lock_guard const guard(m_lock);
+            winrt::slim_lock_guard const guard(m_lock);
 
-            if (m_status.load(std::memory_order_relaxed) != Windows::Foundation::AsyncStatus::Canceled)
+            if (m_status.load(std::memory_order_relaxed) != winrt::Windows::Foundation::AsyncStatus::Canceled)
             {
                 m_cancel = std::move(cancel);
                 return;
@@ -73,11 +73,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         winrt::delegate<> cancel;
 
         {
-            slim_lock_guard const guard(m_lock);
+            winrt::slim_lock_guard const guard(m_lock);
 
-            if (m_status.load(std::memory_order_relaxed) == Windows::Foundation::AsyncStatus::Started)
+            if (m_status.load(std::memory_order_relaxed) == winrt::Windows::Foundation::AsyncStatus::Started)
             {
-                m_status.store(Windows::Foundation::AsyncStatus::Canceled, std::memory_order_relaxed);
+                m_status.store(winrt::Windows::Foundation::AsyncStatus::Canceled, std::memory_order_relaxed);
                 cancel = std::move(m_cancel);
             }
         }
@@ -96,17 +96,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ShutdownSynchronization::BlockNewWork()
     {
+        std::lock_guard<std::mutex> lock{ m_workLock };
         m_disabled = true;
     }
 
     void ShutdownSynchronization::RegisterWorkBegin(CancellableWeakPtr&& ptr)
     {
+        std::lock_guard<std::mutex> lock{ m_workLock };
+
         if (m_disabled)
         {
             THROW_HR(E_ABORT);
         }
 
-        std::lock_guard<std::mutex> lock{ m_workLock };
         m_work.emplace(std::move(ptr));
         m_noActiveWork.ResetEvent();
     }
@@ -131,15 +133,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         std::lock_guard<std::mutex> lock{ m_workLock };
 
-        for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+        for (auto itr = m_work.begin(); itr != m_work.end();)
         {
             if (auto locked = itr->lock())
             {
                 locked->Cancel();
+                ++itr;
             }
             else
             {
-                m_work.erase(itr);
+                itr = m_work.erase(itr);
             }
         }
 
@@ -157,11 +160,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 std::lock_guard<std::mutex> lock{ m_workLock };
 
                 // Check for any inactive work before waiting
-                for (auto itr = m_work.begin(); itr != m_work.end(); ++itr)
+                for (auto itr = m_work.begin(); itr != m_work.end();)
                 {
                     if (!itr->lock())
                     {
-                        m_work.erase(itr);
+                        itr = m_work.erase(itr);
+                    }
+                    else
+                    {
+                        ++itr;
                     }
                 }
 

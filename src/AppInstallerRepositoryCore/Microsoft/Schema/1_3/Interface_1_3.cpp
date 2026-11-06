@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/1_3/Interface.h"
-#include <AppInstallerSHA256.h>
+#include <winget/Hash.h>
 
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "Microsoft/Schema/1_3/HashVirtualTable.h"
