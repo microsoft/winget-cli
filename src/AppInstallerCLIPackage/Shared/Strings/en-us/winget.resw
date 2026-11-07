@@ -916,7 +916,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No packages found in import file</value>
   </data>
   <data name="NoPackagesNeedUpdate" xml:space="preserve">
-    <value>No packages need update</value>
+    <value>No packages need an update.</value>
   </data>
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>JSON file is not valid</value>
