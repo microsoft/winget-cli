@@ -168,7 +168,8 @@ namespace
 
     std::string SuccessResponse()
     {
-        return "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok";
+        return "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\n"
+            "ok";
     }
 
     bool HasHeader(const LoopbackHttpServer::Request& request, std::string_view header)
