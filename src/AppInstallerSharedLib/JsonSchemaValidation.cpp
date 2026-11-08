@@ -13,7 +13,7 @@ namespace AppInstaller::JsonSchema
         struct MultilineRegexEngine
         {
             explicit MultilineRegexEngine(const std::string& pattern) :
-#if defined(_MSVC_STL_VERSION) && _MSVC_STL_VERSION < 145
+#if defined(_MSVC_STL_VERSION) && !defined(_REGEX_LEGACY_MULTILINE_MODE)
                 Regex(pattern, std::regex_constants::ECMAScript)
 #else
                 Regex(pattern, std::regex_constants::ECMAScript | std::regex_constants::multiline)
