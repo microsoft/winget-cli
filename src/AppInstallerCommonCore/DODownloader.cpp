@@ -7,6 +7,8 @@
 #include "Public/winget/Hash.h"
 #include "winget/UserSettings.h"
 
+#include <functional>
+
 // TODO: Get this from the Windows SDK when available
 #define DODownloadProperty_HttpRedirectionTarget static_cast<DODownloadProperty>(DODownloadProperty_NonVolatile + 1)
 #define DODownloadProperty_HttpResponseHeaders static_cast<DODownloadProperty>(DODownloadProperty_HttpRedirectionTarget + 1)
@@ -43,6 +45,26 @@ namespace AppInstaller::Utility
             return std::nullopt;
         }
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    namespace TestHooks
+    {
+        static std::function<DownloadResult(
+            const std::string&,
+            const std::filesystem::path&,
+            IProgressCallback&,
+            std::optional<DownloadInfo>)>* s_DODownload_Function_Override = nullptr;
+
+        void SetDODownloadResult_Function_Override(std::function<DownloadResult(
+            const std::string&,
+            const std::filesystem::path&,
+            IProgressCallback&,
+            std::optional<DownloadInfo>)>* value)
+        {
+            s_DODownload_Function_Override = value;
+        }
+    }
+#endif
 
     namespace DeliveryOptimization
     {
@@ -419,6 +441,13 @@ namespace AppInstaller::Utility
         IProgressCallback& progress,
         std::optional<DownloadInfo> info)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (TestHooks::s_DODownload_Function_Override)
+        {
+            return (*TestHooks::s_DODownload_Function_Override)(url, dest, progress, info);
+        }
+#endif
+
         AICLI_LOG(Core, Info, << "DeliveryOptimization downloading from url: " << url);
 
         // Remove the target file since DO will not overwrite

@@ -129,6 +129,17 @@ namespace AppInstaller
             DownloadType type,
             IProgressCallback& progress,
             std::optional<DownloadInfo> info)>* value);
+
+        void SetDODownloadResult_Function_Override(std::function<DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            IProgressCallback& progress,
+            std::optional<DownloadInfo> info)>* value);
+
+        std::string ApplyAuthenticatedRedirectPolicyForTest(
+            std::string_view currentUrl,
+            std::string_view location,
+            std::vector<DownloadRequestHeader>& requestHeaders);
     }
 }
 
@@ -435,6 +446,30 @@ namespace TestHook
             const std::string& url,
             const std::filesystem::path& dest,
             AppInstaller::Utility::DownloadType type,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
+    };
+
+    struct SetDODownloadResult_Function_Override
+    {
+        SetDODownloadResult_Function_Override(std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> value) : m_downloadFunction(std::move(value))
+        {
+            AppInstaller::Utility::TestHooks::SetDODownloadResult_Function_Override(&m_downloadFunction);
+        }
+
+        ~SetDODownloadResult_Function_Override()
+        {
+            AppInstaller::Utility::TestHooks::SetDODownloadResult_Function_Override(nullptr);
+        }
+
+    private:
+        std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
             AppInstaller::IProgressCallback& progress,
             std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
     };
