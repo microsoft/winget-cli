@@ -118,7 +118,7 @@ TEST_CASE("UserSettingsOverlay_TreatmentMatrix", "[settings]")
     REQUIRE(settings.Get<Setting::UninstallPurgePortablePackage>() == (!adminPresent && userPresent && !fullToken));
     REQUIRE(settings.GetType() == (userPresent ?
         (userBackup ? UserSettingsType::Backup : UserSettingsType::Standard) : UserSettingsType::Default));
-    REQUIRE(MigrationWarningCount(settings) == (fullToken && userPresent && !adminPresent ? 6 : 0));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken && userPresent && !adminPresent ? 6u : 0u));
     for (const auto& warning : settings.GetWarnings())
     {
         if (warning.IsMigrationWarning)
@@ -180,13 +180,13 @@ TEST_CASE("UserSettingsOverlay_InvalidAdminValueBlocksUserFallback", "[settings]
     UserSettingsTest settings;
     REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
     const auto& warnings = settings.GetWarnings();
-    REQUIRE(warnings.size() == (fullToken ? 2 : 1));
+    REQUIRE(warnings.size() == (fullToken ? 2u : 1u));
     REQUIRE(warnings[0].Source == Stream::PrimaryAdminSettingsFile.Name);
     REQUIRE(warnings[0].Path == ".downloadBehavior.defaultDownloadDirectory");
     REQUIRE(warnings[0].Message == (value == R"("relative")" ?
         AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue :
         AppInstaller::StringResource::String::SettingsWarningInvalidFieldFormat));
-    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1 : 0));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
 }
 
 TEST_CASE("UserSettingsOverlay_InvalidUnrestrictedAdminValueBlocksUserFallback", "[settings]")
@@ -259,8 +259,8 @@ TEST_CASE("UserSettingsOverlay_IgnoredNullIsPresent", "[settings]")
 
     UserSettingsTest settings;
     REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
-    REQUIRE(settings.GetWarnings().size() == (fullToken ? 1 : 0));
-    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1 : 0));
+    REQUIRE(settings.GetWarnings().size() == (fullToken ? 1u : 0u));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
     if (fullToken)
     {
         REQUIRE(settings.GetWarnings()[0].Path == ".downloadBehavior.defaultDownloadDirectory");
@@ -286,8 +286,8 @@ TEST_CASE("UserSettingsOverlay_IneligibleSplitFields", "[settings]")
     const std::filesystem::path expectedRoot = fullToken ? L"" : LR"(C:\User)";
     REQUIRE(settings.Get<Setting::InstallDefaultRoot>() == expectedRoot);
     REQUIRE(settings.Get<Setting::ConfigureDefaultModuleRoot>() == expectedRoot);
-    REQUIRE(settings.GetWarnings().size() == (fullToken ? 2 : 0));
-    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1 : 0));
+    REQUIRE(settings.GetWarnings().size() == (fullToken ? 2u : 0u));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
 }
 
 TEST_CASE("UserSettingsOverlay_ProtectedFileRecovery", "[settings]")
@@ -424,7 +424,7 @@ TEST_CASE("UserSettingsOverlay_UserReadFailure", "[settings]")
     REQUIRE(settings.GetType() == (readableBackup ? UserSettingsType::Backup : UserSettingsType::Default));
     REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == (readableBackup ? VisualStyle::Retro : VisualStyle::Accent));
     const auto& warnings = settings.GetWarnings();
-    REQUIRE(warnings.size() == (readableBackup ? 2 : 3));
+    REQUIRE(warnings.size() == (readableBackup ? 2u : 3u));
     REQUIRE(warnings[0].Message == AppInstaller::StringResource::String::SettingsWarningReadError);
     REQUIRE(warnings[0].Source == Stream::PrimaryUserSettings.Name);
     if (!readableBackup)
@@ -457,7 +457,7 @@ TEST_CASE("UserSettingsOverlay_CustomContentBypassesFiles", "[settings]")
     const std::filesystem::path expectedRoot = validContent ? LR"(C:\Custom)" : L"";
     REQUIRE(settings.Get<Setting::ConfigureDefaultModuleRoot>() == expectedRoot);
     REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>() == expectedRoot);
-    REQUIRE(settings.GetWarnings().size() == (validContent ? 0 : 1));
+    REQUIRE(settings.GetWarnings().size() == (validContent ? 0u : 1u));
     REQUIRE(MigrationWarningCount(settings) == 0);
 }
 
