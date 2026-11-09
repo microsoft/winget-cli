@@ -11,14 +11,18 @@
 #include <deliveryoptimizationerrors.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <wininet.h>
 #include <winrt/Windows.Foundation.h>
 
+#include <atomic>
+#include <future>
 #include <mutex>
 #include <stdexcept>
 #include <thread>
 
 using namespace AppInstaller;
 using namespace AppInstaller::Utility;
+using namespace std::chrono_literals;
 using namespace std::string_literals;
 
 namespace
@@ -30,6 +34,7 @@ namespace
         {
             std::string Path;
             std::string Headers;
+            SOCKET Connection = INVALID_SOCKET;
         };
 
         explicit LoopbackHttpServer(std::function<std::string(const Request&)> responder)
@@ -80,6 +85,10 @@ namespace
             shutdown(m_listener, SD_BOTH);
             closesocket(m_listener);
             m_worker.join();
+            for (auto& worker : m_connectionWorkers)
+            {
+                worker.join();
+            }
             WSACleanup();
         }
 
@@ -94,6 +103,20 @@ namespace
             return "http://" + std::string(host) + ":" + std::to_string(m_port) + std::string(path);
         }
 
+        static void Send(const Request& request, std::string_view response)
+        {
+            size_t sent = 0;
+            while (sent < response.size())
+            {
+                int written = send(request.Connection, response.data() + sent, static_cast<int>(response.size() - sent), 0);
+                if (written <= 0)
+                {
+                    break;
+                }
+                sent += written;
+            }
+        }
+
     private:
         void Run()
         {
@@ -105,59 +128,74 @@ namespace
                     return;
                 }
 
-                std::string requestText;
-                char buffer[1024];
-                while (requestText.find("\r\n\r\n") == std::string::npos)
-                {
-                    int received = recv(connection, buffer, sizeof(buffer), 0);
-                    if (received <= 0)
-                    {
-                        break;
-                    }
-                    requestText.append(buffer, received);
-                }
-
-                Request request;
-                auto requestLineEnd = requestText.find("\r\n");
-                if (requestLineEnd != std::string::npos)
-                {
-                    auto pathStart = requestText.find(' ');
-                    auto pathEnd = requestText.find(' ', pathStart + 1);
-                    if (pathStart != std::string::npos && pathEnd != std::string::npos)
-                    {
-                        request.Path = requestText.substr(pathStart + 1, pathEnd - pathStart - 1);
-                    }
-                    request.Headers = requestText.substr(requestLineEnd + 2);
-                }
-
-                {
-                    std::lock_guard lock(m_mutex);
-                    m_requests.push_back(request);
-                }
-
-                std::string response = m_responder(request);
-                size_t sent = 0;
-                while (sent < response.size())
-                {
-                    int written = send(connection, response.data() + sent, static_cast<int>(response.size() - sent), 0);
-                    if (written <= 0)
-                    {
-                        break;
-                    }
-                    sent += written;
-                }
-
-                shutdown(connection, SD_BOTH);
-                closesocket(connection);
+                m_connectionWorkers.emplace_back([this, connection] { Respond(connection); });
             }
+        }
+
+        void Respond(SOCKET connection)
+        {
+            auto closeConnection = wil::scope_exit([&]
+                {
+                    shutdown(connection, SD_BOTH);
+                    closesocket(connection);
+                });
+
+            std::string requestText;
+            char buffer[1024];
+            while (requestText.find("\r\n\r\n") == std::string::npos)
+            {
+                int received = recv(connection, buffer, sizeof(buffer), 0);
+                if (received <= 0)
+                {
+                    return;
+                }
+                requestText.append(buffer, received);
+            }
+
+            Request request;
+            request.Connection = connection;
+            auto requestLineEnd = requestText.find("\r\n");
+            if (requestLineEnd != std::string::npos)
+            {
+                auto pathStart = requestText.find(' ');
+                auto pathEnd = requestText.find(' ', pathStart + 1);
+                if (pathStart != std::string::npos && pathEnd != std::string::npos)
+                {
+                    request.Path = requestText.substr(pathStart + 1, pathEnd - pathStart - 1);
+                }
+                request.Headers = requestText.substr(requestLineEnd + 2);
+            }
+
+            {
+                std::lock_guard lock(m_mutex);
+                m_requests.push_back(request);
+            }
+
+            Send(request, m_responder(request));
         }
 
         SOCKET m_listener = INVALID_SOCKET;
         uint16_t m_port = 0;
         std::function<std::string(const Request&)> m_responder;
         std::thread m_worker;
+        std::vector<std::thread> m_connectionWorkers;
         mutable std::mutex m_mutex;
         std::vector<Request> m_requests;
+    };
+
+    struct SignalingProgressCallback : ProgressCallback
+    {
+        explicit SignalingProgressCallback(wil::unique_event& progressed) : m_progressed(progressed)
+        {
+        }
+
+        void OnProgress(uint64_t, uint64_t, ProgressType) override
+        {
+            m_progressed.SetEvent();
+        }
+
+    private:
+        wil::unique_event& m_progressed;
     };
 
     std::string RedirectResponse(int status, std::string_view location)
@@ -399,6 +437,76 @@ TEST_CASE("AuthenticatedDownloadRedirectTransport", "[Downloader]")
         REQUIRE(HasHeader(destinationRequest, "x-test-header: retained"));
     }
 
+    SECTION("Concurrent redirects release unread responses before following the next hop")
+    {
+        DWORD originalLimit = 0;
+        DWORD size = sizeof(originalLimit);
+        REQUIRE(InternetQueryOptionW(nullptr, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &originalLimit, &size));
+        auto restoreLimit = wil::scope_exit([&]
+            {
+                LOG_IF_WIN32_BOOL_FALSE(InternetSetOptionW(nullptr, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &originalLimit, sizeof(originalLimit)));
+            });
+        DWORD limit = 2;
+        REQUIRE(InternetSetOptionW(nullptr, INTERNET_OPTION_MAX_CONNS_PER_SERVER, &limit, sizeof(limit)));
+
+        wil::unique_event bothStarted{ wil::EventOptions::ManualReset };
+        wil::unique_event releaseResponses{ wil::EventOptions::ManualReset };
+        std::atomic<int> redirects = 0;
+        LoopbackHttpServer server([&](const auto& request)
+            {
+                if (request.Path == "/start")
+                {
+                    if (++redirects == 2)
+                    {
+                        bothStarted.SetEvent();
+                    }
+                    bothStarted.wait(10000);
+                    LoopbackHttpServer::Send(request,
+                        "HTTP/1.1 302 Redirect\r\nLocation: /final\r\nContent-Length: 1\r\n"
+                        "Cache-Control: no-store\r\nConnection: keep-alive\r\n\r\n");
+                    releaseResponses.wait(10000);
+                    return "x"s;
+                }
+                return SuccessResponse();
+            });
+        auto download = [&](ProgressCallback& callback)
+            {
+                winrt::init_apartment(winrt::apartment_type::multi_threaded);
+                auto uninitialize = wil::scope_exit([] { winrt::uninit_apartment(); });
+                std::ostringstream content;
+                DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, CreateDummyAuthDownloadInfo());
+                return content.str();
+            };
+        ProgressCallback firstCallback;
+        ProgressCallback secondCallback;
+        auto first = std::async(std::launch::async, download, std::ref(firstCallback));
+        auto second = std::async(std::launch::async, download, std::ref(secondCallback));
+        auto release = wil::scope_exit([&] { releaseResponses.SetEvent(); });
+        bool started = bothStarted.wait(10000);
+        bool firstCompleted = first.wait_for(2s) == std::future_status::ready;
+        bool secondCompleted = second.wait_for(2s) == std::future_status::ready;
+        if (!firstCompleted || !secondCompleted)
+        {
+            firstCallback.Cancel();
+            secondCallback.Cancel();
+        }
+        releaseResponses.SetEvent();
+        auto firstContent = first.get();
+        auto secondContent = second.get();
+
+        REQUIRE(started);
+        REQUIRE(firstCompleted);
+        REQUIRE(secondCompleted);
+        REQUIRE(firstContent == "ok");
+        REQUIRE(secondContent == "ok");
+        auto requests = server.Requests();
+        REQUIRE(requests.size() == 4);
+        for (const auto& request : requests)
+        {
+            REQUIRE(HasHeader(request, "Authorization: Bearer dummy-test-token"));
+        }
+    }
+
     SECTION("Cross-host redirect strips authentication headers")
     {
         std::string responseLocation;
@@ -531,6 +639,91 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
         REQUIRE_FALSE(HasHeader(destination.Requests()[0], "Authorization:"));
         REQUIRE_FALSE(HasHeader(destination.Requests()[0], "x-test-auth:"));
         REQUIRE(HasHeader(destination.Requests()[0], "x-test-header: retained"));
+    }
+
+    for (bool stallBody : { false, true })
+    {
+        DYNAMIC_SECTION("Authenticated installer cancellation while waiting for " << (stallBody ? "body data" : "headers"))
+        {
+            wil::unique_event requestReceived{ wil::EventOptions::ManualReset };
+            wil::unique_event bodyStarted{ wil::EventOptions::ManualReset };
+            wil::unique_event releaseResponse{ wil::EventOptions::ManualReset };
+            SignalingProgressCallback asyncCallback(bodyStarted);
+            TestHook::SetDODownloadResult_Function_Override doOverride([&](const auto&, const auto&, auto&, auto) -> DownloadResult
+                {
+                    doCalled = true;
+                    THROW_HR(E_UNEXPECTED);
+                });
+            LoopbackHttpServer server([&](const auto& request)
+                {
+                    requestReceived.SetEvent();
+                    if (stallBody)
+                    {
+                        constexpr size_t ChunkSize = 1024 * 1024;
+                        LoopbackHttpServer::Send(request, "HTTP/1.1 200 OK\r\nContent-Length: " +
+                            std::to_string(ChunkSize + 1) + "\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n" +
+                            std::string(ChunkSize, 'a'));
+                    }
+                    releaseResponse.wait(10000);
+                    return stallBody ? "b"s : SuccessResponse();
+                });
+            auto download = std::async(std::launch::async, [&]
+                {
+                    winrt::init_apartment(winrt::apartment_type::multi_threaded);
+                    auto uninitialize = wil::scope_exit([] { winrt::uninit_apartment(); });
+                    return Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
+                        DownloadType::Installer, asyncCallback, CreateDummyAuthDownloadInfo());
+                });
+            auto release = wil::scope_exit([&] { releaseResponse.SetEvent(); });
+            bool started = (stallBody ? bodyStarted : requestReceived).wait(10000);
+            if (stallBody)
+            {
+                std::this_thread::sleep_for(100ms);
+            }
+            asyncCallback.Cancel();
+            bool cancelledBeforeRelease = download.wait_for(2s) == std::future_status::ready;
+            releaseResponse.SetEvent();
+            auto result = download.get();
+
+            REQUIRE(started);
+            REQUIRE(cancelledBeforeRelease);
+            REQUIRE(result.Sha256Hash.empty());
+            REQUIRE_FALSE(doCalled);
+            return;
+        }
+    }
+
+    SECTION("Already cancelled authenticated downloads do not send a request")
+    {
+        LoopbackHttpServer server([](const auto&) { return SuccessResponse(); });
+        callback.Cancel();
+
+        auto result = Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
+            DownloadType::Installer, callback, CreateDummyAuthDownloadInfo());
+
+        REQUIRE(result.Sha256Hash.empty());
+        REQUIRE(server.Requests().empty());
+        return;
+    }
+
+    SECTION("Cancellation during a redirect does not request the next hop")
+    {
+        LoopbackHttpServer server([&](const auto& request)
+            {
+                if (request.Path == "/start")
+                {
+                    callback.Cancel();
+                    return RedirectResponse(302, "/final");
+                }
+                return SuccessResponse();
+            });
+
+        auto result = Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
+            DownloadType::Installer, callback, CreateDummyAuthDownloadInfo());
+
+        REQUIRE(result.Sha256Hash.empty());
+        REQUIRE(server.Requests().size() == 1);
+        return;
     }
 
     SECTION("Unauthenticated installer downloads still use DO")

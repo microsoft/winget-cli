@@ -137,6 +137,94 @@ namespace AppInstaller::Utility
                 status == HTTP_STATUS_REDIRECT_KEEP_VERB ||
                 status == HTTP_STATUS_PERMANENT_REDIRECT;
         }
+
+        struct WinINetAsyncContext
+        {
+            WinINetAsyncContext(wil::unique_hinternet& session, wil::unique_hinternet& request) :
+                m_session(session), m_request(request), m_sessionHandle(session.get())
+            {
+                DWORD_PTR context = reinterpret_cast<DWORD_PTR>(this);
+                THROW_LAST_ERROR_IF(!InternetSetOptionW(m_session.get(), INTERNET_OPTION_CONTEXT_VALUE, &context, sizeof(context)));
+                THROW_LAST_ERROR_IF(InternetSetStatusCallbackW(m_session.get(), StatusCallback) == INTERNET_INVALID_STATUS_CALLBACK);
+            }
+
+            ~WinINetAsyncContext()
+            {
+                Close();
+            }
+
+            void Reset()
+            {
+                m_completed.ResetEvent();
+                m_result = {};
+            }
+
+            bool WaitForCompletion(DWORD error, IProgressCallback& progress)
+            {
+                THROW_WIN32_IF_MSG(error, error != ERROR_IO_PENDING, "WinINet request failed.");
+
+                auto cancelPending = wil::scope_exit([&] { Close(); });
+                while (!progress.IsCancelledBy(CancelReason::Any))
+                {
+                    if (m_completed.wait(50))
+                    {
+                        if (progress.IsCancelledBy(CancelReason::Any))
+                        {
+                            return false;
+                        }
+
+                        cancelPending.release();
+                        THROW_WIN32_IF_MSG(m_result.dwError, m_result.dwError != ERROR_SUCCESS, "WinINet request failed.");
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            HINTERNET GetOpenedHandle() const
+            {
+                return reinterpret_cast<HINTERNET>(m_result.dwResult);
+            }
+
+        private:
+            void Close()
+            {
+                if (m_session)
+                {
+                    m_request.reset();
+                    m_session.reset();
+                    // Drain the session's final callback before freeing request buffers or this context.
+                    m_closed.wait();
+                }
+            }
+
+            static void CALLBACK StatusCallback(HINTERNET handle, DWORD_PTR context, DWORD status, void* information, DWORD)
+            {
+                if (context == 0)
+                {
+                    return;
+                }
+
+                auto& self = *reinterpret_cast<WinINetAsyncContext*>(context);
+                if (status == INTERNET_STATUS_REQUEST_COMPLETE)
+                {
+                    self.m_result = *static_cast<INTERNET_ASYNC_RESULT*>(information);
+                    self.m_completed.SetEvent();
+                }
+                else if (status == INTERNET_STATUS_HANDLE_CLOSING && handle == self.m_sessionHandle)
+                {
+                    self.m_closed.SetEvent();
+                }
+            }
+
+            wil::unique_hinternet& m_session;
+            wil::unique_hinternet& m_request;
+            HINTERNET m_sessionHandle;
+            wil::unique_event m_completed{ wil::EventOptions::ManualReset };
+            wil::unique_event m_closed{ wil::EventOptions::ManualReset };
+            INTERNET_ASYNC_RESULT m_result{};
+        };
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -181,6 +269,19 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
+        std::vector<DownloadRequestHeader> requestHeaders;
+        if (info)
+        {
+            requestHeaders = info->RequestHeaders;
+        }
+
+        // Keep redirects controlled even after sensitive headers have been stripped.
+        const bool hasAuthHeaders = std::any_of(requestHeaders.begin(), requestHeaders.end(), [](const auto& header)
+            {
+                return header.IsAuth;
+            });
+        const DWORD sessionFlags = hasAuthHeaders ? INTERNET_FLAG_ASYNC : 0;
+
         auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
         wil::unique_hinternet session;
 
@@ -193,7 +294,7 @@ namespace AppInstaller::Utility
                 INTERNET_OPEN_TYPE_PROXY,
                 Utility::ConvertToUTF16(proxyUri.value()).c_str(),
                 NULL,
-                0));
+                sessionFlags));
         }
         else
         {
@@ -202,31 +303,32 @@ namespace AppInstaller::Utility
                 INTERNET_OPEN_TYPE_PRECONFIG,
                 NULL,
                 NULL,
-                0));
+                sessionFlags));
         }
 
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
-        std::vector<DownloadRequestHeader> requestHeaders;
-        if (info)
-        {
-            requestHeaders = info->RequestHeaders;
-        }
-
-        // Keep redirects controlled even after sensitive headers have been stripped.
-        const bool hasAuthHeaders = std::any_of(requestHeaders.begin(), requestHeaders.end(), [](const auto& header)
-            {
-                return header.IsAuth;
-            });
-
         std::string currentUrl = url;
         wil::unique_hinternet urlFile;
+        std::optional<WinINetAsyncContext> asyncContext;
+        DWORD_PTR requestContext = 0;
+        if (hasAuthHeaders)
+        {
+            asyncContext.emplace(session, urlFile);
+            requestContext = reinterpret_cast<DWORD_PTR>(&*asyncContext);
+        }
         DWORD requestStatus = 0;
         constexpr size_t MaxRedirectCount = 10;
         size_t redirectCount = 0;
 
         while (true)
         {
+            if (hasAuthHeaders && progress.IsCancelledBy(CancelReason::Any))
+            {
+                AICLI_LOG(Core, Info, << "Download cancelled.");
+                return {};
+            }
+
             std::string customHeaders;
             for (const auto& header : requestHeaders)
             {
@@ -241,13 +343,27 @@ namespace AppInstaller::Utility
                 requestFlags |= INTERNET_FLAG_NO_AUTO_REDIRECT;
             }
 
-            urlFile.reset(InternetOpenUrl(
+            if (asyncContext)
+            {
+                asyncContext->Reset();
+            }
+            auto openedUrl = InternetOpenUrl(
                 session.get(),
                 urlWide.c_str(),
                 customHeadersWide.empty() ? NULL : customHeadersWide.c_str(),
                 customHeadersWide.empty() ? 0 : static_cast<DWORD>(customHeadersWide.size()),
                 requestFlags,
-                0));
+                requestContext);
+            if (!openedUrl && asyncContext)
+            {
+                if (!asyncContext->WaitForCompletion(GetLastError(), progress))
+                {
+                    AICLI_LOG(Core, Info, << "Download cancelled.");
+                    return {};
+                }
+                openedUrl = asyncContext->GetOpenedHandle();
+            }
+            urlFile.reset(openedUrl);
             THROW_LAST_ERROR_IF_NULL_MSG(urlFile, "InternetOpenUrl() failed.");
 
             DWORD cbRequestStatus = sizeof(requestStatus);
@@ -268,6 +384,7 @@ namespace AppInstaller::Utility
             std::wstring location = GetHttpQueryString(urlFile, HTTP_QUERY_LOCATION);
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED), location.empty());
             currentUrl = ApplyAuthenticatedRedirectPolicy(currentUrl, Utility::ConvertToUTF8(location), requestHeaders);
+            urlFile.reset();
         }
 
         constexpr DWORD TooManyRequest = 429;
@@ -322,7 +439,20 @@ namespace AppInstaller::Utility
                 return {};
             }
 
+            if (asyncContext)
+            {
+                asyncContext->Reset();
+            }
             readSuccess = InternetReadFile(urlFile.get(), buffer.get(), bufferSize, &bytesRead);
+            if (!readSuccess && asyncContext)
+            {
+                if (!asyncContext->WaitForCompletion(GetLastError(), progress))
+                {
+                    AICLI_LOG(Core, Info, << "Download cancelled.");
+                    return {};
+                }
+                readSuccess = TRUE;
+            }
 
             THROW_LAST_ERROR_IF_MSG(!readSuccess, "InternetReadFile() failed.");
 
