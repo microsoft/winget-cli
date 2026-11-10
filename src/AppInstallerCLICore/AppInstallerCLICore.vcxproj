@@ -367,6 +367,10 @@
     <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
     <ClInclude Include="Workflows\PackageTableSortHelper.h" />
+    <ClInclude Include="ManifestProviders\ManifestProvider.h" />
+    <ClInclude Include="ManifestProviders\ManifestArchive.h" />
+    <ClInclude Include="ManifestProviders\LocalManifestProvider.h" />
+    <ClInclude Include="ManifestProviders\RemoteManifestProvider.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -440,6 +444,10 @@
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\ArchiveFlow.cpp" />
+    <ClCompile Include="ManifestProviders\ManifestProvider.cpp" />
+    <ClCompile Include="ManifestProviders\ManifestArchive.cpp" />
+    <ClCompile Include="ManifestProviders\LocalManifestProvider.cpp" />
+    <ClCompile Include="ManifestProviders\RemoteManifestProvider.cpp" />
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
     <ClCompile Include="Workflows\DependencyNodeProcessor.cpp" />
     <ClCompile Include="Workflows\DownloadFlow.cpp" />

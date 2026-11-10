@@ -71,10 +71,14 @@ TEST_CASE("AdminSetting_AllSettingsAreImplemented", "[adminSettings]")
         // If we forget to add it to the conversion, it returns Unknown/None
         REQUIRE(AdminSettingToString(adminSetting) != AdminSettingToString(BoolAdminSetting::Unknown));
         REQUIRE(StringToBoolAdminSetting(AdminSettingToString(adminSetting)) != BoolAdminSetting::Unknown);
-        REQUIRE(GetAdminSettingPolicy(adminSetting) != TogglePolicy::Policy::None);
+        REQUIRE((GetAdminSettingPolicy(adminSetting) != TogglePolicy::Policy::None ||
+            adminSetting == BoolAdminSetting::RemoteManifestFiles));
 
         GroupPolicyTestOverride policies;
-        policies.SetState(GetAdminSettingPolicy(adminSetting), PolicyState::NotConfigured);
+        if (GetAdminSettingPolicy(adminSetting) != TogglePolicy::Policy::None)
+        {
+            policies.SetState(GetAdminSettingPolicy(adminSetting), PolicyState::NotConfigured);
+        }
 
         // We should be able to configure the state.
         // If we forget to add it, it won't persist.

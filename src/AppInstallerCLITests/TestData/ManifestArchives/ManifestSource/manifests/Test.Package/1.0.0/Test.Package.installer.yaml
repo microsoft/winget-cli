@@ -1,0 +1,9 @@
+PackageIdentifier: Test.Package
+PackageVersion: 1.0.0
+Installers:
+- Architecture: x64
+  InstallerType: exe
+  InstallerUrl: https://example.com/package.exe
+  InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+ManifestType: installer
+ManifestVersion: 1.6.0

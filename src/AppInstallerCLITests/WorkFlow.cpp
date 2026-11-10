@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestSettings.h"
+#include "TestHooks.h"
+#include <winget/AdminSettings.h>
 #include <AppInstallerDownloader.h>
 #include <winget/Settings.h>
 #include <Workflows/DownloadFlow.h>
@@ -18,6 +20,31 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+
+TEST_CASE("GetManifestFromArg_ProvidersApplyLocale", "[remoteManifest][LocalManifests][workflow]")
+{
+    bool remote = GENERATE(false, true);
+    REQUIRE(EnableAdminSetting(BoolAdminSetting::RemoteManifestFiles));
+    auto fixture = TestDataFile{ "Manifest-Good.yaml" }.GetPath();
+    TestHook::SetDownloadResult_Function_Override download{
+        [&](const std::string&, const std::filesystem::path& destination, DownloadType,
+            AppInstaller::IProgressCallback&, std::optional<DownloadInfo>)
+        {
+            std::filesystem::copy_file(fixture, destination);
+            return DownloadResult{};
+        } };
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto globals = context.SetForCurrentThread();
+    context.Args.AddArg(Args::Type::Manifest, remote ? "https://example.com/package.yaml" : fixture.u8string());
+    context.Args.AddArg(Args::Type::Locale, "es-MX"sv);
+    context << GetManifestFromArg;
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    const auto& manifest = context.Get<Data::Manifest>();
+    REQUIRE(manifest.Id == "microsoft.msixsdk");
+    REQUIRE(manifest.CurrentLocalization.Get<Localization::Description>() ==
+        "El proyecto MSIX SDK es habilita desarrolladores de diferentes");
+}
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {

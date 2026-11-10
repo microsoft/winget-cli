@@ -17,6 +17,7 @@ namespace AppInstaller::Settings
         LocalArchiveMalwareScanOverride,
         ProxyCommandLineOptions,
         ConfigurationProcessorPath,
+        RemoteManifestFiles,
         Max,
     };
 
