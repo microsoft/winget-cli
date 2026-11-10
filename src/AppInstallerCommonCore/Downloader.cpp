@@ -102,7 +102,7 @@ namespace AppInstaller::Utility
             return retryAfter.empty() ? 0s : AppInstaller::Utility::GetRetryAfter(retryAfter);
         }
 
-        std::string ApplyAuthenticatedRedirectPolicy(
+        std::string ApplyRedirectPolicy(
             std::string_view currentUrl,
             std::string_view location,
             std::vector<DownloadRequestHeader>& requestHeaders)
@@ -114,7 +114,7 @@ namespace AppInstaller::Utility
             THROW_HR_IF_MSG(
                 HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED),
                 Utility::CaseInsensitiveEquals(currentUri.SchemeName(), L"https") && !redirectIsHttps,
-                "HTTPS-to-HTTP redirects are not allowed for authenticated downloads.");
+                "HTTPS-to-HTTP redirects are not allowed.");
 
             if (!Utility::CaseInsensitiveEquals(currentUri.SchemeName(), redirectUri.SchemeName()) ||
                 !Utility::CaseInsensitiveEquals(currentUri.Host(), redirectUri.Host()) ||
@@ -252,7 +252,7 @@ namespace AppInstaller::Utility
             std::string_view location,
             std::vector<DownloadRequestHeader>& requestHeaders)
         {
-            return ApplyAuthenticatedRedirectPolicy(currentUrl, location, requestHeaders);
+            return ApplyRedirectPolicy(currentUrl, location, requestHeaders);
         }
     }
 #endif
@@ -275,13 +275,6 @@ namespace AppInstaller::Utility
             requestHeaders = info->RequestHeaders;
         }
 
-        // Keep redirects controlled even after sensitive headers have been stripped.
-        const bool hasAuthHeaders = std::any_of(requestHeaders.begin(), requestHeaders.end(), [](const auto& header)
-            {
-                return header.IsAuth;
-            });
-        const DWORD sessionFlags = hasAuthHeaders ? INTERNET_FLAG_ASYNC : 0;
-
         auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
         wil::unique_hinternet session;
 
@@ -294,7 +287,7 @@ namespace AppInstaller::Utility
                 INTERNET_OPEN_TYPE_PROXY,
                 Utility::ConvertToUTF16(proxyUri.value()).c_str(),
                 NULL,
-                sessionFlags));
+                INTERNET_FLAG_ASYNC));
         }
         else
         {
@@ -303,27 +296,22 @@ namespace AppInstaller::Utility
                 INTERNET_OPEN_TYPE_PRECONFIG,
                 NULL,
                 NULL,
-                sessionFlags));
+                INTERNET_FLAG_ASYNC));
         }
 
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
         std::string currentUrl = url;
         wil::unique_hinternet urlFile;
-        std::optional<WinINetAsyncContext> asyncContext;
-        DWORD_PTR requestContext = 0;
-        if (hasAuthHeaders)
-        {
-            asyncContext.emplace(session, urlFile);
-            requestContext = reinterpret_cast<DWORD_PTR>(&*asyncContext);
-        }
+        WinINetAsyncContext asyncContext{ session, urlFile };
+        const DWORD_PTR requestContext = reinterpret_cast<DWORD_PTR>(&asyncContext);
         DWORD requestStatus = 0;
         constexpr size_t MaxRedirectCount = 10;
         size_t redirectCount = 0;
 
         while (true)
         {
-            if (hasAuthHeaders && progress.IsCancelledBy(CancelReason::Any))
+            if (progress.IsCancelledBy(CancelReason::Any))
             {
                 AICLI_LOG(Core, Info, << "Download cancelled.");
                 return {};
@@ -337,31 +325,22 @@ namespace AppInstaller::Utility
             std::wstring customHeadersWide = Utility::ConvertToUTF16(customHeaders);
             auto urlWide = Utility::ConvertToUTF16(currentUrl);
 
-            DWORD requestFlags = INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS;
-            if (hasAuthHeaders)
-            {
-                requestFlags |= INTERNET_FLAG_NO_AUTO_REDIRECT;
-            }
-
-            if (asyncContext)
-            {
-                asyncContext->Reset();
-            }
+            asyncContext.Reset();
             auto openedUrl = InternetOpenUrl(
                 session.get(),
                 urlWide.c_str(),
                 customHeadersWide.empty() ? NULL : customHeadersWide.c_str(),
                 customHeadersWide.empty() ? 0 : static_cast<DWORD>(customHeadersWide.size()),
-                requestFlags,
+                INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS | INTERNET_FLAG_NO_AUTO_REDIRECT,
                 requestContext);
-            if (!openedUrl && asyncContext)
+            if (!openedUrl)
             {
-                if (!asyncContext->WaitForCompletion(GetLastError(), progress))
+                if (!asyncContext.WaitForCompletion(GetLastError(), progress))
                 {
                     AICLI_LOG(Core, Info, << "Download cancelled.");
                     return {};
                 }
-                openedUrl = asyncContext->GetOpenedHandle();
+                openedUrl = asyncContext.GetOpenedHandle();
             }
             urlFile.reset(openedUrl);
             THROW_LAST_ERROR_IF_NULL_MSG(urlFile, "InternetOpenUrl() failed.");
@@ -373,7 +352,7 @@ namespace AppInstaller::Utility
                 &cbRequestStatus,
                 nullptr), "Query download request status failed.");
 
-            if (!hasAuthHeaders || !IsRedirectStatus(requestStatus))
+            if (!IsRedirectStatus(requestStatus))
             {
                 break;
             }
@@ -383,7 +362,7 @@ namespace AppInstaller::Utility
 
             std::wstring location = GetHttpQueryString(urlFile, HTTP_QUERY_LOCATION);
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED), location.empty());
-            currentUrl = ApplyAuthenticatedRedirectPolicy(currentUrl, Utility::ConvertToUTF8(location), requestHeaders);
+            currentUrl = ApplyRedirectPolicy(currentUrl, Utility::ConvertToUTF8(location), requestHeaders);
             urlFile.reset();
         }
 
@@ -427,7 +406,6 @@ namespace AppInstaller::Utility
         const int bufferSize = 1024 * 1024; // 1MB
         auto buffer = std::make_unique<BYTE[]>(bufferSize);
 
-        BOOL readSuccess = true;
         DWORD bytesRead = 0;
         LONGLONG bytesDownloaded = 0;
 
@@ -439,22 +417,15 @@ namespace AppInstaller::Utility
                 return {};
             }
 
-            if (asyncContext)
+            asyncContext.Reset();
+            if (!InternetReadFile(urlFile.get(), buffer.get(), bufferSize, &bytesRead))
             {
-                asyncContext->Reset();
-            }
-            readSuccess = InternetReadFile(urlFile.get(), buffer.get(), bufferSize, &bytesRead);
-            if (!readSuccess && asyncContext)
-            {
-                if (!asyncContext->WaitForCompletion(GetLastError(), progress))
+                if (!asyncContext.WaitForCompletion(GetLastError(), progress))
                 {
                     AICLI_LOG(Core, Info, << "Download cancelled.");
                     return {};
                 }
-                readSuccess = TRUE;
             }
-
-            THROW_LAST_ERROR_IF_MSG(!readSuccess, "InternetReadFile() failed.");
 
             hashEngine.Add(buffer.get(), bytesRead);
 

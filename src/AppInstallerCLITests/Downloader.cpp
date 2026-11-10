@@ -559,12 +559,15 @@ TEST_CASE("AuthenticatedDownloadRedirectTransport", "[Downloader]")
 
     SECTION("Redirect loops fail after the bounded redirect chain")
     {
+        const bool authenticated = GENERATE(true, false);
+        CAPTURE(authenticated);
+        const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
         LoopbackHttpServer server([](const auto&) { return RedirectResponse(302, "/loop"); });
         ProgressCallback callback;
         std::ostringstream content;
 
         REQUIRE_THROWS_HR(
-            DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, CreateDummyAuthDownloadInfo()),
+            DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, info),
             HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED));
 
         REQUIRE(server.Requests().size() == 11);
@@ -573,6 +576,9 @@ TEST_CASE("AuthenticatedDownloadRedirectTransport", "[Downloader]")
 
     SECTION("Redirects without a location fail without retrying")
     {
+        const bool authenticated = GENERATE(true, false);
+        CAPTURE(authenticated);
+        const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
         LoopbackHttpServer server([](const auto&)
             {
                 return "HTTP/1.1 302 Redirect\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"s;
@@ -581,26 +587,34 @@ TEST_CASE("AuthenticatedDownloadRedirectTransport", "[Downloader]")
         std::ostringstream content;
 
         REQUIRE_THROWS_HR(
-            DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, CreateDummyAuthDownloadInfo()),
+            DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, info),
             HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED));
 
         REQUIRE(server.Requests().size() == 1);
         REQUIRE(content.str().empty());
     }
 
-    SECTION("Unauthenticated automatic redirects still complete")
+    for (int status : { 301, 302, 303, 307, 308 })
     {
-        LoopbackHttpServer server([](const auto& request)
-            {
-                return request.Path == "/start" ? RedirectResponse(302, "/final") : SuccessResponse();
-            });
-        ProgressCallback callback;
-        std::ostringstream content;
+        DYNAMIC_SECTION("Unauthenticated " << status << " redirects preserve ordinary headers across origins")
+        {
+            LoopbackHttpServer destination([](const auto&) { return SuccessResponse(); });
+            LoopbackHttpServer source([&](const auto&)
+                {
+                    return RedirectResponse(status, destination.Url("127.0.0.1", "/final"));
+                });
+            ProgressCallback callback;
+            std::ostringstream content;
+            DownloadInfo info;
+            info.RequestHeaders = { { "x-test-header", "retained", false } };
 
-        DownloadToStream(server.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback);
+            DownloadToStream(source.Url("127.0.0.1", "/start"), content, DownloadType::Installer, callback, info);
 
-        REQUIRE(content.str() == "ok");
-        REQUIRE(server.Requests().size() == 2);
+            REQUIRE(content.str() == "ok");
+            REQUIRE(source.Requests().size() == 1);
+            REQUIRE(destination.Requests().size() == 1);
+            REQUIRE(HasHeader(destination.Requests()[0], "x-test-header: retained"));
+        }
     }
 }
 
@@ -643,8 +657,12 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
 
     for (bool stallBody : { false, true })
     {
-        DYNAMIC_SECTION("Authenticated installer cancellation while waiting for " << (stallBody ? "body data" : "headers"))
+        DYNAMIC_SECTION("WinINet installer cancellation while waiting for " << (stallBody ? "body data" : "headers"))
         {
+            const bool authenticated = GENERATE(true, false);
+            CAPTURE(authenticated);
+            const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
+            settings.Set<Settings::Setting::NetworkDownloader>(Settings::InstallerDownloader::WinInet);
             wil::unique_event requestReceived{ wil::EventOptions::ManualReset };
             wil::unique_event bodyStarted{ wil::EventOptions::ManualReset };
             wil::unique_event releaseResponse{ wil::EventOptions::ManualReset };
@@ -672,7 +690,7 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
                     winrt::init_apartment(winrt::apartment_type::multi_threaded);
                     auto uninitialize = wil::scope_exit([] { winrt::uninit_apartment(); });
                     return Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
-                        DownloadType::Installer, asyncCallback, CreateDummyAuthDownloadInfo());
+                        DownloadType::Installer, asyncCallback, info);
                 });
             auto release = wil::scope_exit([&] { releaseResponse.SetEvent(); });
             bool started = (stallBody ? bodyStarted : requestReceived).wait(10000);
@@ -693,13 +711,17 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
         }
     }
 
-    SECTION("Already cancelled authenticated downloads do not send a request")
+    SECTION("Already cancelled WinINet downloads do not send a request")
     {
+        const bool authenticated = GENERATE(true, false);
+        CAPTURE(authenticated);
+        const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
+        settings.Set<Settings::Setting::NetworkDownloader>(Settings::InstallerDownloader::WinInet);
         LoopbackHttpServer server([](const auto&) { return SuccessResponse(); });
         callback.Cancel();
 
         auto result = Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
-            DownloadType::Installer, callback, CreateDummyAuthDownloadInfo());
+            DownloadType::Installer, callback, info);
 
         REQUIRE(result.Sha256Hash.empty());
         REQUIRE(server.Requests().empty());
@@ -708,6 +730,10 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
 
     SECTION("Cancellation during a redirect does not request the next hop")
     {
+        const bool authenticated = GENERATE(true, false);
+        CAPTURE(authenticated);
+        const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
+        settings.Set<Settings::Setting::NetworkDownloader>(Settings::InstallerDownloader::WinInet);
         LoopbackHttpServer server([&](const auto& request)
             {
                 if (request.Path == "/start")
@@ -719,7 +745,7 @@ TEST_CASE("AuthenticatedDownloadRedirectInstallerRouting", "[Downloader]")
             });
 
         auto result = Download(server.Url("127.0.0.1", "/start"), tempFile.GetPath(),
-            DownloadType::Installer, callback, CreateDummyAuthDownloadInfo());
+            DownloadType::Installer, callback, info);
 
         REQUIRE(result.Sha256Hash.empty());
         REQUIRE(server.Requests().size() == 1);
@@ -816,15 +842,28 @@ TEST_CASE("AuthenticatedDownloadRedirectHttpsTransport", "[Downloader][.Localhos
 
         DYNAMIC_SECTION("HTTPS-to-HTTP " << status << " is rejected before reaching the destination")
         {
+            const bool authenticated = GENERATE(true, false);
+            CAPTURE(authenticated);
+            const auto info = authenticated ? CreateDummyAuthDownloadInfo() : DownloadInfo{};
             LoopbackHttpServer destination([](const auto&) { return SuccessResponse(); });
 
             REQUIRE_THROWS_HR(
                 DownloadToStream(HttpsRedirectUrl(destination.Url("127.0.0.1", "/final"), status),
-                    content, DownloadType::Installer, callback, CreateDummyAuthDownloadInfo()),
+                    content, DownloadType::Installer, callback, info),
                 HRESULT_FROM_WIN32(ERROR_HTTP_REDIRECT_FAILED));
 
             REQUIRE(destination.Requests().empty());
             REQUIRE(content.str().empty());
+        }
+
+        DYNAMIC_SECTION("Unauthenticated HTTPS " << status << " redirects preserve ordinary headers across origins")
+        {
+            DownloadInfo info;
+            info.RequestHeaders = { { "x-test-header", "retained", false } };
+            DownloadToStream(HttpsRedirectUrl("https://127.0.0.1:5001/DownloadHeaders", status),
+                content, DownloadType::Installer, callback, info);
+
+            REQUIRE(content.str() == "Authorization=False;x-test-auth=False;x-test-header=True");
         }
     }
 
@@ -855,15 +894,6 @@ TEST_CASE("AuthenticatedDownloadRedirectHttpsTransport", "[Downloader][.Localhos
 
         REQUIRE(destination.Requests().empty());
         REQUIRE(content.str().empty());
-    }
-
-    SECTION("Unauthenticated HTTPS automatic redirects preserve ordinary headers")
-    {
-        DownloadInfo info;
-        info.RequestHeaders = { { "x-test-header", "retained", false } };
-        DownloadToStream(HttpsRedirectUrl(headersUrl), content, DownloadType::Installer, callback, info);
-
-        REQUIRE(content.str() == "Authorization=False;x-test-auth=False;x-test-header=True");
     }
 }
 
