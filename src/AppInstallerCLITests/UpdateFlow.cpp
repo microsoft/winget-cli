@@ -3,7 +3,9 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include <AppInstallerVersions.h>
 #include <Microsoft/PinningIndex.h>
+#include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/UninstallCommand.h>
@@ -587,7 +589,7 @@ TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicableWithPinnedVersion", "[Update
     REQUIRE(pinningIndex);
     pinningIndex->AddPin(AppInstaller::Pinning::Pin::CreateGatingPin(
         AppInstaller::Pinning::PinKey{ "AppInstallerCliTest.TestExeInstaller", "*TestSource" },
-        AppInstaller::Pinning::GatedVersion{ "1.*"sv }));
+        AppInstaller::Utility::GatedVersion{ "1.*"sv }));
 
     TestSourceResult mixedPinnedAndNotApplicable(
         "TestInstallerMixedPinnedAndNotApplicable"sv,
