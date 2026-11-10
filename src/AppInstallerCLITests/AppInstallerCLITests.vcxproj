@@ -261,6 +261,7 @@
     <ClCompile Include="InstallFlow.cpp" />
     <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
+    <ClCompile Include="Logging.cpp" />
     <ClCompile Include="MatchCriteriaResolver.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
