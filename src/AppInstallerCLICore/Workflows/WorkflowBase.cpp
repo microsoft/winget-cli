@@ -1078,7 +1078,6 @@ namespace AppInstaller::CLI::Workflow
         };
 
         if (context.Args.Contains(Execution::Args::Type::ListVersions) ||
-            context.Args.GetCount(Execution::Args::Type::MultiQuery) > 1 ||
             context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
             WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
             (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>()))

@@ -720,11 +720,6 @@ TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplic
     SECTION("Noncomposite source") { setup.Context.Add<Execution::Data::Source>(Source{ setup.Sources[0] }); }
     SECTION("Empty source") { setup.Context.Add<Execution::Data::Source>(Source{}); }
     SECTION("Show versions") { setup.Context.Args.AddArg(Execution::Args::Type::ListVersions); }
-    SECTION("Multiple queries")
-    {
-        setup.Context.Args.AddArg(Execution::Args::Type::MultiQuery, "first"sv);
-        setup.Context.Args.AddArg(Execution::Args::Type::MultiQuery, "second"sv);
-    }
     SECTION("Multiple packages") { setup.Context.Add<Execution::Data::PackageSubContexts>(std::vector<std::unique_ptr<Execution::Context>>{}); }
     SECTION("Dependency source") { setup.Context.Add<Execution::Data::DependencySource>(Source{ setup.Sources[0] }); }
     SECTION("Upgrade context") { setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate); }
