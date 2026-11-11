@@ -1155,7 +1155,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
     manifest.Version = "10.0.404";
     size_t directoryLength = 95;
     bool shortened = false;
-    bool hashed = false;
+    bool shortGuid = false;
 
     SECTION("ExactlyPreferredLength")
     {
@@ -1168,14 +1168,14 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
     SECTION("ReportedNestedSuffixes")
     {
         directoryLength = 119;
-        shortened = hashed = true;
+        shortGuid = true;
     }
     SECTION("LongVersion")
     {
         manifest.Version = std::string(200, '1');
         shortened = true;
     }
-    SECTION("UnicodePackageTail")
+    SECTION("UnicodePackageId")
     {
         std::string id = "Publisher.";
         for (size_t i = 0; i < 30; ++i)
@@ -1184,19 +1184,13 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         }
         manifest.Id = id + ".SDK";
         directoryLength = 119;
-        shortened = hashed = true;
+        shortGuid = true;
     }
     SECTION("LongPackageIdentity")
     {
         manifest.Id = std::string(200, 'a') + ".SDK";
         directoryLength = 119;
-        shortened = hashed = true;
-    }
-    SECTION("ReservedDeviceTail")
-    {
-        manifest.Id = "Publisher.CON.ab";
-        directoryLength = 119;
-        shortened = hashed = true;
+        shortGuid = true;
     }
 
     InstallerLogDirectoryOverride logDirectory{ directoryLength };
@@ -1217,11 +1211,16 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
     REQUIRE(path.extension() == L".log");
     REQUIRE(MakeSuitablePathPart(path.filename().u8string()) == path.filename().u8string());
     const auto stem = path.stem().u8string();
-    const auto timestampStart = stem.rfind('-');
-    REQUIRE(timestampStart != std::string::npos);
     REQUIRE(ConvertToUTF16(ConvertToUTF8(path.native())) == path.native());
-    if (shortened)
+    if (shortGuid)
     {
+        REQUIRE(stem.size() == 8);
+        REQUIRE(stem.find('-') == std::string::npos);
+    }
+    else if (shortened)
+    {
+        const auto timestampStart = stem.rfind('-');
+        REQUIRE(timestampStart != std::string::npos);
         const auto timestamp = stem.substr(timestampStart + 1);
         REQUIRE(timestamp.size() == 12);
         REQUIRE(std::all_of(timestamp.begin(), timestamp.end(), [](char c) { return c >= '0' && c <= '9'; }));
@@ -1232,20 +1231,6 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         REQUIRE(path.native().size() == 150);
         REQUIRE(stem.find(manifest.Id + '.' + manifest.Version) == 0);
     }
-    if (hashed)
-    {
-        REQUIRE(stem.find('~') != std::string::npos);
-        auto otherManifest = manifest;
-        otherManifest.Id = "Other." + manifest.Id;
-        std::ostringstream otherOutput;
-        TestContext otherContext{ otherOutput, std::cin };
-        otherContext.Add<Data::Manifest>(otherManifest);
-        otherContext.Add<Data::Installer>(otherManifest.Installers.at(0));
-        otherContext << GetInstallerArgs;
-        const auto otherStem = otherContext.Get<Data::LogPath>().stem().u8string();
-        REQUIRE(stem.substr(0, timestampStart) != otherStem.substr(0, otherStem.rfind('-')));
-    }
-
     const auto& args = context.Get<Data::InstallerArgs>();
     REQUIRE(args.find("/mylog=\"" + path.u8string() + '"') != std::string::npos);
     REQUIRE(args.find("/mycustom") != std::string::npos);

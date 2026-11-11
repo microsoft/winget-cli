@@ -5,7 +5,6 @@
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Filesystem.h>
-#include <winget/Hash.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
@@ -178,32 +177,24 @@ namespace AppInstaller::CLI::Workflow
             const auto time = std::chrono::system_clock::now();
             const auto timestamp = Utility::TimePointToString(time, Utility::TimeFacet::ShortYearSecondPrecision | Utility::TimeFacet::Filename);
             std::filesystem::path result;
+
             switch (Settings::User().Get<Settings::Setting::LoggingFileNameStrategy>())
             {
             case Logging::LogNameStrategy::Manifest:
             {
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
                 result = makePath(GetPathPart(manifest).native() + L'-' + Utility::ConvertToUTF16(timestamp));
+
                 if (result.native().size() > preferredPathLength)
                 {
                     auto compactTimestamp = timestamp;
                     compactTimestamp.erase(std::remove(compactTimestamp.begin(), compactTimestamp.end(), '-'), compactTimestamp.end());
                     const auto suffix = L"-" + Utility::ConvertToUTF16(compactTimestamp);
-                    const auto id = Utility::MakeSuitablePathPart(manifest.Id);
-                    result = makePath(Utility::ConvertToUTF16(id) + suffix);
-                    if (result.native().size() > preferredPathLength)
+                    result = makePath(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion).native() + suffix);
+
+                    if (result.native().size() >= preferredPathLength)
                     {
-                        const auto hash = SHA256::ConvertToString(SHA256::ComputeHash(manifest.Id + '\0' + manifest.Version)).substr(0, 6);
-                        // A hash prefix also prevents a truncated tail from becoming a reserved device name.
-                        const auto prefix = Utility::ConvertToUTF16(hash) + L"~";
-                        const auto fixedLength = makePath(prefix + suffix).native().size();
-                        std::string_view tail = id;
-                        // Keep whole grapheme clusters, but budget their Windows UTF-16 representation.
-                        while (!tail.empty() && fixedLength + Utility::ConvertToUTF16(tail).size() > preferredPathLength)
-                        {
-                            tail = Utility::UTF8Substring(tail, 1, std::string_view::npos);
-                        }
-                        result = tail.empty() ? shortGuidPath() : makePath(prefix + Utility::ConvertToUTF16(tail) + suffix);
+                        result = shortGuidPath();
                     }
                 }
                 AICLI_LOG(CLI, Info, << "Installer log for " << manifest.Id << " [" << manifest.Version << "]: " << result.u8string());

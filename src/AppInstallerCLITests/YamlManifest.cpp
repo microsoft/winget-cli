@@ -1641,7 +1641,7 @@ TEST_CASE("PackageIdentifierAndVersionPathValidation", "[ManifestValidation]")
     RequireSingleError(errors, ManifestError::FieldEscapesDirectory, "PackageVersion", manifest.Version);
 }
 
-TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
+TEST_CASE("ManifestGetPathPart", "[ManifestValidation][InstallerLogPath]")
 {
     Manifest manifest;
     manifest.Id = "Foo.Bar";
@@ -1650,22 +1650,28 @@ TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
     // The common case must not alter the value, as the resulting paths are persisted.
     REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
     REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_1.0.0" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::AlwaysIncludeVersion) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_', PathPartVersionStrategy::NeverIncludeVersion) == std::filesystem::path{ L"Foo.Bar" });
 
     // An unknown version is only dropped when the caller asks for it.
     manifest.Version = "Unknown";
     REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"Foo.Bar.Unknown" });
     REQUIRE(GetPathPart(manifest, '_') == std::filesystem::path{ L"Foo.Bar_Unknown" });
-    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar" });
-    REQUIRE(GetPathPart(manifest, '_', true) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::AlwaysIncludeVersion) == std::filesystem::path{ L"Foo.Bar.Unknown" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::DropUnknownVersion) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '_', PathPartVersionStrategy::DropUnknownVersion) == std::filesystem::path{ L"Foo.Bar" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion) == std::filesystem::path{ L"Foo.Bar" });
 
-    // A known version is kept regardless of the drop request.
+    // Dropping only unknown versions keeps known versions.
     manifest.Version = "1.0.0";
-    REQUIRE(GetPathPart(manifest, '.', true) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::DropUnknownVersion) == std::filesystem::path{ L"Foo.Bar.1.0.0" });
 
     // Values that validation would have rejected are sanitized rather than used as given.
     manifest.Id = "a\\b";
     manifest.Version = "c/d";
     REQUIRE(GetPathPart(manifest) == std::filesystem::path{ L"a_b.c_d" });
+    REQUIRE(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion) == std::filesystem::path{ L"a_b" });
 
     manifest.Id = "Foo.Bar";
     manifest.Version = "C:";
@@ -1684,6 +1690,9 @@ TEST_CASE("ManifestGetPathPart", "[ManifestValidation]")
         manifest.Id = id;
         REQUIRE_THROWS_HR(GetPathPart(manifest), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
     }
+
+    manifest.Id = "CON";
+    REQUIRE_THROWS_HR(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion), APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
 }
 
 TEST_CASE("PortableFileTypeValidation", "[ManifestValidation]")
