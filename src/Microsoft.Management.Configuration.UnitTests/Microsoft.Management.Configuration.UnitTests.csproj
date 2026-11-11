@@ -51,9 +51,14 @@
     </ProjectReference>
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(SolutionDir)$(Platform)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll">
+      <Link>WindowsPackageManager.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Import Project="..\targets\ReferenceEmbeddedCsWinRTProject.targets" />

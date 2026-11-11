@@ -328,12 +328,16 @@ TEST_CASE("ConfigurationModuleDefaults_TokenContext", "[runtime]")
     REQUIRE(customDetails.ACL.empty());
     REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == details.Path);
     settings.Set<AppInstaller::Settings::Setting::AnonymizePathForDisplay>(true);
-    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == details.Path);
+    const auto expectedDisplayPath = fullToken ? details.Path :
+        std::filesystem::path{ "%LOCALAPPDATA%\\Microsoft\\WinGet\\Configuration\\Modules" };
+    REQUIRE(Runtime::GetPathTo(Runtime::PathName::DefaultConfigurationModules, true) == expectedDisplayPath);
 }
 
 TEST_CASE("ConfigurationModuleDefaults_ProtectedStorage", "[runtime]")
 {
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::AnonymizePathForDisplay>(false);
     TempDirectory directory("ProtectedModuleDefault", false);
     Runtime::TestHook_ClearPathOverrides();
     auto restorePaths = wil::scope_exit([]() { TestCommon::SetTestPathOverrides(); });

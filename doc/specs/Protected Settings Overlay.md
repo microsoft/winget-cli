@@ -1,7 +1,7 @@
 ---
 author: JohnMcPMS, GitHub Copilot <Copilot>
 created on: 2026-10-29
-last updated: 2026-11-03
+last updated: 2026-11-10
 ---
 
 # Protected Settings Overlay
@@ -276,8 +276,8 @@ Use `PathName::DefaultConfigurationModules` through the existing
 `GetPathDetailsFor`/`GetPathTo` initialization rather than custom path getters.
 `PathName::ConfigurationModules` continues to select the effective configured
 root, delegating an empty value to that built-in default. Initialize the
-protected parent before creating module descendants; non-creating default
-lookups return a literal path without display anonymization.
+protected parent before creating module descendants. Display-only default
+lookups do not create directories and honor the path anonymization setting.
 
 The internal native export
 `WindowsPackageManagerConfigurationGetModulePath(BOOL useSettings, BOOL* fullToken, BSTR* path)`

@@ -269,6 +269,7 @@ namespace AppInstaller::Runtime
             {
                 result.Path = GetKnownFolderPath(FOLDERID_LocalAppData) / s_SecureSettings_Base / s_ConfigurationModulesDirectory;
             }
+            mayBeInProfilePath = true;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
