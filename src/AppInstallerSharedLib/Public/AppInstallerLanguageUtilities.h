@@ -98,6 +98,7 @@ namespace AppInstaller
         Add,
         Contains,
         Get,
+        Remove,
     };
 
     // A callback function that can be used for logging map actions.
@@ -164,6 +165,16 @@ namespace AppInstaller
                 Callback(this, E, EnumBasedVariantMapAction::Get);
             }
             return std::get<Variant::Index(E)>(GetVariant(E));
+        }
+
+        // Removes the value, if present.
+        void Remove(Enum e)
+        {
+            if constexpr (Callback)
+            {
+                Callback(this, e, EnumBasedVariantMapAction::Remove);
+            }
+            m_data.erase(e);
         }
 
     private:

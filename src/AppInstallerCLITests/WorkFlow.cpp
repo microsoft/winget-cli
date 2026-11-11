@@ -1209,7 +1209,7 @@ TEST_CASE("PackageDeduplication_CommandSnapshot", "[PackageDeduplication][workfl
         expectedManifest.CurrentLocalization.Get<Localization::PackageName>());
     REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == setup.Manifests[selected].Installers[0].Url);
     REQUIRE(setup.Output.str().find("Changed package name") == std::string::npos);
-    REQUIRE_FALSE(setup.Context.Get<Execution::Data::PreparedPackageMatch>());
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
     setup.RequireManifestCalls(1);
 }
 

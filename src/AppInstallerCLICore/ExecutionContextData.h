@@ -111,7 +111,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PreparedPackageMatch>
         {
-            using value_t = std::optional<Workflow::PreparedPackageMatch>;
+            using value_t = Workflow::PreparedPackageMatch;
         };
 
         template <>

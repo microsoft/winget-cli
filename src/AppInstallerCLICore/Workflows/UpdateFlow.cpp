@@ -326,7 +326,7 @@ namespace AppInstaller::CLI::Workflow
             GetInstalledPackageVersion;
 
         AICLI_RETURN_IF_TERMINATED(context);
-        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
+        if (context.Contains(Execution::Data::PreparedPackageMatch))
         {
             THROW_HR_IF(E_UNEXPECTED, m_operationType != OperationType::Install || context.Get<Execution::Data::InstalledPackageVersion>());
             context << GetManifestFromPackage(true, OperationType::Install) << SelectInstaller << EnsureApplicableInstaller;

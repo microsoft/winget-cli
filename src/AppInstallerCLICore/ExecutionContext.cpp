@@ -271,6 +271,9 @@ namespace AppInstaller::CLI::Execution
         case EnumBasedVariantMapAction::Get:
             AICLI_LOG(Workflow, Verbose, << "Getting data item: " << data);
             break;
+        case EnumBasedVariantMapAction::Remove:
+            AICLI_LOG(Workflow, Verbose, << "Removing data item: " << data);
+            break;
         }
 
         UNREFERENCED_PARAMETER(map);

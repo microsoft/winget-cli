@@ -1818,7 +1818,7 @@ namespace AppInstaller::CLI::Workflow
                         Utility::LocIndView{ prepared->PackageVersion->GetSource().GetDetails().Name }) << std::endl;
                     Logging::Telemetry().LogAppFound(name, manifest.Id);
                     context.Add<Execution::Data::Package>(std::move(package));
-                    context.Add<Execution::Data::PreparedPackageMatch>(std::move(prepared));
+                    context.Add<Execution::Data::PreparedPackageMatch>(std::move(*prepared));
                     return;
                 }
             }
@@ -1973,9 +1973,9 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestFromPackage::operator()(Execution::Context& context) const
     {
-        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
+        if (context.Contains(Execution::Data::PreparedPackageMatch))
         {
-            auto& prepared = *context.Get<Execution::Data::PreparedPackageMatch>();
+            auto& prepared = context.Get<Execution::Data::PreparedPackageMatch>();
             THROW_HR_IF(E_UNEXPECTED, !m_preparedOperation || prepared.Operation != *m_preparedOperation ||
                 prepared.Package != context.Get<Execution::Data::Package>() || prepared.ManifestApplied);
 
@@ -2127,15 +2127,15 @@ namespace AppInstaller::CLI::Workflow
         bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
         Manifest::InstallerAndInapplicabilities selection;
-        if (context.Contains(Execution::Data::PreparedPackageMatch) && context.Get<Execution::Data::PreparedPackageMatch>())
+        if (context.Contains(Execution::Data::PreparedPackageMatch))
         {
-            auto& prepared = *context.Get<Execution::Data::PreparedPackageMatch>();
+            auto& prepared = context.Get<Execution::Data::PreparedPackageMatch>();
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             THROW_HR_IF(E_UNEXPECTED, !prepared.ManifestApplied || isUpdate || isRepair ||
                 prepared.Package != context.Get<Execution::Data::Package>() || prepared.PackageVersion != context.Get<Execution::Data::PackageVersion>() ||
                 manifest.Id != prepared.Manifest.Id || manifest.Version != prepared.Manifest.Version || manifest.Channel != prepared.Manifest.Channel);
             selection.installer = std::move(prepared.Installer);
-            context.Get<Execution::Data::PreparedPackageMatch>().reset();
+            context.Remove(Execution::Data::PreparedPackageMatch);
         }
         else
         {
