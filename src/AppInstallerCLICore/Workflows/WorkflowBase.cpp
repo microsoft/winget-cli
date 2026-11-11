@@ -1263,7 +1263,32 @@ namespace AppInstaller::CLI::Workflow
 
         if (lines.empty())
         {
-            context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            if (m_onlyShowUpgrades)
+            {
+                if (linesForExplicitUpgrade.empty() && linesForPins.empty() && packagesWithUnknownVersionSkipped == 0 && packagesWithUserPinsSkipped == 0)
+                {
+                    bool hasPackageFilter =
+                        context.Args.Contains(Execution::Args::Type::Query) ||
+                        context.Args.Contains(Execution::Args::Type::Id) ||
+                        context.Args.Contains(Execution::Args::Type::Name) ||
+                        context.Args.Contains(Execution::Args::Type::Moniker) ||
+                        context.Args.Contains(Execution::Args::Type::Tag) ||
+                        context.Args.Contains(Execution::Args::Type::Command);
+
+                    if (hasPackageFilter)
+                    {
+                        context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << Resource::String::NoPackagesNeedUpdate << std::endl;
+                    }
+                }
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            }
         }
         else
         {
