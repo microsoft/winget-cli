@@ -365,7 +365,20 @@ namespace AppInstaller::CLI::Portable
 
             for (auto desiredEntry : m_desiredEntries)
             {
-                InstallFile(desiredEntry);
+                const auto cleanupEntryCount = m_cleanupEntries.size();
+                try
+                {
+                    InstallFile(desiredEntry);
+                }
+                catch (...)
+                {
+                    // Upgrades retain their registration on failure, so persist owned partial targets for later reconciliation.
+                    if (m_cleanupEntries.size() > cleanupEntryCount)
+                    {
+                        targetIndex.AddOrUpdatePortableFile(desiredEntry);
+                    }
+                    throw;
+                }
                 targetIndex.AddOrUpdatePortableFile(desiredEntry);
             }
         }

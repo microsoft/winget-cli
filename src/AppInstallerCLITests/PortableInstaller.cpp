@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include <AppInstallerErrors.h>
 #include <PortableInstaller.h>
 #include <Public/AppInstallerArchitecture.h>
@@ -192,7 +193,7 @@ TEST_CASE("PortableInstaller_RollbackPreservesUnappliedDirectories", "[PortableI
     }
 }
 
-TEST_CASE("PortableInstaller_RollbackHandlesUnindexedReplacement", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_RollbackHandlesFailedReplacement", "[PortableInstaller]")
 {
     const std::string productCode = "PortableUnindexedReplacementTest";
     TempDirectory installRoot("PortableUnindexedReplacementRoot", false);
@@ -213,11 +214,85 @@ TEST_CASE("PortableInstaller_RollbackHandlesUnindexedReplacement", "[PortableIns
     {
         const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
         auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
-        REQUIRE(index.IsEmpty());
+        REQUIRE(index.Exists(desiredEntry));
     }
     installer.PrepareForCleanUp();
     REQUIRE_NOTHROW(installer.Uninstall());
     REQUIRE_FALSE(std::filesystem::exists(installRoot.GetPath()));
+}
+
+TEST_CASE("PortableInstaller_FailedDirectoryUpgradeRetainsOwnership", "[PortableInstaller]")
+{
+    const bool retryUpgrade = GENERATE(false, true);
+    CAPTURE(retryUpgrade);
+    const std::string productCode = "PortablePartialDirectoryUpgradeTest";
+    TempDirectory installRoot("PortablePartialDirectoryUpgradeRoot", true);
+    TempDirectory source("PortablePartialDirectoryUpgradeSource", true);
+    const auto sourceSubdirectory = source.GetPath() / "nested";
+    std::filesystem::create_directory(sourceSubdirectory);
+    const auto sourceFile = sourceSubdirectory / "locked.txt";
+    std::ofstream(sourceFile) << "replacement";
+    const auto targetDirectory = installRoot.GetPath() / "package";
+    const auto untouchedDirectory = installRoot.GetPath() / "untouched";
+    std::filesystem::create_directory(untouchedDirectory);
+    std::ofstream(untouchedDirectory / "keep.txt") << "untouched";
+    const auto desiredEntry = PortableFileEntry::CreateDirectoryEntry(source.GetPath(), targetDirectory);
+    const auto untouchedEntry = PortableFileEntry::CreateDirectoryEntry(source.GetPath(), untouchedDirectory);
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+
+    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.TargetInstallLocation = installRoot.GetPath();
+    installer.RecordToIndex = true;
+    installer.Install();
+
+    bool sameVolume = false;
+    AppInstaller::Filesystem::TestHook_SetIsSameVolume_Override(&sameVolume);
+    auto restoreVolume = wil::scope_exit([]()
+        {
+            AppInstaller::Filesystem::TestHook_SetIsSameVolume_Override(nullptr);
+        });
+    wil::unique_hfile lockedFile{ CreateFileW(sourceFile.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr) };
+    REQUIRE(lockedFile);
+
+    PortableInstaller updater(ScopeEnum::User, Architecture::X64, productCode, OperationType::Upgrade);
+    updater.TargetInstallLocation = installRoot.GetPath();
+    updater.RecordToIndex = true;
+    updater.SetDesiredState({ desiredEntry, untouchedEntry });
+    REQUIRE_THROWS_AS(updater.Install(), std::filesystem::filesystem_error);
+    REQUIRE(std::filesystem::is_directory(targetDirectory / "nested"));
+    PortableARPEntry currentARPEntry(ScopeEnum::User, Architecture::X64, productCode);
+    REQUIRE(currentARPEntry.Exists());
+
+    {
+        const auto indexPath = installRoot.GetPath() / updater.GetPortableIndexFileName();
+        auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(index.GetAllPortableFiles().size() == 1);
+        REQUIRE(index.Exists(desiredEntry));
+        REQUIRE_FALSE(index.Exists(untouchedEntry));
+    }
+
+    lockedFile.reset();
+    if (retryUpgrade)
+    {
+        PortableInstaller retry(ScopeEnum::User, Architecture::X64, productCode, OperationType::Upgrade);
+        retry.TargetInstallLocation = installRoot.GetPath();
+        retry.RecordToIndex = true;
+        retry.SetDesiredState({ desiredEntry });
+        REQUIRE(retry.VerifyExpectedState());
+        REQUIRE_NOTHROW(retry.Install());
+        REQUIRE(std::filesystem::exists(targetDirectory / "nested" / "locked.txt"));
+    }
+
+    PortableInstaller uninstaller(ScopeEnum::User, Architecture::X64, productCode, OperationType::Uninstall);
+    REQUIRE_FALSE(uninstaller.Purge);
+    REQUIRE(uninstaller.VerifyExpectedState());
+    REQUIRE_NOTHROW(uninstaller.Uninstall());
+    REQUIRE_FALSE(std::filesystem::exists(targetDirectory));
+    std::ifstream untouchedFile(untouchedDirectory / "keep.txt");
+    std::string contents;
+    std::getline(untouchedFile, contents);
+    REQUIRE(contents == "untouched");
 }
 
 TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")

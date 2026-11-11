@@ -14,3 +14,4 @@ The checks apply to the elevated half of a split UAC token. Existing behavior wi
 
 * Fixed installing new dependencies during an upgrade and applying upgrade protections when an installed dependency needs an update.
 * Fixed portable installation rollback removing untouched directory targets after a failed archive installation.
+* Fixed failed portable archive upgrades leaving partial directories that prevented retry or remained after uninstall.
