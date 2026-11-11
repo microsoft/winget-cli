@@ -1208,9 +1208,17 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         shortened = timeOnly = true;
         expectedPrefix = std::wstring(19, L'a');
     }
-    SECTION("CombiningCharacterBoundary")
+    SECTION("NormalizedPackageIdPrefix")
     {
         manifest.Id = "Publisher.e\xCC\x81.SDK";
+        directoryLength = 127;
+        shortened = timeOnly = true;
+        expectedPrefix = L"Publisher.\u00E9";
+    }
+    SECTION("CombiningCharacterBoundary")
+    {
+        // Unlike e + acute, x + acute remains two code units after normalization.
+        manifest.Id = "Publisher.x\xCC\x81.SDK";
         directoryLength = 127;
         shortened = timeOnly = true;
         expectedPrefix = L"Publisher.";
