@@ -653,8 +653,7 @@ TEST_CASE("PackageDeduplication_ComparisonBounds", "[PackageDeduplication][workf
         OperationType::Search, OperationType::Completion);
     InstallerEquivalenceTestSetup setup{ count };
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
-    bool supported = operation == OperationType::Install || operation == OperationType::Download || operation == OperationType::Show;
-    REQUIRE(setup.Compare(operation).has_value() == (supported && count >= 2 && count <= 3));
+    REQUIRE(setup.Compare(operation).has_value() == (count >= 2 && count <= 3));
 }
 
 TEST_CASE("PackageDeduplication_PrepareSourceOrder", "[PackageDeduplication][workflow]")
@@ -689,8 +688,7 @@ TEST_CASE("PackageDeduplication_PrepareBounds", "[PackageDeduplication][workflow
         OperationType::Search, OperationType::Completion);
     PackageDeduplicationTestSetup setup{ count };
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
-    bool supported = (count == 2 || count == 3) &&
-        (operation == OperationType::Install || operation == OperationType::Download || operation == OperationType::Show);
+    bool supported = count == 2 || count == 3;
     REQUIRE(setup.Prepare(operation).has_value() == supported);
     setup.RequireManifestCalls(supported ? size_t{ 1 } : size_t{ 0 });
 }
@@ -977,7 +975,9 @@ TEST_CASE("PackageDeduplication_PreparePropagatesFailures", "[PackageDeduplicati
 
 TEST_CASE("PackageDeduplication_SelectionOptIn", "[PackageDeduplication][workflow]")
 {
-    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show, OperationType::Upgrade,
+        OperationType::Uninstall, OperationType::Repair, OperationType::Export, OperationType::Pin, OperationType::List,
+        OperationType::Search, OperationType::Completion);
     auto behavior = GENERATE(PackageSelectionBehavior::Disabled, PackageSelectionBehavior::Prompt,
         PackageSelectionBehavior::Deduplicate, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
     bool enabled = GENERATE(false, true);

@@ -983,10 +983,9 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         };
 
-        if (manifests.size() < 2 || manifests.size() > 3 ||
-            (operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show))
+        if (manifests.size() < 2 || manifests.size() > 3)
         {
-            return skip("unsupported candidate count or operation");
+            return skip("unsupported candidate count");
         }
 
         bool processDependencies = operation != OperationType::Show &&
@@ -1078,14 +1077,13 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         };
 
-        if ((operation != OperationType::Install && operation != OperationType::Download && operation != OperationType::Show) ||
-            context.Args.Contains(Execution::Args::Type::Manifest) || context.Args.Contains(Execution::Args::Type::ListVersions) ||
+        if (context.Args.Contains(Execution::Args::Type::Manifest) || context.Args.Contains(Execution::Args::Type::ListVersions) ||
             context.Args.GetCount(Execution::Args::Type::MultiQuery) > 1 ||
             context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
             WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
             (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>()))
         {
-            return skip("unsupported operation or context");
+            return skip("unsupported context");
         }
 
         if (!context.Contains(Execution::Data::SearchResult) || !context.Contains(Execution::Data::Source))
