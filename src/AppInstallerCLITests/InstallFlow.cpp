@@ -1155,7 +1155,9 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
     manifest.Version = "10.0.404";
     size_t directoryLength = 95;
     bool shortened = false;
+    bool timeOnly = false;
     bool shortGuid = false;
+    std::wstring expectedPrefix;
 
     SECTION("ExactlyPreferredLength")
     {
@@ -1165,10 +1167,22 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         directoryLength = 96;
         shortened = true;
     }
+    SECTION("ExactlyPreferredCompactLength")
+    {
+        directoryLength = 109;
+        shortened = true;
+    }
+    SECTION("TimeOnlyWithoutTruncation")
+    {
+        directoryLength = 110;
+        shortened = timeOnly = true;
+        expectedPrefix = L"Microsoft.DotNet.SDK.10";
+    }
     SECTION("ReportedNestedSuffixes")
     {
         directoryLength = 119;
-        shortGuid = true;
+        shortened = timeOnly = true;
+        expectedPrefix = L"Microsoft.DotNet.SD";
     }
     SECTION("LongVersion")
     {
@@ -1184,12 +1198,33 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         }
         manifest.Id = id + ".SDK";
         directoryLength = 119;
-        shortGuid = true;
+        shortened = timeOnly = true;
+        expectedPrefix = L"Publisher.\U0001F600\U0001F600\U0001F600\U0001F600";
     }
     SECTION("LongPackageIdentity")
     {
         manifest.Id = std::string(200, 'a') + ".SDK";
         directoryLength = 119;
+        shortened = timeOnly = true;
+        expectedPrefix = std::wstring(19, L'a');
+    }
+    SECTION("CombiningCharacterBoundary")
+    {
+        manifest.Id = "Publisher.e\xCC\x81.SDK";
+        directoryLength = 127;
+        shortened = timeOnly = true;
+        expectedPrefix = L"Publisher.";
+    }
+    SECTION("OneCharacterPrefix")
+    {
+        directoryLength = 137;
+        shortened = timeOnly = true;
+        expectedPrefix = L"M";
+    }
+    SECTION("NoRoomForFirstGrapheme")
+    {
+        manifest.Id = "\xF0\x9F\x98\x80.SDK";
+        directoryLength = 137;
         shortGuid = true;
     }
 
@@ -1222,9 +1257,18 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         const auto timestampStart = stem.rfind('-');
         REQUIRE(timestampStart != std::string::npos);
         const auto timestamp = stem.substr(timestampStart + 1);
-        REQUIRE(timestamp.size() == 12);
+        REQUIRE(timestamp.size() == (timeOnly ? 6 : 12));
         REQUIRE(std::all_of(timestamp.begin(), timestamp.end(), [](char c) { return c >= '0' && c <= '9'; }));
         REQUIRE(stem.find(manifest.Version) == std::string::npos);
+        if (timeOnly)
+        {
+            REQUIRE(stem.substr(0, timestampStart) == ConvertToUTF8(expectedPrefix));
+            REQUIRE(path.native().size() == directoryLength + 1 + expectedPrefix.size() + 11);
+        }
+        else
+        {
+            REQUIRE(stem.substr(0, timestampStart) == GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion).u8string());
+        }
     }
     else
     {
@@ -1250,7 +1294,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][wor
     CAPTURE(strategy, directoryLength);
     InstallerLogDirectoryOverride logDirectory{ directoryLength };
     TestUserSettings testSettings;
-    testSettings.Set<Setting::LoggingFileNameStrategy>(strategy);
+    testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy{ strategy });
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();

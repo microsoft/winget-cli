@@ -190,9 +190,32 @@ namespace AppInstaller::CLI::Workflow
                     auto compactTimestamp = timestamp;
                     compactTimestamp.erase(std::remove(compactTimestamp.begin(), compactTimestamp.end(), '-'), compactTimestamp.end());
                     const auto suffix = L"-" + Utility::ConvertToUTF16(compactTimestamp);
-                    result = makePath(GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion).native() + suffix);
+                    const auto id = GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion);
+                    result = makePath(id.native() + suffix);
 
-                    if (result.native().size() >= preferredPathLength)
+                    if (result.native().size() > preferredPathLength)
+                    {
+                        const auto timeSuffix = L"-" + Utility::ConvertToUTF16(compactTimestamp.substr(6));
+                        const auto fixedLength = makePath(timeSuffix).native().size();
+                        if (fixedLength < preferredPathLength && !id.empty())
+                        {
+                            const auto idString = id.u8string();
+                            const auto idBudget = preferredPathLength - fixedLength;
+                            auto prefixLength = idBudget;
+                            auto prefix = Utility::ConvertToUTF16(Utility::UTF8Substring(idString, 0, prefixLength));
+                            // Substring counts graphemes, but the path budget counts UTF-16 code units.
+                            while (prefix.size() > idBudget)
+                            {
+                                prefix = Utility::ConvertToUTF16(Utility::UTF8Substring(idString, 0, --prefixLength));
+                            }
+                            if (!prefix.empty())
+                            {
+                                result = makePath(prefix + timeSuffix);
+                            }
+                        }
+                    }
+
+                    if (result.native().size() > preferredPathLength)
                     {
                         result = shortGuidPath();
                     }
