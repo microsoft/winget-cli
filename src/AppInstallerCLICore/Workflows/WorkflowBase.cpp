@@ -80,7 +80,6 @@ namespace AppInstaller::CLI::Workflow
             if (expected)
             {
                 AICLI_LOG(CLI, Warning, << "Package deduplication comparison failed: " << hr);
-                context.Reporter.Warn() << Resource::String::PackageDeduplicationFailed << std::endl;
             }
             return expected;
         }

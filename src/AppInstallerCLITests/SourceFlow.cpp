@@ -897,7 +897,16 @@ TEST_CASE("PackageDeduplication_SelectionFallback", "[PackageDeduplication][Pack
         REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
         REQUIRE(setup.Input.peek() == '2');
     }
-    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == retrievalFailure);
+    setup.Settings.Set<Setting::EFPackageDeduplication>(false);
+    std::ostringstream normalOutput;
+    std::istringstream normalInput{ "2\n" };
+    TestContext normal{ normalOutput, normalInput };
+    auto normalThreadGlobals = normal.SetForCurrentThread();
+    normal.Reporter.SetConsoleStreamsForTest(canPrompt);
+    normal.Reporter.SetStyle(VisualStyle::NoVT);
+    normal.Add<Execution::Data::SearchResult>(setup.Context.Get<Execution::Data::SearchResult>());
+    normal << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
+    REQUIRE(setup.Output.str() == normalOutput.str());
 }
 
 TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][SourcePriority][workflow]")
@@ -950,7 +959,6 @@ TEST_CASE("PackageDeduplication_SelectionFailures", "[PackageDeduplication][Sour
         REQUIRE_NOTHROW(select(setup.Context));
         REQUIRE(setup.Context.GetTerminationHR() == (canceled ? hr : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
     }
-    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == (!unexpected && !canceled));
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
@@ -1059,7 +1067,6 @@ TEST_CASE("PackageDeduplication_ParsingAndCancellation", "[PackageDeduplication]
     setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show,
         PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
     REQUIRE(setup.Context.GetTerminationHR() == (canceled ? E_ABORT : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
-    REQUIRE((setup.Output.str().find(Resource::LocString{ Resource::String::PackageDeduplicationFailed }.get()) != std::string::npos) == !canceled);
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 0);
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
