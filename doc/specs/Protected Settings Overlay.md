@@ -244,9 +244,10 @@ ordinary-file fallback and selects the default. Protected entries for split
 settings are ineligible without the full token, so even an invalid entry cannot
 replace the ordinary value or force its default. Other valid eligible protected
 settings still apply. Any whole-file load failure with no usable protected
-backup leaves both files' settings unapplied and selects compiled defaults
-with warnings in either context. Settings load failures must not prevent
-functionality.
+backup leaves both files' settings unapplied and runs policy-first validation
+with empty file sources. Mapped Group Policy values still apply; other settings
+select compiled defaults, with load warnings in either context. Settings load
+failures must not prevent functionality.
 
 "Default" normally means the existing compiled default. The module root has a
 context-specific default described below. An absent default install root still

@@ -476,6 +476,46 @@ TEST_CASE("UserSettingsOverlay_GroupPolicyPrecedence", "[settings]")
     REQUIRE(settings.GetWarnings().empty());
 }
 
+TEST_CASE("UserSettingsOverlay_GroupPolicyWithProtectedLoadFailure", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool unreadablePrimary = GENERATE(false, true);
+    const bool unreadableBackup = GENERATE(false, true);
+    CAPTURE(unreadablePrimary, unreadableBackup);
+    GroupPolicyTestOverride policies;
+    policies.SetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>(300);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "visual": { "progressBar": "rainbow" },
+        "source": { "autoUpdateIntervalInMinutes": 23 },
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\User" }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, unreadablePrimary ? s_goodJson : s_badJson);
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, unreadableBackup ? s_goodJson : s_badJson);
+    wil::unique_hfile lockedPrimary;
+    wil::unique_hfile lockedBackup;
+    if (unreadablePrimary)
+    {
+        lockedPrimary = LockSettingsFile(Stream::PrimaryAdminSettingsFile);
+    }
+    if (unreadableBackup)
+    {
+        lockedBackup = LockSettingsFile(Stream::BackupAdminSettingsFile);
+    }
+
+    UserSettingsTest settings;
+    REQUIRE(settings.GetType() == UserSettingsType::Standard);
+    REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 300min);
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
+    REQUIRE(MigrationWarningCount(settings) == 0);
+    const auto& warnings = settings.GetWarnings();
+    REQUIRE(warnings.size() == 3);
+    REQUIRE(warnings[0].Source == Stream::PrimaryAdminSettingsFile.Name);
+    REQUIRE(warnings[1].Source == Stream::BackupAdminSettingsFile.Name);
+    REQUIRE(warnings.back().Message == AppInstaller::StringResource::String::SettingsWarningUsingDefault);
+}
+
 TEST_CASE("UserSettingsOverlay_DisabledSettingsBypassFilesAndCustomContent", "[settings]")
 {
     auto files = DeleteUserSettingsFiles();

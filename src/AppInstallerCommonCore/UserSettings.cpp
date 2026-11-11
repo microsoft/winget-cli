@@ -833,7 +833,8 @@ namespace AppInstaller::Settings
         m_adminType = sources.Admin.Type;
         if (sources.Admin.Failed)
         {
-            AICLI_LOG(Core, Warning, << "Protected settings could not be loaded. Ignoring file-backed settings and using default values.");
+            AICLI_LOG(Core, Warning, << "Protected settings could not be loaded. Ignoring file-backed settings and using policy or default values.");
+            ValidateAll(SettingsSources{}, m_settings, m_warnings, std::make_index_sequence<static_cast<size_t>(Setting::Max)>());
             return;
         }
 
