@@ -719,7 +719,6 @@ TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplic
     SECTION("Different priorities") { setup.Sources[index]->Details.Priority = 10; }
     SECTION("Noncomposite source") { setup.Context.Add<Execution::Data::Source>(Source{ setup.Sources[0] }); }
     SECTION("Empty source") { setup.Context.Add<Execution::Data::Source>(Source{}); }
-    SECTION("Local manifest") { setup.Context.Args.AddArg(Execution::Args::Type::Manifest, "unused.yaml"sv); }
     SECTION("Show versions") { setup.Context.Args.AddArg(Execution::Args::Type::ListVersions); }
     SECTION("Multiple queries")
     {

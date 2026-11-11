@@ -1077,7 +1077,7 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         };
 
-        if (context.Args.Contains(Execution::Args::Type::Manifest) || context.Args.Contains(Execution::Args::Type::ListVersions) ||
+        if (context.Args.Contains(Execution::Args::Type::ListVersions) ||
             context.Args.GetCount(Execution::Args::Type::MultiQuery) > 1 ||
             context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
             WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
