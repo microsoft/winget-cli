@@ -152,7 +152,7 @@
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 512,
-          "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
+          "description": "Silent is the value that should be passed to the installer when user chooses a silent install"
         },
         "SilentWithProgress": {
           "type": [ "string", "null" ],
@@ -313,6 +313,7 @@
           },
           "maxItems": 16,
           "uniqueItems": true,
+          "examples": ["DirectPlay", "Microsoft-Windows-Subsystem-Linux"],
           "description": "List of Windows feature dependencies"
         },
         "WindowsLibraries": {
@@ -367,7 +368,17 @@
       "type": [ "string", "null" ],
       "minLength": 1,
       "maxLength": 255,
-      "description": "ProductCode could be used for correlation of packages across sources"
+      "examples": ["{MSI-GUID}", "ContosoApp"],
+      "description": "The name of the ARP registry key, could be used for correlation of packages across sources"
+    },
+    "UpgradeCode": {
+      "type": [ "string", "null" ],
+      "pattern": "^{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}$",
+      "minLength": 38,
+      "maxLength": 38,
+      "examples": ["{MSI-GUID}"],
+      "description": "Represents a related set of products, could be used for correlation of packages across sources",
+      "$comment": "https://learn.microsoft.com/en-us/windows/win32/msi/using-an-upgradecode"
     },
     "Capabilities": {
       "type": [ "array", "null" ],
@@ -378,6 +389,7 @@
       },
       "maxItems": 1000,
       "uniqueItems": true,
+      "examples": ["contacts", "internetClient", "globalMediaControl"],
       "description": "List of appx or msix installer capabilities"
     },
     "RestrictedCapabilities": {
@@ -389,6 +401,7 @@
       },
       "maxItems": 1000,
       "uniqueItems": true,
+      "examples": ["deviceUnlock", "runFullTrust", "broadFileSystemAccess"],
       "description": "List of appx or msix installer restricted capabilities"
     },
     "Market": {
@@ -501,7 +514,7 @@
           "$ref": "#/definitions/ProductCode"
         },
         "UpgradeCode": {
-          "$ref": "#/definitions/ProductCode"
+          "$ref": "#/definitions/UpgradeCode"
         },
         "InstallerType": {
           "$ref": "#/definitions/InstallerType"
@@ -535,6 +548,7 @@
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 2048,
+          "examples": ["%ProgramFiles%\\ContosoApp"],
           "description": "Represents the default installed package location. Used for deeper installation detection."
         },
         "Files": {
