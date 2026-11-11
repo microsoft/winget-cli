@@ -396,6 +396,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogUnavailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerRequiresInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);

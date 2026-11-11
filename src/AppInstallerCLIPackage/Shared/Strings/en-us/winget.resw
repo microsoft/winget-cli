@@ -1370,6 +1370,10 @@ Do you agree to the terms?</value>
     <value>Installer log is available at: {0}</value>
     <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
+  <data name="InstallerLogUnavailable" xml:space="preserve">
+    <value>The installer log path is too long. Continuing without requesting an installer log file.</value>
+    <comment>Warning when even a minimal automatically generated installer log file name cannot fit within the Windows path limit. The operation continues with the logging switch omitted; the installer may still produce its own logs.</comment>
+  </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
 Please specify one of them using the --source option to proceed.</value>

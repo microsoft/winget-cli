@@ -33,6 +33,28 @@ using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
+namespace
+{
+    struct InstallerLogDirectoryOverride
+    {
+        InstallerLogDirectoryOverride(size_t length) :
+            Original(AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::DefaultLogLocation))
+        {
+            AppInstaller::Filesystem::PathDetails details;
+            details.Path = L"C:\\" + std::wstring(length - 3, L'a');
+            details.Create = false;
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::DefaultLogLocation, details);
+        }
+
+        ~InstallerLogDirectoryOverride()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::DefaultLogLocation, Original);
+        }
+
+        AppInstaller::Filesystem::PathDetails Original;
+    };
+}
+
 void OverrideForDirectMsi(TestContext& context)
 {
     OverrideForCheckExistingInstaller(context);
@@ -1030,6 +1052,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs_LogNamingStrategy", "[InstallFlow][workflow]")
 {
+    InstallerLogDirectoryOverride logDirectory{ 7 };
+
     SECTION("Manifest")
     {
         TestUserSettings testSettings;
@@ -1120,6 +1144,212 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogNamingStrategy", "[InstallFlow][w
         // A short GUID is the first 8 characters of a full GUID
         REQUIRE(logPath.stem().u8string().size() == 8);
     }
+}
+
+TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workflow][InstallerLogPath]")
+{
+    TestUserSettings testSettings;
+    testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::Manifest);
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+    manifest.Id = "Microsoft.DotNet.SDK.10";
+    manifest.Version = "10.0.404";
+    size_t directoryLength = 95;
+    bool shortened = false;
+    bool hashed = false;
+
+    SECTION("ExactlyPreferredLength")
+    {
+    }
+    SECTION("JustAbovePreferredLength")
+    {
+        directoryLength = 96;
+        shortened = true;
+    }
+    SECTION("ReportedNestedSuffixes")
+    {
+        directoryLength = 119;
+        shortened = hashed = true;
+    }
+    SECTION("LongVersion")
+    {
+        manifest.Version = std::string(200, '1');
+        shortened = true;
+    }
+    SECTION("UnicodePackageTail")
+    {
+        std::string id = "Publisher.";
+        for (size_t i = 0; i < 30; ++i)
+        {
+            id += "\xF0\x9F\x98\x80";
+        }
+        manifest.Id = id + ".SDK";
+        directoryLength = 119;
+        shortened = hashed = true;
+    }
+    SECTION("LongPackageIdentity")
+    {
+        manifest.Id = std::string(200, 'a') + ".SDK";
+        directoryLength = 119;
+        shortened = hashed = true;
+    }
+    SECTION("ReservedDeviceTail")
+    {
+        manifest.Id = "Publisher.CON.ab";
+        directoryLength = 119;
+        shortened = hashed = true;
+    }
+
+    InstallerLogDirectoryOverride logDirectory{ directoryLength };
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.SetFlags(ContextFlag::InstallerExecutionUseUpdate);
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(manifest.Installers.at(0));
+    context << GetInstallerArgs;
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(installOutput.str().empty());
+    REQUIRE(context.Contains(Data::LogPath));
+    const auto& path = context.Get<Data::LogPath>();
+    INFO(path.u8string());
+    REQUIRE(path.native().size() <= 150);
+    REQUIRE(path.extension() == L".log");
+    REQUIRE(MakeSuitablePathPart(path.filename().u8string()) == path.filename().u8string());
+    const auto stem = path.stem().u8string();
+    const auto timestampStart = stem.rfind('-');
+    REQUIRE(timestampStart != std::string::npos);
+    REQUIRE(ConvertToUTF16(ConvertToUTF8(path.native())) == path.native());
+    if (shortened)
+    {
+        const auto timestamp = stem.substr(timestampStart + 1);
+        REQUIRE(timestamp.size() == 12);
+        REQUIRE(std::all_of(timestamp.begin(), timestamp.end(), [](char c) { return c >= '0' && c <= '9'; }));
+        REQUIRE(stem.find(manifest.Version) == std::string::npos);
+    }
+    else
+    {
+        REQUIRE(path.native().size() == 150);
+        REQUIRE(stem.find(manifest.Id + '.' + manifest.Version) == 0);
+    }
+    if (hashed)
+    {
+        REQUIRE(stem.find('~') != std::string::npos);
+        auto otherManifest = manifest;
+        otherManifest.Id = "Other." + manifest.Id;
+        std::ostringstream otherOutput;
+        TestContext otherContext{ otherOutput, std::cin };
+        otherContext.Add<Data::Manifest>(otherManifest);
+        otherContext.Add<Data::Installer>(otherManifest.Installers.at(0));
+        otherContext << GetInstallerArgs;
+        const auto otherStem = otherContext.Get<Data::LogPath>().stem().u8string();
+        REQUIRE(stem.substr(0, timestampStart) != otherStem.substr(0, otherStem.rfind('-')));
+    }
+
+    const auto& args = context.Get<Data::InstallerArgs>();
+    REQUIRE(args.find("/mylog=\"" + path.u8string() + '"') != std::string::npos);
+    REQUIRE(args.find("/mycustom") != std::string::npos);
+    for (const auto& suffix : {
+        L"_013_Microsoft.NET.Sdk.Android.Manifest_6.0.100.31.0.101_preview.9.16_x64.msi",
+        L"_018_{106C9C71-2390-4214-9E7E-7BA47FFB1FAB}_010_dotnet_sdk_internal_10.0.401_servicing.26423.113_win_x64.msi" })
+    {
+        auto derivedPath = path.parent_path() / (path.stem().native() + suffix + path.extension().native());
+        REQUIRE(derivedPath.native().size() < MAX_PATH);
+    }
+}
+
+TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][workflow][InstallerLogPath]")
+{
+    const auto strategy = GENERATE(LogNameStrategy::Manifest, LogNameStrategy::Timestamp, LogNameStrategy::Guid, LogNameStrategy::ShortGuid);
+    const size_t directoryLength = GENERATE(137, 138, 246, 247, 300);
+    CAPTURE(strategy, directoryLength);
+    InstallerLogDirectoryOverride logDirectory{ directoryLength };
+    TestUserSettings testSettings;
+    testSettings.Set<Setting::LoggingFileNameStrategy>(strategy);
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(manifest.Installers.at(0));
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+    context.Override({ ShellExecuteInstallImpl, [](TestContext& context)
+        {
+            REQUIRE(context.Get<Data::InstallerArgs>().find("/mycustom") != std::string::npos);
+            context.Add<Data::OperationReturnCode>(0);
+        } });
+    context << GetInstallerArgs << ShellExecuteInstallImpl;
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Data::OperationReturnCode>() == 0);
+    const auto& args = context.Get<Data::InstallerArgs>();
+    REQUIRE(args.find("<LOGPATH>") == std::string::npos);
+    REQUIRE(args.find("/mysilentwithprogress") != std::string::npos);
+    REQUIRE(args.find("/mycustom") != std::string::npos);
+    REQUIRE(args.find("/myinstalldir=\"MyDir\"") != std::string::npos);
+    if (directoryLength + 1 + 12 >= MAX_PATH)
+    {
+        REQUIRE_FALSE(context.Contains(Data::LogPath));
+        REQUIRE(args.find("/mylog") == std::string::npos);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerLogUnavailable).get()) != std::string::npos);
+    }
+    else
+    {
+        const auto& path = context.Get<Data::LogPath>();
+        const size_t stemLength = strategy == LogNameStrategy::Guid ? 36 : (strategy == LogNameStrategy::Timestamp ? 17 : 8);
+        const size_t configuredLength = directoryLength + 1 + stemLength + 4;
+        REQUIRE(path.native().size() == (configuredLength < MAX_PATH ? configuredLength : directoryLength + 1 + 12));
+        REQUIRE(args.find("/mylog=\"" + path.u8string() + '"') != std::string::npos);
+        REQUIRE(installOutput.str().empty());
+    }
+}
+
+TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBypass", "[InstallFlow][workflow][InstallerLogPath]")
+{
+    InstallerLogDirectoryOverride logDirectory{ 300 };
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+    auto installer = manifest.Installers.at(0);
+    const std::string explicitPath = "C:\\" + std::string(270, 'a') + ".log";
+    bool hasExplicitPath = false;
+    bool overridden = false;
+    SECTION("ExplicitLog")
+    {
+        context.Args.AddArg(Execution::Args::Type::Log, explicitPath);
+        hasExplicitPath = true;
+    }
+    SECTION("Override")
+    {
+        context.Args.AddArg(Execution::Args::Type::Override, "/override"sv);
+        overridden = true;
+    }
+    SECTION("NoLogToken")
+    {
+        installer.Switches[InstallerSwitchType::Log] = "/fixedlog";
+    }
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(installer);
+    context << GetInstallerArgs;
+
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Contains(Data::LogPath) == hasExplicitPath);
+    const auto& args = context.Get<Data::InstallerArgs>();
+    if (hasExplicitPath)
+    {
+        REQUIRE(context.Get<Data::LogPath>().u8string() == explicitPath);
+        REQUIRE(args.find("/mylog=\"" + explicitPath + '"') != std::string::npos);
+    }
+    else if (overridden)
+    {
+        REQUIRE(args == "/override");
+    }
+    else
+    {
+        REQUIRE(args.find("/fixedlog") != std::string::npos);
+    }
+    REQUIRE(installOutput.str().empty());
 }
 
 TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
