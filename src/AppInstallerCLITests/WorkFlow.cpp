@@ -673,7 +673,6 @@ TEST_CASE("PackageDeduplication_PrepareSourceOrder", "[PackageDeduplication][wor
     auto result = setup.Prepare(operation);
     size_t selected = reverseSources ? count - 1 : 0;
     REQUIRE(result);
-    REQUIRE(result->Operation == operation);
     REQUIRE(result->Package == setup.Packages[selected]);
     REQUIRE(result->PackageVersion == setup.Versions[selected]);
     REQUIRE(result->Manifest.Id == setup.Manifests[selected].Id);
@@ -995,7 +994,9 @@ TEST_CASE("PackageDeduplication_SelectionOptIn", "[PackageDeduplication][workflo
 
     bool resolved = enabled && policyEnabled && WI_IsFlagSet(behavior, PackageSelectionBehavior::Deduplicate);
     REQUIRE(setup.Context.IsTerminated() == !resolved);
-    REQUIRE(setup.Context.Contains(Execution::Data::PreparedPackageMatch) == resolved);
+    REQUIRE(setup.Context.Contains(Execution::Data::PackageVersion) == resolved);
+    REQUIRE(setup.Context.Contains(Execution::Data::Manifest) == resolved);
+    REQUIRE(setup.Context.Contains(Execution::Data::Installer) == resolved);
     REQUIRE(setup.Context.Get<Execution::Data::SearchResult>().Matches.size() == 2);
     REQUIRE(setup.Input.peek() == '2');
     setup.RequireManifestCalls(resolved ? size_t{ 1 } : size_t{ 0 });
@@ -1053,8 +1054,9 @@ TEST_CASE("PackageDeduplication_SelectionFallback", "[PackageDeduplication][Pack
     setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show,
         PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
     REQUIRE(setup.Context.IsTerminated() == !canPrompt);
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
     REQUIRE(setup.Context.Get<Execution::Data::SearchResult>().Matches.size() == 2);
     setup.RequireManifestCalls(1);
     if (canPrompt)
@@ -1092,7 +1094,9 @@ TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][Sour
     setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
     REQUIRE_FALSE(setup.Context.IsTerminated());
     REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
-    REQUIRE(setup.Context.Contains(Execution::Data::PreparedPackageMatch) == tied);
+    REQUIRE(setup.Context.Contains(Execution::Data::PackageVersion) == tied);
+    REQUIRE(setup.Context.Contains(Execution::Data::Manifest) == tied);
+    REQUIRE(setup.Context.Contains(Execution::Data::Installer) == tied);
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == (tied ? size_t{ 1 } : size_t{ 0 }));
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == (tied ? size_t{ 1 } : size_t{ 0 }));
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
@@ -1134,7 +1138,7 @@ TEST_CASE("PackageDeduplication_SelectionFailures", "[PackageDeduplication][work
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
     REQUIRE(setup.Input.peek() == '2');
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
 }
@@ -1209,7 +1213,6 @@ TEST_CASE("PackageDeduplication_CommandSnapshot", "[PackageDeduplication][workfl
         expectedManifest.CurrentLocalization.Get<Localization::PackageName>());
     REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == setup.Manifests[selected].Installers[0].Url);
     REQUIRE(setup.Output.str().find("Changed package name") == std::string::npos);
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
     setup.RequireManifestCalls(1);
 }
 
@@ -1240,42 +1243,41 @@ TEST_CASE("PackageDeduplication_ParsingAndCancellation", "[PackageDeduplication]
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 0);
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
     REQUIRE(setup.Input.peek() == '2');
 }
 
-TEST_CASE("PackageDeduplication_PreparedIdentityGuard", "[PackageDeduplication][workflow]")
+TEST_CASE("PackageDeduplication_ReusesSelectedData", "[PackageDeduplication][workflow]")
 {
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
     PackageDeduplicationTestSetup setup;
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
     setup.Settings.Set<Setting::EFPackageDeduplication>(true);
-    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
+    setup.Context << EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Deduplicate);
     REQUIRE_FALSE(setup.Context.IsTerminated());
-    SECTION("Matching package")
+    REQUIRE(setup.Context.Contains(Execution::Data::PackageVersion));
+    REQUIRE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE(setup.Context.Contains(Execution::Data::Installer));
+    setup.Context.Get<Execution::Data::Manifest>().Installers.clear();
+    for (auto& version : setup.Versions)
     {
-        setup.Context << GetManifestFromPackage(false);
-        REQUIRE_FALSE(setup.Context.IsTerminated());
-        REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[0]);
-        REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Id == setup.Manifests[0].Id);
+        version->OnManifest = []() { FAIL("Selected manifest should not be fetched again"); };
     }
-    SECTION("Wrong package")
-    {
-        setup.Context.Add<Execution::Data::Package>(setup.Packages[1]);
-        REQUIRE_THROWS_HR(GetManifestFromPackage(false)(setup.Context), E_UNEXPECTED);
-    }
-    SECTION("Wrong version at installer handoff")
-    {
-        setup.Context << GetManifestFromPackage(false);
-        setup.Context.Add<Execution::Data::PackageVersion>(setup.Versions[1]);
-        REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
-    }
-    SECTION("Operation changed to upgrade")
-    {
-        setup.Context << GetManifestFromPackage(false);
-        setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-        REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
-    }
+    setup.Context <<
+        GetManifestWithVersionFromPackage(setup.Manifests[0].Version, setup.Manifests[0].Channel, operation == OperationType::Install) <<
+        GetManifestFromPackage(operation == OperationType::Install) <<
+        SelectLatestApplicableVersion(true) <<
+        SelectInstaller;
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[0]);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Id == setup.Manifests[0].Id);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Version == setup.Manifests[0].Version);
+    REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Installers.empty());
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>().has_value());
+    REQUIRE(setup.Context.Get<Execution::Data::Installer>()->Url == setup.Manifests[0].Installers[0].Url);
     setup.RequireManifestCalls(1);
 }
 
@@ -1291,7 +1293,9 @@ TEST_CASE("PackageDeduplication_ShowVersionsExcluded", "[PackageDeduplication][w
     setup.Context.Override({ SearchSourceForSingle, [](TestContext&) {} });
     ShowCommand({}).Execute(setup.Context);
     REQUIRE_TERMINATED_WITH(setup.Context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
     setup.RequireManifestCalls(0);
 }
 
@@ -1410,6 +1414,6 @@ TEST_CASE("PackageDeduplication_LocalManifestExcluded", "[PackageDeduplication][
         ShowCommand({}).Execute(setup.Context);
     }
     REQUIRE_FALSE(setup.Context.IsTerminated());
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PreparedPackageMatch));
+    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
     setup.RequireManifestCalls(0);
 }

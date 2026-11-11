@@ -1174,7 +1174,7 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         }
 
-        return PreparedPackageMatch{ operation, result.Matches[*selectedIndex].Package, std::move(versions[*selectedIndex]),
+        return PreparedPackageMatch{ result.Matches[*selectedIndex].Package, std::move(versions[*selectedIndex]),
             std::move(manifests[*selectedIndex]), std::move(installers->at(*selectedIndex)) };
     }
 
@@ -1810,15 +1810,26 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_RETURN_IF_TERMINATED(context);
                 if (prepared)
                 {
-                    auto package = prepared->Package;
-                    const auto& manifest = prepared->Manifest;
+                    auto& manifest = prepared->Manifest;
+                    auto& installer = prepared->Installer;
                     const auto& name = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
                     context.Reporter.Info() << Resource::String::PackageDeduplicationSelected(
                         Utility::LocIndView{ name }, Utility::LocIndView{ manifest.Id },
                         Utility::LocIndView{ prepared->PackageVersion->GetSource().GetDetails().Name }) << std::endl;
                     Logging::Telemetry().LogAppFound(name, manifest.Id);
-                    context.Add<Execution::Data::Package>(std::move(package));
-                    context.Add<Execution::Data::PreparedPackageMatch>(std::move(*prepared));
+                    Logging::Telemetry().LogManifestFields(manifest.Id, name, manifest.Version);
+                    Logging::Telemetry().LogSelectedInstaller(
+                        static_cast<int>(installer.Arch),
+                        installer.Url,
+                        Manifest::InstallerTypeToString(installer.EffectiveInstallerType()),
+                        Manifest::ScopeToString(installer.Scope),
+                        installer.Locale);
+                    manifest.ApplyLocale(m_operationType == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version) ?
+                        installer.Locale : std::string{ context.Args.GetArg(Execution::Args::Type::Locale) });
+                    context.Add<Execution::Data::Package>(std::move(prepared->Package));
+                    context.Add<Execution::Data::PackageVersion>(std::move(prepared->PackageVersion));
+                    context.Add<Execution::Data::Manifest>(std::move(manifest));
+                    context.Add<Execution::Data::Installer>(std::move(installer));
                     return;
                 }
             }
@@ -1871,6 +1882,11 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
+        if (context.Contains(Execution::Data::Manifest) && context.Contains(Execution::Data::PackageVersion))
+        {
+            return;
+        }
+
         PackageVersionKey key("", m_version, m_channel);
 
         std::shared_ptr<ICompositePackage> package = context.Get<Execution::Data::Package>();
@@ -1973,21 +1989,6 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestFromPackage::operator()(Execution::Context& context) const
     {
-        if (context.Contains(Execution::Data::PreparedPackageMatch))
-        {
-            auto& prepared = context.Get<Execution::Data::PreparedPackageMatch>();
-            THROW_HR_IF(E_UNEXPECTED, prepared.Package != context.Get<Execution::Data::Package>() || prepared.ManifestApplied);
-
-            auto manifest = prepared.Manifest;
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
-            manifest.ApplyLocale(prepared.Operation == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version) ?
-                prepared.Installer.Locale : std::string{ context.Args.GetArg(Execution::Args::Type::Locale) });
-            context.Add<Execution::Data::Manifest>(std::move(manifest));
-            context.Add<Execution::Data::PackageVersion>(prepared.PackageVersion);
-            prepared.ManifestApplied = true;
-            return;
-        }
-
         context << GetManifestWithVersionFromPackage(
             context.Args.GetArg(Execution::Args::Type::Version),
             context.Args.GetArg(Execution::Args::Type::Channel),
@@ -2122,31 +2123,21 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
+        if (context.Contains(Execution::Data::Installer))
+        {
+            return;
+        }
+
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
-        Manifest::InstallerAndInapplicabilities selection;
-        if (context.Contains(Execution::Data::PreparedPackageMatch))
+        IPackageVersion::Metadata installationMetadata;
+        if (isUpdate || isRepair)
         {
-            auto& prepared = context.Get<Execution::Data::PreparedPackageMatch>();
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            THROW_HR_IF(E_UNEXPECTED, !prepared.ManifestApplied || isUpdate || isRepair ||
-                prepared.Package != context.Get<Execution::Data::Package>() || prepared.PackageVersion != context.Get<Execution::Data::PackageVersion>() ||
-                manifest.Id != prepared.Manifest.Id || manifest.Version != prepared.Manifest.Version || manifest.Channel != prepared.Manifest.Channel);
-            selection.installer = std::move(prepared.Installer);
-            context.Remove(Execution::Data::PreparedPackageMatch);
+            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-        else
-        {
-            IPackageVersion::Metadata installationMetadata;
-            if (isUpdate || isRepair)
-            {
-                installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
-            }
-            Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, installationMetadata));
-            selection = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
-        }
-        auto& [installer, inapplicabilities] = selection;
+        Manifest::ManifestComparator manifestComparator(GetManifestComparatorOptions(context, installationMetadata));
+        auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
 
         if (!installer.has_value())
         {

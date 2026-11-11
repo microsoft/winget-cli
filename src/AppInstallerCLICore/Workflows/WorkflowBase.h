@@ -110,12 +110,10 @@ namespace AppInstaller::CLI::Workflow
 
     struct PreparedPackageMatch
     {
-        OperationType Operation;
         std::shared_ptr<Repository::ICompositePackage> Package;
         std::shared_ptr<Repository::IPackageVersion> PackageVersion;
         Manifest::Manifest Manifest;
         Manifest::ManifestInstaller Installer;
-        bool ManifestApplied = false;
     };
 
     // Prepares an equivalent match from priority-filtered results without changing the context.

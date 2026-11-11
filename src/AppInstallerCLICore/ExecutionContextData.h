@@ -70,7 +70,6 @@ namespace AppInstaller::CLI::Execution
         MsixDigests,
         InstallerDownloadAuthenticators,
         SelectedIndex,
-        PreparedPackageMatch,
         Max
     };
 
@@ -106,12 +105,6 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SelectedIndex>
         {
             using value_t = std::optional<size_t>;
-        };
-
-        template <>
-        struct DataMapping<Data::PreparedPackageMatch>
-        {
-            using value_t = Workflow::PreparedPackageMatch;
         };
 
         template <>

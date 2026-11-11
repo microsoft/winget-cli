@@ -40,6 +40,12 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectLatestApplicableVersion::operator()(Execution::Context& context) const
     {
+        if (context.Contains(Execution::Data::Manifest) && context.Contains(Execution::Data::PackageVersion) &&
+            context.Contains(Execution::Data::Installer))
+        {
+            return;
+        }
+
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
         const bool reportVersionNotFound = m_isSinglePackage;
@@ -326,13 +332,6 @@ namespace AppInstaller::CLI::Workflow
             GetInstalledPackageVersion;
 
         AICLI_RETURN_IF_TERMINATED(context);
-        if (context.Contains(Execution::Data::PreparedPackageMatch))
-        {
-            THROW_HR_IF(E_UNEXPECTED, m_operationType != OperationType::Install || context.Get<Execution::Data::InstalledPackageVersion>());
-            context << GetManifestFromPackage(true) << SelectInstaller << EnsureApplicableInstaller;
-            return;
-        }
-
         if ( m_operationType != OperationType::Upgrade && 
             context.Contains(Execution::Data::InstalledPackageVersion) &&
             context.Get<Execution::Data::InstalledPackageVersion>() != nullptr )
