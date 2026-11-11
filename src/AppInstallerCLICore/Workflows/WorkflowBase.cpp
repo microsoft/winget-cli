@@ -1760,39 +1760,16 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            std::optional<PreparedPackageMatch> prepared;
             if (searchResult.Matches.size() > 1 && WI_IsFlagSet(m_selectionBehavior, PackageSelectionBehavior::Deduplicate) &&
                 ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::PackageDeduplication))
             {
-                auto prepared = TryPreparePackageDeduplication(context, m_operationType);
+                prepared = TryPreparePackageDeduplication(context, m_operationType);
                 AICLI_RETURN_IF_TERMINATED(context);
-                if (prepared)
-                {
-                    auto& manifest = prepared->Manifest;
-                    auto& installer = prepared->Installer;
-                    const auto& name = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
-                    context.Reporter.Info() << Resource::String::PackageDeduplicationSelected(
-                        Utility::LocIndView{ name }, Utility::LocIndView{ manifest.Id },
-                        Utility::LocIndView{ prepared->PackageVersion->GetSource().GetDetails().Name }) << std::endl;
-                    Logging::Telemetry().LogAppFound(name, manifest.Id);
-                    Logging::Telemetry().LogManifestFields(manifest.Id, name, manifest.Version);
-                    Logging::Telemetry().LogSelectedInstaller(
-                        static_cast<int>(installer.Arch),
-                        installer.Url,
-                        Manifest::InstallerTypeToString(installer.EffectiveInstallerType()),
-                        Manifest::ScopeToString(installer.Scope),
-                        installer.Locale);
-                    manifest.ApplyLocale(m_operationType == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version) ?
-                        installer.Locale : std::string{ context.Args.GetArg(Execution::Args::Type::Locale) });
-                    context.Add<Execution::Data::Package>(std::move(prepared->Package));
-                    context.Add<Execution::Data::PackageVersion>(std::move(prepared->PackageVersion));
-                    context.Add<Execution::Data::Manifest>(std::move(manifest));
-                    context.Add<Execution::Data::Installer>(std::move(installer));
-                    return;
-                }
             }
 
             size_t selectedIndex = 0;
-            if (searchResult.Matches.size() > 1)
+            if (!prepared && searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
@@ -1830,10 +1807,33 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(selectedIndex).Package;
+            std::shared_ptr<ICompositePackage> package = prepared ? std::move(prepared->Package) :
+                searchResult.Matches.at(selectedIndex).Package;
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));
+
+            if (prepared)
+            {
+                auto& manifest = prepared->Manifest;
+                auto& installer = prepared->Installer;
+                const auto& name = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+                context.Reporter.Info() << Resource::String::PackageDeduplicationSelected(
+                    Utility::LocIndView{ name }, Utility::LocIndView{ manifest.Id },
+                    Utility::LocIndView{ prepared->PackageVersion->GetSource().GetDetails().Name }) << std::endl;
+                Logging::Telemetry().LogManifestFields(manifest.Id, name, manifest.Version);
+                Logging::Telemetry().LogSelectedInstaller(
+                    static_cast<int>(installer.Arch),
+                    installer.Url,
+                    Manifest::InstallerTypeToString(installer.EffectiveInstallerType()),
+                    Manifest::ScopeToString(installer.Scope),
+                    installer.Locale);
+                manifest.ApplyLocale(m_operationType == OperationType::Install && !context.Args.Contains(Execution::Args::Type::Version) ?
+                    installer.Locale : std::string{ context.Args.GetArg(Execution::Args::Type::Locale) });
+                context.Add<Execution::Data::PackageVersion>(std::move(prepared->PackageVersion));
+                context.Add<Execution::Data::Manifest>(std::move(manifest));
+                context.Add<Execution::Data::Installer>(std::move(installer));
+            }
         }
     }
 
