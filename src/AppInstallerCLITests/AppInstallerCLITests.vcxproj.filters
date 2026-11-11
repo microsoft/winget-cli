@@ -428,6 +428,9 @@
     <ClCompile Include="FileLogger.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="Logging.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
