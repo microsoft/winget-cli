@@ -16,6 +16,7 @@
 #include <Commands/SettingsCommand.h>
 #include <Commands/ShowCommand.h>
 #include <Commands/ValidateCommand.h>
+#include <stdexcept>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -1036,16 +1037,16 @@ TEST_CASE("PackageDeduplication_SelectionWithoutPrompt", "[PackageDeduplication]
 TEST_CASE("PackageDeduplication_SelectionFallback", "[PackageDeduplication][PackageSelection][workflow]")
 {
     bool canPrompt = GENERATE(false, true);
-    bool retrievalFailure = GENERATE(false, true);
+    auto failure = GENERATE(S_OK, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, E_UNEXPECTED);
     PackageDeduplicationTestSetup setup;
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
     setup.Settings.Set<Setting::EFPackageDeduplication>(true);
     setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
     setup.Context.Reporter.SetConsoleStreamsForTest(canPrompt);
     setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
-    if (retrievalFailure)
+    if (FAILED(failure))
     {
-        setup.Versions[1]->OnManifest = []() { THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST); };
+        setup.Versions[1]->OnManifest = [failure]() { THROW_HR(failure); };
     }
     else
     {
@@ -1105,6 +1106,7 @@ TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][Sour
 TEST_CASE("PackageDeduplication_SelectionFailures", "[PackageDeduplication][workflow]")
 {
     auto hr = GENERATE(E_ABORT, HRESULT_FROM_WIN32(ERROR_CANCELLED), HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED),
+        HRESULT_FROM_WIN32(ERROR_INTERNET_OPERATION_CANCELLED), APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER,
         E_UNEXPECTED, E_OUTOFMEMORY, E_INVALIDARG, HRESULT_FROM_WIN32(ERROR_TIMEOUT),
         HRESULT_FROM_WIN32(ERROR_INTERNET_TIMEOUT), HTTP_E_STATUS_NOT_FOUND, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST,
         APPINSTALLER_CLI_ERROR_LIBYAML_ERROR, APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA,
@@ -1121,18 +1123,10 @@ TEST_CASE("PackageDeduplication_SelectionFailures", "[PackageDeduplication][work
         THROW_HR(hr);
     };
     auto select = EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
-    bool unexpected = hr == E_UNEXPECTED || hr == E_OUTOFMEMORY || hr == E_INVALIDARG;
-    bool canceled = hr == E_ABORT || hr == HRESULT_FROM_WIN32(ERROR_CANCELLED) || hr == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED);
-    if (unexpected)
-    {
-        REQUIRE_THROWS(select(setup.Context));
-        REQUIRE_FALSE(setup.Context.IsTerminated());
-    }
-    else
-    {
-        REQUIRE_NOTHROW(select(setup.Context));
-        REQUIRE(setup.Context.GetTerminationHR() == (canceled ? hr : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
-    }
+    bool canceled = hr == E_ABORT || hr == HRESULT_FROM_WIN32(ERROR_CANCELLED) || hr == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED) ||
+        hr == HRESULT_FROM_WIN32(ERROR_INTERNET_OPERATION_CANCELLED) || hr == APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER;
+    REQUIRE_NOTHROW(select(setup.Context));
+    REQUIRE_TERMINATED_WITH(setup.Context, (canceled ? hr : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
@@ -1218,11 +1212,13 @@ TEST_CASE("PackageDeduplication_CommandSnapshot", "[PackageDeduplication][workfl
 
 TEST_CASE("PackageDeduplication_ParsingAndCancellation", "[PackageDeduplication][workflow]")
 {
+    bool canPrompt = GENERATE(false, true);
     PackageDeduplicationTestSetup setup{ 3 };
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
     setup.Settings.Set<Setting::EFPackageDeduplication>(true);
     setup.Settings.Set<Setting::EFInteractivePackageSelection>(true);
-    setup.Context.Reporter.SetConsoleStreamsForTest(false);
+    setup.Context.Reporter.SetConsoleStreamsForTest(canPrompt);
+    setup.Context.Reporter.SetStyle(VisualStyle::NoVT);
     bool canceled = true;
     SECTION("Context cancellation")
     {
@@ -1232,22 +1228,50 @@ TEST_CASE("PackageDeduplication_ParsingAndCancellation", "[PackageDeduplication]
     {
         setup.Versions[0]->OnManifest = []() { throw pplx::task_canceled{}; };
     }
+    SECTION("Failure after context cancellation")
+    {
+        setup.Versions[0]->OnManifest = [&]()
+        {
+            setup.Context.Terminate(E_ABORT);
+            THROW_HR(E_UNEXPECTED);
+        };
+    }
     SECTION("Invalid JSON")
     {
         canceled = false;
         setup.Versions[0]->OnManifest = []() { web::json::value::parse(L"{"); };
     }
+    SECTION("Standard exception")
+    {
+        canceled = false;
+        setup.Versions[0]->OnManifest = []() { throw std::runtime_error("Comparison failed"); };
+    }
+    SECTION("Unknown exception")
+    {
+        canceled = false;
+        setup.Versions[0]->OnManifest = []() { throw E_UNEXPECTED; };
+    }
     setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show,
         PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate);
-    REQUIRE(setup.Context.GetTerminationHR() == (canceled ? E_ABORT : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
     REQUIRE(setup.Sources[0]->CountOfCallsRequiringManifestData == 1);
     REQUIRE(setup.Sources[1]->CountOfCallsRequiringManifestData == 0);
     REQUIRE(setup.Sources[2]->CountOfCallsRequiringManifestData == 0);
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::PackageVersion));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Manifest));
     REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Installer));
-    REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
-    REQUIRE(setup.Input.peek() == '2');
+    if (canPrompt && !canceled)
+    {
+        REQUIRE_FALSE(setup.Context.IsTerminated());
+        REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[1]);
+        REQUIRE(setup.Output.str().find(Resource::String::NumberedSelectionPrompt(3).get()) != std::string::npos);
+    }
+    else
+    {
+        REQUIRE_TERMINATED_WITH(setup.Context, (canceled ? E_ABORT : APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND));
+        REQUIRE_FALSE(setup.Context.Contains(Execution::Data::Package));
+        REQUIRE(setup.Input.peek() == '2');
+        REQUIRE(setup.Output.str().find(Resource::String::NumberedSelectionPrompt(3).get()) == std::string::npos);
+    }
 }
 
 TEST_CASE("PackageDeduplication_ReusesSelectedData", "[PackageDeduplication][workflow]")

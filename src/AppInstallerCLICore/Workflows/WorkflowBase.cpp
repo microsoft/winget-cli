@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "Command.h"
 #include "ExecutionContext.h"
 #include "InstallFlow.h"
 #include "PackageTableSortHelper.h"
@@ -35,76 +36,32 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool HandlePackageDeduplicationFailure(Execution::Context& context, HRESULT hr)
-        {
-            if (context.IsTerminated())
-            {
-                return true;
-            }
-
-            if (hr == E_ABORT || hr == HRESULT_FROM_WIN32(ERROR_CANCELLED) || hr == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED) ||
-                hr == HRESULT_FROM_WIN32(ERROR_INTERNET_OPERATION_CANCELLED) || hr == APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER)
-            {
-                context.Terminate(hr);
-                return true;
-            }
-
-            bool expected = HRESULT_FACILITY(hr) == FACILITY_HTTP ||
-                (HRESULT_FACILITY(hr) == FACILITY_WIN32 && HRESULT_CODE(hr) >= INTERNET_ERROR_BASE && HRESULT_CODE(hr) <= INTERNET_ERROR_LAST);
-            switch (hr)
-            {
-            case HRESULT_FROM_WIN32(ERROR_TIMEOUT):
-            case HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND):
-            case APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED:
-            case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
-            case APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE:
-            case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
-            case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
-            case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
-            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
-            case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
-            case APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE:
-            case APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY:
-            case APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY:
-            case APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED:
-            case APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA:
-            case APPINSTALLER_CLI_ERROR_LIBYAML_ERROR:
-            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
-            case APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR:
-            case APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE:
-            case APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND:
-                expected = true;
-                break;
-            }
-
-            if (expected)
-            {
-                AICLI_LOG(CLI, Warning, << "Package deduplication comparison failed: " << hr);
-            }
-            return expected;
-        }
-
         std::optional<PreparedPackageMatch> TryPreparePackageDeduplication(Execution::Context& context, OperationType operation)
         {
+            HRESULT exceptionHR = S_OK;
             try
             {
                 return PreparePackageDeduplication(context, operation);
             }
-            catch (const wil::ResultException& exception)
-            {
-                if (!HandlePackageDeduplicationFailure(context, exception.GetErrorCode())) { throw; }
-            }
-            catch (const winrt::hresult_error& exception)
-            {
-                if (!HandlePackageDeduplicationFailure(context, exception.code())) { throw; }
-            }
             catch (const web::json::json_exception&)
             {
-                HandlePackageDeduplicationFailure(context, APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+                exceptionHR = APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA;
             }
             catch (const pplx::task_canceled&)
             {
-                HandlePackageDeduplicationFailure(context, E_ABORT);
+                exceptionHR = E_ABORT;
+            }
+            WINGET_CATCH_STORE(exceptionHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+
+            AICLI_RETURN_VALUE_IF_TERMINATED(context, std::nullopt);
+            if (exceptionHR == E_ABORT || exceptionHR == HRESULT_FROM_WIN32(ERROR_CANCELLED) || exceptionHR == HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED) ||
+                exceptionHR == HRESULT_FROM_WIN32(ERROR_INTERNET_OPERATION_CANCELLED) || exceptionHR == APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER)
+            {
+                context.Terminate(exceptionHR);
+            }
+            else
+            {
+                AICLI_LOG(CLI, Warning, << "Package deduplication comparison failed: " << exceptionHR);
             }
             return std::nullopt;
         }

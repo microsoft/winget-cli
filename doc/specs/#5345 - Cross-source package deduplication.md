@@ -1,7 +1,7 @@
 ---
 author: AmelBawa-msft, GitHub Copilot <Copilot>
 created on: 2026-10-06
-last updated: 2026-11-10
+last updated: 2026-11-11
 issue id: 5345
 ---
 
@@ -65,7 +65,7 @@ If every candidate passes, choose the participating source earliest in the exist
 
 Reuse that result for this invocation: if Alpha publishes 2.5 after comparing Alpha/Bravo 2.4, continue with the checked 2.4 result. Do not fetch another manifest or select "latest" again.
 
-If a check fails or cannot be evaluated, preserve all candidates and existing command state. Expected manifest retrieval/parsing failures are logged without extra terminal output; cancellation stops; unexpected failures propagate. Authentication, agreement, or installer failures never trigger fallback to another source.
+If a check fails or cannot be evaluated, preserve all candidates and existing command state. Log non-cancellation comparison failures without extra terminal output and continue with the normal prompt or ambiguity error. Cancellation still stops the command. After selection, authentication, agreement, or installer failures never trigger fallback to another source.
 
 ### Settings and behavior matrix
 
@@ -134,7 +134,7 @@ On selection, emit localized text, then continue normal command output:
 Equivalent installers found. Selected Contoso Editor [Contoso.Editor] from source Alpha.
 ```
 
-Unresolved cases, including expected manifest retrieval/parsing failures, retain the existing prompt/error, candidate table, and refinement guidance:
+Unresolved cases, including comparison failures, retain the existing prompt/error, candidate table, and refinement guidance:
 
 ```text
 Specify a package with --id <ID> --exact --source <SOURCE>.
