@@ -1364,7 +1364,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBypass", "[InstallFlow][workf
     }
     SECTION("NoLogToken")
     {
-        installer.Switches[InstallerSwitchType::Log] = "/fixedlog";
+        installer.Switches[InstallerSwitchType::Log] = "/fixedLog";
     }
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(installer);
@@ -1384,7 +1384,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBypass", "[InstallFlow][workf
     }
     else
     {
-        REQUIRE(args.find("/fixedlog") != std::string::npos);
+        REQUIRE(args.find("/fixedLog") != std::string::npos);
     }
     REQUIRE(installOutput.str().empty());
 }
