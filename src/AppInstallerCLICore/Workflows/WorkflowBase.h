@@ -313,14 +313,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest, PackageVersion
     struct GetManifestFromPackage : public WorkflowTask
     {
-        GetManifestFromPackage(bool considerPins, std::optional<OperationType> preparedOperation = {}) :
-            WorkflowTask("GetManifestFromPackage"), m_considerPins(considerPins), m_preparedOperation(preparedOperation) {}
+        GetManifestFromPackage(bool considerPins) :
+            WorkflowTask("GetManifestFromPackage"), m_considerPins(considerPins) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         bool m_considerPins;
-        std::optional<OperationType> m_preparedOperation;
     };
 
     // Ensures the file exists and is not a directory.

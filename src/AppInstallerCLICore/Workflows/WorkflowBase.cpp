@@ -1976,8 +1976,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Contains(Execution::Data::PreparedPackageMatch))
         {
             auto& prepared = context.Get<Execution::Data::PreparedPackageMatch>();
-            THROW_HR_IF(E_UNEXPECTED, !m_preparedOperation || prepared.Operation != *m_preparedOperation ||
-                prepared.Package != context.Get<Execution::Data::Package>() || prepared.ManifestApplied);
+            THROW_HR_IF(E_UNEXPECTED, prepared.Package != context.Get<Execution::Data::Package>() || prepared.ManifestApplied);
 
             auto manifest = prepared.Manifest;
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);

@@ -227,8 +227,7 @@ namespace AppInstaller::CLI::Workflow
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(OperationType::Show, m_selectionBehavior) <<
-                GetManifestFromPackage(m_considerPins,
-                    WI_IsFlagSet(m_selectionBehavior, PackageSelectionBehavior::Deduplicate) ? std::optional{ OperationType::Show } : std::nullopt);
+                GetManifestFromPackage(m_considerPins);
         }
     }
 

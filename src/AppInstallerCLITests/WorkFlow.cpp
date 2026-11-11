@@ -1252,28 +1252,27 @@ TEST_CASE("PackageDeduplication_PreparedIdentityGuard", "[PackageDeduplication][
     setup.Settings.Set<Setting::EFPackageDeduplication>(true);
     setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
     REQUIRE_FALSE(setup.Context.IsTerminated());
-    SECTION("Wrong operation")
+    SECTION("Matching package")
     {
-        REQUIRE_THROWS_HR(GetManifestFromPackage(false, OperationType::Download)(setup.Context), E_UNEXPECTED);
-    }
-    SECTION("Caller not opted in")
-    {
-        REQUIRE_THROWS_HR(GetManifestFromPackage(false)(setup.Context), E_UNEXPECTED);
+        setup.Context << GetManifestFromPackage(false);
+        REQUIRE_FALSE(setup.Context.IsTerminated());
+        REQUIRE(setup.Context.Get<Execution::Data::PackageVersion>() == setup.Versions[0]);
+        REQUIRE(setup.Context.Get<Execution::Data::Manifest>().Id == setup.Manifests[0].Id);
     }
     SECTION("Wrong package")
     {
         setup.Context.Add<Execution::Data::Package>(setup.Packages[1]);
-        REQUIRE_THROWS_HR(GetManifestFromPackage(false, OperationType::Show)(setup.Context), E_UNEXPECTED);
+        REQUIRE_THROWS_HR(GetManifestFromPackage(false)(setup.Context), E_UNEXPECTED);
     }
     SECTION("Wrong version at installer handoff")
     {
-        setup.Context << GetManifestFromPackage(false, OperationType::Show);
+        setup.Context << GetManifestFromPackage(false);
         setup.Context.Add<Execution::Data::PackageVersion>(setup.Versions[1]);
         REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
     }
     SECTION("Operation changed to upgrade")
     {
-        setup.Context << GetManifestFromPackage(false, OperationType::Show);
+        setup.Context << GetManifestFromPackage(false);
         setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
         REQUIRE_THROWS_HR(SelectInstaller(setup.Context), E_UNEXPECTED);
     }
@@ -1365,7 +1364,7 @@ TEST_CASE("PackageDeduplication_PreservesAgreementsAndTrust", "[PackageDeduplica
     SECTION("Selected source trusted") { setup.Sources[0]->Details.TrustLevel = SourceTrustLevel::Trusted; }
     setup.Context <<
         EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Deduplicate) <<
-        GetManifestFromPackage(operation == OperationType::Install, operation) <<
+        GetManifestFromPackage(operation == OperationType::Install) <<
         SelectInstaller <<
         ShowPromptsForSinglePackage(true);
     if (agreements)

@@ -127,7 +127,7 @@ namespace AppInstaller::CLI
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Download, PackageSelectionBehavior::Prompt | PackageSelectionBehavior::Deduplicate) <<
-                Workflow::GetManifestFromPackage(false, OperationType::Download);
+                Workflow::GetManifestFromPackage(false);
         }
 
         context <<
