@@ -1307,14 +1307,14 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][wor
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
-    manifest.Installers.at(0).Switches[InstallerSwitchType::Log] = "/before /mylog=\"<LOGPATH>\" /after";
-    manifest.Installers.at(0).Switches[InstallerSwitchType::Custom] = "/mycustom /log=\"<LOGPATH>\"";
+    manifest.Installers.at(0).Switches[InstallerSwitchType::Log] = "/before /myLog=\"<LOGPATH>\" /after";
+    manifest.Installers.at(0).Switches[InstallerSwitchType::Custom] = "/myCustom /log=\"<LOGPATH>\"";
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
     context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
     context.Override({ ShellExecuteInstallImpl, [](TestContext& context)
         {
-            REQUIRE(context.Get<Data::InstallerArgs>().find("/mycustom") != std::string::npos);
+            REQUIRE(context.Get<Data::InstallerArgs>().find("/myCustom") != std::string::npos);
             context.Add<Data::OperationReturnCode>(0);
         } });
     context << GetInstallerArgs << ShellExecuteInstallImpl;
@@ -1324,15 +1324,15 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][wor
     const auto& args = context.Get<Data::InstallerArgs>();
     REQUIRE(args.find("<LOGPATH>") == std::string::npos);
     REQUIRE(args.find("/mysilentwithprogress") != std::string::npos);
-    REQUIRE(args.find("/mycustom") != std::string::npos);
+    REQUIRE(args.find("/myCustom") != std::string::npos);
     REQUIRE(args.find("/myinstalldir=\"MyDir\"") != std::string::npos);
     REQUIRE(context.Contains(Data::LogPath));
     const auto& path = context.Get<Data::LogPath>();
     const size_t stemLength = strategy == LogNameStrategy::Guid ? 36 : (strategy == LogNameStrategy::Timestamp ? 17 : 8);
     const size_t configuredLength = directoryLength + 1 + stemLength + 4;
     REQUIRE(path.native().size() == (configuredLength < MAX_PATH ? configuredLength : directoryLength + 1 + 12));
-    REQUIRE(args.find("/before /mylog=\"" + path.u8string() + "\" /after") != std::string::npos);
-    REQUIRE(args.find("/mycustom /log=\"" + path.u8string() + '"') != std::string::npos);
+    REQUIRE(args.find("/before /myLog=\"" + path.u8string() + "\" /after") != std::string::npos);
+    REQUIRE(args.find("/myCustom /log=\"" + path.u8string() + '"') != std::string::npos);
     REQUIRE(installOutput.str().empty());
 }
 
