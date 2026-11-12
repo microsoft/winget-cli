@@ -73,14 +73,14 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Gets the escaped installer args.
-        std::vector<std::string> GetInstallerArgsTemplate(Execution::Context& context)
+        std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
             bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
             bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;
-            std::vector<std::string> installerArgs;
+            std::string installerArgs;
 
             // Construct install experience arg.
             // SilentWithProgress is default, so look for it first.
@@ -106,13 +106,13 @@ namespace AppInstaller::CLI::Workflow
 
             if (experienceArgsItr != installerSwitches.end())
             {
-                installerArgs.emplace_back(experienceArgsItr->second);
+                installerArgs += experienceArgsItr->second;
             }
 
             // Construct log path arg.
             if (installerSwitches.find(InstallerSwitchType::Log) != installerSwitches.end())
             {
-                installerArgs.emplace_back(' ' + installerSwitches.at(InstallerSwitchType::Log));
+                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Log);
             }
 
             // Construct repair arg. Custom switches and other args are not applicable for repair scenario so we can return here.
@@ -120,7 +120,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())
                 {
-                    installerArgs.emplace_back(' ' + installerSwitches.at(InstallerSwitchType::Repair));
+                    installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Repair);
                 }
 
                 return installerArgs;
@@ -129,7 +129,7 @@ namespace AppInstaller::CLI::Workflow
             // Construct custom arg.
             if (installerSwitches.find(InstallerSwitchType::Custom) != installerSwitches.end())
             {
-                installerArgs.emplace_back(' ' + installerSwitches.at(InstallerSwitchType::Custom));
+                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Custom);
             }
 
             // Construct custom arg passed in by cli arg
@@ -139,27 +139,27 @@ namespace AppInstaller::CLI::Workflow
                 // Since these arguments are appended to the installer at runtime, it doesn't make sense to append them if empty or whitespace
                 if (!Utility::IsEmptyOrWhitespace(customSwitches))
                 {
-                    installerArgs.emplace_back(' ' + std::string{ customSwitches });
+                    installerArgs += ' ' + std::string{ customSwitches };
                 }
             }
 
             // Construct update arg if applicable
             if (isUpdate && installerSwitches.find(InstallerSwitchType::Update) != installerSwitches.end())
             {
-                installerArgs.emplace_back(' ' + installerSwitches.at(InstallerSwitchType::Update));
+                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Update);
             }
 
             // Construct install location arg if necessary.
             if (context.Args.Contains(Execution::Args::Type::InstallLocation) &&
                 installerSwitches.find(InstallerSwitchType::InstallLocation) != installerSwitches.end())
             {
-                installerArgs.emplace_back(' ' + installerSwitches.at(InstallerSwitchType::InstallLocation));
+                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::InstallLocation);
             }
 
             return installerArgs;
         }
 
-        std::optional<std::filesystem::path> GetAutomaticInstallerLogPath(Execution::Context& context)
+        std::filesystem::path GetAutomaticInstallerLogPath(Execution::Context& context)
         {
             // Chosen to allow a reported 108 character suffix from installer.
             constexpr size_t preferredPathLength = 150;
@@ -241,12 +241,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 result = shortGuidPath();
             }
-            if (result.native().size() >= MAX_PATH)
-            {
-                AICLI_LOG(CLI, Warning, << "No automatic installer log path fits within MAX_PATH in " << directory.u8string());
-                context.Reporter.Warn() << Resource::String::InstallerLogUnavailable << std::endl;
-                return std::nullopt;
-            }
             if (result.native().size() > preferredPathLength)
             {
                 AICLI_LOG(CLI, Warning, << "Installer log path exceeds the preferred length of " << preferredPathLength << ": " << result.u8string());
@@ -255,13 +249,12 @@ namespace AppInstaller::CLI::Workflow
             return result;
         }
 
-        // Applies values to the template, retaining fragments so an unavailable log switch can be omitted.
-        void PopulateInstallerArgsTemplate(Execution::Context& context, std::vector<std::string>& installerArgs)
+        // Applies values to the template.
+        void PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs)
         {
-            const auto usesLogPath = [](const std::string& arg) { return arg.find(ARG_TOKEN_LOGPATH) != std::string::npos; };
-            if (std::any_of(installerArgs.begin(), installerArgs.end(), usesLogPath))
+            if (installerArgs.find(ARG_TOKEN_LOGPATH) != std::string::npos)
             {
-                std::optional<std::filesystem::path> logPath;
+                std::filesystem::path logPath;
                 if (context.Args.Contains(Execution::Args::Type::Log))
                 {
                     logPath = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Log));
@@ -271,29 +264,16 @@ namespace AppInstaller::CLI::Workflow
                     logPath = GetAutomaticInstallerLogPath(context);
                 }
 
-                if (logPath)
-                {
-                    auto logPathString = logPath->u8string();
-                    for (auto& arg : installerArgs)
-                    {
-                        Utility::FindAndReplace(arg, ARG_TOKEN_LOGPATH, logPathString);
-                    }
-                    context.Add<Execution::Data::LogPath>(std::move(*logPath));
-                }
-                else
-                {
-                    installerArgs.erase(std::remove_if(installerArgs.begin(), installerArgs.end(), usesLogPath), installerArgs.end());
-                }
+                auto logPathString = logPath.u8string();
+                Utility::FindAndReplace(installerArgs, ARG_TOKEN_LOGPATH, logPathString);
+                context.Add<Execution::Data::LogPath>(std::move(logPath));
             }
 
             // Populate <InstallPath> with value from command line.
             if (context.Args.Contains(Execution::Args::Type::InstallLocation))
             {
                 auto locationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
-                for (auto& arg : installerArgs)
-                {
-                    Utility::FindAndReplace(arg, ARG_TOKEN_INSTALLPATH, locationArg);
-                }
+                Utility::FindAndReplace(installerArgs, ARG_TOKEN_INSTALLPATH, locationArg);
             }
 
             // Todo: language token support will be implemented later
@@ -408,13 +388,8 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        auto installerArgsTemplate = GetInstallerArgsTemplate(context);
-        PopulateInstallerArgsTemplate(context, installerArgsTemplate);
-        std::string installerArgs;
-        for (const auto& arg : installerArgsTemplate)
-        {
-            installerArgs += arg;
-        }
+        auto installerArgs = GetInstallerArgsTemplate(context);
+        PopulateInstallerArgsTemplate(context, installerArgs);
 
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
         context.Add<Execution::Data::InstallerArgs>(std::move(installerArgs));

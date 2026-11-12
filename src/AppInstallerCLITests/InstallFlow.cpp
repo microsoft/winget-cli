@@ -1265,7 +1265,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBudget", "[InstallFlow][workf
         const auto timestampStart = stem.rfind('-');
         REQUIRE(timestampStart != std::string::npos);
         const auto timestamp = stem.substr(timestampStart + 1);
-        REQUIRE(timestamp.size() == (timeOnly ? 6 : 12));
+        REQUIRE(timestamp.size() == (timeOnly ? 6u : 12u));
         REQUIRE(std::all_of(timestamp.begin(), timestamp.end(), [](char c) { return c >= '0' && c <= '9'; }));
         REQUIRE(stem.find(manifest.Version) == std::string::npos);
         if (timeOnly)
@@ -1307,6 +1307,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][wor
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+    manifest.Installers.at(0).Switches[InstallerSwitchType::Log] = "/before /mylog=\"<LOGPATH>\" /after";
+    manifest.Installers.at(0).Switches[InstallerSwitchType::Custom] = "/mycustom /log=\"<LOGPATH>\"";
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
     context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
@@ -1324,21 +1326,14 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathFallback", "[InstallFlow][wor
     REQUIRE(args.find("/mysilentwithprogress") != std::string::npos);
     REQUIRE(args.find("/mycustom") != std::string::npos);
     REQUIRE(args.find("/myinstalldir=\"MyDir\"") != std::string::npos);
-    if (directoryLength + 1 + 12 >= MAX_PATH)
-    {
-        REQUIRE_FALSE(context.Contains(Data::LogPath));
-        REQUIRE(args.find("/mylog") == std::string::npos);
-        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallerLogUnavailable).get()) != std::string::npos);
-    }
-    else
-    {
-        const auto& path = context.Get<Data::LogPath>();
-        const size_t stemLength = strategy == LogNameStrategy::Guid ? 36 : (strategy == LogNameStrategy::Timestamp ? 17 : 8);
-        const size_t configuredLength = directoryLength + 1 + stemLength + 4;
-        REQUIRE(path.native().size() == (configuredLength < MAX_PATH ? configuredLength : directoryLength + 1 + 12));
-        REQUIRE(args.find("/mylog=\"" + path.u8string() + '"') != std::string::npos);
-        REQUIRE(installOutput.str().empty());
-    }
+    REQUIRE(context.Contains(Data::LogPath));
+    const auto& path = context.Get<Data::LogPath>();
+    const size_t stemLength = strategy == LogNameStrategy::Guid ? 36 : (strategy == LogNameStrategy::Timestamp ? 17 : 8);
+    const size_t configuredLength = directoryLength + 1 + stemLength + 4;
+    REQUIRE(path.native().size() == (configuredLength < MAX_PATH ? configuredLength : directoryLength + 1 + 12));
+    REQUIRE(args.find("/before /mylog=\"" + path.u8string() + "\" /after") != std::string::npos);
+    REQUIRE(args.find("/mycustom /log=\"" + path.u8string() + '"') != std::string::npos);
+    REQUIRE(installOutput.str().empty());
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs_LogPathBypass", "[InstallFlow][workflow][InstallerLogPath]")
