@@ -15,7 +15,9 @@ is left out of the results. If you decline a package's agreements, the package i
   are shown in a warning. This behavior is deprecated: a future release will require the switches
   in non-interactive use, so update scripts and automation to pass them.
 * The `WinGetPackage` resource in Microsoft.WinGet.DSC has a new `AcceptAgreements` property, which
-  defaults to `true` and passes both switches.
+  defaults to `true` and passes both switches. The `true` default is also deprecated: a future
+  release will require `AcceptAgreements` to be set explicitly to accept agreements, so set it in
+  configurations that rely on it.
 
 Accepting a package's agreements also accepts the agreements of any dependencies that are installed
 with it.

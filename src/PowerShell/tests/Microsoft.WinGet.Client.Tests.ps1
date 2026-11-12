@@ -374,7 +374,7 @@ Describe 'Package agreements' {
 
         $agreementsPackageId = 'AppInstallerTest.CatalogPackageMetadata'
 
-        # Matches the module's check for whether the user can be prompted.
+        # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
         $canPrompt = [Environment]::UserInteractive -and
             -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -match '^[-/]noni' })
     }

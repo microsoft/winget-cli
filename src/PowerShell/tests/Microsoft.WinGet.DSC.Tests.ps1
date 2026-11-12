@@ -179,7 +179,6 @@ Describe 'WinGetPackage' {
     It 'Get WinGetPackage' {
         $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; Version = $testPackageVersion }
         $result.Ensure | Should -Be 'Absent'
-        $result.AcceptAgreements | Should -Be $true
     }
 
     It 'Test WinGetPackage' {

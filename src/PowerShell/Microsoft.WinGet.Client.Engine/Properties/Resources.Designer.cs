@@ -529,6 +529,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} [{1}] Version {2}.
+        /// </summary>
+        internal static string PackageVersionDescription {
+            get {
+                return ResourceManager.GetString("PackageVersionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source agreements.
         /// </summary>
         internal static string SourceAgreementsCaption {
@@ -583,7 +592,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet accepts its agreements automatically. Error: {1}.
+        ///   Looks up a localized string similar to The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet does not support source agreements. Error: {1}.
         /// </summary>
         internal static string SourceAgreementsUnavailableUnsupported {
             get {

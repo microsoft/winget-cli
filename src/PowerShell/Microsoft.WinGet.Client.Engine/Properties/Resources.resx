@@ -291,7 +291,7 @@
     <comment>{Locked="{0}","{1}"} {0} is a placeholder replaced by the repository source name. {1} is a placeholder replaced by the error message.</comment>
   </data>
   <data name="SourceAgreementsUnavailableUnsupported" xml:space="preserve">
-    <value>The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet accepts its agreements automatically. Error: {1}</value>
+    <value>The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet does not support source agreements. Error: {1}</value>
     <comment>{Locked="{0}","{1}"} {0} is a placeholder replaced by the repository source name. {1} is a placeholder replaced by the error message.</comment>
   </data>
   <data name="NoSourcesAvailableExceptionMessage" xml:space="preserve">
@@ -300,6 +300,10 @@
   <data name="PackageAgreementsTitle" xml:space="preserve">
     <value>Agreements for {0}</value>
     <comment>{Locked="{0}"} Followed by a list of license agreements. {0} is a placeholder replaced by the package name, identifier and version.</comment>
+  </data>
+  <data name="PackageVersionDescription" xml:space="preserve">
+    <value>{0} [{1}] Version {2}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Identifies a package version. {0} is a placeholder replaced by the package name. {1} is a placeholder replaced by the package identifier. {2} is a placeholder replaced by the package version.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>The publisher requires that you view the above information and accept the agreements before installing.

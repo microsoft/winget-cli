@@ -89,7 +89,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 return;
             }
 
-            string description = $"{package.Name} [{package.Id}] Version {versionInfo.Version}";
+            string description = string.Format(Resources.PackageVersionDescription, package.Name, package.Id, versionInfo.Version);
             string? agreements;
 
             try

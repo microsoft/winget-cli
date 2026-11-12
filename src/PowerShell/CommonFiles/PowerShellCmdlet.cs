@@ -551,23 +551,8 @@ namespace Microsoft.WinGet.Common.Command
         /// <returns>True if the host can prompt the user.</returns>
         internal bool IsInteractive()
         {
-            if (!Environment.UserInteractive || this.psCmdlet.Host?.UI == null)
-            {
-                return false;
-            }
-
-            foreach (string arg in Environment.GetCommandLineArgs())
-            {
-                // Matches -NonInteractive and its abbreviations, with either prefix character.
-                if (arg.Length >= 5 &&
-                    (arg[0] == '-' || arg[0] == '/') &&
-                    "noninteractive".StartsWith(arg.Substring(1), StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            // A host started with -NonInteractive refuses to prompt, which ShouldContinue handles.
+            return Environment.UserInteractive && this.psCmdlet.Host?.UI != null;
         }
 
         private void Complete()

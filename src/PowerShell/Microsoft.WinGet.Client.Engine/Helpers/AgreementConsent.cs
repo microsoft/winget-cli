@@ -129,7 +129,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="cmdlet">The cmdlet.</param>
         /// <param name="agreements">The formatted agreements.</param>
         /// <param name="prompt">The question to ask the user.</param>
-        /// <param name="caption">The caption of the prompt; Yes to All and No to All apply per caption.</param>
+        /// <param name="caption">The caption of the prompt.</param>
         /// <param name="acceptedByParameter">Whether the user accepted the agreements with a parameter.</param>
         /// <param name="parameterName">The name of the parameter that accepts the agreements.</param>
         /// <returns>The decision.</returns>

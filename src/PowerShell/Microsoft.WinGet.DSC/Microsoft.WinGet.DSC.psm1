@@ -498,7 +498,6 @@ class WinGetPackage
         }
 
         $result = [WinGetPackage]::new()
-        $result.AcceptAgreements = $this.AcceptAgreements
 
         $hashArgs = @{
             Id = $this.Id
