@@ -885,8 +885,12 @@ TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
-TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
+TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow][InstallerLogPath]")
 {
+    InstallerLogDirectoryOverride logDirectory{ 7 };
+    TestUserSettings testSettings;
+    testSettings.Set<Setting::LoggingFileNameStrategy>(LogNameStrategy::Manifest);
+
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
@@ -899,7 +903,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/passive") != std::string::npos);
-        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(context.Get<Data::LogPath>().u8string()) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
@@ -953,7 +957,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
-        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(context.Get<Data::LogPath>().u8string()) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
         REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
