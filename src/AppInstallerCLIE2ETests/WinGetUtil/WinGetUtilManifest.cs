@@ -83,6 +83,61 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         /// <summary>
+        /// Test normalization and semantic validation of nested installer paths through WinGetUtil.
+        /// </summary>
+        /// <param name="relativeFilePath">The first nested installer path.</param>
+        /// <param name="expectedError">The expected error, or null for a valid manifest.</param>
+        [TestCase("bin/\u00E4\U0001F600.exe", null)]
+        [TestCase("../app.exe", "Relative file path must not point to a location outside of archive directory.")]
+        [TestCase(@"..\app.exe", "Relative file path must not point to a location outside of archive directory.")]
+
+        // The test manifest specifies 'bin\helper.exe' - this case verifies duplicates are checked after normalization.
+        [TestCase("bin/helper.exe", "Duplicate relative file path found.")]
+
+        public void WinGetUtil_ValidateManifest_NestedInstallerPaths(string relativeFilePath, string expectedError)
+        {
+            string manifestPath = TestCommon.GetRandomTestFile(".yaml");
+            IntPtr manifestHandle = IntPtr.Zero;
+
+            try
+            {
+                string manifest = File.ReadAllText(TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\NestedInstallerPaths.yaml"));
+                File.WriteAllText(manifestPath, manifest.Replace("<RELATIVEFILEPATH>", relativeFilePath));
+
+                WinGetUtilWrapper.WinGetCreateManifest(
+                    manifestPath,
+                    out bool succeeded,
+                    out manifestHandle,
+                    out string createFailureMessage,
+                    string.Empty,
+                    WinGetUtilWrapper.CreateManifestOption.SchemaAndSemanticValidation);
+
+                if (expectedError == null)
+                {
+                    Assert.That(succeeded, Is.True);
+                    Assert.That(manifestHandle, Is.Not.EqualTo(IntPtr.Zero));
+                    Assert.That(createFailureMessage, Is.Null);
+                }
+                else
+                {
+                    Assert.That(succeeded, Is.False);
+                    Assert.That(manifestHandle, Is.EqualTo(IntPtr.Zero));
+                    Assert.That(createFailureMessage, Does.Contain(expectedError));
+                    Assert.That(createFailureMessage, Does.Contain("RelativeFilePath"));
+                }
+            }
+            finally
+            {
+                if (manifestHandle != IntPtr.Zero)
+                {
+                    WinGetUtilWrapper.WinGetCloseManifest(manifestHandle);
+                }
+
+                File.Delete(manifestPath);
+            }
+        }
+
+        /// <summary>
         /// Test validate manifest with schema header.
         /// </summary>
         /// <param name="createManifestOption">Create manifest options.</param>

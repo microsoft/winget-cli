@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
 #include <ExecutionReporter.h>
+#include <winget/Filesystem.h>
 #include <winget/Hash.h>
 
 using namespace std::string_literals;
@@ -79,10 +80,10 @@ TEST_CASE("Normalize", "[strings]")
     // A + combining Dieresis => single A with umlaut char
     REQUIRE(Normalize(L"\x41\x308") == L"\xC4");
     // This will stop working in C++20, sigh.
-    REQUIRE(Normalize(u8"\x41\x308") == u8"\xC4");
+    REQUIRE(Normalize(u8"A\u0308") == u8"\u00C4");
 
     // Ligature fi => f + i
-    REQUIRE(Normalize(u8"\xFB01") == u8"fi");
+    REQUIRE(Normalize(u8"\uFB01") == u8"fi");
 }
 
 TEST_CASE("NormalizedString", "[strings]")
@@ -92,18 +93,39 @@ TEST_CASE("NormalizedString", "[strings]")
     REQUIRE(NormalizedString(input) == input);
 
     // A + combining Dieresis => single A with umlaut char
-    REQUIRE(NormalizedString(std::wstring_view(L"\x41\x308")) == u8"\xC4");
+    REQUIRE(NormalizedString(std::wstring_view(L"\x41\x308")) == u8"\u00C4");
     // This will stop working in C++20, sigh.
-    input = u8"\x41\x308";
-    REQUIRE(NormalizedString(input) == u8"\xC4");
+    input = u8"A\u0308";
+    REQUIRE(NormalizedString(input) == u8"\u00C4");
 
     // Ligature fi => f + i
-    std::string_view input2 = u8"\xFB01";
+    std::string_view input2 = u8"\uFB01";
     REQUIRE(NormalizedString(input2) == u8"fi");
 
     // Embedded null
     std::string_view input3{ "Test\0Case", 9 };
     REQUIRE(NormalizedString(input3) == "Test Case");
+}
+
+TEST_CASE("NormalizedPath", "[strings]")
+{
+    AppInstaller::Filesystem::NormalizedPath path{ u8"directory/subdirectory/\u00E4.exe" };
+
+    REQUIRE(path.string() == "directory\\subdirectory\\\xC3\xA4.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\u00E4.exe"s);
+
+    path = u8"directory/subdirectory/\U0001F600.exe";
+    REQUIRE(path.string() == "directory\\subdirectory\\\xF0\x9F\x98\x80.exe");
+    REQUIRE(path.wstring() == L"directory\\subdirectory\\\U0001F600.exe"s);
+
+    // An overlong UTF8 encoding of '/' must not become a path separator.
+    path = "directory\xC0\xAF" "subdirectory/file.exe";
+    REQUIRE(path.string() == "directory\xEF\xBF\xBD\xEF\xBF\xBD" "subdirectory\\file.exe");
+    REQUIRE(path.wstring() == L"directory\uFFFD\uFFFDsubdirectory\\file.exe"s);
+
+    path = std::string{ "other/path.exe" };
+    REQUIRE(path.string() == "other\\path.exe");
+    REQUIRE(path.wstring() == L"other\\path.exe"s);
 }
 
 TEST_CASE("Trim", "[strings]")
@@ -159,8 +181,8 @@ TEST_CASE("FoldCase", "[strings]")
 {
     REQUIRE(FoldCase(""sv) == FoldCase(""sv));
     REQUIRE(FoldCase("foldcase"sv) == FoldCase("FOLDCASE"sv));
-    REQUIRE(FoldCase(u8"f\xF6ldcase"sv) == FoldCase(u8"F\xD6LDCASE"sv));
-    REQUIRE(FoldCase(u8"foldc\x430se"sv) == FoldCase(u8"FOLDC\x410SE"sv));
+    REQUIRE(FoldCase(u8"f\u00F6ldcase"sv) == FoldCase(u8"F\u00D6LDCASE"sv));
+    REQUIRE(FoldCase(u8"foldc\u0430se"sv) == FoldCase(u8"FOLDC\u0410SE"sv));
 }
 
 TEST_CASE("ExpandEnvironmentVariables", "[strings]")
@@ -207,7 +229,7 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     REQUIRE(MakeSuitablePathPart("A\\B") == "A_B");
     REQUIRE(MakeSuitablePathPart("A\\B/") == "A_B_");
     REQUIRE(MakeSuitablePathPart("*AB") == "_AB");
-    REQUIRE(MakeSuitablePathPart(u8"f*\xF6*ldcase") == u8"f_\xF6_ldcase");
+    REQUIRE(MakeSuitablePathPart(u8"f*\u00F6*ldcase") == u8"f_\u00F6_ldcase");
     REQUIRE(MakeSuitablePathPart(".") == "_");
     REQUIRE(MakeSuitablePathPart("..") == "._");
     REQUIRE(MakeSuitablePathPart(std::string(300, ' ')) == SHA256::ConvertToString(SHA256::ComputeHash(std::string(300, ' '))));
