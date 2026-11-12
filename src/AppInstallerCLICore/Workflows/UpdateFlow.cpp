@@ -55,6 +55,8 @@ namespace AppInstaller::CLI::Workflow
         bool versionFound = false;
         bool installedTypeInapplicable = false;
         bool packagePinned = false;
+        bool upgradeVersionPassedPin = false;
+        bool installerInapplicable = false;
 
         if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
@@ -109,12 +111,14 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
+                upgradeVersionPassedPin = true;
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
                 auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
                 {
+                    installerInapplicable = true;
                     // If there is at least one installer whose only reason is InstalledType.
                     auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), Manifest::InapplicabilityFlags::InstalledType);
                     if (onlyInstalledType != inapplicabilities.end())
@@ -191,6 +195,11 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH);
             }
 
+            if (isUpgrade && upgradeVersionPassedPin && installerInapplicable)
+            {
+                context.Add<Execution::Data::InstallerInapplicable>(true);
+            }
+
             AICLI_TERMINATE_CONTEXT(isUpgrade ? APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE : APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
     }
@@ -217,6 +226,7 @@ namespace AppInstaller::CLI::Workflow
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
         int packagesSkippedInstallTechnologyMismatch = 0;
+        int packagesSkippedNotApplicable = 0;
 
         for (const auto& match : matches)
         {
@@ -253,6 +263,11 @@ namespace AppInstaller::CLI::Workflow
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
+                if (updateContext.Contains(Execution::Data::InstallerInapplicable) && updateContext.Get<Execution::Data::InstallerInapplicable>())
+                {
+                    ++packagesSkippedNotApplicable;
+                }
+
                 continue;
             }
 
@@ -313,6 +328,12 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << packagesSkippedInstallTechnologyMismatch << " package(s) skipped due to install technology mismatch");
             context.Reporter.Info() << Resource::String::UpgradeInstallTechnologyMismatchCount(packagesSkippedInstallTechnologyMismatch) << std::endl;
+        }
+
+        if (packagesSkippedNotApplicable > 0)
+        {
+            AICLI_LOG(CLI, Info, << packagesSkippedNotApplicable << " package(s) skipped because the available upgrade was not applicable");
+            context.Reporter.Info() << Resource::String::UpgradeNotApplicableCount(packagesSkippedNotApplicable) << std::endl;
         }
     }
 

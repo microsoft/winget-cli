@@ -276,6 +276,22 @@ namespace TestCommon
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             });
 
+        const TestSourceResult TestInstaller_Exe_NotApplicable(
+            "TestExeInstallerNotApplicable"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_MachineScope.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestCompositePackage::Make(
+                            manifest,
+                            TestCompositePackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
         const TestSourceResult TestInstaller_Exe_DifferentInstallerType(
             "TestExeInstallerWithDifferentInstalledType"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {

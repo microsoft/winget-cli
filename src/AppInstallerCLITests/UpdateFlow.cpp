@@ -3,6 +3,10 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include <AppInstallerVersions.h>
+#include <Microsoft/PinningIndex.h>
+#include <winget/ManifestYamlParser.h>
+#include <winget/Pin.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ListCommand.h>
 #include <Commands/UninstallCommand.h>
@@ -555,6 +559,77 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicable", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_NotApplicable,
+        TSR::TestInstaller_Exe_LatestInstalled,
+        TSR::TestInstaller_Msix_UpgradeRequiresExplicit,
+        }));
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeNotApplicableCount(1)) != std::string::npos);
+}
+
+TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicableWithPinnedVersion", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    auto pinningIndex = AppInstaller::Repository::Microsoft::PinningIndex::OpenOrCreateDefault();
+    REQUIRE(pinningIndex);
+    pinningIndex->AddPin(AppInstaller::Pinning::Pin::CreateGatingPin(
+        AppInstaller::Pinning::PinKey{ "AppInstallerCliTest.TestExeInstaller", "*TestSource" },
+        AppInstaller::Utility::GatedVersion{ "1.*"sv }));
+
+    TestSourceResult mixedPinnedAndNotApplicable(
+        "TestInstallerMixedPinnedAndNotApplicable"sv,
+        [](std::vector<AppInstaller::Repository::ResultMatch>& matches, std::weak_ptr<const AppInstaller::Repository::ISource> source)
+        {
+            auto installed = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+            auto available = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_MachineScope.yaml"));
+            auto allowed = available;
+            allowed.Version = "1.1.0.0";
+            auto blocked = available;
+            blocked.Version = "2.0.0.0";
+            matches.emplace_back(AppInstaller::Repository::ResultMatch(
+                TestCompositePackage::Make(
+                    installed,
+                    TestCompositePackage::MetadataMap{ { AppInstaller::Repository::PackageVersionMetadata::InstalledType, "Exe" } },
+                    std::vector<AppInstaller::Manifest::Manifest>{ blocked, allowed, installed },
+                    source),
+                AppInstaller::Repository::PackageMatchFilter(
+                    AppInstaller::Repository::PackageMatchField::Id,
+                    AppInstaller::Repository::MatchType::Exact,
+                    "AppInstallerCliTest.TestExeInstaller")));
+        });
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        std::move(mixedPinnedAndNotApplicable),
+        TSR::TestInstaller_Exe_LatestInstalled,
+        TSR::TestInstaller_Msix_UpgradeRequiresExplicit,
+        }));
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeNotApplicableCount(1)) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")
