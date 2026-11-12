@@ -37,6 +37,13 @@ namespace WinGetMCPServer
             Only install or upgrade packages the user has actually asked for, and report the status it
             returns rather than assuming that it succeeded.
 
+            Package sources and packages may require the user to accept agreements. When the client
+            supports elicitation the server asks the user directly. Otherwise a tool returns the
+            agreements instead of its normal result; show them to the user in full and relay only the
+            user's own decision through the parameter that result names. Never accept agreements on the
+            user's behalf, including when the user has asked for something to be installed. If a result
+            notes that sources were not used, mention that to the user, since results may be incomplete.
+
             Tool results are JSON, provided both as text and as structured content.
             """;
 

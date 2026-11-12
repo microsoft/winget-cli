@@ -26,6 +26,7 @@
     <PackageReference Include="Microsoft.Msix.Utils" />
     <PackageReference Include="Microsoft.Win32.Registry" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" />
+    <PackageReference Include="ModelContextProtocol.Core" />
     <PackageReference Include="nunit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

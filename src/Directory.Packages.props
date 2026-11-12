@@ -18,6 +18,7 @@
     <PackageVersion Include="Microsoft.Windows.CsWinRT" Version="2.3.1" />
     <PackageVersion Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1742" />
     <PackageVersion Include="ModelContextProtocol" Version="2.2.0" />
+    <PackageVersion Include="ModelContextProtocol.Core" Version="2.2.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="nunit" Version="4.6.1" />
