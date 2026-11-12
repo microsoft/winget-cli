@@ -367,6 +367,53 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
     }
 }
 
+Describe 'Package agreements' {
+
+    BeforeAll {
+        AddTestSource
+
+        $agreementsPackageId = 'AppInstallerTest.CatalogPackageMetadata'
+
+        # Matches the module's check for whether the user can be prompted.
+        $canPrompt = [Environment]::UserInteractive -and
+            -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -match '^[-/]noni' })
+    }
+
+    It 'Install with AcceptPackageAgreements shows the agreements' {
+        $result = Install-WinGetPackage -Id $agreementsPackageId -AcceptPackageAgreements -WarningVariable agreementWarnings -WarningAction SilentlyContinue
+
+        $result.Status | Should -Be 'Ok'
+        $warningText = $agreementWarnings -join [Environment]::NewLine
+        $warningText | Should -BeLike '*testAgreementLabel*'
+        $warningText | Should -BeLike '*testAgreementText*'
+        $warningText | Should -BeLike '*https://testAgreementUrl.net*'
+        $warningText | Should -BeLike '*-AcceptPackageAgreements*'
+    }
+
+    It 'Install without AcceptPackageAgreements in a non-interactive host accepts with a warning' {
+        if ($canPrompt)
+        {
+            Set-ItResult -Skipped -Because 'the host can prompt the user'
+            return
+        }
+
+        $result = Install-WinGetPackage -Id $agreementsPackageId -WarningVariable agreementWarnings -WarningAction SilentlyContinue
+
+        $result.Status | Should -Be 'Ok'
+        $warningText = $agreementWarnings -join [Environment]::NewLine
+        $warningText | Should -BeLike '*testAgreementLabel*'
+        $warningText | Should -BeLike '*-AcceptPackageAgreements*'
+    }
+
+    AfterEach {
+        $installed = Get-WinGetPackage -Id $agreementsPackageId -MatchOption Equals
+        if ($installed.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id $agreementsPackageId -MatchOption Equals
+        }
+    }
+}
+
 Describe 'Install|Repair|Uninstall-WinGetPackage' {
 
     BeforeAll {

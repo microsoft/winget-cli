@@ -66,6 +66,8 @@ namespace Microsoft.WinGet.Client.Commands
                         this.AllowHashMismatch.ToBool(),
                         this.SkipDependencies.ToBool(),
                         this.Locale);
+            this.command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
+            this.command.AcceptPackageAgreements = this.AcceptPackageAgreements.ToBool();
             this.command.Download(
                 this.DownloadDirectory,
                 this.MatchOption.ToString(),

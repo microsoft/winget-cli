@@ -51,5 +51,11 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public SwitchParameter SkipDependencies { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to accept the package agreements without prompting.
+        /// </summary>
+        [Parameter]
+        public SwitchParameter AcceptPackageAgreements { get; set; }
     }
 }

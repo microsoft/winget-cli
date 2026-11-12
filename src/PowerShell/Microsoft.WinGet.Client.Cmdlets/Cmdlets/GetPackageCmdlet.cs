@@ -35,6 +35,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Tag,
                 this.Command,
                 this.Count);
+            command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
 
             command.Get(this.MatchOption.ToString());
         }

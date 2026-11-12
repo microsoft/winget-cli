@@ -510,6 +510,66 @@ namespace Microsoft.WinGet.Common.Command
             return shouldProcess;
         }
 
+        /// <summary>
+        /// Asks the user to confirm an action. Each prompt is answered on its own, so that one answer
+        /// cannot apply to content the user has not seen.
+        /// </summary>
+        /// <param name="query">The question to ask.</param>
+        /// <param name="caption">The caption of the prompt.</param>
+        /// <returns>The user's answer, or null if the host cannot prompt the user.</returns>
+        internal bool? ShouldContinue(string query, string caption)
+        {
+            if (!this.IsInteractive())
+            {
+                return null;
+            }
+
+            bool? result = null;
+            this.ExecuteInPowerShellThread(() =>
+            {
+                try
+                {
+                    result = this.psCmdlet.ShouldContinue(query, caption);
+                }
+                catch (PSInvalidOperationException)
+                {
+                    // The host is in non-interactive mode.
+                    result = null;
+                }
+                catch (System.Management.Automation.Host.HostException)
+                {
+                    // The host does not support prompting.
+                    result = null;
+                }
+            });
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the user can be prompted.
+        /// </summary>
+        /// <returns>True if the host can prompt the user.</returns>
+        internal bool IsInteractive()
+        {
+            if (!Environment.UserInteractive || this.psCmdlet.Host?.UI == null)
+            {
+                return false;
+            }
+
+            foreach (string arg in Environment.GetCommandLineArgs())
+            {
+                // Matches -NonInteractive and its abbreviations, with either prefix character.
+                if (arg.Length >= 5 &&
+                    (arg[0] == '-' || arg[0] == '/') &&
+                    "noninteractive".StartsWith(arg.Substring(1), StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private void Complete()
         {
             this.queuedStreams.CompleteAdding();

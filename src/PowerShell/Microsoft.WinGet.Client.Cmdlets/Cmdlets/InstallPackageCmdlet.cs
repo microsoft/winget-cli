@@ -48,6 +48,8 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Source,
                         this.Query,
                         this.SkipDependencies.ToBool());
+            this.command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
+            this.command.AcceptPackageAgreements = this.AcceptPackageAgreements.ToBool();
 
             this.command.Install(this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.Mode.ToString(), this.InstallerType.ToString());
         }

@@ -264,4 +264,65 @@
     <value>An unexpected error happened while trying to repair the package. Error code:{0}</value>
     <comment>{Locked="{0}"} {0} - The error code from the repair operation.</comment>
   </data>
+  <data name="SourceAgreementsCaption" xml:space="preserve">
+    <value>Source agreements</value>
+    <comment>Caption of the prompt that asks the user to accept the agreements of a source.</comment>
+  </data>
+  <data name="PackageAgreementsCaption" xml:space="preserve">
+    <value>Package agreements</value>
+    <comment>Caption of the prompt that asks the user to accept the agreements of a package.</comment>
+  </data>
+  <data name="SourceAgreementsTitle" xml:space="preserve">
+    <value>The `{0}` source requires that you view the following agreements before using.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
+  <data name="SourceAgreementsPrompt" xml:space="preserve">
+    <value>Do you agree to all the source agreements terms?</value>
+  </data>
+  <data name="SourceAgreementsMarketMessage" xml:space="preserve">
+    <value>The source requires the current machine's 2-letter geographic region to be sent to the backend service to function properly (ex. "US").</value>
+  </data>
+  <data name="SourceAgreementsDeclined" xml:space="preserve">
+    <value>The `{0}` source was not used because its agreements were not accepted.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the repository source name.</comment>
+  </data>
+  <data name="SourceAgreementsUnavailable" xml:space="preserve">
+    <value>The `{0}` source was not used because its agreements could not be read: {1}</value>
+    <comment>{Locked="{0}","{1}"} {0} is a placeholder replaced by the repository source name. {1} is a placeholder replaced by the error message.</comment>
+  </data>
+  <data name="SourceAgreementsUnavailableUnsupported" xml:space="preserve">
+    <value>The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet accepts its agreements automatically. Error: {1}</value>
+    <comment>{Locked="{0}","{1}"} {0} is a placeholder replaced by the repository source name. {1} is a placeholder replaced by the error message.</comment>
+  </data>
+  <data name="NoSourcesAvailableExceptionMessage" xml:space="preserve">
+    <value>No sources are available. The agreements of every source were either not accepted or could not be read.</value>
+  </data>
+  <data name="PackageAgreementsTitle" xml:space="preserve">
+    <value>Agreements for {0}</value>
+    <comment>{Locked="{0}"} Followed by a list of license agreements. {0} is a placeholder replaced by the package name, identifier and version.</comment>
+  </data>
+  <data name="PackageAgreementsPrompt" xml:space="preserve">
+    <value>The publisher requires that you view the above information and accept the agreements before installing.
+Do you agree to the terms?</value>
+  </data>
+  <data name="PackageAgreementsNotAcceptedExceptionMessage" xml:space="preserve">
+    <value>The agreements for {0} were not accepted. Operation cancelled.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the package name, identifier and version.</comment>
+  </data>
+  <data name="PackageAgreementsUnavailableExceptionMessage" xml:space="preserve">
+    <value>The agreements for {0} could not be read.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the package name, identifier and version.</comment>
+  </data>
+  <data name="AgreementsAcceptedByParameter" xml:space="preserve">
+    <value>The agreements above were accepted because {0} was specified.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by a PowerShell parameter name, such as -AcceptSourceAgreements.</comment>
+  </data>
+  <data name="AgreementsAcceptedNonInteractive" xml:space="preserve">
+    <value>The agreements above were accepted because the user cannot be prompted. This behavior is deprecated; a future release will not accept agreements unless {0} is specified.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by a PowerShell parameter name, such as -AcceptSourceAgreements.</comment>
+  </data>
+  <data name="AgreementsAcceptedUnsupported" xml:space="preserve">
+    <value>The agreements above were accepted because the installed version of WinGet does not support recording their acceptance. This behavior is deprecated; a future release will not accept agreements unless {0} is specified.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by a PowerShell parameter name, such as -AcceptSourceAgreements.</comment>
+  </data>
 </root>

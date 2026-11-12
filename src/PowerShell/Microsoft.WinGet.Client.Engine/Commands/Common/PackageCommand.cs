@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
@@ -30,6 +31,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             : base(psCmdlet)
         {
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user accepted the agreements of the package.
+        /// </summary>
+        public bool AcceptPackageAgreements { get; set; }
 
         /// <summary>
         /// Gets or sets the package to directly install.
@@ -67,6 +73,54 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Obtains consent to the agreements of a package version, throwing if the user declines them.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="versionInfo">The version whose agreements apply; if null, there are none to obtain.</param>
+        /// <param name="locale">The preferred locale of the agreements.</param>
+        internal void ObtainPackageAgreementsConsent(CatalogPackage package, PackageVersionInfo? versionInfo, string? locale = null)
+        {
+            if (versionInfo == null)
+            {
+                // The operation itself reports that there is no version to use.
+                return;
+            }
+
+            string description = $"{package.Name} [{package.Id}] Version {versionInfo.Version}";
+            string? agreements;
+
+            try
+            {
+                CatalogPackageMetadata metadata = string.IsNullOrEmpty(locale)
+                    ? versionInfo.GetCatalogPackageMetadata()
+                    : versionInfo.GetCatalogPackageMetadata(locale);
+                agreements = AgreementConsent.FormatPackageAgreements(description, metadata?.Agreements);
+            }
+            catch (Exception e)
+            {
+                throw new PackageAgreementsUnavailableException(description, e);
+            }
+
+            if (agreements == null)
+            {
+                return;
+            }
+
+            AgreementConsent.Decision decision = AgreementConsent.Obtain(
+                this,
+                agreements,
+                Resources.PackageAgreementsPrompt,
+                Resources.PackageAgreementsCaption,
+                this.AcceptPackageAgreements,
+                AgreementConsent.AcceptPackageAgreementsParameter);
+
+            if (decision == AgreementConsent.Decision.Declined)
+            {
+                throw new PackageAgreementsNotAcceptedException(description);
+            }
         }
 
         /// <summary>

@@ -17,14 +17,16 @@ Repairs a WinGet Package.
 ```
 Repair-WinGetPackage [-Mode <PSPackageRepairMode>] [-Log <String>] [-Version <String>] [-Id <String>]
  [-Name <String>] [-Moniker <String>] [-Source <String>] [[-Query] <String[]>]
- [-MatchOption <PSPackageFieldMatchOption>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [-MatchOption <PSPackageFieldMatchOption>] [-AcceptPackageAgreements] [-AcceptSourceAgreements]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
 ### GivenSet
 ```
 Repair-WinGetPackage [-Mode <PSPackageRepairMode>] [-Log <String>] [[-PSCatalogPackage] <PSCatalogPackage>]
- [-Version <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Version <String>] [-AcceptPackageAgreements] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -62,6 +64,45 @@ This example shows how to repair a package using the package name.
 > **Note: Please note that the examples mentioned above are mainly reference examples for the repair cmdlet and may not be operational as is, since many installers don't support repair as a standard functionality. For the Microsoft.GDK.2406 example, the assumption is that Microsoft.GDK.2406 supports repair capability and the author of the installer has provided the necessary repair context/switches in the Package Manifest in the Package Source referenced by the WinGet Client.**
 
 ## PARAMETERS
+
+### -AcceptPackageAgreements
+
+Accepts the agreements of the package that is selected. The agreements are shown as a warning.
+Without this parameter, an interactive session asks you to accept or decline them; declining stops
+the operation for that package. In a non-interactive session, the agreements are currently accepted
+and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AcceptSourceAgreements
+
+Accepts the agreements of every source that is searched. When the agreements of a source have not
+been accepted before, they are shown as a warning and the acceptance is recorded, so later commands
+don't ask again. Without this parameter, an interactive session asks you to accept or decline them;
+declined sources are excluded from the search. In a non-interactive session, the agreements are
+currently accepted and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: FoundSet
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Id
 
