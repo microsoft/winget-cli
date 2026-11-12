@@ -1077,12 +1077,34 @@ namespace AppInstaller::CLI::Workflow
             return std::nullopt;
         };
 
-        if (context.Args.Contains(Execution::Args::Type::ListVersions) ||
-            context.Contains(Execution::Data::PackageSubContexts) || context.Contains(Execution::Data::DependencySource) ||
-            WI_IsAnyFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate | Execution::ContextFlag::InstallerExecutionUseRepair) ||
-            (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>()))
+        if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            return skip("unsupported context");
+            return skip("version listing requested");
+        }
+
+        if (context.Contains(Execution::Data::PackageSubContexts))
+        {
+            return skip("multi-package context");
+        }
+
+        if (context.Contains(Execution::Data::DependencySource))
+        {
+            return skip("dependency source in context");
+        }
+
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+        {
+            return skip("upgrade context");
+        }
+
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
+        {
+            return skip("repair context");
+        }
+
+        if (context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>())
+        {
+            return skip("installed package version in context");
         }
 
         if (!context.Contains(Execution::Data::SearchResult) || !context.Contains(Execution::Data::Source))

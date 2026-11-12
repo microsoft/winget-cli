@@ -5,6 +5,7 @@
 #include "TestHooks.h"
 #include "TestSettings.h"
 #include <AppInstallerDownloader.h>
+#include <AppInstallerFileLogger.h>
 #include <winget/Runtime.h>
 #include <winget/Settings.h>
 #include <Workflows/DownloadFlow.h>
@@ -693,6 +694,61 @@ TEST_CASE("PackageDeduplication_PrepareBounds", "[PackageDeduplication][workflow
     setup.RequireManifestCalls(supported ? size_t{ 1 } : size_t{ 0 });
 }
 
+TEST_CASE("PackageDeduplication_PrepareContextGuards", "[PackageDeduplication][workflow]")
+{
+    TempFile logFile{ "PackageDeduplicationContextGuards.log" };
+    PackageDeduplicationTestSetup setup;
+    auto previousThreadGlobals = setup.Context.SetForCurrentThread();
+    auto& log = AppInstaller::Logging::Log();
+    log.SetEnabledChannels(AppInstaller::Logging::Channel::CLI);
+    log.SetLevel(AppInstaller::Logging::Level::Verbose);
+    AppInstaller::Logging::FileLogger::Add(logFile.GetPath());
+
+    std::string expectedReason;
+    SECTION("Show versions")
+    {
+        setup.Context.Args.AddArg(Execution::Args::Type::ListVersions);
+        expectedReason = "version listing requested";
+    }
+    SECTION("Multiple packages")
+    {
+        setup.Context.Add<Execution::Data::PackageSubContexts>(std::vector<std::unique_ptr<Execution::Context>>{});
+        expectedReason = "multi-package context";
+    }
+    SECTION("Dependency source")
+    {
+        setup.Context.Add<Execution::Data::DependencySource>(Source{ setup.Sources[0] });
+        expectedReason = "dependency source in context";
+    }
+    SECTION("Upgrade context")
+    {
+        setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+        expectedReason = "upgrade context";
+    }
+    SECTION("Repair context")
+    {
+        setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseRepair);
+        expectedReason = "repair context";
+    }
+    SECTION("Installed version in context")
+    {
+        setup.Context.Add<Execution::Data::InstalledPackageVersion>(setup.Versions[0]);
+        expectedReason = "installed package version in context";
+    }
+
+    REQUIRE_FALSE(setup.Prepare());
+    REQUIRE_FALSE(setup.Context.IsTerminated());
+    setup.RequireManifestCalls(0);
+    for (const auto& source : setup.Sources) { REQUIRE(source->CountOfCallsRequiringVersionData == 0); }
+
+    log.RemoveLogger(AppInstaller::Logging::FileLogger::GetNameForPath(logFile.GetPath()));
+    std::ifstream logStream{ logFile.GetPath() };
+    std::stringstream logContent;
+    logContent << logStream.rdbuf();
+    INFO(logContent.str());
+    REQUIRE(logContent.str().find("Package deduplication skipped: " + expectedReason) != std::string::npos);
+}
+
 TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplication][workflow]")
 {
     auto index = GENERATE(size_t{ 0 }, size_t{ 1 }, size_t{ 2 });
@@ -719,12 +775,6 @@ TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplic
     SECTION("Different priorities") { setup.Sources[index]->Details.Priority = 10; }
     SECTION("Noncomposite source") { setup.Context.Add<Execution::Data::Source>(Source{ setup.Sources[0] }); }
     SECTION("Empty source") { setup.Context.Add<Execution::Data::Source>(Source{}); }
-    SECTION("Show versions") { setup.Context.Args.AddArg(Execution::Args::Type::ListVersions); }
-    SECTION("Multiple packages") { setup.Context.Add<Execution::Data::PackageSubContexts>(std::vector<std::unique_ptr<Execution::Context>>{}); }
-    SECTION("Dependency source") { setup.Context.Add<Execution::Data::DependencySource>(Source{ setup.Sources[0] }); }
-    SECTION("Upgrade context") { setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate); }
-    SECTION("Repair context") { setup.Context.SetFlags(Execution::ContextFlag::InstallerExecutionUseRepair); }
-    SECTION("Installed version in context") { setup.Context.Add<Execution::Data::InstalledPackageVersion>(setup.Versions[0]); }
     REQUIRE_FALSE(setup.Prepare());
     setup.RequireManifestCalls(0);
     for (const auto& source : setup.Sources) { REQUIRE(source->CountOfCallsRequiringVersionData == 0); }
