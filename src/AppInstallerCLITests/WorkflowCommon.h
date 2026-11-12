@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include <winget/Hash.h>
 #include <winget/ManifestCommon.h>
 #include <ExecutionContext.h>
 #include <Workflows/WorkflowBase.h>
@@ -33,6 +34,7 @@ namespace TestCommon
         const extern TestSourceResult TestQuery_ReturnOne;
         const extern TestSourceResult TestQuery_ReturnTwo;
         const extern TestSourceResult TestInstaller_Exe;
+        const extern TestSourceResult TestInstaller_Exe_NotApplicable;
         const extern TestSourceResult TestInstaller_Exe_Dependencies;
         const extern TestSourceResult TestInstaller_Exe_DifferentInstallerType;
         const extern TestSourceResult TestInstaller_Exe_ExpectedReturnCodes;
@@ -115,6 +117,8 @@ namespace TestCommon
     void OverrideForUpdateInstallerMotw(TestContext& context);
 
     void OverrideForCheckExistingInstaller(TestContext& context);
+
+    const AppInstaller::Utility::SHA256::HashBuffer& GetTestExeInstallerHash();
 
     void OverrideForShellExecute(TestContext& context, int expectedUseCount = -1);
 

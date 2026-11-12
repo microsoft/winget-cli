@@ -298,9 +298,32 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         }
     }
 
+    It 'Does not install with WhatIf' {
+        $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -WhatIf
+
+        $result | Should -BeNullOrEmpty
+        (Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller -ErrorAction SilentlyContinue) | Should -BeNullOrEmpty
+    }
+
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
         Validate-WinGetPackageOperationResult $result $expectedExeInstallerResult 'install'
+    }
+
+    It 'Does not update with WhatIf' {
+        $installedVersion = (Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller).InstalledVersion
+        $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller -WhatIf
+
+        $result | Should -BeNullOrEmpty
+        (Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller).InstalledVersion | Should -Be $installedVersion
+    }
+
+    It 'Does not uninstall with WhatIf' {
+        $installedVersion = (Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller).InstalledVersion
+        $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller -WhatIf
+
+        $result | Should -BeNullOrEmpty
+        (Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller).InstalledVersion | Should -Be $installedVersion
     }
 
     It 'Install by exact Name and Version' {
@@ -367,6 +390,14 @@ Describe 'Install|Repair|Uninstall-WinGetPackage' {
         It 'Install MSIX By Id' {
             $result = Install-WinGetPackage -Id AppInstallerTest.TestMsixInstaller
             Validate-WinGetPackageOperationResult $result $expectedResult 'install'
+        }
+
+        It 'Does not repair MSIX with WhatIf' {
+            $installedVersion = (Get-WinGetPackage -Id AppInstallerTest.TestMsixInstaller).InstalledVersion
+            $result = Repair-WinGetPackage -Id AppInstallerTest.TestMsixInstaller -WhatIf
+
+            $result | Should -BeNullOrEmpty
+            (Get-WinGetPackage -Id AppInstallerTest.TestMsixInstaller).InstalledVersion | Should -Be $installedVersion
         }
 
         It 'Repair MSIX By Id' {
@@ -592,6 +623,14 @@ Describe 'Export-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
+    }
+
+    It 'Does not download with WhatIf' {
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory -WhatIf
+
+        $result | Should -BeNullOrEmpty
+        Test-Path -Path $testDirectory | Should -Be $false
     }
 
     It 'Download by Id' {

@@ -77,11 +77,13 @@ namespace AppInstaller
     namespace Filesystem
     {
         void TestHook_SetCreateSymlinkResult_Override(bool* status);
+        void TestHook_SetIsSameVolume_Override(bool* result);
     }
 
     namespace Archive
     {
         void TestHook_SetScanArchiveResult_Override(bool* status);
+        void TestHook_SetScanArchiveCalled_Signal(bool* status);
     }
 
     namespace CLI::Execution
@@ -129,6 +131,17 @@ namespace AppInstaller
             DownloadType type,
             IProgressCallback& progress,
             std::optional<DownloadInfo> info)>* value);
+
+        void SetDODownloadResult_Function_Override(std::function<DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            IProgressCallback& progress,
+            std::optional<DownloadInfo> info)>* value);
+
+        std::string ApplyAuthenticatedRedirectPolicyForTest(
+            std::string_view currentUrl,
+            std::string_view location,
+            std::vector<DownloadRequestHeader>& requestHeaders);
     }
 }
 
@@ -164,6 +177,27 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    struct SetScanArchiveCalled_Signal
+    {
+        SetScanArchiveCalled_Signal()
+        {
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Signal(&m_status);
+        }
+
+        ~SetScanArchiveCalled_Signal()
+        {
+            AppInstaller::Archive::TestHook_SetScanArchiveCalled_Signal(nullptr);
+        }
+
+        bool WasCalled() const
+        {
+            return m_status;
+        }
+
+    private:
+        bool m_status = false;
     };
 
     // Makes every source package validate as trusted, so that the pre-indexed stores can be driven
@@ -435,6 +469,30 @@ namespace TestHook
             const std::string& url,
             const std::filesystem::path& dest,
             AppInstaller::Utility::DownloadType type,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
+    };
+
+    struct SetDODownloadResult_Function_Override
+    {
+        SetDODownloadResult_Function_Override(std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
+            AppInstaller::IProgressCallback& progress,
+            std::optional<AppInstaller::Utility::DownloadInfo> info)> value) : m_downloadFunction(std::move(value))
+        {
+            AppInstaller::Utility::TestHooks::SetDODownloadResult_Function_Override(&m_downloadFunction);
+        }
+
+        ~SetDODownloadResult_Function_Override()
+        {
+            AppInstaller::Utility::TestHooks::SetDODownloadResult_Function_Override(nullptr);
+        }
+
+    private:
+        std::function<AppInstaller::Utility::DownloadResult(
+            const std::string& url,
+            const std::filesystem::path& dest,
             AppInstaller::IProgressCallback& progress,
             std::optional<AppInstaller::Utility::DownloadInfo> info)> m_downloadFunction;
     };

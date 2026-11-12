@@ -87,6 +87,57 @@ namespace WinGetMCPServer.Response
             return DefaultJsonOptions;
         }
 
+        /// <summary>
+        /// Notes in a response that some sources were not used.
+        /// </summary>
+        /// <param name="response">The response to add the note to.</param>
+        /// <param name="excludedSources">The sources that were excluded.</param>
+        /// <returns>The response provided in <paramref name="response"/>.</returns>
+        public static CallToolResult WithExcludedSources(CallToolResult response, ExcludedSources excludedSources)
+        {
+            if (excludedSources.IsEmpty)
+            {
+                return response;
+            }
+
+            // Separate blocks are used so that the existing JSON block is unchanged for callers that parse it.
+            if (excludedSources.NotAccepted.Count > 0)
+            {
+                response.Content.Add(new TextContentBlock()
+                {
+                    Text = $"These sources were not used because the user has not accepted their agreements: {string.Join(", ", excludedSources.NotAccepted)}. " +
+                        "If the user wants to use them, call this tool again with acceptSourceAgreements set to true to ask the user again.",
+                });
+            }
+
+            if (excludedSources.Unavailable.Count > 0)
+            {
+                response.Content.Add(new TextContentBlock()
+                {
+                    Text = $"These sources were not used because their agreements could not be retrieved; they may be temporarily unreachable: {string.Join(", ", excludedSources.Unavailable)}.",
+                });
+            }
+
+            if (response.StructuredContent is JsonElement structuredContent && structuredContent.ValueKind == JsonValueKind.Object)
+            {
+                JsonObject updated = JsonNode.Parse(structuredContent.GetRawText())!.AsObject();
+
+                if (excludedSources.NotAccepted.Count > 0)
+                {
+                    updated["excludedSources"] = JsonSerializer.SerializeToNode(excludedSources.NotAccepted, DefaultJsonOptions);
+                }
+
+                if (excludedSources.Unavailable.Count > 0)
+                {
+                    updated["unavailableSources"] = JsonSerializer.SerializeToNode(excludedSources.Unavailable, DefaultJsonOptions);
+                }
+
+                response.StructuredContent = JsonSerializer.SerializeToElement(updated);
+            }
+
+            return response;
+        }
+
         private static CallToolResult Create(object value, bool isError, JsonSerializerOptions jsonSerializerOptions, string? collectionPropertyName)
         {
             JsonElement element = JsonSerializer.SerializeToElement(value, jsonSerializerOptions);

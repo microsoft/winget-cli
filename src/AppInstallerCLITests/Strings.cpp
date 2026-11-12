@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
-#include <AppInstallerSHA256.h>
 #include <ExecutionReporter.h>
+#include <winget/Hash.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -226,6 +226,10 @@ TEST_CASE("MakeSuitablePathPart", "[strings]")
     // Only the exact superscript digits are reserved; other trailing values are not.
     REQUIRE(MakeSuitablePathPart("COM\xC2\xB4") == "COM\xC2\xB4");
     REQUIRE(MakeSuitablePathPart("COM\xC2\xB9" "0") == "COM\xC2\xB9" "0");
+
+    // A prepended character such as U+0600 joins the next character into its cluster, which must still be replaced.
+    REQUIRE(MakeSuitablePathPart("file\xD8\x80:stream") == "file\xD8\x80_stream");
+    REQUIRE(MakeSuitablePathPart("a\xD8\x80\\b") == "a\xD8\x80_b");
 
     // Win32 removes trailing spaces when normalizing a path, so they are removed here too. Otherwise two
     // values that differ only by trailing spaces would collide on disk while appearing distinct.

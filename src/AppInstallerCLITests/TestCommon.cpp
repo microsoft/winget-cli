@@ -7,6 +7,7 @@
 #include <winget/UserSettings.h>
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDownloader.h>
+#include <limits>
 
 using namespace AppInstaller;
 
@@ -14,16 +15,18 @@ namespace TestCommon
 {
     namespace
     {
-        int initRand()
+        unsigned int initRand()
         {
             srand(static_cast<unsigned int>(time(NULL)));
-            return rand();
+            return static_cast<unsigned int>(rand());
         };
 
-        inline int getRand()
+        inline unsigned int getRand()
         {
-            static int randStart = initRand();
-            return randStart++;
+            static unsigned int randStart = initRand();
+            unsigned int result = randStart;
+            randStart = (randStart == std::numeric_limits<unsigned int>::max()) ? 0u : randStart + 1u;
+            return result;
         }
 
         inline std::filesystem::path GetFilePath(std::filesystem::path path, const std::string& baseName, const std::string& baseExt)

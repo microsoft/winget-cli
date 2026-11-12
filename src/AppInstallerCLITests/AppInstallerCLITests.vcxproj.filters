@@ -329,6 +329,9 @@
     <ClCompile Include="SourceFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="WorkflowBase.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="WorkflowCommon.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
@@ -426,6 +429,9 @@
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="FileLogger.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Logging.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="MatchCriteriaResolver.cpp">
@@ -666,6 +672,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerUrl-BlockScalar.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-InstallerTypeExeRoot-Silent.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -820,6 +829,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_MachineScope.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_ARPInstallerType.yaml">

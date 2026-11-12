@@ -17,7 +17,9 @@
 #include <winget/ManifestYamlParser.h>
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
+#include <Workflows/FontFlow.h>
 #include <Workflows/MsiInstallFlow.h>
+#include <Workflows/InstallFlow.h>
 #include <Workflows/PortableFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <PortableInstaller.h>
@@ -39,7 +41,8 @@ void OverrideForDirectMsi(TestContext& context)
 
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::DownloadHashInfo>({ {}, {} });
+        const auto& fileHash = GetTestExeInstallerHash();
+        context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
         // We don't have an msi installer for tests, but we won't execute it anyway
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     } });
@@ -97,7 +100,8 @@ TEST_CASE("InstallFlow_RenameFromEncodedUrl", "[InstallFlow][workflow]")
     OverrideForCheckExistingInstaller(context);
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::DownloadHashInfo>({ {}, {} });
+        const auto& fileHash = GetTestExeInstallerHash();
+        context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
         auto installerPath = std::filesystem::temp_directory_path();
         installerPath /= "EncodedUrlTest.exe";
         std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
@@ -129,7 +133,8 @@ TEST_CASE("InstallFlow_RenameFromInvalidFileCharacterUrl", "[InstallFlow][workfl
     OverrideForCheckExistingInstaller(context);
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::DownloadHashInfo>({ {}, {} });
+        const auto& fileHash = GetTestExeInstallerHash();
+        context.Add<Data::DownloadHashInfo>({ fileHash, DownloadResult{ fileHash } });
         auto installerPath = std::filesystem::temp_directory_path();
         installerPath /= "InvalidFileCharacterUrlTest.exe";
         std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
@@ -486,13 +491,15 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
     EnableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
+    TestHook::SetScanArchiveCalled_Signal scanArchiveCalled;
 
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify override message is displayed to the user.
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScanOverridden).get()) != std::string::npos);
+    // Verify the scan is skipped and the user is notified.
+    REQUIRE_FALSE(scanArchiveCalled.WasCalled());
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveMalwareScanSkipped).get()) != std::string::npos);
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
@@ -712,6 +719,8 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
 
 TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
 
@@ -763,7 +772,7 @@ TEST_CASE("PortableInstallFlow_RejectsEscapingPathsAtPointOfUse", "[InstallFlow]
     }
 
     AppInstaller::CLI::Portable::PortableInstaller portableInstaller{
-        ScopeEnum::User, Architecture::X64, "TestProductCode" };
+        ScopeEnum::User, Architecture::X64, "TestProductCode", OperationType::Install };
     portableInstaller.TargetInstallLocation = targetDirectory.GetPath();
 
     context.Add<Execution::Data::Installer>(installer);
@@ -777,6 +786,8 @@ TEST_CASE("PortableInstallFlow_RejectsEscapingPathsAtPointOfUse", "[InstallFlow]
 
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream installOutput;
     TestContext installContext{ installOutput, std::cin };
@@ -813,8 +824,324 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
 }
 
+TEST_CASE("InstallFlow_AdminContextWithUserScopeUninstallPrevious", "[InstallFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Repository;
+
+    const bool explicitUninstallPrevious = GENERATE(false, true);
+    CAPTURE(explicitUninstallPrevious);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    auto installer = manifest.Installers.at(0);
+    installer.UpdateBehavior = explicitUninstallPrevious ? UpdateBehaviorEnum::Install : UpdateBehaviorEnum::UninstallPrevious;
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    context.Add<Execution::Data::Installer>(installer);
+    context.Add<Execution::Data::InstalledPackageVersion>(TestPackageVersion::Make(
+        manifest,
+        TestPackageVersion::MetadataMap{
+            { PackageVersionMetadata::InstalledType, "Msi" },
+            { PackageVersionMetadata::InstalledScope, "User" },
+        }));
+    if (explicitUninstallPrevious)
+    {
+        context.Args.AddArg(Execution::Args::Type::UninstallPrevious);
+    }
+
+    context << Workflow::EnsureSupportForInstall;
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+}
+
+TEST_CASE("FontInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
+{
+    const bool fullToken = GENERATE(false, true);
+    const auto installerType = GENERATE(InstallerTypeEnum::Font, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
+    const auto scope = GENERATE(""sv, "user"sv, "machine"sv, "unknown"sv);
+    CAPTURE(fullToken, installerType, scope);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = installerType;
+    if (installerType == InstallerTypeEnum::Zip)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Font;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::Installer>(installer);
+    if (!scope.empty())
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, scope);
+    }
+
+    context << EnsureSupportForFontInstall;
+
+    if (fullToken && installerType != InstallerTypeEnum::Exe && scope != "machine")
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    }
+    else
+    {
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().empty());
+    }
+}
+
+TEST_CASE("FontInstallFlow_AdminContextRejectsUserScopeBeforePreparation", "[InstallFlow][workflow]")
+{
+    const bool execute = GENERATE(false, true);
+    const bool archive = GENERATE(false, true);
+    const bool update = GENERATE(false, true);
+    CAPTURE(execute, archive, update);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = archive ? InstallerTypeEnum::Zip : InstallerTypeEnum::Font;
+    if (archive)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Font;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::Installer>(installer);
+    context.Args.AddArg(Execution::Args::Type::Force);
+    if (update)
+    {
+        context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    }
+
+    if (execute)
+    {
+        context << FontInstallImpl;
+    }
+    else
+    {
+        context << EnsureSupportForInstall;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
+}
+
+TEST_CASE("PortableInstallFlow_AdminContextRejectsUserScopeUpdateBeforePreparation", "[InstallFlow][workflow]")
+{
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Repository;
+    using namespace AppInstaller::Settings;
+
+    const bool initialize = GENERATE(false, true);
+    const auto installedScope = GENERATE("User", "Unknown");
+    CAPTURE(initialize, installedScope);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::Unknown);
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "machine"sv);
+    context.Add<Execution::Data::InstalledPackageVersion>(TestPackageVersion::Make(
+        AppInstaller::Manifest::Manifest{},
+        TestPackageVersion::MetadataMap{
+            { PackageVersionMetadata::InstalledType, "Portable" },
+            { PackageVersionMetadata::InstalledScope, installedScope },
+        }));
+
+    if (initialize)
+    {
+        context << Workflow::InitializePortableInstaller;
+    }
+    else
+    {
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+        context.Add<Execution::Data::Installer>(manifest.Installers.at(0));
+        context << Workflow::EnsureSupportForPortableInstall;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::PortableInstaller));
+}
+
+TEST_CASE("PortableInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
+{
+    const bool fullToken = GENERATE(false, true);
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Unknown, ScopeEnum::Machine);
+    const auto installerType = GENERATE(InstallerTypeEnum::Portable, InstallerTypeEnum::Zip, InstallerTypeEnum::Exe);
+    CAPTURE(fullToken, scope, installerType);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    TempDirectory machineLinks("PortableElevationMachineLinks", true);
+    const auto originalMachineLinks = AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::PortableLinksMachineLocation);
+    auto restoreMachineLinks = wil::scope_exit([&]()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, originalMachineLinks);
+        });
+    AppInstaller::Filesystem::PathDetails machineLinksDetails;
+    machineLinksDetails.Path = machineLinks.GetPath();
+    machineLinksDetails.Create = false;
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, machineLinksDetails);
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = installerType;
+    if (installerType == InstallerTypeEnum::Zip)
+    {
+        installer.NestedInstallerType = InstallerTypeEnum::Portable;
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(scope));
+    context.Add<Execution::Data::Installer>(installer);
+    context << Workflow::EnsureSupportForPortableInstall;
+
+    INFO(output.str());
+    if (fullToken && scope != ScopeEnum::Machine && installerType != InstallerTypeEnum::Exe)
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    }
+    else
+    {
+        REQUIRE_FALSE(context.IsTerminated());
+    }
+}
+
+TEST_CASE("PortableInstallFlow_AdminContextRejectsFreshUserScopeBeforePreparation", "[InstallFlow][workflow]")
+{
+    const bool initialize = GENERATE(false, true);
+    const bool archive = GENERATE(false, true);
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Unknown);
+    const auto scopeSource = GENERATE("argument", "requirement", "preference");
+    CAPTURE(initialize, archive, scope, scopeSource);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::Unknown);
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    if (std::string_view{ scopeSource } == "argument")
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(scope));
+    }
+    else if (std::string_view{ scopeSource } == "requirement")
+    {
+        settings.Set<Setting::InstallScopeRequirement>(scope);
+        settings.Set<Setting::InstallScopePreference>(scope);
+    }
+    else
+    {
+        settings.Set<Setting::InstallScopePreference>(scope);
+    }
+
+    if (initialize)
+    {
+        context << Workflow::InitializePortableInstaller;
+    }
+    else
+    {
+        ManifestInstaller installer;
+        installer.BaseInstallerType = archive ? InstallerTypeEnum::Zip : InstallerTypeEnum::Portable;
+        installer.NestedInstallerType = archive ? InstallerTypeEnum::Portable : InstallerTypeEnum::Unknown;
+        context.Add<Execution::Data::Installer>(installer);
+        context << Workflow::EnsureSupportForPortableInstall;
+    }
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::PortableInstaller));
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
+}
+
+TEST_CASE("PortableInstallFlow_AdminContextRejectsExecutionBeforeIndexedState", "[InstallFlow][workflow]")
+{
+    const bool recordToIndex = GENERATE(false, true);
+    CAPTURE(recordToIndex);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    const std::string productCode = "PortableExecutionElevationTest";
+    AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    AppInstaller::CLI::Portable::PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.RecordToIndex = recordToIndex;
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Execution::Data::PortableInstaller>(std::move(installer));
+    context << Workflow::PortableInstallImpl;
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Execution::Data::OperationReturnCode));
+    REQUIRE_FALSE(context.Contains(Execution::Data::CorrelatedAppsAndFeaturesEntries));
+}
+
+TEST_CASE("PortableInstallFlow_NonFullContextChecksExistingRegistration", "[InstallFlow][workflow]")
+{
+    const auto scopeSource = GENERATE("argument", "requirement", "preference");
+    const bool identifiersMatch = GENERATE(false, true);
+    CAPTURE(scopeSource, identifiersMatch);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::Unknown);
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
+    TempDirectory targetDirectory("PortableFreshElevation", false);
+
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+    manifest.Id = "Portable.FreshElevation";
+    const auto productCode = MakeSuitablePathPart(manifest.Id + "_*DefaultSource");
+    AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetPackageIdentifier,
+        identifiersMatch ? "Portable.FreshElevation"sv : "old-package"sv);
+    arpEntry.SetValue(AppInstaller::Registry::Portable::PortableValueName::WinGetSourceIdentifier, "*DefaultSource"sv);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory);
+    if (std::string_view{ scopeSource } == "argument")
+    {
+        context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+    }
+    else if (std::string_view{ scopeSource } == "requirement")
+    {
+        settings.Set<Setting::InstallScopeRequirement>(ScopeEnum::User);
+    }
+    else
+    {
+        settings.Set<Setting::InstallScopePreference>(ScopeEnum::User);
+    }
+    context.Add<Execution::Data::Installer>(manifest.Installers.at(0));
+    context.Add<Execution::Data::Manifest>(std::move(manifest));
+
+    context <<
+        Workflow::EnsureSupportForPortableInstall <<
+        Workflow::InitializePortableInstaller <<
+        Workflow::VerifyPackageAndSourceMatch;
+
+    INFO(output.str());
+    if (!identifiersMatch)
+    {
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
+        return;
+    }
+
+    REQUIRE_FALSE(context.IsTerminated());
+    auto& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
+    REQUIRE_FALSE(portableInstaller.IsUpdate());
+    REQUIRE(portableInstaller.GetScope() == ScopeEnum::User);
+    REQUIRE(portableInstaller.TargetInstallLocation == targetDirectory.GetPath());
+    REQUIRE(portableInstaller.WinGetPackageIdentifier == "Portable.FreshElevation");
+    REQUIRE(portableInstaller.WinGetSourceIdentifier == "*DefaultSource");
+}
+
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
 

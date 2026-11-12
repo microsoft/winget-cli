@@ -3,9 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSettings.h"
-#include <AppInstallerSHA256.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLanguageUtilities.h>
+#include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/Yaml.h>
@@ -958,6 +958,15 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
 }
 
+TEST_CASE("ReadGoodManifestInstallerUrlBlockScalar", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption = GetTestManifestValidateOption();
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-InstallerUrl-BlockScalar.yaml"), validateOption);
+
+    REQUIRE(manifest.Installers.size() == 1);
+    REQUIRE(manifest.Installers[0].Url == "https://ThisIsNotUsed\n");
+}
+
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
 {
     ManifestTestCase TestCases[] =
@@ -973,6 +982,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-InstallerUrl-BlockScalar.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExe.yaml" },
         { "Manifest-Good-InstallerTypeZip-PortableExeUppercase.yaml" },
     };

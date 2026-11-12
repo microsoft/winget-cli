@@ -280,6 +280,7 @@ rclsid
 REBOOTPROMPT
 Redistributable
 REFCLSID
+reinstaller
 removemanifest
 removepin
 removeportablefile
@@ -452,3 +453,4 @@ Xlang
 XResource
 XTOKEN
 xunit
+whatif

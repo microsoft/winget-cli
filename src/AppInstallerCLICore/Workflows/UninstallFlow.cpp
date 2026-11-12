@@ -67,21 +67,6 @@ namespace AppInstaller::CLI::Workflow
 
             std::vector<Item> Items;
         };
-
-        bool AdminExecutionShouldBlockUserScopePackages(InstallerTypeEnum installerType)
-        {
-            switch (installerType)
-            {
-            case InstallerTypeEnum::Exe:
-            case InstallerTypeEnum::Burn:
-            case InstallerTypeEnum::Inno:
-            case InstallerTypeEnum::Nullsoft:
-            case InstallerTypeEnum::Portable:
-                return true;
-            default:
-                return false;
-            }
-        }
     }
 
     void UninstallSinglePackage(Execution::Context& context)
@@ -232,16 +217,7 @@ namespace AppInstaller::CLI::Workflow
         auto packageMetadata = installedPackageVersion->GetMetadata();
         auto installedType = ConvertToInstallerTypeEnum(packageMetadata[PackageVersionMetadata::InstalledType]);
 
-        // When running as admin, block attempt to uninstall user scope package to prevent elevation of privilege paths.
-        if (AdminExecutionShouldBlockUserScopePackages(installedType) && Runtime::IsRunningWithNonDefaultFullToken())
-        {
-            auto scopeEnum = ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
-            if (scopeEnum == ScopeEnum::User)
-            {
-                context.Reporter.Error() << Resource::String::NoAdminUninstallForUserScopePackage << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
-            }
-        }
+        AICLI_RETURN_IF_TERMINATED(context << EnsureSupportForInstalledPackageOperation);
 
         switch (installedType)
         {
@@ -313,7 +289,8 @@ namespace AppInstaller::CLI::Workflow
             PortableInstaller portableInstaller = PortableInstaller(
                 Manifest::ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
-                productCodes[0]);
+                productCodes[0],
+                OperationType::Uninstall);
             context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
             break;
         }
@@ -395,6 +372,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
+        bool packageFound = false;
         for (const auto& packageFamilyName : packageFamilyNames)
         {
             auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
@@ -404,6 +382,7 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
+            packageFound = true;
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
@@ -434,6 +413,12 @@ namespace AppInstaller::CLI::Workflow
                 context << ReportUninstallerResult("MSIXUninstall"sv, re.GetErrorCode(), /* isHResult */ true);
                 return;
             }
+        }
+
+        if (!packageFound)
+        {
+            context.Reporter.Error() << Resource::String::NoInstalledPackageFound << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;

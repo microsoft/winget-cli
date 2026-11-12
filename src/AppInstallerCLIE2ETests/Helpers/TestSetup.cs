@@ -49,6 +49,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.InprocTestbedPath = this.InitializeFileParam(Constants.InprocTestbedPathParameter);
             this.WinGetServerPath = this.InitializeStringParam(Constants.WinGetServerPathParameter);
             this.RpcTestHelperPath = this.InitializeStringParam(Constants.RpcTestHelperPathParameter);
+            this.MCPServerPath = this.InitializeStringParam(Constants.MCPServerPathParameter, "WindowsPackageManagerMCPServerDev.exe");
 
             this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }
@@ -148,6 +149,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the WinGetRpcTestHelper executable path for RPC security tests.
         /// </summary>
         public string RpcTestHelperPath { get; }
+
+        /// <summary>
+        /// Gets the command used to start the MCP server for the MCP tests.
+        /// </summary>
+        public string MCPServerPath { get; }
 
         /// <summary>
         /// Gets a value indicating whether to use the test package or not.

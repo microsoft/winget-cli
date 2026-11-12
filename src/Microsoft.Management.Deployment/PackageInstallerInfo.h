@@ -23,6 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::ElevationRequirement ElevationRequirement();
         // Contract 12.0
         winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
+        // Contract 31.0
+        winrt::Windows::Foundation::IReference<winrt::Windows::Foundation::DateTime> ReleaseDate();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

@@ -33,6 +33,7 @@ namespace AppInstaller::Utility
     {
         std::string Name;
         std::string Value;
+        // Sensitive headers are redacted in logs and stripped on cross-origin redirects.
         bool IsAuth = false;
     };
 
