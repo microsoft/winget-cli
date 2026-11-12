@@ -772,7 +772,6 @@ TEST_CASE("PackageDeduplication_PrepareGuardsBeforeRetrieval", "[PackageDeduplic
     {
         setup.Context.Add<Execution::Data::Source>(Source{ std::vector<Source>{ Source{ setup.Sources[(index + 1) % 3] }, Source{ setup.Sources[(index + 2) % 3] } } });
     }
-    SECTION("Different priorities") { setup.Sources[index]->Details.Priority = 10; }
     SECTION("Noncomposite source") { setup.Context.Add<Execution::Data::Source>(Source{ setup.Sources[0] }); }
     SECTION("Empty source") { setup.Context.Add<Execution::Data::Source>(Source{}); }
     REQUIRE_FALSE(setup.Prepare());
@@ -1128,6 +1127,7 @@ TEST_CASE("PackageDeduplication_SelectionFallback", "[PackageDeduplication][Pack
 
 TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][SourcePriority][workflow]")
 {
+    auto operation = GENERATE(OperationType::Install, OperationType::Download, OperationType::Show);
     bool tied = GENERATE(false, true);
     PackageDeduplicationTestSetup setup{ 3 };
     auto previousThreadGlobals = setup.Context.SetForCurrentThread();
@@ -1136,7 +1136,7 @@ TEST_CASE("PackageDeduplication_SelectionPriority", "[PackageDeduplication][Sour
     setup.Sources[1]->Details.Priority = tied ? 10 : 0;
     setup.Sources[2]->Details.Priority = -1;
     std::reverse(setup.Context.Get<Execution::Data::SearchResult>().Matches.begin(), setup.Context.Get<Execution::Data::SearchResult>().Matches.end());
-    setup.Context << EnsureOneMatchFromSearchResult(OperationType::Show, PackageSelectionBehavior::Deduplicate);
+    setup.Context << EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Deduplicate);
     REQUIRE_FALSE(setup.Context.IsTerminated());
     REQUIRE(setup.Context.Get<Execution::Data::Package>() == setup.Packages[0]);
     REQUIRE(setup.Context.Contains(Execution::Data::PackageVersion) == tied);

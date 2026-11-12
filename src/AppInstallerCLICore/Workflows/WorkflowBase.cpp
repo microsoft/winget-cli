@@ -162,7 +162,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::set<std::string> candidateIdentifiers;
-            std::optional<int32_t> priority;
             size_t selectedIndex = 0;
             size_t selectedSourceIndex = sources.size();
             for (size_t i = 0; i < result.Matches.size(); ++i)
@@ -191,12 +190,6 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return skip("missing, unopened, or repeated candidate source identity");
                 }
-
-                if (priority && *priority != opened->GetDetails().Priority)
-                {
-                    return skip("results have not been filtered by source priority");
-                }
-                priority = opened->GetDetails().Priority;
 
                 size_t sourceIndex = static_cast<size_t>(std::distance(sources.begin(), opened));
                 if (sourceIndex < selectedSourceIndex)
