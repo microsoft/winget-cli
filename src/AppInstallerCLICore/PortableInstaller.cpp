@@ -101,10 +101,28 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    void PortableInstaller::InstallFile(AppInstaller::Portable::PortableFileEntry& entry)
+    void PortableInstaller::InstallFile(AppInstaller::Portable::PortableFileEntry& entry, PortableIndex* index)
     {
         PortableFileType fileType = entry.FileType;
         std::filesystem::path filePath = entry.GetFilePath();
+
+        if (fileType == PortableFileType::Directory && std::filesystem::exists(filePath))
+        {
+            THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS),
+                !std::filesystem::is_directory(filePath) || !std::filesystem::is_empty(filePath),
+                "Portable directory target already exists: %ls", filePath.c_str());
+        }
+        else if (fileType == PortableFileType::Symlink && !BinariesDependOnPath && std::filesystem::is_directory(filePath))
+        {
+            AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
+            THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
+        }
+
+        if (index)
+        {
+            index->AddOrUpdatePortableFile(entry);
+        }
+        m_cleanupEntries.push_back(entry);
 
         if (entry.FileType == PortableFileType::File)
         {
@@ -115,9 +133,6 @@ namespace AppInstaller::CLI::Portable
             }
 
             AICLI_LOG(Core, Info, << "Moving portable exe to: " << filePath);
-
-            // Include partial replacements if moving or copying to the now-vacant target fails.
-            m_cleanupEntries.push_back(entry);
 
             if (!RecordToIndex)
             {
@@ -131,9 +146,6 @@ namespace AppInstaller::CLI::Portable
         {
             if (std::filesystem::exists(filePath))
             {
-                THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS),
-                    !std::filesystem::is_directory(filePath) || !std::filesystem::is_empty(filePath),
-                    "Portable directory target already exists: %ls", filePath.c_str());
                 std::filesystem::remove(filePath);
             }
 
@@ -141,14 +153,12 @@ namespace AppInstaller::CLI::Portable
             {
                 AICLI_LOG(Core, Info, << "Renaming directory to: " << filePath);
                 std::filesystem::rename(entry.CurrentPath, filePath);
-                m_cleanupEntries.push_back(entry);
             }
             else
             {
                 // Copy directory instead of renaming as there is a known issue with renaming across drives.
                 AICLI_LOG(Core, Info, << "Copying directory to: " << filePath);
                 THROW_WIN32_IF(ERROR_ALREADY_EXISTS, !std::filesystem::create_directory(filePath));
-                m_cleanupEntries.push_back(entry);
                 std::filesystem::copy(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
             }
         }
@@ -161,8 +171,6 @@ namespace AppInstaller::CLI::Portable
             }
 
             AICLI_LOG(Core, Info, << "Creating hardlink at: " << filePath << " pointing to: " << entry.CurrentPath);
-
-            m_cleanupEntries.push_back(entry);
 
             // Try to create hardlink
             if (Filesystem::CreateHardlink(entry.CurrentPath, filePath))
@@ -191,7 +199,6 @@ namespace AppInstaller::CLI::Portable
                 // Skip symlink creation for portables dependent on binaries that require the install directory to be added to PATH.
                 std::filesystem::path installDirectory = symlinkTargetPath.parent_path();
                 AddToPathVariable(installDirectory);
-                m_cleanupEntries.push_back(entry);
                 // Only remove the links directory if there are no links in it
                 RemoveFromPathVariable(GetPortableLinksLocation(GetScope()), true);
                 AICLI_LOG(Core, Info, << "Install directory added to PATH: " << installDirectory);
@@ -199,13 +206,6 @@ namespace AppInstaller::CLI::Portable
             }
             else
             {
-                std::filesystem::file_status status = std::filesystem::status(filePath);
-                if (std::filesystem::is_directory(status))
-                {
-                    AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
-                    THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
-                }
-
                 if (!RecordToIndex)
                 {
                     CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, filePath);
@@ -216,8 +216,6 @@ namespace AppInstaller::CLI::Portable
                     AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
                     m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
                 }
-
-                m_cleanupEntries.push_back(entry);
 
                 if (Filesystem::CreateSymlink(symlinkTargetPath, filePath))
                 {
@@ -365,28 +363,14 @@ namespace AppInstaller::CLI::Portable
 
             for (auto desiredEntry : m_desiredEntries)
             {
-                const auto cleanupEntryCount = m_cleanupEntries.size();
-                try
-                {
-                    InstallFile(desiredEntry);
-                }
-                catch (...)
-                {
-                    // Upgrades retain their registration on failure, so persist owned partial targets for later reconciliation.
-                    if (m_cleanupEntries.size() > cleanupEntryCount)
-                    {
-                        targetIndex.AddOrUpdatePortableFile(desiredEntry);
-                    }
-                    throw;
-                }
-                targetIndex.AddOrUpdatePortableFile(desiredEntry);
+                InstallFile(desiredEntry, &targetIndex);
             }
         }
         else
         {
             for (auto desiredEntry : m_desiredEntries)
             {
-                InstallFile(desiredEntry);
+                InstallFile(desiredEntry, nullptr);
             }
         }
     }

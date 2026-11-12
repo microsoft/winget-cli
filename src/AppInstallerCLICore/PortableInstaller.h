@@ -9,6 +9,11 @@
 
 using namespace AppInstaller::Registry::Portable;
 
+namespace AppInstaller::Repository::Microsoft
+{
+    struct PortableIndex;
+}
+
 namespace AppInstaller::CLI::Portable
 {
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope);
@@ -101,7 +106,7 @@ namespace AppInstaller::CLI::Portable
         PortableARPEntry m_portableARPEntry;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
         std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
-        // Rollback owns only destinations vacated or created by this installation.
+        // Rollback includes validated targets whose installation was attempted.
         std::vector<AppInstaller::Portable::PortableFileEntry> m_cleanupEntries;
         std::stringstream m_stream;
 
@@ -117,7 +122,7 @@ namespace AppInstaller::CLI::Portable
 
         void ApplyDesiredState();
         void RemoveExpectedState();
-        void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
+        void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState, Repository::Microsoft::PortableIndex* index);
         void RemoveFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
         bool CreateTargetInstallDirectory();

@@ -195,12 +195,16 @@ TEST_CASE("PortableInstaller_RollbackPreservesUnappliedDirectories", "[PortableI
 
 TEST_CASE("PortableInstaller_RollbackHandlesFailedReplacement", "[PortableInstaller]")
 {
+    const bool directoryEntry = GENERATE(false, true);
+    CAPTURE(directoryEntry);
     const std::string productCode = "PortableUnindexedReplacementTest";
     TempDirectory installRoot("PortableUnindexedReplacementRoot", false);
     TempFile source("PortableUnindexedReplacementSource.txt");
     std::ofstream(source.GetPath()) << "source";
     const auto targetPath = installRoot.GetPath() / "missing.txt";
-    auto desiredEntry = PortableFileEntry::CreateFileEntry(source.GetPath(), targetPath, {});
+    auto desiredEntry = directoryEntry ?
+        PortableFileEntry::CreateDirectoryEntry(source.GetPath(), targetPath) :
+        PortableFileEntry::CreateFileEntry(source.GetPath(), targetPath, {});
     std::filesystem::remove(source.GetPath());
 
     PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
@@ -210,6 +214,10 @@ TEST_CASE("PortableInstaller_RollbackHandlesFailedReplacement", "[PortableInstal
     installer.RecordToIndex = true;
     installer.SetDesiredState({ desiredEntry });
     REQUIRE_THROWS(installer.Install());
+    if (directoryEntry)
+    {
+        REQUIRE_FALSE(std::filesystem::exists(targetPath));
+    }
 
     {
         const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
@@ -218,6 +226,70 @@ TEST_CASE("PortableInstaller_RollbackHandlesFailedReplacement", "[PortableInstal
     }
     installer.PrepareForCleanUp();
     REQUIRE_NOTHROW(installer.Uninstall());
+    REQUIRE_FALSE(std::filesystem::exists(installRoot.GetPath()));
+}
+
+TEST_CASE("PortableInstaller_IndexFailureDoesNotInstallFile", "[PortableInstaller]")
+{
+    const std::string productCode = "PortableIndexFailureTest";
+    TempDirectory installRoot("PortableIndexFailureRoot", true);
+    TempFile source("PortableIndexFailureSource.txt");
+    std::ofstream(source.GetPath()) << "replacement";
+    const auto targetPath = installRoot.GetPath() / "existing.txt";
+    std::ofstream(targetPath) << "original";
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.TargetInstallLocation = installRoot.GetPath();
+    installer.RecordToIndex = true;
+    installer.SetDesiredState({ PortableFileEntry::CreateFileEntry(source.GetPath(), targetPath, {}) });
+
+    const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
+    {
+        auto index = PortableIndex::CreateNew(indexPath.u8string());
+    }
+    {
+        auto connection = Connection::Create(indexPath.u8string(), Connection::OpenDisposition::ReadWrite);
+        Statement::Create(connection,
+            "CREATE TRIGGER FailPortableInsert BEFORE INSERT ON portable "
+            "BEGIN SELECT RAISE(ABORT, 'Test index failure'); END;").Execute();
+    }
+
+    REQUIRE_THROWS(installer.Install());
+    REQUIRE(std::filesystem::exists(source.GetPath()));
+    installer.PrepareForCleanUp();
+    REQUIRE_NOTHROW(installer.Uninstall());
+    REQUIRE_FALSE(std::filesystem::exists(indexPath));
+    std::ifstream targetFile(targetPath);
+    std::string contents;
+    std::getline(targetFile, contents);
+    REQUIRE(contents == "original");
+}
+
+TEST_CASE("PortableInstaller_UninstallRemovesMissingIndexedEntries", "[PortableInstaller]")
+{
+    const std::string productCode = "PortableMissingIndexedEntriesTest";
+    TempDirectory installRoot("PortableMissingIndexedEntriesRoot", false);
+    PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    PortableInstaller installer(ScopeEnum::User, Architecture::X64, productCode, OperationType::Install);
+    installer.TargetInstallLocation = installRoot.GetPath();
+    installer.RecordToIndex = true;
+    installer.Install();
+
+    {
+        const auto indexPath = installRoot.GetPath() / installer.GetPortableIndexFileName();
+        auto index = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+        const auto missingFile = installRoot.GetPath() / "missing.exe";
+        index.AddPortableFile(PortableFileEntry::CreateFileEntry({}, missingFile, std::string(64, '0')));
+        index.AddPortableFile(PortableFileEntry::CreateHardlinkEntry(installRoot.GetPath() / "alias.exe", missingFile));
+        index.AddPortableFile(PortableFileEntry::CreateSymlinkEntry(installRoot.GetPath() / "link.exe", missingFile));
+        index.AddPortableFile(PortableFileEntry::CreateDirectoryEntry({}, installRoot.GetPath() / "missing"));
+    }
+
+    PortableInstaller uninstaller(ScopeEnum::User, Architecture::X64, productCode, OperationType::Uninstall);
+    REQUIRE(uninstaller.VerifyExpectedState());
+    REQUIRE_NOTHROW(uninstaller.Uninstall());
     REQUIRE_FALSE(std::filesystem::exists(installRoot.GetPath()));
 }
 
