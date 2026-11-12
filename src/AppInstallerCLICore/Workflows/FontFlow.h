@@ -11,15 +11,22 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportInstalledFonts(Execution::Context& context);
 
+    // Checks elevation support before font installation consumes installed state.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureSupportForFontInstall(Execution::Context& context);
+
     // Installs the font package.
     // Required Args: None
-    // Inputs: Manifest, Scope, Rename, Location
+    // Inputs: Manifest, Installer, InstallerPath
     // Outputs: None
     void FontInstallImpl(Execution::Context& context);
 
     // Uninstalls the font package.
+    // Checks both the selected package scope and the effective target scope before using installed data.
     // Required Args: None
-    // Inputs: Manifest, Scope, Rename, Location
+    // Inputs: InstalledPackageVersion, Manifest?
     // Outputs: None
     void FontUninstallImpl(Execution::Context& context);
 }

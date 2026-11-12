@@ -630,8 +630,23 @@ namespace AppInstaller::Filesystem
         return knownFolder.get();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsSameVolume_TestHook_Override = nullptr;
+
+    void TestHook_SetIsSameVolume_Override(bool* result)
+    {
+        s_IsSameVolume_TestHook_Override = result;
+    }
+#endif
+
     bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsSameVolume_TestHook_Override)
+        {
+            return *s_IsSameVolume_TestHook_Override;
+        }
+#endif
         WCHAR volumeName1[MAX_PATH];
         WCHAR volumeName2[MAX_PATH];
 

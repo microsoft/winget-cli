@@ -77,6 +77,7 @@ namespace AppInstaller
     namespace Filesystem
     {
         void TestHook_SetCreateSymlinkResult_Override(bool* status);
+        void TestHook_SetIsSameVolume_Override(bool* result);
     }
 
     namespace Archive

@@ -955,6 +955,18 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msix;
     }
 
+    bool InstallerDataWritableUnelevatedForUserScope(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::MSStore:
+            return false;
+        default:
+            return true;
+        }
+    }
+
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType)
     {
         return
