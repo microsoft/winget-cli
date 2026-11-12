@@ -88,11 +88,11 @@ jobs:
 
   - template: prime-windows-update.yml
 
-  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
     workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests
 
-  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest -StaticFileRootPath $(buildOutDir)\E2ETests\TestLocalIndex
     workingDirectory: $(wingetSourceRoot)\src\PowerShell\tests\
     displayName: Run Windows PowerShell Tests
     condition: succeededOrFailed()
