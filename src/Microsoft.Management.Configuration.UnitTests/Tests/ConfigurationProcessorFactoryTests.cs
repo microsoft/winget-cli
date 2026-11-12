@@ -45,7 +45,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_Test()
         {
-            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
+            {
+                ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
+            };
 
             var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
@@ -66,7 +69,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_Properties_PsModulePath()
         {
-            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
+            {
+                ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
+            };
 
             var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
@@ -99,7 +105,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [InlineData(PowerShellConfigurationProcessorLocation.Custom)]
         public void CreateSetProcessor_WinGetPath(PowerShellConfigurationProcessorLocation location)
         {
-            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
+            {
+                ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
+            };
 
             var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.Location = location;
@@ -253,7 +262,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_CustomLocation()
         {
-            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
+            {
+                ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
+            };
 
             var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.Location = PowerShellConfigurationProcessorLocation.Custom;
@@ -274,7 +286,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_LimitMode()
         {
-            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
+            {
+                ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
+            };
             var configurationSet = new ConfigurationSet();
             configurationProcessorFactory.LimitationSet = configurationSet;
 
