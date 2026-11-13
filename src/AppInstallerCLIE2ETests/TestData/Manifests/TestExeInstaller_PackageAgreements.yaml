@@ -1,0 +1,30 @@
+# Manifest for verifying package agreement consent. Uses a unique product code so that it does not collide with other test packages.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.singleton.1.5.0.schema.json
+
+PackageIdentifier: AppInstallerTest.PackageAgreements
+PackageVersion: 1.0.0.0
+PackageName: TestPackageAgreements
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: Test package with agreements
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    ProductCode: '{3B911E81-F86F-41DD-8FEA-C9B43B281FB9}'
+    InstallerSwitches:
+      Custom: '/ProductID {3B911E81-F86F-41DD-8FEA-C9B43B281FB9} /DisplayName TestPackageAgreements'
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+Agreements:
+  - AgreementLabel: testAgreementLabel
+    Agreement: testAgreementText
+    AgreementUrl: https://testAgreementUrl.net
+ManifestType: singleton
+ManifestVersion: 1.5.0

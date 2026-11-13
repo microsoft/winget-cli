@@ -375,7 +375,7 @@ Describe 'Package agreements' {
     BeforeAll {
         AddTestSource
 
-        $agreementsPackageId = 'AppInstallerTest.CatalogPackageMetadata'
+        $agreementsPackageId = 'AppInstallerTest.PackageAgreements'
 
         # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
         $canPrompt = [Environment]::UserInteractive -and
