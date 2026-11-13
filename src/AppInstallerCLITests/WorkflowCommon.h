@@ -82,6 +82,7 @@ namespace TestCommon
             Target(t), Override(o), ExpectedUseCount(expectedUseCount) {}
 
         // -1 means no check on actual use count, as long as it's used.
+        // 0 requires the override to remain unused.
         int ExpectedUseCount = -1;
         int UseCount = 0;
         AppInstaller::CLI::Workflow::WorkflowTask Target;
