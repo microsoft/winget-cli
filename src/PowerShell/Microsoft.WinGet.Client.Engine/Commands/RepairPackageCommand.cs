@@ -120,6 +120,21 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
+        private static PackageVersionInfo? GetRepairVersionInfo(CatalogPackage package)
+        {
+            // Repair uses the available version matching the installed one, when there is one.
+            string? installedVersion = package.InstalledVersion?.Version;
+            for (int i = 0; i < package.AvailableVersions.Count; ++i)
+            {
+                if (package.AvailableVersions[i].Version == installedVersion)
+                {
+                    return package.GetPackageVersionInfo(package.AvailableVersions[i]);
+                }
+            }
+
+            return package.DefaultInstallVersion;
+        }
+
         private RepairOptions GetRepairOptions(
             PackageVersionId? version,
             PackageRepairMode repairMode)
@@ -144,21 +159,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             return options;
-        }
-
-        private static PackageVersionInfo? GetRepairVersionInfo(CatalogPackage package)
-        {
-            // Repair uses the available version matching the installed one, when there is one.
-            string? installedVersion = package.InstalledVersion?.Version;
-            for (int i = 0; i < package.AvailableVersions.Count; ++i)
-            {
-                if (package.AvailableVersions[i].Version == installedVersion)
-                {
-                    return package.GetPackageVersionInfo(package.AvailableVersions[i]);
-                }
-            }
-
-            return package.DefaultInstallVersion;
         }
 
         private async Task<RepairResult> RepairPackageAsync(
