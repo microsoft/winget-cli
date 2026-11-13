@@ -194,8 +194,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 }
             }
 
-            // Searches of installed packages can continue without any remote source.
-            if (anyExcluded && options.Catalogs.Count == 0 && behavior != CompositeSearchBehavior.LocalCatalogs)
+            // Searches that include installed packages can continue without any remote source.
+            if (anyExcluded && options.Catalogs.Count == 0 &&
+                (behavior == CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs || behavior == CompositeSearchBehavior.RemotePackagesFromAllCatalogs))
             {
                 throw new NoSourcesAvailableException();
             }
