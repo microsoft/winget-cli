@@ -21,6 +21,9 @@ Asn
 aspirational
 Authenticode
 AUTOLISTEN
+axhline
+axvline
+axvspan
 azureedge
 Bawa
 binlog
@@ -79,6 +82,7 @@ distro
 dllmain
 dotnet
 downloaders
+dpi
 dsx
 DWORDLONG
 EApp
@@ -107,6 +111,7 @@ FAILIFTHERE
 fakeswitch
 FATALEXIT
 FIELDTAG
+figsize
 FILEFLAGS
 FILEFLAGSMASK
 FILEOS
@@ -117,6 +122,7 @@ florelis
 FLUSHEACHLINE
 fnt
 forcerestart
+fsum
 gdi
 genai
 HCCE
@@ -157,11 +163,14 @@ IPinning
 ipmo
 IPortable
 ISAPPROVEDFOROUTPUT
+isclose
+isfinite
 IUnknown
 JDKs
 langutil
 lastwritetime
 LCIDTo
+linestyle
 lnk
 LOGONLYONERROR
 LOGPATH
@@ -176,6 +185,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+matplotlib
 mcp
 Memberwise
 meme
@@ -305,6 +315,7 @@ ruleset
 runas
 runsettings
 SANITIZERS
+savefig
 Screenshot
 screenshots
 SCROLLVIEWER
@@ -353,6 +364,7 @@ subresource
 subselect
 substr
 SUPPRESSMSGBOXES
+suptitle
 SWIPECONTROL
 SYMED
 symlinktarget
@@ -447,8 +459,12 @@ wtypesbase
 Xamarin
 Xbox
 XElement
+xlabel
 Xlang
 XResource
 XTOKEN
 xunit
 whatif
+yaxis
+ylabel
+yticks
