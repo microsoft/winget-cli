@@ -29,7 +29,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// </summary>
         public const string AcceptPackageAgreementsParameter = "-AcceptPackageAgreements";
 
-        private const int ENoInterface = unchecked((int)0x80004002);
+        private const int NoInterfaceHResult = unchecked((int)0x80004002);
 
         /// <summary>
         /// The result of obtaining consent.
@@ -61,7 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>True if the server is older than the member.</returns>
         public static bool IsMissingContract(Exception e)
         {
-            return e is InvalidCastException || (e is COMException && e.HResult == ENoInterface);
+            return e is InvalidCastException || (e is COMException && e.HResult == NoInterfaceHResult);
         }
 
         /// <summary>

@@ -379,7 +379,7 @@ Describe 'Package agreements' {
 
         # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
         $canPrompt = [Environment]::UserInteractive -and
-            -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -match '^[-/]noni' })
+            -not ([Environment]::GetCommandLineArgs() | Where-Object { $arg = $_.TrimStart('-', '/'); $arg.Length -ge 4 -and 'NonInteractive'.StartsWith($arg, [StringComparison]::OrdinalIgnoreCase) })
     }
 
     It 'Install with AcceptPackageAgreements shows the agreements' {
@@ -428,7 +428,7 @@ Describe 'Source agreements' {
 
         # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
         $canPrompt = [Environment]::UserInteractive -and
-            -not ([Environment]::GetCommandLineArgs() | Where-Object { $_ -match '^[-/]noni' })
+            -not ([Environment]::GetCommandLineArgs() | Where-Object { $arg = $_.TrimStart('-', '/'); $arg.Length -ge 4 -and 'NonInteractive'.StartsWith($arg, [StringComparison]::OrdinalIgnoreCase) })
 
         function WriteAgreementsSourceInformation([string]$agreementsIdentifier, [switch]$RequiresMarket) {
             $data = [ordered]@{

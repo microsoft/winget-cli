@@ -457,7 +457,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The agreements above were accepted because the user cannot be prompted. This beh[rest of string was truncated].
+        ///   Looks up a localized string similar to The agreements above were accepted because the user cannot be prompted. This behavior is deprecated; a future release will not accept agreements unless {0} is specified..
         /// </summary>
         internal static string AgreementsAcceptedNonInteractive {
             get {
@@ -466,7 +466,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The agreements above were accepted because the installed version of WinGet does [rest of string was truncated].
+        ///   Looks up a localized string similar to The agreements above were accepted because the installed version of WinGet does not support recording their acceptance. This behavior is deprecated; a future release will not accept agreements unless {0} is specified..
         /// </summary>
         internal static string AgreementsAcceptedUnsupported {
             get {
@@ -475,7 +475,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No sources are available. The agreements of every source were either not accepte[rest of string was truncated].
+        ///   Looks up a localized string similar to No sources are available. The agreements of every source were either not accepted or could not be read..
         /// </summary>
         internal static string NoSourcesAvailableExceptionMessage {
             get {
@@ -502,7 +502,8 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The publisher requires that you view the above information and accept the agreem[rest of string was truncated].
+        ///   Looks up a localized string similar to The publisher requires that you view the above information and accept the agreements before installing.
+        ///Do you agree to the terms?.
         /// </summary>
         internal static string PackageAgreementsPrompt {
             get {
@@ -556,7 +557,7 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The source requires the current machine&apos;s 2-letter geographic region to be [rest of string was truncated].
+        ///   Looks up a localized string similar to The source requires the current machine&apos;s 2-letter geographic region to be sent to the backend service to function properly (ex. &quot;US&quot;)..
         /// </summary>
         internal static string SourceAgreementsMarketMessage {
             get {
