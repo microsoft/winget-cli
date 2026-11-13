@@ -446,5 +446,159 @@ namespace Microsoft.WinGet.Resources {
                 return ResourceManager.GetString("WinGetCLITimeoutExceptionMessage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements above were accepted because {0} was specified..
+        /// </summary>
+        internal static string AgreementsAcceptedByParameter {
+            get {
+                return ResourceManager.GetString("AgreementsAcceptedByParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements above were accepted because the user cannot be prompted. This behavior is deprecated; a future release will not accept agreements unless {0} is specified..
+        /// </summary>
+        internal static string AgreementsAcceptedNonInteractive {
+            get {
+                return ResourceManager.GetString("AgreementsAcceptedNonInteractive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements above were accepted because the installed version of WinGet does not support recording their acceptance. This behavior is deprecated; a future release will not accept agreements unless {0} is specified..
+        /// </summary>
+        internal static string AgreementsAcceptedUnsupported {
+            get {
+                return ResourceManager.GetString("AgreementsAcceptedUnsupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No sources are available. The agreements of every source were either not accepted or could not be read..
+        /// </summary>
+        internal static string NoSourcesAvailableExceptionMessage {
+            get {
+                return ResourceManager.GetString("NoSourcesAvailableExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements for {0} were not accepted. Operation cancelled..
+        /// </summary>
+        internal static string PackageAgreementsNotAcceptedExceptionMessage {
+            get {
+                return ResourceManager.GetString("PackageAgreementsNotAcceptedExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package agreements.
+        /// </summary>
+        internal static string PackageAgreementsCaption {
+            get {
+                return ResourceManager.GetString("PackageAgreementsCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The publisher requires that you view the above information and accept the agreements before installing.
+        ///Do you agree to the terms?.
+        /// </summary>
+        internal static string PackageAgreementsPrompt {
+            get {
+                return ResourceManager.GetString("PackageAgreementsPrompt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agreements for {0}.
+        /// </summary>
+        internal static string PackageAgreementsTitle {
+            get {
+                return ResourceManager.GetString("PackageAgreementsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements for {0} could not be read..
+        /// </summary>
+        internal static string PackageAgreementsUnavailableExceptionMessage {
+            get {
+                return ResourceManager.GetString("PackageAgreementsUnavailableExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} [{1}] Version {2}.
+        /// </summary>
+        internal static string PackageVersionDescription {
+            get {
+                return ResourceManager.GetString("PackageVersionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source agreements.
+        /// </summary>
+        internal static string SourceAgreementsCaption {
+            get {
+                return ResourceManager.GetString("SourceAgreementsCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The `{0}` source was not used because its agreements were not accepted..
+        /// </summary>
+        internal static string SourceAgreementsDeclined {
+            get {
+                return ResourceManager.GetString("SourceAgreementsDeclined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The source requires the current machine&apos;s 2-letter geographic region to be sent to the backend service to function properly (ex. &quot;US&quot;)..
+        /// </summary>
+        internal static string SourceAgreementsMarketMessage {
+            get {
+                return ResourceManager.GetString("SourceAgreementsMarketMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you agree to all the source agreements terms?.
+        /// </summary>
+        internal static string SourceAgreementsPrompt {
+            get {
+                return ResourceManager.GetString("SourceAgreementsPrompt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The `{0}` source requires that you view the following agreements before using..
+        /// </summary>
+        internal static string SourceAgreementsTitle {
+            get {
+                return ResourceManager.GetString("SourceAgreementsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The `{0}` source was not used because its agreements could not be read: {1}.
+        /// </summary>
+        internal static string SourceAgreementsUnavailable {
+            get {
+                return ResourceManager.GetString("SourceAgreementsUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The agreements of the `{0}` source could not be read, so they were not shown. The source was used because the installed version of WinGet does not support source agreements. Error: {1}.
+        /// </summary>
+        internal static string SourceAgreementsUnavailableUnsupported {
+            get {
+                return ResourceManager.GetString("SourceAgreementsUnavailableUnsupported", resourceCulture);
+            }
+        }
     }
 }

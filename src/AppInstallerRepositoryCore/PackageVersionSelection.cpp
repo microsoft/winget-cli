@@ -305,4 +305,72 @@ namespace AppInstaller::Repository
 
         return std::nullopt;
     }
+
+    bool IsAvailableVersionRequiredForRepair(const std::shared_ptr<ICompositePackage>& composite, const std::shared_ptr<IPackageVersion>& installedVersion)
+    {
+        std::string installedType = installedVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
+
+        switch (Manifest::ConvertToInstallerTypeEnum(installedType))
+        {
+        case Manifest::InstallerTypeEnum::Msi:
+            return false;
+        case Manifest::InstallerTypeEnum::Msix:
+            if (composite)
+            {
+                auto availablePackages = composite->GetAvailable();
+                return availablePackages.size() == 1 && availablePackages[0]->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore);
+            }
+
+            return false;
+        default:
+            return true;
+        }
+    }
+
+    std::optional<PackageVersionKey> GetRepairVersionKey(
+        const std::shared_ptr<ICompositePackage>& composite,
+        const std::shared_ptr<IPackageVersion>& installedVersion,
+        std::string_view requestedVersion,
+        std::string_view requestedChannel)
+    {
+        Utility::Version installed{ installedVersion->GetProperty(PackageVersionProperty::Version) };
+        if (installed.IsUnknown())
+        {
+            return std::nullopt;
+        }
+
+        std::string version{ requestedVersion.empty() ? std::string_view{ installed.ToString() } : requestedVersion };
+
+        // If it's Store source with only one version unknown, use the unknown version for available version mapping.
+        auto packageVersions = GetAvailableVersionsForInstalledVersion(composite, installedVersion);
+        auto versionKeys = packageVersions->GetVersionKeys();
+        if (versionKeys.size() == 1)
+        {
+            auto packageVersion = packageVersions->GetVersion(versionKeys.at(0));
+            if (packageVersion && packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore) &&
+                Utility::Version{ packageVersion->GetProperty(PackageVersionProperty::Version) }.IsUnknown())
+            {
+                version.clear();
+            }
+        }
+
+        return PackageVersionKey{ "", version, std::string{ requestedChannel } };
+    }
+
+    std::shared_ptr<IPackageVersion> GetRepairVersion(const std::shared_ptr<ICompositePackage>& composite)
+    {
+        auto installedVersion = GetInstalledVersion(composite);
+        if (!installedVersion || !IsAvailableVersionRequiredForRepair(composite, installedVersion))
+        {
+            return {};
+        }
+
+        auto key = GetRepairVersionKey(composite, installedVersion);
+        if (!key)
+        {
+            return {};
+        }
+
+        return GetAvailableVersionsForInstalledVersion(composite, installedVersion)->GetVersion(key.value());
+    }
 }

@@ -60,6 +60,7 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Moniker,
                         this.Source,
                         this.Query);
+            this.command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
             this.command.Uninstall(this.MatchOption.ToString(), this.Mode.ToString(), this.Force.ToBool());
         }
 

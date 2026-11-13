@@ -237,29 +237,13 @@ namespace AppInstaller::CLI::Workflow
 
         bool IsInstallerMappingRequired(Execution::Context& context)
         {
-            InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
-
-            switch (installerTypeEnum)
+            std::shared_ptr<ICompositePackage> package;
+            if (context.Contains(Execution::Data::Package))
             {
-            case InstallerTypeEnum::Msi:
-                return false;
-            case InstallerTypeEnum::Msix:
-                // For MSIX packages that are from the Microsoft Store, selecting an installer is required.
-                if (context.Contains(Execution::Data::Package))
-                {
-                    auto availablePackages = context.Get<Execution::Data::Package>()->GetAvailable();
-
-                    if (availablePackages.size() == 1 && availablePackages[0]->GetSource() == WellKnownSource::MicrosoftStore)
-                    {
-                        return true;
-                    }
-                }
-
-                // For MSIX packages that are not from the Microsoft Store, selecting an installer is not required.
-                return false;
-            default:
-                return true;
+                package = context.Get<Execution::Data::Package>();
             }
+
+            return IsAvailableVersionRequiredForRepair(package, context.Get<Execution::Data::InstalledPackageVersion>());
         }
 
         void HandleModifyOrUninstallerRepair(Execution::Context& context, RepairBehaviorEnum repairBehavior)
@@ -472,33 +456,17 @@ namespace AppInstaller::CLI::Workflow
         }
 
         const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        std::string_view targetVersion = context.Args.Contains(Execution::Args::Type::TargetVersion) ? context.Args.GetArg(Execution::Args::Type::TargetVersion) : std::string_view{};
+        std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
 
-        Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
-        if (installedVersion.IsUnknown())
+        auto key = GetRepairVersionKey(context.Get<Execution::Data::Package>(), installedPackage, targetVersion, channel);
+        if (!key)
         {
             context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        std::string_view requestedVersion = context.Args.Contains(Execution::Args::Type::TargetVersion) ? context.Args.GetArg(Execution::Args::Type::TargetVersion) : installedVersion.ToString();
-        // If it's Store source with only one version unknown, use the unknown version for available version mapping.
-        const auto& package = context.Get<Execution::Data::Package>();
-        auto packageVersions = GetAvailableVersionsForInstalledVersion(package, installedPackage);
-        auto versionKeys = packageVersions->GetVersionKeys();
-        if (versionKeys.size() == 1)
-        {
-            auto packageVersion = packageVersions->GetVersion(versionKeys.at(0));
-            if (packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore) &&
-                Utility::Version{ packageVersion->GetProperty(PackageVersionProperty::Version) }.IsUnknown())
-            {
-                requestedVersion = "";
-            }
-        }
-
-        context <<
-            GetManifestWithVersionFromPackage(
-                requestedVersion,
-                context.Args.GetArg(Execution::Args::Type::Channel), false);
+        context << GetManifestWithVersionFromPackage(key->Version, key->Channel, false);
     }
 
     void SelectApplicableInstallerIfNecessary(Execution::Context& context)

@@ -17,7 +17,7 @@ Searches for packages from configured sources.
 ```
 Find-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <String>] [-Name <String>]
  [-Moniker <String>] [-Source <String>] [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>]
- [<CommonParameters>]
+ [-AcceptSourceAgreements] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -64,6 +64,26 @@ searches all configured sources. The command performs a case-sensitive full text
 **PackageIdentifier** property of the packages.
 
 ## PARAMETERS
+
+### -AcceptSourceAgreements
+
+Accepts the agreements of every source that is searched. When the agreements of a source have not
+been accepted before, they are shown as a warning and the acceptance is recorded, so later commands
+don't ask again. Without this parameter, an interactive session asks you to accept or decline them;
+declined sources are excluded from the search. In a non-interactive session, the agreements are
+currently accepted and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Command
 

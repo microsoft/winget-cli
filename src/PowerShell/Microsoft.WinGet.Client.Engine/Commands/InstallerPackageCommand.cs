@@ -105,6 +105,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
                     async (package, version) =>
                     {
+                        this.ObtainPackageAgreementsConsent(package, version != null ? package.GetPackageVersionInfo(version) : package.DefaultInstallVersion);
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         if (!PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
@@ -151,6 +152,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
                     async (package, version) =>
                     {
+                        this.ObtainPackageAgreementsConsent(package, version != null ? package.GetPackageVersionInfo(version) : package.DefaultInstallVersion);
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         options.AllowUpgradeToUnknownVersion = includeUnknown;
 

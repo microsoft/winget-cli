@@ -65,5 +65,11 @@ namespace Microsoft.WinGet.Client.Commands.Common
             ParameterSetName = Constants.FoundSet,
             ValueFromPipelineByPropertyName = true)]
         public PSPackageFieldMatchOption MatchOption { get; set; } = PSPackageFieldMatchOption.ContainsCaseInsensitive;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to accept the source agreements without prompting.
+        /// </summary>
+        [Parameter(ParameterSetName = Constants.FoundSet)]
+        public SwitchParameter AcceptSourceAgreements { get; set; }
     }
 }

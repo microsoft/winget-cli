@@ -81,6 +81,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             options.SkipDependencies = this.SkipDependencies;
             options.Force = this.Force;
             options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
+
+            // Consent to the package agreements is obtained before the options are created.
+            options.AcceptPackageAgreements = true;
             if (version != null)
             {
                 options.PackageVersionId = version;
