@@ -121,12 +121,12 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual([index for index, _ in training], [0])
         self.assertEqual(training[0][1].ages_days[-1], cutoff_days)
 
-    def test_backtesting_detects_a_change_not_visible_before_cutoff(self):
+    def test_back_testing_detects_a_change_not_visible_before_cutoff(self):
         ages = tuple(range(11))
         jump, cutoff_days = 100, 5
         history = self.history(ages=ages, sizes=[
             2 * age + (jump if age > cutoff_days else 0) for age in ages])
-        result = forecast.backtest([history], samples=100, block_days=1, confidence=0.95, seed=7)
+        result = forecast.back_test([history], samples=100, block_days=1, confidence=0.95, seed=7)
         first_cutoff = self.TIMESTAMP + timedelta(days=cutoff_days)
         points = [point for point in result.points if point.cutoff == first_cutoff]
         self.assertTrue(points)

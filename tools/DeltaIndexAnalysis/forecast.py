@@ -16,7 +16,7 @@ SECONDS_PER_DAY = 86400
 class LinearFit:
     intercept: float
     slope: float
-    rmse: float
+    root_mean_square_error: float
     r_squared: float | None
     residuals: tuple
     weights: tuple
@@ -288,7 +288,7 @@ def training_histories(histories, cutoff):
 
 
 @dataclass(frozen=True)
-class BacktestPoint:
+class BackTestPoint:
     cutoff: datetime
     horizon: float
     error: float
@@ -297,14 +297,14 @@ class BacktestPoint:
 
 
 @dataclass(frozen=True)
-class Backtest:
+class BackTest:
     points: tuple
     mean_size_errors: tuple
     folds: int
     unavailable_intervals: tuple
 
 
-def backtest(histories, samples, block_days, confidence, seed):
+def back_test(histories, samples, block_days, confidence, seed):
     start = min(history.timestamp for history in histories)
     end = max(history.timestamp + timedelta(days=history.ages_days[-1]) for history in histories)
     points, mean_errors, unavailable = [], [], []
@@ -343,6 +343,6 @@ def backtest(histories, samples, block_days, confidence, seed):
                 if ensemble.draws:
                     lower, upper = ensemble.prediction_interval(age, confidence)
                     covered = lower <= actual <= upper
-                points.append(BacktestPoint(
+                points.append(BackTestPoint(
                     cutoff, age - cutoff_age, model.predict(age) - actual, weight, covered))
-    return Backtest(tuple(points), tuple(mean_errors), folds, tuple(unavailable))
+    return BackTest(tuple(points), tuple(mean_errors), folds, tuple(unavailable))

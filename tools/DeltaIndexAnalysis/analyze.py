@@ -63,7 +63,7 @@ and stationary point cover all possible minima, including between observations.
 Near-optimal ranges use --near-optimal-percent (default 1% above minimum cost).
 They can be disjoint; they are cost-tolerance ranges, not confidence intervals.
 
-UNCERTAINTY AND BACKTESTING
+UNCERTAINTY AND BACK-TESTING
 ---------------------------
 --bootstrap-samples (default 500) controls reproducible simulations (--seed 42).
 A calendar-block wild residual bootstrap uses one shared random sign per
@@ -80,13 +80,13 @@ history and four calendar blocks are required for intervals. Few blocks/groups
 still give weak estimates. A single overlap group cannot establish uncertainty
 about the population of future lineages. --confidence defaults to 0.95.
 
-Rolling-origin backtests use calendar cutoffs at 50%, 65%, and 80% of the observed
+Rolling-origin back-tests use calendar cutoffs at 50%, 65%, and 80% of the observed
 calendar span. No fit or bootstrap sees observations after its cutoff. Histories
 need three training samples; only already-started histories are evaluated. Reports
 include elapsed-time-weighted prediction errors and pointwise prediction-band
 coverage by forecast horizon, plus errors in held-out window average transfer size.
 Held-out averages treat publications as step functions. Folds can overlap and are
-not independent experiments. Backtesting does not validate unobserved horizons.
+not independent experiments. Back-testing does not validate unobserved horizons.
 
 The model assumes downloads are uniformly distributed within a refresh cycle and
 the supplied histories represent future growth. It models one active baseline,
@@ -301,29 +301,29 @@ def _mb_precision(ticks):
     return 2
 
 
-def print_backtest(result):
-    print("\nChronological backtests (overlapping folds, not independent trials):")
+def print_back_test(result):
+    print("\nChronological back-tests (overlapping folds, not independent trials):")
     if not result.points:
         print("  Unavailable: insufficient training and held-out observations at the calendar cutoffs.")
         return
     print(f"  {result.folds} folds; errors are weighted by elapsed time within each held-out history.")
-    print("  Horizon        Samples    MAE MiB    RMSE MiB    Prediction-band coverage")
+    print("  Horizon        Samples    MAE MiB    Root mean square error MiB    Prediction-band coverage")
     for lower, upper in ((0, 1), (1, 7), (7, 30), (30, math.inf)):
         points = [point for point in result.points if lower < point.horizon <= upper]
         if not points:
             continue
         weight = math.fsum(point.weight for point in points)
         mae = math.fsum(point.weight * abs(point.error) for point in points) / weight
-        rmse = math.sqrt(math.fsum(point.weight * point.error ** 2 for point in points) / weight)
+        root_mean_square_error = math.sqrt(math.fsum(point.weight * point.error ** 2 for point in points) / weight)
         covered = [point for point in points if point.covered is not None]
         coverage = (f"{100 * math.fsum(point.weight * point.covered for point in covered) / math.fsum(point.weight for point in covered):.1f}%"
                     if covered else "unavailable")
         label = f"{lower:g}-{upper:g}d" if math.isfinite(upper) else f">{lower:g}d"
         print(f"  {label:>10}    {len(points):>7}    {mae / BYTES_PER_MB:>7.4f}"
-              f"    {rmse / BYTES_PER_MB:>8.4f}    {coverage} ({len(covered)} samples)")
+              f"    {root_mean_square_error / BYTES_PER_MB:>26.4f}    {coverage} ({len(covered)} samples)")
     mean_mae = math.fsum(abs(error) for error in result.mean_size_errors) / len(result.mean_size_errors)
     print(f"  Held-out window average-size MAE: {mean_mae / BYTES_PER_MB:.4f} MiB (equal history-window weight)")
-    print(f"  Longest backtested forecast horizon: {fmt_days(max(point.horizon for point in result.points))}")
+    print(f"  Longest back-tested forecast horizon: {fmt_days(max(point.horizon for point in result.points))}")
     for reason in result.unavailable_intervals:
         print(f"  Prediction intervals unavailable at {reason}")
 
@@ -332,12 +332,12 @@ def _write_chart(path, model, distribution, optimal, ensemble, description, args
     try:
         import matplotlib
         matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plot
         import matplotlib.ticker as ticker
     except ImportError as error:
         raise ValueError("--output-chart requires matplotlib; install it with pip install matplotlib.") from error
 
-    figure, (growth_axis, cost_axis) = plt.subplots(2, 1, figsize=(13, 9))
+    figure, (growth_axis, cost_axis) = plot.subplots(2, 1, figsize=(13, 9))
     for history in model.histories:
         label = history.timestamp.isoformat()
         line, = growth_axis.step(
@@ -395,7 +395,7 @@ def _write_chart(path, model, distribution, optimal, ensemble, description, args
     try:
         figure.savefig(path, dpi=150)
     finally:
-        plt.close(figure)
+        plot.close(figure)
     print(f"Chart saved to: {path}")
 
 
@@ -427,7 +427,7 @@ def print_analysis(model, distribution, ensemble, optimal, description, args):
         print(f"  History {index}: {history.timestamp.isoformat()}, {len(history.ages_days)} samples")
         print(f"    intercept={fit.intercept / BYTES_PER_MB:.4f} MiB;"
               f" slope={fit.slope / BYTES_PER_MB:.4f} MiB/day;"
-              f" weighted RMSE={fit.rmse / BYTES_PER_MB:.4f} MiB; R^2={r_squared}"
+              f" weighted root mean square error={fit.root_mean_square_error / BYTES_PER_MB:.4f} MiB; R^2={r_squared}"
               + ("; nonnegative constraint active" if fit.constrained else ""))
     print(f"\nRecommendation within search range: {fmt_days(optimal.period)}")
     print(f"  {optimal.cost / BYTES_PER_MB:.4f} MiB / download event;"
@@ -515,12 +515,12 @@ def main():
         optimal = forecast.optimize(model, distribution, args.min_days, args.max_days)
         ensemble = forecast.bootstrap(model, args.bootstrap_samples, args.block_days, args.seed)
         print_analysis(model, distribution, ensemble, optimal, description, args)
-        validation = forecast.backtest(
+        validation = forecast.back_test(
             histories, args.bootstrap_samples, args.block_days, args.confidence, args.seed)
-        print_backtest(validation)
+        print_back_test(validation)
         print("\nIntervals assume linear growth, stationary residuals, and independence between calendar blocks.")
         print("They do not measure uncertainty about a future change in growth pattern.")
-        print("Overlapping baseline delivery is not modeled; unobserved forecast horizons are not backtested.")
+        print("Overlapping baseline delivery is not modeled; unobserved forecast horizons are not back-tested.")
         if args.output_chart:
             _write_chart(args.output_chart, model, distribution, optimal, ensemble, description, args)
     except (OSError, ValueError) as error:
