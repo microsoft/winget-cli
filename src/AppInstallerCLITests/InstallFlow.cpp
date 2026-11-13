@@ -17,8 +17,10 @@
 #include <winget/ManifestYamlParser.h>
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
+#include <Workflows/InstallFlow.h>
 #include <Workflows/MsiInstallFlow.h>
 #include <Workflows/PortableFlow.h>
+#include <Workflows/UninstallFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <PortableInstaller.h>
 
@@ -890,6 +892,38 @@ TEST_CASE("PortableInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")
     {
         REQUIRE_FALSE(context.IsTerminated());
     }
+}
+
+TEST_CASE("PortableInstallFlow_UninstallPreviousBlocksElevatedUserScope", "[InstallFlow][workflow]")
+{
+    const bool uninstallPreviousArg = GENERATE(false, true);
+    CAPTURE(uninstallPreviousArg);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    ManifestInstaller installer;
+    installer.BaseInstallerType = InstallerTypeEnum::Portable;
+    installer.UpdateBehavior = uninstallPreviousArg ? UpdateBehaviorEnum::Install : UpdateBehaviorEnum::UninstallPrevious;
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Add<Data::Installer>(installer);
+    context.Add<Data::InstalledPackageVersion>(TestPackageVersion::Make(
+        Manifest{}, TestPackageVersion::MetadataMap{
+            { AppInstaller::Repository::PackageVersionMetadata::InstalledType, "Portable" },
+            { AppInstaller::Repository::PackageVersionMetadata::InstalledScope, "User" } }));
+    context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    if (uninstallPreviousArg)
+    {
+        context.Args.AddArg(Execution::Args::Type::UninstallPrevious);
+    }
+
+    context.Override({ ExecuteUninstaller, [](TestContext&) { FAIL("Uninstaller must not run"); }, 0 });
+    context.Override({ Workflow::details::PortableInstall, [](TestContext&) { FAIL("Installer must not run"); }, 0 });
+
+    context << ExecuteInstallerForType(InstallerTypeEnum::Portable);
+    INFO(output.str());
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE(output.str().find(Resource::LocString(Resource::String::NoAdminUninstallForUserScopePackage).get()) != std::string::npos);
 }
 
 TEST_CASE("PortableInstallFlow_ElevationRejectedBeforeInitialization", "[InstallFlow][workflow]")

@@ -486,7 +486,7 @@ namespace TestCommon
         {
             for (const auto& wto : *m_overrides)
             {
-                if (wto.UseCount == 0)
+                if (wto.UseCount == 0 && wto.ExpectedUseCount != 0)
                 {
                     FAIL_CHECK("Unused override " + wto.Target.GetName());
                 }
