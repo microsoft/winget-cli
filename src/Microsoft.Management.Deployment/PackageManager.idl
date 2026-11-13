@@ -652,6 +652,15 @@ namespace Microsoft.Management.Deployment
             /// May be null if the package refers only to an installed item.
             Windows.Foundation.IReference<Int32> CatalogPriority { get; };
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 31)]
+        {
+            /// Gets the available version whose manifest is used when repairing the installed version, such as
+            /// to present its agreements before setting RepairOptions.AcceptPackageAgreements.
+            /// Null if the package is not installed, the installed version has no matching available version,
+            /// or the repair does not use an available version (such as for MSI and non-Store MSIX packages).
+            PackageVersionInfo RepairVersion { get; };
+        }
     }
 
     /// IMPLEMENTATION NOTE: CompositeSearchBehavior from winget/RepositorySource.h

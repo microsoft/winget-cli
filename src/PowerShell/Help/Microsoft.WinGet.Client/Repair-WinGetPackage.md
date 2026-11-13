@@ -67,7 +67,7 @@ This example shows how to repair a package using the package name.
 
 ### -AcceptPackageAgreements
 
-Accepts the agreements of the package that is selected. The agreements are shown as a warning.
+Accepts the agreements of the version of the package that the repair uses, which matches the installed version. The agreements are shown as a warning.
 Without this parameter, an interactive session asks you to accept or decline them; declining stops
 the operation for that package. In a non-interactive session, the agreements are currently accepted
 and shown as a warning. A future release will require this parameter instead.

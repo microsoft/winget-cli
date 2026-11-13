@@ -181,4 +181,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return AppInstaller::Repository::GetSourcePriority(m_package);
     }
+
+    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::RepairVersion()
+    {
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> repairVersion = ::AppInstaller::Repository::GetRepairVersion(m_package);
+        if (!repairVersion)
+        {
+            return nullptr;
+        }
+
+        auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
+            winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
+        packageVersionInfoImpl->Initialize(std::move(repairVersion));
+        return *packageVersionInfoImpl;
+    }
 }

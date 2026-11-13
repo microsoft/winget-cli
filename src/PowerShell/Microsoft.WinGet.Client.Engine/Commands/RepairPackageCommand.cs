@@ -98,8 +98,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
                     async (package, version) =>
                     {
-                        this.ObtainPackageAgreementsConsent(package, version != null ? package.GetPackageVersionInfo(version) : GetRepairVersionInfo(package));
-                        var repairOptions = this.GetRepairOptions(version, PSEnumHelpers.ToPackageRepairMode(psPackageRepairMode));
+                        // Repair ignores the requested version, so consent is obtained for the version the repair uses.
+                        bool acceptPackageAgreements = this.ObtainRepairAgreementsConsent(package);
+                        var repairOptions = this.GetRepairOptions(version, PSEnumHelpers.ToPackageRepairMode(psPackageRepairMode), acceptPackageAgreements);
                         return await this.RepairPackageAsync(package, repairOptions);
                     }));
 
@@ -120,24 +121,33 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
-        private static PackageVersionInfo? GetRepairVersionInfo(CatalogPackage package)
+        /// <summary>
+        /// Obtains consent to the agreements of the version that the repair uses.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <returns>Whether the repair may accept the package agreements.</returns>
+        private bool ObtainRepairAgreementsConsent(CatalogPackage package)
         {
-            // Repair uses the available version matching the installed one, when there is one.
-            string? installedVersion = package.InstalledVersion?.Version;
-            for (int i = 0; i < package.AvailableVersions.Count; ++i)
+            PackageVersionInfo? repairVersion;
+
+            try
             {
-                if (package.AvailableVersions[i].Version == installedVersion)
-                {
-                    return package.GetPackageVersionInfo(package.AvailableVersions[i]);
-                }
+                repairVersion = package.RepairVersion;
+            }
+            catch (Exception e) when (AgreementConsent.IsMissingContract(e))
+            {
+                // Older servers cannot identify the version, so the repair fails if it has agreements unless they were accepted by parameter.
+                return this.AcceptPackageAgreements;
             }
 
-            return package.DefaultInstallVersion;
+            this.ObtainPackageAgreementsConsent(package, repairVersion);
+            return true;
         }
 
         private RepairOptions GetRepairOptions(
             PackageVersionId? version,
-            PackageRepairMode repairMode)
+            PackageRepairMode repairMode,
+            bool acceptPackageAgreements)
         {
             var options = ManagementDeploymentFactory.Instance.CreateRepairOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
@@ -150,8 +160,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             options.PackageRepairMode = repairMode;
 
-            // Consent to the package agreements is obtained before the options are created.
-            options.AcceptPackageAgreements = true;
+            options.AcceptPackageAgreements = acceptPackageAgreements;
 
             if (version != null)
             {

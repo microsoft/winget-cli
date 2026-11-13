@@ -32,6 +32,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus();
 
         Windows::Foundation::IReference<int32_t> CatalogPriority();
+        // Contract 31
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo RepairVersion();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
