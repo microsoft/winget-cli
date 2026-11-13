@@ -74,13 +74,19 @@ class WinGetUserSettings
     [DscProperty()]
     [WinGetAction]$Action = [WinGetAction]::Full
 
+    # Target the protected administrator settings file instead of the ordinary file.
+    [DscProperty()]
+    [bool]$Admin = $false
+
     # Gets the current UserSettings by looking at the settings.json file for the current user.
     [WinGetUserSettings] Get()
     {
-        $userSettings = Get-WinGetUserSetting
+        $userSettings = Get-WinGetUserSetting -Admin:$this.Admin
         $result = @{
             SID = ''
             Settings = $userSettings
+            Admin = $this.Admin
+            Action = $this.Action
         }
         return $result
     }
@@ -90,6 +96,7 @@ class WinGetUserSettings
     {
         $hashArgs = @{
             UserSettings = $this.Settings
+            Admin = $this.Admin
         }
 
         if ($this.Action -eq [WinGetAction]::Partial)
@@ -105,6 +112,7 @@ class WinGetUserSettings
     {
         $hashArgs = @{
             UserSettings = $this.Settings
+            Admin = $this.Admin
         }
 
         if ($this.Action -eq [WinGetAction]::Partial)

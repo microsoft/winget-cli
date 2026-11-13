@@ -142,6 +142,25 @@ namespace AppInstaller::Settings
             std::filesystem::path m_settingFile;
         };
 
+        struct AdminFileSettingsContainer : public FileSettingsContainer
+        {
+            AdminFileSettingsContainer(const std::filesystem::path& name) :
+                FileSettingsContainer(GetPathTo(PathName::SecureSettingsForRead), name) {}
+
+            bool Set(std::string_view value) override
+            {
+                THROW_HR_IF(E_ACCESSDENIED, !IsRunningAsAdminOrSystem());
+                GetPathTo(PathName::SecureSettingsForWrite);
+                return FileSettingsContainer::Set(value);
+            }
+
+            void Remove() override
+            {
+                THROW_HR_IF(E_ACCESSDENIED, !IsRunningAsAdminOrSystem());
+                FileSettingsContainer::Remove();
+            }
+        };
+
         // A settings container that manages safely writing to its value with exchange semantics.
         // Only allows Set to succeed if the hash value of the setting is the same as the last time it was read.
         struct ExchangeSettingsContainer : public details::ISettingsContainer
@@ -466,6 +485,9 @@ namespace AppInstaller::Settings
                 // User file settings are not typically modified by us, so there is no need for exchange
                 return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings), name);
 
+            case Type::AdminFile:
+                return std::make_unique<AdminFileSettingsContainer>(name);
+
             case Type::Secure:
                 // Secure settings add hash verification on reads on top of exchange semantics
                 return std::make_unique<SecureSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
@@ -503,6 +525,8 @@ namespace AppInstaller::Settings
             return "Encrypted"sv;
         case Type::StandardFile:
             return "StandardFile"sv;
+        case Type::AdminFile:
+            return "AdminFile"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }

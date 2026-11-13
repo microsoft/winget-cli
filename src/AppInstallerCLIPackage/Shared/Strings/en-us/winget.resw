@@ -517,8 +517,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The following failures were found validating the settings:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings This command can also be used to set administrator settings by providing the --enable or --disable arguments</value>
-    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
+    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. Use --admin to open the protected per-user administrator settings file; creating or changing this file requires administrator privileges. For available settings see https://aka.ms/winget-settings. This command can also be used to set administrator capability controls by providing the --enable or --disable arguments.</value>
+    <comment>{Locked="--admin", "--enable", "--disable", "https://aka.ms/winget-settings"} The schema-compatible administrator settings file is distinct from administrator capability controls.</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Open settings or set administrator settings</value>
@@ -1001,19 +1001,37 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
-    <value>Invalid field format.</value>
+    <value>Invalid field format. Source: {2}. Field: {0}.</value>
+    <comment>{Locked="{0}", "{2}"} {0} is the setting path and {2} is its settings file or custom-content source. {1} is unused.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
-    <value>Invalid field value.</value>
+    <value>Invalid field value. Source: {2}. Field: {0}. Value: {1}.</value>
+    <comment>{Locked="{0}", "{1}", "{2}"} {0} is the setting path, {1} is the invalid value, and {2} is its settings file or custom-content source.</comment>
+  </data>
+  <data name="SettingsWarningInvalidFileFormat" xml:space="preserve">
+    <value>The settings file '{0}' must contain a JSON object.</value>
+    <comment>{Locked="{0}"} {0} is the settings file name.</comment>
   </data>
   <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
-    <value>Invalid setting from Group Policy.</value>
+    <value>Invalid setting from Group Policy. Field: {0}. Value: {1}.</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the setting path and {1} is the invalid policy value.</comment>
+  </data>
+  <data name="SettingsWarningIgnoredWithFullToken" xml:space="preserve">
+    <value>The setting '{0}' from '{2}' is ignored when running with the elevated token. The default is used unless Group Policy supplies a value. Configure an administrator-approved value in admin-settings.json using 'winget settings --admin'.</value>
+    <comment>{Locked="{0}", "{2}", "admin-settings.json", "winget settings --admin"} {0} is the ignored setting path and {2} is its unprotected settings file name. {1} is unused. No eligible protected replacement was configured.</comment>
   </data>
   <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
-    <value>Loaded settings from backup file.</value>
+    <value>Loaded settings from backup file '{2}'.</value>
+    <comment>{Locked="{2}"} {2} is the backup settings file name. {0} and {1} are unused.</comment>
   </data>
   <data name="SettingsWarningParseError" xml:space="preserve">
-    <value>Error parsing file:</value>
+    <value>Error parsing settings file '{0}':
+{1}</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the settings file or custom-content source name and {1} is the parser diagnostic.</comment>
+  </data>
+  <data name="SettingsWarningReadError" xml:space="preserve">
+    <value>Error reading settings file '{0}'. {1}</value>
+    <comment>{Locked="{0}", "{1}"} {0} is the settings file name and {1} is an optional read-error diagnostic.</comment>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
     <value>Value: {0}</value>
@@ -1286,6 +1304,18 @@ Do you agree to the terms?</value>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>Enables the specific administrator setting</value>
+  </data>
+  <data name="AdminSettingsFileArgumentDescription" xml:space="preserve">
+    <value>Opens the per-user administrator settings file</value>
+    <comment>Describes the --admin flag of winget settings, not the existing administrator capability controls.</comment>
+  </data>
+  <data name="AdminSettingsFileCreateArgumentDescription" xml:space="preserve">
+    <value>Creates the settings file without opening it</value>
+    <comment>Hidden headless provisioning flag used by PowerShell. Requires --admin and administrator privileges.</comment>
+  </data>
+  <data name="AdminSettingsFileRequiresCreation" xml:space="preserve">
+    <value>The administrator settings file does not exist: {0}. Run 'winget settings --admin' as administrator to create it.</value>
+    <comment>{Locked="{0}", "winget settings --admin"} {0} is the full protected settings file path. Displayed when an unelevated open cannot create it.</comment>
   </data>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disables the specific administrator setting</value>
@@ -1698,7 +1728,8 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
-    <value>Settings file couldn't load. Using default values.</value>
+    <value>Settings file '{2}' couldn't load. Using default values.</value>
+    <comment>{Locked="{2}"} {2} is the settings file whose primary/backup load failed. {0} and {1} are unused.</comment>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Select installed package scope filter (user or machine)</value>
@@ -3438,7 +3469,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage user settings file</value>
   </data>
   <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
-    <value>Manage the user settings of WinGet.</value>
+    <value>Manage the ordinary or protected per-user settings file of WinGet.</value>
     <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
@@ -3446,6 +3477,10 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
     <value>The action used to apply the settings.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAdmin" xml:space="preserve">
+    <value>Select the protected per-user administrator settings file instead of the ordinary user settings file. Set requires administrator privileges; Get, Test, and Export do not. This does not select administrator capability controls.</value>
+    <comment>Describes the optional Boolean admin property on the native DSCv3 UserSettingsFile resource. The default is false.</comment>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
     <value>Value is logged for correlation</value>
@@ -3689,5 +3724,8 @@ An unlocalized JSON fragment will follow on another line.</comment>
   <data name="WINGET_CONFIG_ERROR_PROCESSOR_PATH_CHANGED" xml:space="preserve">
     <value>The DSC processor path no longer refers to the file that was verified.</value>
     <comment>An error message shown when the file that a configuration processor (DSC) executable path points to has been replaced or swapped after it was verified.</comment>
+  </data>
+  <data name="NoAdminUninstallForUserScopePackage" xml:space="preserve">
+    <value>The package installed for user scope cannot be uninstalled when running with administrator privileges.</value>
   </data>
 </root>

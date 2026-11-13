@@ -28,26 +28,39 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private const string SchemaValue = "https://aka.ms/winget-settings.schema.json";
 
         private static string? winGetSettingsFilePath;
+        private static string? winGetAdminSettingsFilePath;
+
+        private readonly bool admin;
+        private readonly string settingsFilePath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserSettingsCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        public UserSettingsCommand(PSCmdlet psCmdlet)
+        /// <param name="admin">Target the protected administrator settings file.</param>
+        public UserSettingsCommand(PSCmdlet psCmdlet, bool admin = false)
             : base(psCmdlet)
         {
+            this.admin = admin;
+
             // Doing it in the static constructor will show the user running in system context:
             // The type initializer for 'Microsoft.WinGet.Client.Engine.Commands.UserSettingsCommand' threw an exception.
             // Here would be "The specified method is not supported."
-            if (winGetSettingsFilePath == null)
+            if (winGetSettingsFilePath == null || (admin && winGetAdminSettingsFilePath == null))
             {
                 var wingetCliWrapper = new WingetCLIWrapper();
                 var settingsResult = wingetCliWrapper.RunCommand(this, new WinGetCLICommandBuilder("settings").AppendSubCommand("export"));
+                settingsResult.VerifyExitCode();
 
-                // Read the user settings file property.
-                var userSettingsFile = Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"] ?? throw new ArgumentNullException("userSettingsFile");
+                var exportedSettings = Utilities.ConvertToHashtable(settingsResult.StdOut);
+                var userSettingsFile = exportedSettings["userSettingsFile"] ?? throw new ArgumentNullException("userSettingsFile");
                 winGetSettingsFilePath = (string)userSettingsFile;
+                winGetAdminSettingsFilePath = (string?)exportedSettings["adminSettingsFile"];
             }
+
+            this.settingsFilePath = admin ?
+                winGetAdminSettingsFilePath ?? throw new ArgumentNullException("adminSettingsFile") :
+                winGetSettingsFilePath!;
         }
 
         /// <summary>
@@ -75,6 +88,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="merge">Merge the current user settings and the input settings.</param>
         public void Set(Hashtable userSettings, bool merge)
         {
+            if (this.admin)
+            {
+                Utilities.VerifyAdmin();
+            }
+
             var newSettings = HashtableToJObject(userSettings);
 
             // Merge settings.
@@ -102,8 +120,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             // Write settings.
             var settingsJson = orderedSettings.ToString(Formatting.Indented);
+            if (this.admin && !File.Exists(this.settingsFilePath))
+            {
+                var result = new WingetCLIWrapper().RunCommand(
+                    this,
+                    new WinGetCLICommandBuilder("settings").AppendSwitch("admin").AppendSwitch("create"));
+                result.VerifyExitCode();
+            }
+
             File.WriteAllText(
-                winGetSettingsFilePath!,
+                this.settingsFilePath,
                 settingsJson);
 
             this.Write(StreamType.Object, Utilities.ConvertToHashtable(settingsJson));
@@ -116,8 +142,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private Hashtable GetLocalSettingsAsHashtable()
         {
-            var content = File.Exists(winGetSettingsFilePath) ?
-                File.ReadAllText(winGetSettingsFilePath) :
+            var content = File.Exists(this.settingsFilePath) ?
+                File.ReadAllText(this.settingsFilePath) :
                 string.Empty;
 
             return Utilities.ConvertToHashtable(content);
@@ -127,8 +153,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             try
             {
-                return File.Exists(winGetSettingsFilePath) ?
-                    JObject.Parse(File.ReadAllText(winGetSettingsFilePath)) :
+                return File.Exists(this.settingsFilePath) ?
+                    JObject.Parse(File.ReadAllText(this.settingsFilePath)) :
                     new JObject();
             }
             catch (JsonReaderException e)

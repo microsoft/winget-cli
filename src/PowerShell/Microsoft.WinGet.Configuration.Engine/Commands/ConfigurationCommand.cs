@@ -388,10 +388,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.Policy = openParams.Policy;
             properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
-            properties.Location = openParams.Location;
-            if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
+            if (openParams.HasExplicitModulePath)
             {
-                properties.CustomLocation = openParams.CustomLocation;
+                properties.Location = openParams.Location;
+                if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
+                {
+                    properties.CustomLocation = openParams.CustomLocation;
+                }
             }
 
             return factory;

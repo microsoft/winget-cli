@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSettings.h"
+#include "TestHooks.h"
 #include <AppInstallerRuntime.h>
 #include <winget/Settings.h>
 #include "AppInstallerLogging.h"
@@ -27,6 +28,509 @@ namespace
     static constexpr std::string_view s_badJson = "{";
     static constexpr std::string_view s_settings = "settings.json"sv;
     static constexpr std::string_view s_settingsBackup = "settings.json.backup"sv;
+
+    void SetAdminSettingsFile(const StreamDefinition& stream, std::string_view content)
+    {
+        REQUIRE(stream.Type == Type::AdminFile);
+        const auto path = GetPathTo(stream);
+        std::filesystem::create_directories(path.parent_path());
+
+        // Resolver tests provision files directly under the test path overrides, without requiring elevation.
+        std::ofstream file{ path, std::ios::binary | std::ios::trunc };
+        REQUIRE(file.good());
+        file << content;
+        file.close();
+        REQUIRE(!file.fail());
+    }
+
+    size_t MigrationWarningCount(const UserSettings& settings)
+    {
+        const auto& warnings = settings.GetWarnings();
+        return static_cast<size_t>(std::count_if(warnings.begin(), warnings.end(),
+            [](const UserSettings::Warning& warning) { return warning.IsMigrationWarning; }));
+    }
+
+    wil::unique_hfile LockSettingsFile(const StreamDefinition& stream)
+    {
+        const auto path = GetPathTo(stream);
+        wil::unique_hfile file{ CreateFileW(path.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr) };
+        REQUIRE(file);
+        return file;
+    }
+}
+
+TEST_CASE("UserSettingsOverlay_TreatmentMatrix", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool fullToken = GENERATE(false, true);
+    const bool userPresent = GENERATE(false, true);
+    const bool adminPresent = GENERATE(false, true);
+    const bool userBackup = GENERATE(false, true);
+    CAPTURE(fullToken, userPresent, adminPresent, userBackup);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+
+    if (userPresent)
+    {
+        constexpr std::string_view user = R"({
+            "visual": { "progressBar": "rainbow" },
+            "installBehavior": {
+                "portablePackageUserRoot": "C:\\User",
+                "portablePackageMachineRoot": "C:\\User",
+                "defaultInstallRoot": "C:\\User"
+            },
+            "configureBehavior": { "defaultModuleRoot": "C:\\User" },
+            "downloadBehavior": { "defaultDownloadDirectory": "C:\\User" },
+            "uninstallBehavior": { "purgePortablePackage": true }
+        })";
+        if (userBackup)
+        {
+            SetSetting(Stream::PrimaryUserSettings, s_badJson);
+        }
+        SetSetting(userBackup ? Stream::BackupUserSettings : Stream::PrimaryUserSettings, user);
+    }
+
+    if (adminPresent)
+    {
+        SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({
+            "visual": { "progressBar": "retro" },
+            "installBehavior": {
+                "portablePackageUserRoot": "C:\\Admin",
+                "portablePackageMachineRoot": "C:\\Admin",
+                "defaultInstallRoot": "C:\\Admin"
+            },
+            "configureBehavior": { "defaultModuleRoot": "C:\\Admin" },
+            "downloadBehavior": { "defaultDownloadDirectory": "C:\\Admin" },
+            "uninstallBehavior": { "purgePortablePackage": false }
+        })");
+    }
+
+    UserSettingsTest settings;
+    const std::filesystem::path sharedRoot = adminPresent ? LR"(C:\Admin)" : (userPresent && !fullToken ? LR"(C:\User)" : L"");
+    const std::filesystem::path splitRoot = fullToken ?
+        (adminPresent ? LR"(C:\Admin)" : L"") : (userPresent ? LR"(C:\User)" : L"");
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() ==
+        (adminPresent ? VisualStyle::Retro : (userPresent ? VisualStyle::Rainbow : VisualStyle::Accent)));
+    REQUIRE(settings.Get<Setting::PortablePackageUserRoot>() == sharedRoot);
+    REQUIRE(settings.Get<Setting::PortablePackageMachineRoot>() == sharedRoot);
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>() == sharedRoot);
+    REQUIRE(settings.Get<Setting::InstallDefaultRoot>() == splitRoot);
+    REQUIRE(settings.Get<Setting::ConfigureDefaultModuleRoot>() == splitRoot);
+    REQUIRE(settings.Get<Setting::UninstallPurgePortablePackage>() == (!adminPresent && userPresent && !fullToken));
+    REQUIRE(settings.GetType() == (userPresent ?
+        (userBackup ? UserSettingsType::Backup : UserSettingsType::Standard) : UserSettingsType::Default));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken && userPresent && !adminPresent ? 6u : 0u));
+    for (const auto& warning : settings.GetWarnings())
+    {
+        if (warning.IsMigrationWarning)
+        {
+            REQUIRE(warning.Message == AppInstaller::StringResource::String::SettingsWarningIgnoredWithFullToken);
+            REQUIRE(warning.Source == (userBackup ? Stream::BackupUserSettings.Name : Stream::PrimaryUserSettings.Name));
+            REQUIRE(warning.Data.empty());
+        }
+    }
+}
+
+TEST_CASE("UserSettingsOverlay_ExplicitValuesAndSiblings", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "visual": { "anonymizeDisplayedPaths": true },
+        "source": { "autoUpdateIntervalInMinutes": 23 },
+        "installBehavior": {
+            "preferences": { "architectures": ["x86"], "locale": ["en-US", "fr-FR"], "scope": "machine" },
+            "requirements": { "locale": ["en-US", "fr-FR"] }
+        }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({
+        "visual": { "anonymizeDisplayedPaths": false },
+        "source": { "autoUpdateIntervalInMinutes": 0 },
+        "installBehavior": {
+            "preferences": { "architectures": [] },
+            "requirements": { "locale": ["de-DE"] }
+        }
+    })");
+
+    UserSettingsTest settings;
+    REQUIRE_FALSE(settings.Get<Setting::AnonymizePathForDisplay>());
+    REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 0min);
+    REQUIRE(settings.Get<Setting::InstallArchitecturePreference>().empty());
+    REQUIRE(settings.Get<Setting::InstallLocalePreference>() == std::vector<std::string>{ "en-US", "fr-FR" });
+    REQUIRE(settings.Get<Setting::InstallLocaleRequirement>() == std::vector<std::string>{ "de-DE" });
+    REQUIRE(settings.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::Machine);
+    REQUIRE(settings.GetWarnings().empty());
+}
+
+TEST_CASE("UserSettingsOverlay_InvalidAdminValueBlocksUserFallback", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool fullToken = GENERATE(false, true);
+    const std::string value = GENERATE("17"s, R"("relative")"s);
+    CAPTURE(fullToken, value);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\User" }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile,
+        R"({ "downloadBehavior": { "defaultDownloadDirectory": )" + value + " } }");
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\Backup" }
+    })");
+
+    UserSettingsTest settings;
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
+    const auto& warnings = settings.GetWarnings();
+    REQUIRE(warnings.size() == (fullToken ? 2u : 1u));
+    REQUIRE(warnings[0].Source == Stream::PrimaryAdminSettingsFile.Name);
+    REQUIRE(warnings[0].Path == ".downloadBehavior.defaultDownloadDirectory");
+    REQUIRE(warnings[0].Message == (value == R"("relative")" ?
+        AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue :
+        AppInstaller::StringResource::String::SettingsWarningInvalidFieldFormat));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
+}
+
+TEST_CASE("UserSettingsOverlay_InvalidUnrestrictedAdminValueBlocksUserFallback", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    SetSetting(Stream::PrimaryUserSettings, R"({ "visual": { "progressBar": "rainbow" } })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({ "visual": { "progressBar": "invalid" } })");
+
+    UserSettingsTest settings;
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+    REQUIRE(settings.GetWarnings().size() == 1);
+    REQUIRE(settings.GetWarnings()[0].Source == Stream::PrimaryAdminSettingsFile.Name);
+    REQUIRE(MigrationWarningCount(settings) == 0);
+}
+
+TEST_CASE("UserSettingsOverlay_AdminNullSelectsDefault", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool fullToken = GENERATE(false, true);
+    CAPTURE(fullToken);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\User" },
+        "installBehavior": { "defaultInstallRoot": "C:\\User" }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": null },
+        "installBehavior": { "defaultInstallRoot": null }
+    })");
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\Backup" },
+        "installBehavior": { "defaultInstallRoot": "C:\\Backup" }
+    })");
+
+    UserSettingsTest settings;
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
+    const std::filesystem::path expectedRoot = fullToken ? L"" : LR"(C:\User)";
+    REQUIRE(settings.Get<Setting::InstallDefaultRoot>() == expectedRoot);
+    REQUIRE(settings.GetWarnings().empty());
+}
+
+TEST_CASE("UserSettingsOverlay_ResolveMissingAndNull", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const std::string preferences = GENERATE("{}"s, "null"s, "[]"s, R"({ "scope": null })"s);
+    CAPTURE(preferences);
+    const bool presentNull = preferences == R"({ "scope": null })";
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "installBehavior": { "preferences": { "scope": "machine" } }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile,
+        R"({ "installBehavior": { "preferences": )" + preferences + " } }");
+
+    UserSettingsTest settings;
+    REQUIRE(settings.Get<Setting::InstallScopePreference>() == (presentNull ?
+        AppInstaller::Manifest::ScopeEnum::User : AppInstaller::Manifest::ScopeEnum::Machine));
+    REQUIRE(settings.GetWarnings().empty());
+}
+
+TEST_CASE("UserSettingsOverlay_IgnoredNullIsPresent", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool fullToken = GENERATE(false, true);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "downloadBehavior": { "defaultDownloadDirectory": null }
+    })");
+
+    UserSettingsTest settings;
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
+    REQUIRE(settings.GetWarnings().size() == (fullToken ? 1u : 0u));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
+    if (fullToken)
+    {
+        REQUIRE(settings.GetWarnings()[0].Path == ".downloadBehavior.defaultDownloadDirectory");
+        REQUIRE(settings.GetWarnings()[0].Source == Stream::PrimaryUserSettings.Name);
+    }
+}
+
+TEST_CASE("UserSettingsOverlay_IneligibleSplitFields", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    const bool fullToken = GENERATE(false, true);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(fullToken);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "installBehavior": { "defaultInstallRoot": "C:\\User" },
+        "configureBehavior": { "defaultModuleRoot": "C:\\User" }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({
+        "installBehavior": { "defaultInstallRoot": 17 },
+        "configureBehavior": { "defaultModuleRoot": null }
+    })");
+
+    UserSettingsTest settings;
+    const std::filesystem::path expectedRoot = fullToken ? L"" : LR"(C:\User)";
+    REQUIRE(settings.Get<Setting::InstallDefaultRoot>() == expectedRoot);
+    REQUIRE(settings.Get<Setting::ConfigureDefaultModuleRoot>() == expectedRoot);
+    REQUIRE(settings.GetWarnings().size() == (fullToken ? 2u : 0u));
+    REQUIRE(MigrationWarningCount(settings) == (fullToken ? 1u : 0u));
+}
+
+TEST_CASE("UserSettingsOverlay_ProtectedFileRecovery", "[settings]")
+{
+    enum class FileState { Missing, Valid, Malformed, InvalidRoot };
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const auto primary = GENERATE(FileState::Missing, FileState::Valid, FileState::Malformed, FileState::InvalidRoot);
+    const auto backup = GENERATE(FileState::Missing, FileState::Valid, FileState::Malformed, FileState::InvalidRoot);
+    CAPTURE(primary, backup);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "visual": { "progressBar": "rainbow" },
+        "source": { "autoUpdateIntervalInMinutes": 23 }
+    })");
+
+    if (primary != FileState::Missing)
+    {
+        SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, primary == FileState::Valid ?
+            R"({ "visual": { "progressBar": "retro" } })" : (primary == FileState::Malformed ? "{" : "[]"));
+    }
+    if (backup != FileState::Missing)
+    {
+        SetAdminSettingsFile(Stream::BackupAdminSettingsFile, backup == FileState::Valid ?
+            R"({ "visual": { "progressBar": "rainbow" } })" : (backup == FileState::Malformed ? "{" : "null"));
+    }
+
+    const bool parseFailure = primary != FileState::Valid && backup != FileState::Valid &&
+        (primary != FileState::Missing || backup != FileState::Missing);
+    UserSettingsTest settings;
+    const bool recovered = primary != FileState::Valid && backup == FileState::Valid;
+    REQUIRE(settings.GetType() == UserSettingsType::Standard);
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() ==
+        (parseFailure ? VisualStyle::Accent : (primary == FileState::Valid ? VisualStyle::Retro : VisualStyle::Rainbow)));
+    REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == (parseFailure ? 15min : 23min));
+    REQUIRE(MigrationWarningCount(settings) == 0);
+    if (parseFailure)
+    {
+        const auto& warning = settings.GetWarnings().back();
+        REQUIRE(warning.Message == AppInstaller::StringResource::String::SettingsWarningUsingDefault);
+        REQUIRE(warning.Source == (primary != FileState::Missing ?
+            Stream::PrimaryAdminSettingsFile.Name : Stream::BackupAdminSettingsFile.Name));
+    }
+    else if (recovered)
+    {
+        const auto& warning = settings.GetWarnings().back();
+        REQUIRE(warning.Message == AppInstaller::StringResource::String::SettingsWarningLoadedBackupSettings);
+        REQUIRE(warning.Source == Stream::BackupAdminSettingsFile.Name);
+        REQUIRE(warning.Path == Stream::BackupAdminSettingsFile.Name);
+        REQUIRE_FALSE(warning.IsFieldWarning);
+    }
+    else
+    {
+        REQUIRE(settings.GetWarnings().empty());
+    }
+}
+
+TEST_CASE("UserSettingsOverlay_UserFileRequiresObject", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const std::string root = GENERATE("null"s, "[]"s);
+    const bool validBackup = GENERATE(false, true);
+    CAPTURE(root, validBackup);
+    SetSetting(Stream::PrimaryUserSettings, root);
+    if (validBackup)
+    {
+        SetSetting(Stream::BackupUserSettings, R"({ "visual": { "progressBar": "rainbow" } })");
+    }
+
+    UserSettingsTest settings;
+    REQUIRE(settings.GetType() == (validBackup ? UserSettingsType::Backup : UserSettingsType::Default));
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == (validBackup ? VisualStyle::Rainbow : VisualStyle::Accent));
+    const auto& warnings = settings.GetWarnings();
+    REQUIRE(warnings.size() == 2);
+    REQUIRE(warnings[0].Message == AppInstaller::StringResource::String::SettingsWarningInvalidFileFormat);
+    REQUIRE(warnings[0].Source == Stream::PrimaryUserSettings.Name);
+    REQUIRE(warnings.back().Message == (validBackup ?
+        AppInstaller::StringResource::String::SettingsWarningLoadedBackupSettings :
+        AppInstaller::StringResource::String::SettingsWarningUsingDefault));
+}
+
+TEST_CASE("UserSettingsOverlay_ProtectedReadFailure", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool lockPrimary = GENERATE(false, true);
+    const bool validBackup = GENERATE(false, true);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "visual": { "progressBar": "retro" },
+        "source": { "autoUpdateIntervalInMinutes": 23 }
+    })");
+    const auto& lockedStream = lockPrimary ? Stream::PrimaryAdminSettingsFile : Stream::BackupAdminSettingsFile;
+    SetAdminSettingsFile(lockedStream, s_goodJson);
+    if (lockPrimary && validBackup)
+    {
+        SetAdminSettingsFile(Stream::BackupAdminSettingsFile, R"({ "visual": { "progressBar": "rainbow" } })");
+    }
+
+    auto lockedFile = LockSettingsFile(lockedStream);
+    UserSettingsTest settings;
+    REQUIRE(settings.GetType() == UserSettingsType::Standard);
+    REQUIRE(settings.GetWarnings().size() == 2);
+    REQUIRE(settings.GetWarnings()[0].Message == AppInstaller::StringResource::String::SettingsWarningReadError);
+    REQUIRE(settings.GetWarnings()[0].Source == lockedStream.Name);
+    if (lockPrimary && validBackup)
+    {
+        REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Rainbow);
+        REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 23min);
+        REQUIRE(settings.GetWarnings()[1].Message == AppInstaller::StringResource::String::SettingsWarningLoadedBackupSettings);
+    }
+    else
+    {
+        REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+        REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 15min);
+        REQUIRE(settings.GetWarnings()[1].Message == AppInstaller::StringResource::String::SettingsWarningUsingDefault);
+    }
+}
+
+TEST_CASE("UserSettingsOverlay_UserReadFailure", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool readableBackup = GENERATE(false, true);
+    SetSetting(Stream::PrimaryUserSettings, R"({ "visual": { "progressBar": "rainbow" } })");
+    SetSetting(Stream::BackupUserSettings, R"({ "visual": { "progressBar": "retro" } })");
+    auto lockedPrimary = LockSettingsFile(Stream::PrimaryUserSettings);
+    wil::unique_hfile lockedBackup;
+    if (!readableBackup)
+    {
+        lockedBackup = LockSettingsFile(Stream::BackupUserSettings);
+    }
+
+    UserSettingsTest settings;
+    REQUIRE(settings.GetType() == (readableBackup ? UserSettingsType::Backup : UserSettingsType::Default));
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == (readableBackup ? VisualStyle::Retro : VisualStyle::Accent));
+    const auto& warnings = settings.GetWarnings();
+    REQUIRE(warnings.size() == (readableBackup ? 2u : 3u));
+    REQUIRE(warnings[0].Message == AppInstaller::StringResource::String::SettingsWarningReadError);
+    REQUIRE(warnings[0].Source == Stream::PrimaryUserSettings.Name);
+    if (!readableBackup)
+    {
+        REQUIRE(warnings[1].Message == AppInstaller::StringResource::String::SettingsWarningReadError);
+        REQUIRE(warnings[1].Source == Stream::BackupUserSettings.Name);
+    }
+    REQUIRE(warnings.back().Message == (readableBackup ?
+        AppInstaller::StringResource::String::SettingsWarningLoadedBackupSettings :
+        AppInstaller::StringResource::String::SettingsWarningUsingDefault));
+    REQUIRE(warnings.back().Source == (readableBackup ? Stream::BackupUserSettings.Name : Stream::PrimaryUserSettings.Name));
+}
+
+TEST_CASE("UserSettingsOverlay_CustomContentBypassesFiles", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool validContent = GENERATE(false, true);
+    SetSetting(Stream::PrimaryUserSettings, R"({ "visual": { "progressBar": "retro" } })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, s_badJson);
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, s_badJson);
+
+    UserSettingsTest settings{ validContent ? R"({
+        "visual": { "progressBar": "rainbow" },
+        "configureBehavior": { "defaultModuleRoot": "C:\\Custom" },
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\Custom" }
+    })"s : "{"s };
+    REQUIRE(settings.GetType() == (validContent ? UserSettingsType::Custom : UserSettingsType::Default));
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == (validContent ? VisualStyle::Rainbow : VisualStyle::Accent));
+    const std::filesystem::path expectedRoot = validContent ? LR"(C:\Custom)" : L"";
+    REQUIRE(settings.Get<Setting::ConfigureDefaultModuleRoot>() == expectedRoot);
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>() == expectedRoot);
+    REQUIRE(settings.GetWarnings().size() == (validContent ? 0u : 1u));
+    REQUIRE(MigrationWarningCount(settings) == 0);
+}
+
+TEST_CASE("UserSettingsOverlay_GroupPolicyPrecedence", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool custom = GENERATE(false, true);
+    GroupPolicyTestOverride policies;
+    policies.SetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>(300);
+    SetSetting(Stream::PrimaryUserSettings, R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, R"({ "source": { "autoUpdateIntervalInMinutes": "invalid" } })");
+
+    UserSettingsTest settings{ custom ? std::optional<std::string>{ R"({ "source": { "autoUpdateIntervalInMinutes": 7 } })" } : std::nullopt };
+    REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 300min);
+    REQUIRE(settings.GetWarnings().empty());
+}
+
+TEST_CASE("UserSettingsOverlay_GroupPolicyWithProtectedLoadFailure", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool unreadablePrimary = GENERATE(false, true);
+    const bool unreadableBackup = GENERATE(false, true);
+    CAPTURE(unreadablePrimary, unreadableBackup);
+    GroupPolicyTestOverride policies;
+    policies.SetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>(300);
+    SetSetting(Stream::PrimaryUserSettings, R"({
+        "visual": { "progressBar": "rainbow" },
+        "source": { "autoUpdateIntervalInMinutes": 23 },
+        "downloadBehavior": { "defaultDownloadDirectory": "C:\\User" }
+    })");
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, unreadablePrimary ? s_goodJson : s_badJson);
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, unreadableBackup ? s_goodJson : s_badJson);
+    wil::unique_hfile lockedPrimary;
+    wil::unique_hfile lockedBackup;
+    if (unreadablePrimary)
+    {
+        lockedPrimary = LockSettingsFile(Stream::PrimaryAdminSettingsFile);
+    }
+    if (unreadableBackup)
+    {
+        lockedBackup = LockSettingsFile(Stream::BackupAdminSettingsFile);
+    }
+
+    UserSettingsTest settings;
+    REQUIRE(settings.GetType() == UserSettingsType::Standard);
+    REQUIRE(settings.Get<Setting::AutoUpdateTimeInMinutes>() == 300min);
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+    REQUIRE(settings.Get<Setting::DownloadDefaultDirectory>().empty());
+    REQUIRE(MigrationWarningCount(settings) == 0);
+    const auto& warnings = settings.GetWarnings();
+    REQUIRE(warnings.size() == 3);
+    REQUIRE(warnings[0].Source == Stream::PrimaryAdminSettingsFile.Name);
+    REQUIRE(warnings[1].Source == Stream::BackupAdminSettingsFile.Name);
+    REQUIRE(warnings.back().Message == AppInstaller::StringResource::String::SettingsWarningUsingDefault);
+}
+
+TEST_CASE("UserSettingsOverlay_DisabledSettingsBypassFilesAndCustomContent", "[settings]")
+{
+    auto files = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(GENERATE(false, true));
+    const bool custom = GENERATE(false, true);
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::Settings, PolicyState::Disabled);
+    SetSetting(Stream::PrimaryUserSettings, s_badJson);
+    SetAdminSettingsFile(Stream::PrimaryAdminSettingsFile, s_badJson);
+    SetAdminSettingsFile(Stream::BackupAdminSettingsFile, s_badJson);
+
+    UserSettingsTest settings{ custom ? std::optional<std::string>{ "{" } : std::nullopt };
+    REQUIRE(settings.GetType() == UserSettingsType::Default);
+    REQUIRE(settings.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+    REQUIRE(settings.GetWarnings().empty());
 }
 
 TEST_CASE("UserSettingsFilePaths", "[settings]")
@@ -34,6 +538,7 @@ TEST_CASE("UserSettingsFilePaths", "[settings]")
     auto settingsPath = UserSettings::SettingsFilePath();
     auto expectedPath = GetPathTo(PathName::UserFileSettings) / "settings.json";
     REQUIRE(settingsPath == expectedPath);
+    REQUIRE(UserSettings::AdminSettingsFilePath() == GetPathTo(Stream::PrimaryAdminSettingsFile));
 }
 
 TEST_CASE("UserSettingsType", "[settings]")
@@ -524,6 +1029,7 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
 TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
 
     SECTION("Relative path")
     {
@@ -552,6 +1058,7 @@ TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
 
     SECTION("Relative path")
     {
@@ -580,6 +1087,7 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
 TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
 
     SECTION("Valid path")
     {
@@ -595,6 +1103,7 @@ TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
 TEST_CASE("SettingsConfigureDefaultModuleRoot", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
 
     SECTION("Valid path")
     {

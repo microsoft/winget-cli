@@ -913,6 +913,81 @@ Describe 'Set-WinGetUserSetting' {
     }
 }
 
+Describe 'Protected user settings management' {
+    BeforeAll {
+        $adminSettingsFilePath = (Get-WinGetSetting).adminSettingsFile
+        $adminSettingsExisted = Test-Path -LiteralPath $adminSettingsFilePath
+        if ($adminSettingsExisted) {
+            $originalAdminSettings = [System.IO.File]::ReadAllBytes($adminSettingsFilePath)
+        }
+        $adminBackupPath = $adminSettingsFilePath + '.backup'
+        $adminBackupExisted = Test-Path -LiteralPath $adminBackupPath
+        if ($adminBackupExisted) {
+            $originalAdminBackup = [System.IO.File]::ReadAllBytes($adminBackupPath)
+        }
+        $ordinarySettingsBefore = [System.IO.File]::ReadAllBytes($settingsFilePath)
+    }
+
+    It 'Creates and manages only the protected file without creating a backup' {
+        if (Test-Path -LiteralPath $adminSettingsFilePath) {
+            Remove-Item -LiteralPath $adminSettingsFilePath
+        }
+        if (Test-Path -LiteralPath $adminBackupPath) {
+            Remove-Item -LiteralPath $adminBackupPath
+        }
+
+        (Get-WinGetUserSetting -Admin).Count | Should -Be 0
+        Test-WinGetUserSetting -Admin -UserSettings @{} | Should -Be $true
+        Test-Path -LiteralPath $adminSettingsFilePath | Should -Be $false
+
+        $desired = @{ visual = @{ progressBar = 'rainbow' }; downloadBehavior = @{ defaultDownloadDirectory = $null } }
+        $result = Set-WinGetUserSetting -Admin -UserSettings $desired
+        $result.visual.progressBar | Should -Be 'rainbow'
+        $result.downloadBehavior.ContainsKey('defaultDownloadDirectory') | Should -Be $true
+        $result.downloadBehavior.defaultDownloadDirectory | Should -BeNullOrEmpty
+        (Get-WinGetUserSetting -Admin).visual.progressBar | Should -Be 'rainbow'
+        Test-WinGetUserSetting -Admin -UserSettings $desired | Should -Be $true
+        Test-Path -LiteralPath $adminBackupPath | Should -Be $false
+        [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($settingsFilePath)) |
+            Should -Be ([Convert]::ToBase64String($ordinarySettingsBefore))
+    }
+
+    It 'Preserves merge and partial comparison behavior on the protected file' {
+        Set-WinGetUserSetting -Admin -UserSettings @{ visual = @{ progressBar = 'rainbow' } } | Out-Null
+        Set-WinGetUserSetting -Admin -Merge -UserSettings @{ source = @{ autoUpdateIntervalInMinutes = 3 } } | Out-Null
+        Test-WinGetUserSetting -Admin -IgnoreNotSet -UserSettings @{ visual = @{ progressBar = 'rainbow' } } |
+            Should -Be $true
+        Test-WinGetUserSetting -Admin -UserSettings @{
+            visual = @{ progressBar = 'rainbow' }
+            source = @{ autoUpdateIntervalInMinutes = 3 }
+        } | Should -Be $true
+    }
+
+    It 'Allows raw overwrite to repair malformed protected JSON' {
+        [System.IO.File]::WriteAllText($adminSettingsFilePath, '{')
+        { Get-WinGetUserSetting -Admin } | Should -Throw
+        Test-WinGetUserSetting -Admin -UserSettings @{} | Should -Be $false
+        { Set-WinGetUserSetting -Admin -Merge -UserSettings @{} } | Should -Throw
+        Set-WinGetUserSetting -Admin -UserSettings @{ visual = @{ progressBar = 'retro' } } | Out-Null
+        (Get-WinGetUserSetting -Admin).visual.progressBar | Should -Be 'retro'
+    }
+
+    AfterAll {
+        if ($adminSettingsExisted) {
+            [System.IO.File]::WriteAllBytes($adminSettingsFilePath, $originalAdminSettings)
+        }
+        elseif (Test-Path -LiteralPath $adminSettingsFilePath) {
+            Remove-Item -LiteralPath $adminSettingsFilePath
+        }
+        if ($adminBackupExisted) {
+            [System.IO.File]::WriteAllBytes($adminBackupPath, $originalAdminBackup)
+        }
+        elseif (Test-Path -LiteralPath $adminBackupPath) {
+            Remove-Item -LiteralPath $adminBackupPath
+        }
+    }
+}
+
 Describe 'Get|Enable|Disable-WinGetSetting' {
 
     It 'Get-WinGetSetting' {

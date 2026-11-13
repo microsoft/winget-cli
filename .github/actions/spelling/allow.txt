@@ -8,6 +8,7 @@ addportablefile
 addstore
 admins
 AFX
+anonymization
 appinstaller
 appmodel
 appxbundle
@@ -264,6 +265,7 @@ prioritization
 processthreadsapi
 PRODUCTNAME
 PRODUCTVERSION
+PROGRAMDATA
 PROGRESSONLY
 promptrestart
 PROPERTYDUMP

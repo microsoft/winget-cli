@@ -17,10 +17,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
     using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-    using TelemetryEvent = Microsoft.Management.Configuration.UnitTests.Helpers.TelemetryEvent;
     using Xunit;
     using Xunit.Abstractions;
     using static System.Collections.Specialized.BitVector32;
+    using TelemetryEvent = Microsoft.Management.Configuration.UnitTests.Helpers.TelemetryEvent;
 
     /// <summary>
     /// Unit tests for running test on the processor.

@@ -4,6 +4,7 @@
 #include "Command.h"
 #include "Resources.h"
 #include "Sixel.h"
+#include "Workflows/SettingsFlow.h"
 #include <winget/AdminSettings.h>
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
@@ -1161,10 +1162,14 @@ namespace AppInstaller::CLI
     {
         try
         {
-            if (!Settings::User().GetWarnings().empty() &&
-                !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
+            if (!WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
-                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+                context << Workflow::ShowSettingsWarnings{ Workflow::SettingsWarningType::Migration };
+                if (std::any_of(Settings::User().GetWarnings().begin(), Settings::User().GetWarnings().end(),
+                    [](const auto& warning) { return !warning.IsMigrationWarning; }))
+                {
+                    context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+                }
             }
 
             command->Execute(context);

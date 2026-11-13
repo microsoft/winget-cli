@@ -1,7 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.Client.Cmdlets.dll-Help.xml
 Module Name: Microsoft.WinGet.Client
-ms.date: 08/01/2024
+ms.date: 11/03/2026
 online version:
 schema: 2.0.0
 title: Set-WinGetUserSetting
@@ -15,7 +15,7 @@ Sets configuration settings of the WinGet client for the current user.
 ## SYNTAX
 
 ```
-Set-WinGetUserSetting -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
+Set-WinGetUserSetting -UserSettings <Hashtable> [-Merge] [-Admin] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,6 +25,15 @@ settings file doesn't exist until you set a specific value. The file is stored i
 `$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json`.
 For more information about WinGet settings, see
 [WinGet CLI Settings](https://aka.ms/winget-settings).
+
+Use `-Admin` to write the protected per-user administrator settings file instead.
+This requires elevation and creates the protected file if needed. The command modifies the raw
+selected file, not the effective overlay or administrator capability controls. It does not create
+a backup. Existing `-Merge` behavior is unchanged, including ignoring input nulls during merge;
+omit `-Merge` to write an explicit null that selects a built-in default when the protected
+value is eligible for the current token context.
+An eligible protected null prevents ordinary-file fallback without a validation or migration
+warning. Existing Group Policy handling still takes precedence.
 
 ## EXAMPLES
 
@@ -65,7 +74,40 @@ Set-WinGetUserSetting -UserSettings @{
 }
 ```
 
+### Example 4: Select the built-in download directory with protected settings
+
+Run from an elevated PowerShell session:
+
+```powershell
+Set-WinGetUserSetting -Admin -UserSettings @{
+    downloadBehavior = @{
+        defaultDownloadDirectory = $null
+    }
+}
+```
+
+Replaces the protected file's settings with an explicit default selection. The ordinary file
+cannot override this download directory in either token context. Include any other protected
+settings you want to retain; do not use `-Merge` to persist an input null.
+
 ## PARAMETERS
+
+### -Admin
+
+Writes the protected administrator settings file. Requires administrator privileges.
+Its path is available as `(Get-WinGetSetting).adminSettingsFile`.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
 
 ### -Merge
 

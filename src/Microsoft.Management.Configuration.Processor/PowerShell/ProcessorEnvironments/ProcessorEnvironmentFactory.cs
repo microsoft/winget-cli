@@ -7,12 +7,10 @@
 namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments
 {
     using System;
-    using System.Collections.Generic;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.PowerShell.DscModules;
     using Microsoft.Management.Configuration.Processor.PowerShell.Runspaces;
     using Microsoft.PowerShell;
-    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Factory class to create a processor environment.
@@ -61,12 +59,8 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvir
             if (this.type == PowerShellConfigurationProcessorType.Hosted ||
                 this.type == PowerShellConfigurationProcessorType.Default)
             {
-                var initialSessionState = this.CreateInitialSessionState(
-                    executionPolicy,
-                    new List<ModuleSpecification>
-                    {
-                        dscModule.ModuleSpecification,
-                    });
+                var initialSessionState = InitialSessionState.CreateDefault2();
+                initialSessionState.ExecutionPolicy = executionPolicy;
 
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
@@ -78,19 +72,6 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvir
             }
 
             throw new ArgumentException(this.type.ToString());
-        }
-
-        private InitialSessionState CreateInitialSessionState(ExecutionPolicy policy, IReadOnlyList<ModuleSpecification> modules)
-        {
-            InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
-
-            // If this call fails importing the module, it won't throw but write to the error output. DSCModule is
-            // in charge of verifying that it got loaded correctly and if not, to install it.
-            initialSessionState.ImportPSModule(modules);
-
-            initialSessionState.ExecutionPolicy = policy;
-
-            return initialSessionState;
         }
 
         private ExecutionPolicy GetExecutionPolicy(PowerShellConfigurationProcessorPolicy policy)

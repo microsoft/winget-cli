@@ -28,6 +28,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> SettingsCommand::GetArguments() const
     {
         return {
+            Argument{ Execution::Args::Type::AdminSettingsFile, Resource::String::AdminSettingsFileArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::CreateAdminSettingsFile, Resource::String::AdminSettingsFileCreateArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden },
             Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
@@ -50,6 +52,13 @@ namespace AppInstaller::CLI
 
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingsFile) &&
+            (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) || execArgs.Contains(Execution::Args::Type::AdminSettingDisable)))
+        {
+            throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided("admin|enable|disable"_liv));
+        }
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::CreateAdminSettingsFile, Execution::Args::Type::AdminSettingsFile);
+
         // Get admin setting string for all available options except Unknown
         std::vector<Utility::LocIndString> adminSettingList;
         for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
@@ -72,7 +81,11 @@ namespace AppInstaller::CLI
 
     void SettingsCommand::ExecuteInternal(Execution::Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::AdminSettingEnable))
+        if (context.Args.Contains(Execution::Args::Type::CreateAdminSettingsFile))
+        {
+            context << Workflow::EnsureRunningAsAdmin << Workflow::CreateAdminSettingsFile;
+        }
+        else if (context.Args.Contains(Execution::Args::Type::AdminSettingEnable))
         {
             context <<
                 Workflow::EnsureRunningAsAdmin <<

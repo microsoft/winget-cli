@@ -248,9 +248,26 @@ namespace AppInstaller::Runtime
             result.Path = Settings::User().Get<Setting::ConfigureDefaultModuleRoot>();
             if (result.Path.empty())
             {
-                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
-                result.Path /= s_SecureSettings_Base;
+                result = GetPathDetailsFor(PathName::DefaultConfigurationModules, forDisplay);
+            }
+            mayBeInProfilePath = true;
+            break;
+        case PathName::DefaultConfigurationModules:
+            if (IsRunningWithNonDefaultFullToken())
+            {
+                result = GetPathDetailsFor(PathName::SecureSettingsForWrite, forDisplay);
+                result.Create = !forDisplay;
+                if (!forDisplay)
+                {
+                    // Protect the parent before creating modules beneath it.
+                    PathDetails parent = result;
+                    InitializeAndGetPathTo(std::move(parent));
+                }
                 result.Path /= s_ConfigurationModulesDirectory;
+            }
+            else
+            {
+                result.Path = GetKnownFolderPath(FOLDERID_LocalAppData) / s_SecureSettings_Base / s_ConfigurationModulesDirectory;
             }
             mayBeInProfilePath = true;
             break;
@@ -336,6 +353,7 @@ namespace AppInstaller::Runtime
         case PathName::FontsUserInstallLocation:
         case PathName::FontsMachineInstallLocation:
         case PathName::ConfigurationModules:
+        case PathName::DefaultConfigurationModules:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -458,6 +476,7 @@ namespace AppInstaller::Runtime
         case PathName::FontsUserInstallLocation:
         case PathName::FontsMachineInstallLocation:
         case PathName::ConfigurationModules:
+        case PathName::DefaultConfigurationModules:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

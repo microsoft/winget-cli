@@ -15,7 +15,7 @@ Gets user settings for WinGet.
 ## SYNTAX
 
 ```
-Get-WinGetUserSetting [<CommonParameters>]
+Get-WinGetUserSetting [-Admin] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,6 +23,10 @@ Get-WinGetUserSetting [<CommonParameters>]
 This command displays the WinGet settings for the current user. The settings are stored in
 `$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json`.
 This file only exists if you have changed a user setting, for example, using the `Set-WinGetUserSetting` command.
+
+Use `-Admin` to read the protected per-user administrator settings file instead.
+This returns the raw selected file, not the effective overlay or administrator capability controls.
+Reading does not require elevation and does not create the file.
 
 ## EXAMPLES
 
@@ -33,6 +37,23 @@ Get-WinGetUserSetting
 ```
 
 ## PARAMETERS
+
+### -Admin
+
+Reads the protected administrator settings file. Its path is available as
+`(Get-WinGetSetting).adminSettingsFile`.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
 
 ### CommonParameters
 

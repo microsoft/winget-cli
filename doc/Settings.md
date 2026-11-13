@@ -10,6 +10,92 @@ If you are using the non-packaged WinGet version by building it from source code
 
 If you are creating a settings file from scratch, make sure that the line `"$schema": "https://aka.ms/winget-settings.schema.json",` is in it.
 
+## Administrator Settings
+
+WinGet supports an administrator-managed `admin-settings.json` file for each
+user. Values in this file take precedence over regular user settings, including
+when WinGet runs without administrator privileges. Default install and module
+folders are the exception: you can configure separate folders for normal and
+administrator use.
+
+You can add any supported setting to this file. Your organization's Group Policy
+settings still take precedence over both settings files.
+
+To create or edit administrator settings, open a terminal using **Run as
+administrator**, then run:
+
+```powershell
+winget settings --admin
+```
+
+This opens `admin-settings.json`, creating it if needed. It uses the same setting
+names and JSON format as `settings.json`, but only an administrator can save
+changes. Each user has their own administrator settings file. You can open an
+existing file without administrator privileges to read it.
+
+Run `winget settings export` to find both file locations, listed as
+`userSettingsFile` and `adminSettingsFile`. The new file is separate from the
+features enabled or disabled with `winget settings --enable` and `--disable`.
+
+### Settings that require administrator configuration
+
+When running as administrator, WinGet ignores the following settings in your
+regular `settings.json`. To keep your custom values for administrator use, add
+them to `admin-settings.json`; otherwise, WinGet uses their defaults. A warning
+identifies settings that need to be moved.
+
+| Setting | When the value in `admin-settings.json` is used |
+|---|---|
+| `installBehavior.portablePackageUserRoot` | With or without administrator privileges. |
+| `installBehavior.portablePackageMachineRoot` | With or without administrator privileges. Installing or changing machine-wide portable packages still requires administrator privileges. |
+| `downloadBehavior.defaultDownloadDirectory` | With or without administrator privileges. |
+| `uninstallBehavior.purgePortablePackage` | With or without administrator privileges. |
+| `installBehavior.defaultInstallRoot` | Only when running as administrator. Otherwise, your regular settings apply. |
+| `configureBehavior.defaultModuleRoot` | Only when running as administrator. Otherwise, your regular settings apply. |
+
+If an administrator setting has an invalid value, WinGet warns and uses its
+default rather than the value from your regular settings. If the administrator
+file cannot be read and its backup cannot be used, WinGet warns and uses defaults
+instead of either settings file. You can still open the file to repair it.
+
+### Keeping a default value
+
+Set a value to `null` in `admin-settings.json` to keep WinGet's default, even if
+your regular settings specify something else. This does not produce a warning.
+The two settings marked "Only when running as administrator" above still apply
+only in that case, and Group Policy continues to take precedence.
+
+For example, this keeps the default download folder whether or not you run
+WinGet as administrator:
+
+```json
+{
+  "$schema": "https://aka.ms/winget-settings.schema.json",
+  "downloadBehavior": {
+    "defaultDownloadDirectory": null
+  }
+}
+```
+
+### PowerShell and configuration files
+
+PowerShell supports `-Admin` on `Get-WinGetUserSetting`,
+`Test-WinGetUserSetting`, and `Set-WinGetUserSetting` to select the administrator
+file. Only Set requires administrator privileges. These commands read or change
+the selected file, rather than combining the two files.
+
+`Set-WinGetUserSetting -Merge` skips values set to `$null`. To save a null, omit
+`-Merge` and include all settings you want to keep, since this replaces the file.
+
+For DSC, use `Admin = $true` with `WinGetUserSettings`, or `"admin": true` with
+the DSCv3 `UserSettingsFile` resource. Saving administrator settings requires
+administrator privileges. With PowerShell DSC, use `Action = 'Full'` to save a null.
+
+> [!IMPORTANT]
+> For administrator module folders, choose a location that requires
+> administrator privileges to change. Adding a folder to administrator settings
+> does not change its permissions or protect files already in it.
+
 ## Source
 
 The `source` settings involve configuration to the WinGet source.
@@ -92,6 +178,8 @@ The `disableInstallNotes` behavior affects whether installation notes are shown 
 
 The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
 
+To use this setting when running as administrator, configure it in [administrator settings](#administrator-settings). That value also applies when running normally.
+
 > Note: This setting value must be an absolute path.
 
 ```json
@@ -103,6 +191,8 @@ The `portablePackageUserRoot` setting affects the default root directory where p
 ### Portable Package Machine Root
 
 The `portablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
+
+To use this setting when running as administrator, configure it in [administrator settings](#administrator-settings). That value also applies when running normally. Changing machine-wide portable packages requires administrator privileges.
 
 > Note: This setting value must be an absolute path.
 
@@ -205,6 +295,8 @@ By default, when no user preference or requirement is configured, WinGet selects
 
 The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
 
+Use [administrator settings](#administrator-settings) to choose the root for commands run as administrator. Your regular settings continue to apply when running normally.
+
 ```json
     "installBehavior": {
         "defaultInstallRoot": "C:/installRoot"
@@ -231,6 +323,8 @@ The `uninstallBehavior` settings affect the default behavior of uninstalling (wh
 
 The `purgePortablePackage` behavior affects the default behavior for uninstalling a portable package. If set to `true`, uninstall will remove all files and directories relevant to the `portable` package. This setting only applies to packages with the `portable` installer type. Defaults to `false` if value is not set or is invalid.
 
+To use this setting when running as administrator, configure it in [administrator settings](#administrator-settings). That value also applies when running normally.
+
 ```json
     "uninstallBehavior": {
         "purgePortablePackage": true
@@ -243,7 +337,13 @@ The `configureBehavior` settings affect the default behavior of applying a confi
 
 ### Default Module Root
 
-The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules` if value is not set or is invalid.
+The `defaultModuleRoot` behavior affects the default root directory where modules are installed to. Normally, the default is `%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules`. When running as administrator, WinGet uses a separate protected folder instead.
+
+Use [administrator settings](#administrator-settings) to choose the module folder for configurations run as administrator. Your regular settings continue to apply when running normally.
+
+Configurations that require administrator privileges use the administrator module folder, even when started from a regular terminal. Modules from your regular WinGet module folder are not automatically reused, so WinGet may need to download them again.
+
+You can still choose a folder with `--module-path` (or PowerShell `-ModulePath`). Specifying `default` uses WinGet's default folder rather than this setting.
 
 > Note: This setting value must be an absolute path.
 
@@ -260,6 +360,8 @@ The `downloadBehavior` settings affect the default behavior of downloading packa
 ### Default Download Directory
 
 The `defaultDownloadDirectory` setting affects the default directory where installers are downloaded to. Defaults to `%USERPROFILE%/Downloads/` if value is not set or is invalid.
+
+To use this setting when running as administrator, configure it in [administrator settings](#administrator-settings). That value also applies when running normally.
 
 > Note: This setting value must be an absolute path.
 

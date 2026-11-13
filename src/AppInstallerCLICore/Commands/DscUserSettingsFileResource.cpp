@@ -5,6 +5,7 @@
 #include "DscComposableObject.h"
 #include "Resources.h"
 #include "AppInstallerStrings.h"
+#include <winget/Settings.h>
 
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Settings;
@@ -18,20 +19,17 @@ namespace AppInstaller::CLI
     {
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettingsFileSettings);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_PARTIAL);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(AdminProperty, bool, Admin, "admin", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAdmin, false);
 
-        using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty>;
+        using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty, AdminProperty>;
 
         struct UserSettingsFileFunctionData
         {
-            UserSettingsFileFunctionData()
-                : UserSettingsFileFunctionData(std::nullopt, true)
-            {
-            }
-
             UserSettingsFileFunctionData(const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
                 Input(json, ignoreFieldRequirements),
-                _userSettingsPath(UserSettings::SettingsFilePath())
+                _userSettingsPath(Input.Admin().value_or(false) ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath())
             {
+                Output.Admin(Input.Admin().value_or(false));
             }
 
             const UserSettingsFileResourceObject Input;
@@ -82,12 +80,18 @@ namespace AppInstaller::CLI
             bool WriteOutput()
             {
                 THROW_HR_IF(E_UNEXPECTED, !Output.Settings().has_value());
+                Json::StreamWriterBuilder writer;
+                writer["indentation"] = "  ";
+                auto content = Json::writeString(writer, *Output.Settings());
+                if (Input.Admin().value_or(false))
+                {
+                    return Stream{ Stream::PrimaryAdminSettingsFile }.Set(content);
+                }
+
                 std::ofstream file(_userSettingsPath, std::ios::binary);
                 if (file)
                 {
-                    Json::StreamWriterBuilder writer;
-                    writer["indentation"] = "  ";
-                    file << Json::writeString(writer, *Output.Settings());
+                    file << content;
                     return true;
                 }
 
@@ -207,6 +211,12 @@ namespace AppInstaller::CLI
         {
             UserSettingsFileFunctionData data{ json };
 
+            if (data.Input.Admin().value_or(false))
+            {
+                context << Workflow::EnsureRunningAsAdmin;
+                AICLI_RETURN_IF_TERMINATED(context);
+            }
+
             data.Get();
 
             // Capture the diff before updating the output
@@ -243,7 +253,7 @@ namespace AppInstaller::CLI
 
     void DscUserSettingsFileResource::ResourceFunctionExport(Execution::Context& context) const
     {
-        UserSettingsFileFunctionData data;
+        UserSettingsFileFunctionData data{ GetJsonFromInput(context, false), true };
 
         data.Get();
 
