@@ -25,7 +25,7 @@ namespace AppInstallerCLIE2ETests
             // All tests use TestExeInstaller; try to clean it up for failure cases,
             // then install the base version for pinning
             TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
-            TestCommon.RunAICLICommand("install", "AppInstallerTest.TestExeInstaller -v 1.0.0.0");
+            TestCommon.RunAICLICommand("install", "AppInstallerTest.TestExeInstaller -v 1.0.0.0 --custom \"/Version 1.0.0.0\"");
             TestCommon.RunAICLICommand("pin remove", "AppInstallerTest.TestExeInstaller");
         }
 
@@ -71,8 +71,7 @@ namespace AppInstallerCLIE2ETests
             RunCommandResult result;
             string installDir = Path.GetTempPath();
 
-            // The base version of this app does not log /Version, but it still includes the version number in the log file name.
-            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), Is.True, "Base version installed");
+            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "/Version 1.0.0.0"), Is.True, "Base version installed");
 
             result = TestCommon.RunAICLICommand("pin add", "AppInstallerTest.TestExeInstaller");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
@@ -89,7 +88,7 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("upgrade", "--all");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK), "Upgrade succeeds with nothing to upgrade");
 
-            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "1.0.0.0"), Is.True, "No newer version installed");
+            Assert.That(TestCommon.VerifyTestExeInstalled(installDir, "/Version 1.0.0.0"), Is.True, "No newer version installed");
 
             result = TestCommon.RunAICLICommand("upgrade", "--include-pinned");
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));

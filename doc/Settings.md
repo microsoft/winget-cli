@@ -320,6 +320,12 @@ In addition, there are special values that cover multiple channels.  `default` i
 
 Sets the default strategy for naming log files for installers that support it. `manifest` is the default and uses the manifest name. `timestamp` uses the date and time. `guid` uses a generated GUID. `shortguid` uses the first 8 characters of a generated GUID. Invalid values will revert to `manifest`.
 
+The `manifest` strategy targets a complete log path of at most 150 UTF-16 code units, including the directory and `.log` extension. Existing names are retained when they fit. Otherwise, WinGet omits the package version and uses a compact `YYMMDDhhmmss` timestamp. If that still exceeds the preferred length, it uses an `hhmmss` timestamp and retains as much of the start of the package ID as fits, preserving whole Unicode characters. If no package-ID prefix fits, it falls back to an eight-character random name. The complete package identity and selected path remain available in WinGet's diagnostic log.
+
+This leaves additional room for installers that append text to the supplied log name, but suffix compatibility is best effort, not guaranteed. The log directory is unchanged. Other configured naming strategies retain their formats when they fit within the Windows path limit. Any generated path that reaches `MAX_PATH` falls back to the eight-character random name. WinGet passes that fallback path to the installer even if it still reaches `MAX_PATH`; it does not omit arguments or display a warning because of the path length.
+
+Explicit log paths, such as those supplied with `--log`, are not shortened or omitted by this policy. For configuration runs, `WinGetUserSettings` can select `logging.fileNameStrategy` for the execution user's settings; `WinGetPackage` does not expose a per-package log-path property.
+
 ```json
 	"logging": {
 		"fileNameStrategy": "manifest" | "timestamp" | "guid" | "shortguid"

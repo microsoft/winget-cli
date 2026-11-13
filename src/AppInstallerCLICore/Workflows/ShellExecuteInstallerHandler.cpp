@@ -80,7 +80,7 @@ namespace AppInstaller::CLI::Workflow
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;
-            std::string installerArgs = {};
+            std::string installerArgs;
 
             // Construct install experience arg.
             // SilentWithProgress is default, so look for it first.
@@ -159,67 +159,121 @@ namespace AppInstaller::CLI::Workflow
             return installerArgs;
         }
 
+        std::filesystem::path GetAutomaticInstallerLogPath(Execution::Context& context)
+        {
+            // Chosen to allow a reported 108 character suffix from installer.
+            constexpr size_t preferredPathLength = 150;
+            auto directory = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
+            auto makePath = [&](const std::filesystem::path& stem)
+            {
+                auto result = directory / stem;
+                result += Logging::FileLogger::DefaultExt();
+                return result;
+            };
+            auto shortGuidPath = [&]()
+            {
+                return makePath(Utility::CreateNewGuidNameWString().substr(0, 8));
+            };
+            const auto time = std::chrono::system_clock::now();
+            const auto timestamp = Utility::TimePointToString(time, Utility::TimeFacet::ShortYearSecondPrecision | Utility::TimeFacet::Filename);
+            std::filesystem::path result;
+
+            switch (Settings::User().Get<Settings::Setting::LoggingFileNameStrategy>())
+            {
+            case Logging::LogNameStrategy::Manifest:
+            {
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+                result = makePath(GetPathPart(manifest).native() + L'-' + Utility::ConvertToUTF16(timestamp));
+
+                if (result.native().size() > preferredPathLength)
+                {
+                    auto compactTimestamp = timestamp;
+                    compactTimestamp.erase(std::remove(compactTimestamp.begin(), compactTimestamp.end(), '-'), compactTimestamp.end());
+                    const auto suffix = L"-" + Utility::ConvertToUTF16(compactTimestamp);
+                    const auto id = GetPathPart(manifest, '.', PathPartVersionStrategy::NeverIncludeVersion);
+                    result = makePath(id.native() + suffix);
+
+                    if (result.native().size() > preferredPathLength)
+                    {
+                        const auto timeSuffix = L"-" + Utility::ConvertToUTF16(compactTimestamp.substr(6));
+                        const auto fixedLength = makePath(timeSuffix).native().size();
+                        if (fixedLength < preferredPathLength && !id.empty())
+                        {
+                            const auto idString = id.u8string();
+                            const auto idBudget = preferredPathLength - fixedLength;
+                            auto prefixLength = idBudget;
+                            auto prefix = Utility::ConvertToUTF16(Utility::UTF8Substring(idString, 0, prefixLength));
+                            // Substring counts graphemes, but the path budget counts UTF-16 code units.
+                            while (prefix.size() > idBudget)
+                            {
+                                prefix = Utility::ConvertToUTF16(Utility::UTF8Substring(idString, 0, --prefixLength));
+                            }
+                            if (!prefix.empty())
+                            {
+                                result = makePath(prefix + timeSuffix);
+                            }
+                        }
+                    }
+
+                    if (result.native().size() > preferredPathLength)
+                    {
+                        result = shortGuidPath();
+                    }
+                }
+                AICLI_LOG(CLI, Info, << "Installer log for " << manifest.Id << " [" << manifest.Version << "]: " << result.u8string());
+                break;
+            }
+            case Logging::LogNameStrategy::Timestamp:
+                result = makePath(timestamp);
+                break;
+            case Logging::LogNameStrategy::Guid:
+                result = makePath(Utility::CreateNewGuidNameWString());
+                break;
+            case Logging::LogNameStrategy::ShortGuid:
+                result = shortGuidPath();
+                break;
+            default:
+                AICLI_LOG(CLI, Error, << "Unknown log naming strategy.");
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            if (result.native().size() >= MAX_PATH)
+            {
+                result = shortGuidPath();
+            }
+            if (result.native().size() > preferredPathLength)
+            {
+                AICLI_LOG(CLI, Warning, << "Installer log path exceeds the preferred length of " << preferredPathLength << ": " << result.u8string());
+            }
+
+            return result;
+        }
+
         // Applies values to the template.
         void PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs)
         {
-            // Populate <LogPath> with value from command line or temp path.
-            std::string logPath;
-            if (context.Args.Contains(Execution::Args::Type::Log))
+            if (installerArgs.find(ARG_TOKEN_LOGPATH) != std::string::npos)
             {
-                logPath = context.Args.GetArg(Execution::Args::Type::Log);
-            }
-            else
-            {
-                const auto& manifest = context.Get<Execution::Data::Manifest>();
-                const Logging::LogNameStrategy logNameStrategy = Settings::User().Get<Settings::Setting::LoggingFileNameStrategy>();
-                auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-
-                switch (logNameStrategy)
+                std::filesystem::path logPath;
+                if (context.Args.Contains(Execution::Args::Type::Log))
                 {
-                    case Logging::LogNameStrategy::Manifest:
-                        // Use manifest ID and version for log file name
-                        // Results in <DefaultLogLocation>\<ManifestId>.<ManifestVersion>-<Timestamp>.log
-                        path /= GetPathPart(manifest);
-                        path += '-';
-                        path += Utility::GetCurrentTimeForFilename(true);
-                        break;
-                    case Logging::LogNameStrategy::Timestamp:
-                        // Use only timestamp for log file name
-                        // Results in <DefaultLogLocation>\<Timestamp>.log
-                        path /= Utility::GetCurrentTimeForFilename(true);
-                        break;
-                    case Logging::LogNameStrategy::Guid:
-                        // Use a GUID for log file name
-                        // Results in <DefaultLogLocation>\<GUID>.log
-                        path /= Utility::CreateNewGuidNameWString();
-                        break;
-                    case Logging::LogNameStrategy::ShortGuid:
-                        // Use the first 8 characters of a GUID for log file name
-                        // Results in <DefaultLogLocation>\<First 8 characters of GUID>.log
-                        path /= Utility::CreateNewGuidNameWString().substr(0, 8);
-                        break;
-                    default:
-                        // This should never happen due to validation when reading settings, but handle it just in case.
-                        AICLI_LOG(CLI, Error, << "Unknown log naming strategy.");
-                        THROW_HR(E_UNEXPECTED);
-                        break;
+                    logPath = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Log));
+                }
+                else
+                {
+                    logPath = GetAutomaticInstallerLogPath(context);
                 }
 
-                // Add the extension to the log file regardless of naming strategy
-                path += Logging::FileLogger::DefaultExt();
-
-                logPath = path.u8string();
-            }
-
-            if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
-            {
-                context.Add<Execution::Data::LogPath>(Utility::ConvertToUTF16(logPath));
+                auto logPathString = logPath.u8string();
+                Utility::FindAndReplace(installerArgs, ARG_TOKEN_LOGPATH, logPathString);
+                context.Add<Execution::Data::LogPath>(std::move(logPath));
             }
 
             // Populate <InstallPath> with value from command line.
             if (context.Args.Contains(Execution::Args::Type::InstallLocation))
             {
-                Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), context.Args.GetArg(Execution::Args::Type::InstallLocation));
+                auto locationArg = context.Args.GetArg(Execution::Args::Type::InstallLocation);
+                Utility::FindAndReplace(installerArgs, ARG_TOKEN_INSTALLPATH, locationArg);
             }
 
             // Todo: language token support will be implemented later
@@ -334,8 +388,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        std::string installerArgs = GetInstallerArgsTemplate(context);
-
+        auto installerArgs = GetInstallerArgsTemplate(context);
         PopulateInstallerArgsTemplate(context, installerArgs);
 
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);

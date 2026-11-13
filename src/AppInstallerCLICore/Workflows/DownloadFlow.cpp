@@ -751,7 +751,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', true));
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', PathPartVersionStrategy::DropUnknownVersion));
         }
     }
 

@@ -9,6 +9,9 @@ REQUIRE(?:[_A-Z]*)\(.*\)
 8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 
+# Compact installer log timestamp format
+\bYYMMDDhhmmss\b
+
 El proyecto .* diferentes
 
 # Package family names and package full names
