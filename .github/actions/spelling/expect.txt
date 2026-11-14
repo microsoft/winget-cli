@@ -181,6 +181,11 @@ ewgs
 execustom
 EXEHASH
 experimentalfeatures
+MSIINSTALLCONTEXT
+MSIs
+msiscope
+USERMANAGED
+USERUNMANAGED
 XPRESS
 fdw
 fdwgp
