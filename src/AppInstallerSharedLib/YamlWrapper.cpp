@@ -154,6 +154,30 @@ namespace AppInstaller::YAML::Wrapper
         static int YAML_DOCUMENT_NEST_LEVEL_LIMIT = 100;
         int nestLevel = 0;
 
+        static constexpr size_t YAML_DOCUMENT_ALIAS_DATA_LIMIT = 10 * 1024 * 1024;
+        size_t aliasDataSize = 0;
+
+        // Aliases reuse document nodes, so limit the data their copies add to the result.
+        std::vector<bool> visited(static_cast<size_t>(m_document.nodes.top - m_document.nodes.start));
+        auto trackNode = [&](yaml_node_t* yamlNode)
+        {
+            size_t index = static_cast<size_t>(yamlNode - m_document.nodes.start);
+            if (visited[index])
+            {
+                aliasDataSize += sizeof(Node) + strlen(reinterpret_cast<char*>(yamlNode->tag));
+                if (yamlNode->type == YAML_SCALAR_NODE)
+                {
+                    aliasDataSize += yamlNode->data.scalar.length;
+                }
+
+                THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED, aliasDataSize > YAML_DOCUMENT_ALIAS_DATA_LIMIT, "Too much data created by aliases.");
+            }
+
+            visited[index] = true;
+        };
+
+        trackNode(root);
+
         std::stack<StackItem> resultStack;
         resultStack.emplace(root, &result);
 
@@ -186,6 +210,7 @@ namespace AppInstaller::YAML::Wrapper
                 if (child < stackItem.yamlNode->data.sequence.items.top)
                 {
                     yaml_node_t* childYamlNode = GetNode(*child);
+                    trackNode(childYamlNode);
                     Node& childNode = stackItem.node->AddSequenceNode(ConvertNodeType(childYamlNode->type), ConvertYamlString(childYamlNode->tag, childYamlNode->start_mark), ConvertMark(childYamlNode->start_mark));
                     resultStack.emplace(childYamlNode, &childNode);
                 }
@@ -210,11 +235,13 @@ namespace AppInstaller::YAML::Wrapper
                 {
                     yaml_node_t* keyYamlNode = GetNode(child->key);
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY, keyYamlNode->type != YAML_SCALAR_NODE);
+                    trackNode(keyYamlNode);
 
                     Node keyNode(ConvertNodeType(keyYamlNode->type), ConvertYamlString(keyYamlNode->tag, keyYamlNode->start_mark), ConvertMark(keyYamlNode->start_mark));
                     keyNode.SetScalar(ConvertScalarToString(keyYamlNode, keyYamlNode->start_mark));
 
                     yaml_node_t* valueYamlNode = GetNode(child->value);
+                    trackNode(valueYamlNode);
 
                     Node& childNode = stackItem.node->AddMappingNode(std::move(keyNode), ConvertNodeType(valueYamlNode->type), ConvertYamlString(valueYamlNode->tag, valueYamlNode->start_mark), ConvertMark(valueYamlNode->start_mark));
                     resultStack.emplace(valueYamlNode, &childNode);
