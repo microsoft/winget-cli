@@ -103,8 +103,13 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 // ApplicationFailedException then is most likely that the license is not there.
                 try
                 {
-                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                    ps.AddCommand("winget").Invoke();
+                    // Avoid PowerShell command lookup, which also searches relative PATH entries such as '.'.
+                    string? wingetPath = WingetCLIWrapper.FindInPath(Environment.GetEnvironmentVariable(Constants.PathEnvVar), Constants.WinGetExe);
+                    if (wingetPath != null)
+                    {
+                        var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                        ps.AddCommand(wingetPath).Invoke();
+                    }
                 }
                 catch (ApplicationFailedException e)
                 {
