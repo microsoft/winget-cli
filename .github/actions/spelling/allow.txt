@@ -375,6 +375,7 @@ TOCTOU
 toolsets
 tpl
 TRACELOGGING
+Trenly
 triaged
 TRUSTEDPEOPLE
 UAC
