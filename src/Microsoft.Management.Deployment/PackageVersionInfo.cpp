@@ -66,9 +66,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageVersion = std::move(packageVersion);
     }
-    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
+    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion(
+        winrt::Microsoft::Management::Deployment::PackageVersionInfo const& packageVersionInfo)
     {
-        return m_packageVersion;
+        THROW_HR_IF(E_INVALIDARG, !packageVersionInfo);
+        auto packageVersionInfoInternal = packageVersionInfo.try_as<IPackageVersionInfoInternal>();
+        THROW_HR_IF(E_INVALIDARG, !packageVersionInfoInternal);
+
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion;
+        THROW_IF_FAILED(packageVersionInfoInternal->GetRepositoryPackageVersion(&packageVersion));
+        THROW_HR_IF(E_INVALIDARG, !packageVersion);
+        return packageVersion;
+    }
+    HRESULT STDMETHODCALLTYPE PackageVersionInfo::GetRepositoryPackageVersion(
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion>* packageVersion) noexcept
+    {
+        RETURN_HR_IF(E_POINTER, !packageVersion);
+        *packageVersion = m_packageVersion;
+        return S_OK;
     }
     hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField)
     {

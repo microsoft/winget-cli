@@ -272,6 +272,9 @@
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTableSortHelper.cpp" />
+    <ClCompile Include="PackageObjectAccess.cpp">
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Microsoft.Management.Deployment;$(ProjectDir)..\Microsoft.Management.Deployment\$(PlatformTarget)\$(Configuration)\Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="PackageVersionDataManifest.cpp" />
     <ClCompile Include="PathVariable.cpp" />
@@ -1169,6 +1172,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
       <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <Project>{1cc41a9a-ae66-459d-9210-1e572dd7be69}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
