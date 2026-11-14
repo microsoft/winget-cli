@@ -17,6 +17,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Creates all of the version dependent tables within the database.
         virtual void CreateTables(SQLite::Connection& connection) = 0;
 
+        // Migrates the schema from an older version.
+        // Returns true if migration succeeded, false if migration is not applicable.
+        virtual bool MigrateFrom(SQLite::Connection& connection, const IPinningIndex* current) = 0;
+
         // Version 1.0
         // Adds a pin to the index.
         virtual SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin) = 0;
@@ -27,6 +31,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Removes a pin from the index.
         virtual SQLite::rowid_t RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
+
+        // Attempts to remove a pin from the index.
+        // Returns false if no matching pin exists.
+        virtual bool TryRemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
 
         // Returns the current pin for a given package if it exists.
         virtual std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;

@@ -137,6 +137,66 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Wrapper for GetPins.
+        /// </summary>
+        /// <param name="package">The package to get pins for.</param>
+        /// <returns>A read-only list of PackagePin objects.</returns>
+        public IReadOnlyList<PackagePin> GetPins(CatalogPackage package)
+        {
+            return this.Execute(
+                () => this.packageManager.GetPins(package),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for GetAllPins.
+        /// </summary>
+        /// <returns>A read-only list of all PackagePin objects.</returns>
+        public IReadOnlyList<PackagePin> GetAllPins()
+        {
+            return this.Execute(
+                () => this.packageManager.GetAllPins(),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for PinPackage.
+        /// </summary>
+        /// <param name="package">The package to pin.</param>
+        /// <param name="options">The pin options.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult PinPackage(CatalogPackage package, PinPackageOptions options)
+        {
+            return this.Execute(
+                () => this.packageManager.PinPackage(package, options),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for UnpinPackage.
+        /// </summary>
+        /// <param name="package">The package to unpin.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult UnpinPackage(CatalogPackage package)
+        {
+            return this.Execute(
+                () => this.packageManager.UnpinPackage(package),
+                false);
+        }
+
+        /// <summary>
+        /// Wrapper for ResetAllPins.
+        /// </summary>
+        /// <param name="packageCatalogReference">The catalog reference to reset pins for. Pass null to reset all.</param>
+        /// <returns>A PinPackageResult.</returns>
+        public PinPackageResult ResetAllPins(PackageCatalogReference? packageCatalogReference)
+        {
+            return this.Execute(
+                () => this.packageManager.ResetAllPins(packageCatalogReference!),
+                false);
+        }
+
+        /// <summary>
         /// Gets the version of the package manager that is running.
         /// </summary>
         /// <returns>The version string.</returns>

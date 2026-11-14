@@ -203,6 +203,8 @@ namespace AppInstaller::CLI
             return { type, "blocking"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::PinNote:
+            return { type, "note"_liv, ArgTypeCategory::None };
 
         // Error command
         case Execution::Args::Type::ErrorInput:
