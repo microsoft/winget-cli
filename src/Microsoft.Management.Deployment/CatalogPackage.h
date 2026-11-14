@@ -5,7 +5,19 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    // This local-only interface must not be added to WinMD or registered for marshaling.
+    MIDL_INTERFACE("6ab6bdfb-29fb-48dc-8a40-f92a30e4d1dc")
+    ICatalogPackageInternal : public ::IUnknown
+    {
+        virtual HRESULT STDMETHODCALLTYPE GetRepositoryPackage(
+            std::shared_ptr<::AppInstaller::Repository::ICompositePackage>* package) noexcept = 0;
+    };
+
+    struct CatalogPackage : CatalogPackageT<CatalogPackage, winrt::cloaked<ICatalogPackageInternal>>
+#else
     struct CatalogPackage : CatalogPackageT<CatalogPackage>
+#endif
     {
         CatalogPackage() = default;
 
@@ -13,7 +25,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Initialize(
             ::AppInstaller::Repository::Source source,
             std::shared_ptr<::AppInstaller::Repository::ICompositePackage> package);
-        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> GetRepositoryPackage();
+        static std::shared_ptr<::AppInstaller::Repository::ICompositePackage> GetRepositoryPackage(
+            winrt::Microsoft::Management::Deployment::CatalogPackage const& catalogPackage);
+        HRESULT STDMETHODCALLTYPE GetRepositoryPackage(
+            std::shared_ptr<::AppInstaller::Repository::ICompositePackage>* package) noexcept override;
 #endif
 
         hstring Id();

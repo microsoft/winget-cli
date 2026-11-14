@@ -253,8 +253,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
     {
-        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalPackageVersion = packageVersionInfoImpl->GetRepositoryPackageVersion();
+        auto internalPackageVersion = PackageVersionInfo::GetRepositoryPackageVersion(packageVersionInfo);
         ::AppInstaller::Manifest::Manifest manifest = internalPackageVersion->GetManifest();
 
         std::string targetLocale;
@@ -272,8 +271,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void AddInstalledVersionToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
     {
-        winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(installedVersionInfo);
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
+        auto internalInstalledVersion = PackageVersionInfo::GetRepositoryPackageVersion(installedVersionInfo);
         context->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
     }
 
@@ -910,8 +908,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
 
         // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
-        winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
-        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
+        auto internalPackage = CatalogPackage::GetRepositoryPackage(package);
         comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
 
         return Execution::OrchestratorQueueItemFactory::CreateItemForUninstall(std::wstring{ package.Id() }, std::wstring{ package.InstalledVersion().PackageCatalog().Info().Id() }, std::move(comContext));
@@ -940,8 +937,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
 
         // Add Package which is used to co-relate installed package with available package for repair
-        winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
-        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();
+        auto internalPackage = CatalogPackage::GetRepositoryPackage(package);
         comContext->Add<AppInstaller::CLI::Execution::Data::Package>(internalPackage);
 
         comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseRepair);
