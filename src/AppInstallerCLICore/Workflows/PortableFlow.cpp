@@ -25,6 +25,13 @@ namespace AppInstaller::CLI::Workflow
 
         ScopeEnum GetPortableInstallScope(Execution::Context& context)
         {
+            if (context.Contains(Execution::Data::UninstalledPackageMetadata))
+            {
+                const auto& metadata = context.Get<Execution::Data::UninstalledPackageMetadata>();
+                auto scope = metadata.find(PackageVersionMetadata::InstalledScope);
+                return scope != metadata.end() ? ConvertToScopeEnum(scope->second) : ScopeEnum::Unknown;
+            }
+
             if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate) &&
                 context.Contains(Execution::Data::InstalledPackageVersion))
             {

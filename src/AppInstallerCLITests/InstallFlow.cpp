@@ -21,6 +21,7 @@
 #include <Workflows/MsiInstallFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/PortableFlow.h>
+#include <Workflows/UninstallFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <PortableInstaller.h>
 
@@ -877,6 +878,159 @@ TEST_CASE("InstallFlow_AdminContextWithUserScopeUninstallPrevious", "[InstallFlo
     context << Workflow::EnsureSupportForInstall;
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+}
+
+TEST_CASE("InstallFlow_UninstallPreviousPreservesMetadata", "[InstallFlow][workflow][UninstallPrevious]")
+{
+    using namespace AppInstaller::Repository;
+    const auto installerType = GENERATE(InstallerTypeEnum::Exe, InstallerTypeEnum::Portable);
+    const bool uninstallPreviousArg = GENERATE(false, true);
+    const bool uninstallFails = GENERATE(false, true);
+    CAPTURE(installerType, uninstallPreviousArg, uninstallFails);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+    manifest.Id = "Portable.UninstallPreviousMetadata";
+    auto installer = manifest.Installers.at(0);
+    installer.BaseInstallerType = installerType;
+    installer.UpdateBehavior = uninstallPreviousArg ? UpdateBehaviorEnum::Install : UpdateBehaviorEnum::UninstallPrevious;
+    const IPackageVersion::Metadata metadata{
+        { PackageVersionMetadata::InstalledType, std::string(InstallerTypeToString(installerType)) },
+        { PackageVersionMetadata::InstalledScope, "User" },
+        { PackageVersionMetadata::InstalledArchitecture, "x64" },
+        { PackageVersionMetadata::UserIntentLocale, "en-US" },
+    };
+    const auto productCode = MakeSuitablePathPart(manifest.Id + "_*DefaultSource");
+    AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    TempDirectory target("PortablePreviousMetadata", false);
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(installer);
+    context.Add<Data::InstalledPackageVersion>(TestPackageVersion::Make(manifest, metadata));
+    context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, target);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "machine"sv);
+    if (uninstallPreviousArg)
+    {
+        context.Args.AddArg(Execution::Args::Type::UninstallPrevious);
+    }
+
+    context.Override({ GetUninstallInfo, [](TestContext&) {}, 1 });
+    context.Override({ ExecuteUninstaller, [&](TestContext& context)
+        {
+            REQUIRE(context.Get<Data::UninstalledPackageMetadata>() == metadata);
+            context.Add<Data::InstalledPackageVersion>(std::shared_ptr<IPackageVersion>{});
+            if (uninstallFails)
+            {
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+        }, 1 });
+    if (!uninstallFails)
+    {
+        auto verifyReplacement = [&](TestContext& context)
+            {
+                REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate));
+                REQUIRE(context.Get<Data::UninstalledPackageMetadata>() == metadata);
+                if (installerType == InstallerTypeEnum::Portable)
+                {
+                    context << InitializePortableInstaller;
+                    REQUIRE_FALSE(context.IsTerminated());
+                    REQUIRE(context.Get<Data::PortableInstaller>().GetScope() == ScopeEnum::User);
+                    REQUIRE_FALSE(context.Get<Data::PortableInstaller>().IsUpdate());
+                }
+            };
+        context.Override({ installerType == InstallerTypeEnum::Portable ?
+            Workflow::details::PortableInstall : Workflow::details::ShellExecuteInstall, verifyReplacement, 1 });
+    }
+
+    context << ExecuteInstallerForType(installerType);
+    INFO(output.str());
+    REQUIRE(context.Get<Data::UninstalledPackageMetadata>() == metadata);
+    if (uninstallFails)
+    {
+        REQUIRE_TERMINATED_WITH(context, E_ABORT);
+        REQUIRE(WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate));
+    }
+    else
+    {
+        REQUIRE_FALSE(context.IsTerminated());
+    }
+}
+
+TEST_CASE("PortableInstallFlow_UninstallPreviousPreservesElevatedMachineScope", "[InstallFlow][workflow][UninstallPrevious]")
+{
+    using namespace AppInstaller::Repository;
+    const bool uninstallPreviousArg = GENERATE(false, true);
+    CAPTURE(uninstallPreviousArg);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    TestUserSettings settings;
+    settings.Set<Setting::InstallScopePreference>(ScopeEnum::User);
+    ManifestInstaller installer;
+    installer.BaseInstallerType = InstallerTypeEnum::Portable;
+    installer.UpdateBehavior = uninstallPreviousArg ? UpdateBehaviorEnum::Install : UpdateBehaviorEnum::UninstallPrevious;
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Add<Data::Installer>(installer);
+    context.Add<Data::InstalledPackageVersion>(TestPackageVersion::Make(
+        Manifest{}, TestPackageVersion::MetadataMap{
+            { PackageVersionMetadata::InstalledType, "Portable" },
+            { PackageVersionMetadata::InstalledScope, "Machine" } }));
+    context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    if (uninstallPreviousArg)
+    {
+        context.Args.AddArg(Execution::Args::Type::UninstallPrevious);
+    }
+    TempDirectory links("PortablePreviousMachineLinks", true);
+    const auto originalLinks = AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::PortableLinksMachineLocation);
+    auto restoreLinks = wil::scope_exit([&]()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, originalLinks);
+        });
+    AppInstaller::Filesystem::PathDetails linksDetails;
+    linksDetails.Path = links.GetPath();
+    linksDetails.Create = false;
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksMachineLocation, linksDetails);
+    context.Override({ GetUninstallInfo, [](TestContext&) {}, 1 });
+    context.Override({ ExecuteUninstaller, [](TestContext&) {}, 1 });
+    context.Override({ Workflow::details::PortableInstall, [](TestContext& context)
+        {
+            REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate));
+            REQUIRE_FALSE(context.Args.Contains(Execution::Args::Type::InstallScope));
+            context << EnsureSupportForPortableInstall;
+            REQUIRE_FALSE(context.IsTerminated());
+        }, 1 });
+
+    context << EnsureSupportForPortableInstall << ExecuteInstallerForType(InstallerTypeEnum::Portable);
+    INFO(output.str());
+    REQUIRE_FALSE(context.IsTerminated());
+}
+
+TEST_CASE("PortableInstallFlow_PreservedMetadataRetainsElevationProtection", "[InstallFlow][workflow][UninstallPrevious]")
+{
+    using namespace AppInstaller::Repository;
+    const bool scopePresent = GENERATE(false, true);
+    CAPTURE(scopePresent);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
+    IPackageVersion::Metadata metadata;
+    if (scopePresent)
+    {
+        metadata.emplace(PackageVersionMetadata::InstalledScope, "User");
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    context.Add<Data::UninstalledPackageMetadata>(std::move(metadata));
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "machine"sv);
+    context << InitializePortableInstaller;
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Data::PortableInstaller));
 }
 
 TEST_CASE("FontInstallFlow_ScopeAndElevation", "[InstallFlow][workflow]")

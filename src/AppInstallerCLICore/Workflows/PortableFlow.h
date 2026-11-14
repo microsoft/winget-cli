@@ -19,13 +19,13 @@ namespace AppInstaller::CLI::Workflow
 
     // Verifies that the portable install operation is supported, including elevation checks for user scope.
     // Required Args: None
-    // Inputs: Installer, InstalledPackageVersion?
+    // Inputs: Installer, InstalledPackageVersion?, UninstalledPackageMetadata?
     // Outputs: None
     void EnsureSupportForPortableInstall(Execution::Context& context);
 
     // Initializes the portable installer after elevation checks.
     // Required Args: None
-    // Inputs: Architecture, Manifest, Installer, InstalledPackageVersion?
+    // Inputs: Architecture, Manifest, Installer, InstalledPackageVersion?, UninstalledPackageMetadata?
     // Outputs: None
     void InitializePortableInstaller(Execution::Context& context);
 
