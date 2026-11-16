@@ -87,6 +87,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context);
 
+    // Preserves installed metadata and uninstalls the previous package, clearing update mode on success.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: UninstalledPackageMetadata
+    void UninstallPreviousPackage(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath
