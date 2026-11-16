@@ -172,9 +172,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return CheckInstalledStatus(InstalledStatusType::AllChecks);
     }
-    std::shared_ptr<::AppInstaller::Repository::ICompositePackage> CatalogPackage::GetRepositoryPackage()
+    std::shared_ptr<::AppInstaller::Repository::ICompositePackage> CatalogPackage::GetRepositoryPackage(
+        winrt::Microsoft::Management::Deployment::CatalogPackage const& catalogPackage)
     {
-        return m_package;
+        THROW_HR_IF(E_INVALIDARG, !catalogPackage);
+        auto catalogPackageInternal = catalogPackage.try_as<ICatalogPackageInternal>();
+        THROW_HR_IF(E_INVALIDARG, !catalogPackageInternal);
+
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> package;
+        THROW_IF_FAILED(catalogPackageInternal->GetRepositoryPackage(&package));
+        THROW_HR_IF(E_INVALIDARG, !package);
+        return package;
+    }
+    HRESULT STDMETHODCALLTYPE CatalogPackage::GetRepositoryPackage(
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage>* package) noexcept
+    {
+        RETURN_HR_IF(E_POINTER, !package);
+        *package = m_package;
+        return S_OK;
     }
 
     Windows::Foundation::IReference<int32_t> CatalogPackage::CatalogPriority()
