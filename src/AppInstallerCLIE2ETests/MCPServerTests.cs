@@ -634,7 +634,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             /// <summary>
-            /// Records a timestamped diagnostic entry.
+            /// Records a diagnostic entry with a time stamp.
             /// </summary>
             /// <param name="message">The diagnostic message.</param>
             public void Write(string message)
