@@ -35,9 +35,10 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
 
-    // Repair is done through invoking ShellExecute on downloaded installer.
+    // Runs the prepared modify/uninstaller repair command.
+    // Requires the installed-package check performed by RepairSinglePackage.
     // Required Args: None
-    // Inputs: Manifest?, InstallerPath, InstallerArgs
+    // Inputs: RepairString
     // Outputs: OperationReturnCode
     void ShellExecuteRepairImpl(Execution::Context& context);
 

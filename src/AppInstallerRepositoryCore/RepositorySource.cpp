@@ -749,10 +749,17 @@ namespace AppInstaller::Repository
     {
         auto sourceName = GetDetails().Name;
         auto agreementFields = GetAgreementFieldsFromSourceInformation();
-        auto agreementsIdentifier = GetInformation().SourceAgreementsIdentifier;
+        auto information = GetInformation();
+
+        if (agreementFields == ImplicitAgreementFieldEnum::None && information.SourceAgreements.empty())
+        {
+            // A source that declares an agreements identifier but no agreements has nothing to accept,
+            // which is the state of a source that removed all of its agreements.
+            return true;
+        }
 
         SourceList sourceList;
-        return sourceList.CheckSourceAgreements(sourceName, agreementsIdentifier, agreementFields);
+        return sourceList.CheckSourceAgreements(sourceName, information.SourceAgreementsIdentifier, agreementFields);
     }
 
     void Source::SaveAcceptedSourceAgreements() const

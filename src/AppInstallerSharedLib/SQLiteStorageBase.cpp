@@ -10,6 +10,8 @@ namespace AppInstaller::SQLite
 {
     namespace
     {
+        constexpr std::wstring_view s_SQLiteFileSuffixes[] = { L"", L"-journal", L"-wal", L"-shm" };
+
         static char const* const GetOpenDispositionString(SQLiteStorageBase::OpenDisposition disposition)
         {
             switch (disposition)
@@ -74,14 +76,12 @@ namespace AppInstaller::SQLite
 
     void SQLiteStorageBase::RenameSQLiteDatabase(const std::filesystem::path& source, const std::filesystem::path& destination, bool overwrite)
     {
-        auto fileSuffixes = { L"", L"-journal", L"-wal" };
-
         THROW_WIN32_IF(ERROR_FILE_NOT_FOUND, !std::filesystem::exists(source));
         THROW_WIN32_IF(ERROR_DIRECTORY, std::filesystem::is_directory(source));
 
         if (overwrite)
         {
-            for (const auto& suffix : fileSuffixes)
+            for (const auto& suffix : s_SQLiteFileSuffixes)
             {
                 std::filesystem::path target = AddSuffix(destination, suffix);
 
@@ -92,7 +92,7 @@ namespace AppInstaller::SQLite
             }
         }
 
-        for (const auto& suffix : fileSuffixes)
+        for (const auto& suffix : s_SQLiteFileSuffixes)
         {
             std::filesystem::path target = AddSuffix(source, suffix);
 
@@ -100,6 +100,16 @@ namespace AppInstaller::SQLite
             {
                 std::filesystem::rename(target, AddSuffix(destination, suffix));
             }
+        }
+    }
+
+    void SQLiteStorageBase::DeleteSQLiteDatabase(const std::filesystem::path& path)
+    {
+        THROW_HR_IF(E_INVALIDARG, path.empty());
+
+        for (const auto& suffix : s_SQLiteFileSuffixes)
+        {
+            std::filesystem::remove(AddSuffix(path, suffix));
         }
     }
 

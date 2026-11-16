@@ -23,6 +23,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AcceptSourceAgreementsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminContextActionProhibited);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
@@ -31,7 +32,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AllowRebootArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveMalwareScanSkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
         WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationAccountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationModeArgumentDescription);
@@ -499,8 +500,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSupported);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoAdminRepairForUserScopePackage);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoAdminUninstallForUserScopePackage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledFontFound);
@@ -508,6 +507,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesNeedUpdate);
         WINGET_DEFINE_RESOURCE_STRINGID(NoProxyArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoProgressArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoRepairInfoFound);
@@ -821,6 +821,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradePinnedByUserCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeNotApplicableCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
         WINGET_DEFINE_RESOURCE_STRINGID(UriNotWellFormed);

@@ -87,9 +87,11 @@ centralus
 certmgr
 certs
 cgi
+Cim
 cinq
 CLASSNOTREG
 CLOSEAPP
+closesocket
 cloudapp
 clsctx
 cmpwgc
@@ -244,6 +246,7 @@ Hostx
 Howto
 hre
 hresults
+htonl
 hwnd
 hybridcrt
 Hyperlink
@@ -261,6 +264,7 @@ IFACEMETHODIMP
 IHDR
 iid
 img
+INADDR
 inet
 inmemorydb
 innererror
@@ -339,6 +343,7 @@ Luffytaro
 maclachlan
 Madhusudhan
 MAJORVERSION
+MAKEWORD
 malware
 mapdatafolding
 Maxed
@@ -416,6 +421,7 @@ NRNWNX
 nsis
 NRVO
 NTFS
+ntohs
 nullability
 objbase
 objidl
@@ -610,6 +616,7 @@ tableoutput
 Tagit
 TARG
 taskhostw
+tcpip
 tcreate
 tcs
 tellp
@@ -718,6 +725,7 @@ Wpp
 wpr
 wprp
 wputenv
+WSADATA
 wsb
 wsl
 wsv

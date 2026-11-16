@@ -39,6 +39,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler ConnectionValidationHandler();
         void ConnectionValidationHandler(winrt::Microsoft::Management::Deployment::PackageCatalogConnectionValidationHandler const& value);
         bool IsConnectionValidationHandlerEnabled();
+        // Contract 31
+        bool SourceAgreementsSatisfied();
+        winrt::Microsoft::Management::Deployment::ImplicitAgreementFields ImplicitAgreementFields();
+        void SaveAcceptedSourceAgreements();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

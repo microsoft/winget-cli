@@ -955,6 +955,18 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msix;
     }
 
+    bool InstallerDataWritableUnelevatedForUserScope(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::MSStore:
+            return false;
+        default:
+            return true;
+        }
+    }
+
     bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType)
     {
         return
@@ -962,6 +974,11 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Inno ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Exe;
+    }
+
+    bool DoesInstallerTypeRequireHash(InstallerTypeEnum installerType)
+    {
+        return installerType != InstallerTypeEnum::MSStore;
     }
 
     bool DoesInstallerTypeUseMsiProperties(InstallerTypeEnum installerType)

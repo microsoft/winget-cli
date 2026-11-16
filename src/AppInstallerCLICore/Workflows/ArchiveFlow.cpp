@@ -19,29 +19,30 @@ namespace AppInstaller::CLI::Workflow
 
     void ScanArchiveFromLocalManifest(Execution::Context& context)
     {
-        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        if (!context.Args.Contains(Execution::Args::Type::Manifest))
         {
-            bool scanResult = Archive::ScanZipFile(context.Get<Execution::Data::InstallerPath>());
+            return;
+        }
 
-            if (scanResult)
-            {
-                AICLI_LOG(CLI, Info, << "Archive malware scan passed");
-            }
-            else
-            {
-                if (context.Args.Contains(Execution::Args::Type::IgnoreLocalArchiveMalwareScan) &&
-                    Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride))
-                {
-                    AICLI_LOG(CLI, Warning, << "Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan");
-                    context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Error, << "Archive malware scan failed");
-                    context.Reporter.Error() << Resource::String::ArchiveFailedMalwareScan << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
-                }
-            }
+        if (context.Args.Contains(Execution::Args::Type::IgnoreLocalArchiveMalwareScan) &&
+            Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride))
+        {
+            AICLI_LOG(CLI, Warning, << "Skipping local archive malware scan due to --ignore-local-archive-malware-scan");
+            context.Reporter.Warn() << Resource::String::ArchiveMalwareScanSkipped << std::endl;
+            return;
+        }
+
+        bool scanResult = Archive::ScanZipFile(context.Get<Execution::Data::InstallerPath>());
+
+        if (scanResult)
+        {
+            AICLI_LOG(CLI, Info, << "Archive malware scan passed");
+        }
+        else
+        {
+            AICLI_LOG(CLI, Error, << "Archive malware scan failed");
+            context.Reporter.Error() << Resource::String::ArchiveFailedMalwareScan << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
         }
     }
 

@@ -36,6 +36,7 @@ namespace AppInstallerCLIE2ETests
         public const string InprocTestbedUseTestPackageParameter = "InprocTestbedUseTestPackage";
         public const string WinGetServerPathParameter = "WinGetServerPath";
         public const string RpcTestHelperPathParameter = "RpcTestHelperPath";
+        public const string MCPServerPathParameter = "MCPServerPath";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";

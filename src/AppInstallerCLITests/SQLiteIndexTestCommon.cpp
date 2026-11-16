@@ -4,8 +4,8 @@
 #include "SQLiteIndexTestCommon.h"
 #include "TestCommon.h"
 
-#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
+#include <winget/Hash.h>
 
 #include <algorithm>
 

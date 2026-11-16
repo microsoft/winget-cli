@@ -319,8 +319,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
+    <ClInclude Include="Public\winget\Hash.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
-    <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
@@ -347,6 +347,7 @@
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\ShutdownSynchronization.h" />
     <ClInclude Include="Public\winget\SQLiteDynamicStorage.h" />
     <ClInclude Include="Public\winget\SQLiteMetadataTable.h" />
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
@@ -367,6 +368,7 @@
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
+    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">NotUsing</PrecompiledHeader>
@@ -392,8 +394,8 @@
     </ClCompile>
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="Security.cpp" />
-    <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
+    <ClCompile Include="ShutdownSynchronization.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteStorageBase.cpp" />
     <ClCompile Include="SQLiteTempTable.cpp" />

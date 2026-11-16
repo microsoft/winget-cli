@@ -40,9 +40,10 @@ namespace AppInstaller::CLI::Workflow
     void GetDependenciesInfoForUninstall(Execution::Context& context);
 
     // Builds the dependency graph and creates the sub contexts for each package dependency.
+    // Each dependency's installed version determines whether its operation is an install or upgrade.
     // Required Args: None
     // Inputs: Manifest, Installer and DependencySource
-    // Outputs: Dependencies
+    // Outputs: PackageSubContexts
     struct CreateDependencySubContexts : public WorkflowTask
     {
         CreateDependencySubContexts(

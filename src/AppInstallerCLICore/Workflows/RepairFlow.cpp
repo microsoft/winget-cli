@@ -471,6 +471,7 @@ namespace AppInstaller::CLI::Workflow
     void RepairSinglePackage(Execution::Context& context)
     {
         context <<
+            EnsureSupportForInstalledPackageOperation <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
             ReportExecutionStage(ExecutionStage::Execution) <<

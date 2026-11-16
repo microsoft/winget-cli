@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "DscCommandBase.h"
 #include "DscCommand.h"
+#include <winget/AdminSettings.h>
+#include <winget/NetworkSettings.h>
 #include <winget/Runtime.h>
 #include <winget/StdErrLogger.h>
 
@@ -22,6 +24,27 @@ namespace AppInstaller::CLI
 {
     namespace
     {
+        std::string GetJsonForLog(const Json::Value& input)
+        {
+            auto result = input;
+            if (input.isObject() && input["settings"].isObject())
+            {
+                auto& settings = result["settings"];
+                for (const auto& property : settings.getMemberNames())
+                {
+                    if (Settings::StringToStringAdminSetting(property) == Settings::StringAdminSetting::DefaultProxy)
+                    {
+                        auto& value = settings[property];
+                        if (!value.isNull())
+                        {
+                            value = value.isString() ? Settings::GetProxyUriForLog(value.asString()) : "[invalid proxy URI]";
+                        }
+                    }
+                }
+            }
+            return Json::writeString(Json::StreamWriterBuilder{}, result);
+        }
+
         std::string GetFunctionManifestString(DscFunctions function)
         {
             THROW_HR_IF(E_INVALIDARG, !WI_IsSingleFlagSet(function));
@@ -286,7 +309,7 @@ namespace AppInstaller::CLI
             Json::String errors;
             if (Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
             {
-                AICLI_LOG(CLI, Info, << "Json from input stream:\n" << Json::writeString(Json::StreamWriterBuilder{}, result));
+                AICLI_LOG(CLI, Info, << "Json from input stream:\n" << GetJsonForLog(result));
                 return result;
             }
 

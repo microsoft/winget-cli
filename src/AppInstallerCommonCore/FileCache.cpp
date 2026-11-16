@@ -5,6 +5,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
+#include <winget/Filesystem.h>
 
 namespace AppInstaller::Caching
 {
@@ -158,7 +159,14 @@ namespace AppInstaller::Caching
 
     std::unique_ptr<std::istream> FileCache::GetFile(const std::filesystem::path& relativePath, const Utility::SHA256::HashBuffer& expectedHash) const
     {
-        std::filesystem::path cachedFilePath = m_cacheBase / relativePath;
+        auto normalizedPath = relativePath.lexically_normal();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+            Filesystem::PathEscapesBaseDirectory(relativePath) || !normalizedPath.has_filename() || normalizedPath == ".");
+
+        // Every name must already be a suitable path part, even if ".." removes it.
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, Filesystem::PathHasUnsuitableParts(relativePath));
+
+        std::filesystem::path cachedFilePath = m_cacheBase / normalizedPath;
 
         // Check cache for matching file
         try

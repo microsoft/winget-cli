@@ -4,8 +4,8 @@
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
-#include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Hash.h"
 #include "Public/winget/ThreadGlobals.h"
 #include "winget/Filesystem.h"
 #include "winget/UserSettings.h"
@@ -228,7 +228,7 @@ namespace AppInstaller::Logging
             }());
     }
 
-    void TelemetryTraceLogger::LogStartup(bool isCOMCall) const noexcept
+    void TelemetryTraceLogger::LogStartup(bool isCOMCall, bool logCommandLine) const noexcept
     {
         LocIndString version = Runtime::GetClientVersion();
         LocIndString packageVersion;
@@ -267,7 +267,10 @@ namespace AppInstaller::Logging
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "Process: " << Filesystem::GetExecutablePathForProcess(GetCurrentProcess()).filename() << "[" << GetCurrentProcessId() << "], Level[" << executionLevel << "], Offset: " << &__ImageBase);
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
-        AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
+        if (logCommandLine)
+        {
+            AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
+        }
         if (Runtime::IsRunningInPackagedContext())
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
@@ -599,9 +602,9 @@ namespace AppInstaller::Logging
 
         AICLI_LOG(CLI, Error,
             << "Package hash verification failed. SHA256 in manifest ["
-            << Utility::SHA256::ConvertToString(expected)
+            << Utility::ConvertToHexString(expected)
             << "] does not match download ["
-            << Utility::SHA256::ConvertToString(actual)
+            << Utility::ConvertToHexString(actual)
             << "] with file size [" << downloadSizeInBytes << "] and content type [" << actualContentType << "]");
     }
 

@@ -4,7 +4,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
-#include "Public/AppInstallerSHA256.h"
+#include "Public/winget/Hash.h"
 
 namespace AppInstaller::Utility
 {
@@ -752,7 +752,13 @@ namespace AppInstaller::Utility
             else
             {
                 size_t count = (nextOffset == UBRK_DONE ? std::string::npos : static_cast<size_t>(nextOffset) - static_cast<size_t>(offset));
-                result.append(candidate.substr(static_cast<size_t>(offset), count));
+
+                // A prepended character such as U+0600 joins the next one into its cluster, so check each byte too.
+                for (char c : candidate.substr(static_cast<size_t>(offset), count))
+                {
+                    bool isIllegalByte = static_cast<unsigned char>(c) < 32 || illegalChars.find(c) != std::string::npos;
+                    result.append(1, isIllegalByte ? replaceChar : c);
+                }
             }
 
             ++resultBreakCount;

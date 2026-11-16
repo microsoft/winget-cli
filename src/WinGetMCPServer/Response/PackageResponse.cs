@@ -156,7 +156,7 @@ namespace WinGetMCPServer.Response
                     result.Message = "No applicable upgrade was available for this system";
                     break;
                 case InstallResultStatus.PackageAgreementsNotAccepted:
-                    result.Message = "The package requires accepting agreements; please upgrade manually";
+                    result.Message = "The package requires accepting agreements that could not be presented to the user; please upgrade manually";
                     break;
                 default:
                     result.Message = "Unknown upgrade status";
@@ -226,7 +226,7 @@ namespace WinGetMCPServer.Response
                     result.Message = "No applicable upgrade was available for this system";
                     break;
                 case InstallResultStatus.PackageAgreementsNotAccepted:
-                    result.Message = "The package requires accepting agreements; please install manually";
+                    result.Message = "The package requires accepting agreements that could not be presented to the user; please install manually";
                     break;
                 default:
                     result.Message = "Unknown install status";

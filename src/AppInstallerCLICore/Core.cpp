@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
+#include "Commands/CompleteCommand.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
+#include <winget/AdminSettings.h>
 #include <winget/UserSettings.h>
+#include <winget/NetworkSettings.h>
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
 #include <AppInstallerFileLogger.h>
@@ -99,6 +102,69 @@ namespace AppInstaller::CLI
         }
     }
 
+    void Invocation::Log(const Execution::Args& args, std::wstring_view commandLine) const
+    {
+        if (!Logging::Log().IsEnabled(Logging::Channel::Core, Logging::Level::Info) &&
+            !Logging::Log().IsEnabled(Logging::Channel::CLI, Logging::Level::Info))
+        {
+            return;
+        }
+
+        const auto parsedArgsForLog = CompleteCommand::GetArgumentsForLog(args);
+        std::vector<std::string_view> proxies;
+        if (const auto* parsedProxies = parsedArgsForLog.GetArgs(Execution::Args::Type::Proxy))
+        {
+            proxies.assign(parsedProxies->begin(), parsedProxies->end());
+        }
+        if (Settings::StringToStringAdminSetting(parsedArgsForLog.GetArg(Execution::Args::Type::SettingName)) ==
+            Settings::StringAdminSetting::DefaultProxy)
+        {
+            if (const auto* settingValues = parsedArgsForLog.GetArgs(Execution::Args::Type::SettingValue))
+            {
+                proxies.insert(proxies.end(), settingValues->begin(), settingValues->end());
+            }
+        }
+        // Match longer values first so shorter proxies cannot alter them.
+        std::sort(proxies.begin(), proxies.end(), [](std::string_view a, std::string_view b)
+        {
+            return a.size() == b.size() ? a > b : a.size() > b.size();
+        });
+        proxies.erase(std::unique(proxies.begin(), proxies.end()), proxies.end());
+
+        AICLI_LOG(Core, Info, << "Command line Args: " << [&]() {
+            auto commandLineForLog = Utility::ConvertToUTF8(commandLine);
+            for (const auto proxy : proxies)
+            {
+                if (!proxy.empty())
+                {
+                    Utility::FindAndReplace(commandLineForLog, proxy, Settings::GetProxyUriForLog(proxy));
+                }
+            }
+            return commandLineForLog;
+        }());
+        AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
+            auto argsForLog = m_args;
+            for (const auto proxy : proxies)
+            {
+                if (!proxy.empty())
+                {
+                    const auto proxyForLog = Settings::GetProxyUriForLog(proxy);
+                    for (auto& arg : argsForLog)
+                    {
+                        Utility::FindAndReplace(arg, proxy, proxyForLog);
+                    }
+                }
+            }
+            std::stringstream strstr;
+            for (const auto& arg : argsForLog)
+            {
+                strstr << " '" << arg << '\'';
+            }
+            return strstr.str();
+        }());
+        Logging::Log().SetTag(Logging::Tag::HeadersComplete);
+    }
+
     int CoreMain(int argc, wchar_t const** argv) try
     {
         // This prevents the OS package management from terminating the CLI process before it has had a chance to gracefully exit.
@@ -148,7 +214,8 @@ namespace AppInstaller::CLI
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
         Logging::Telemetry().SetCaller("winget-cli");
-        Logging::Telemetry().LogStartup();
+        // Defer the raw command-line log until proxy arguments have been parsed.
+        Logging::Telemetry().LogStartup(false, false);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
@@ -169,15 +236,6 @@ namespace AppInstaller::CLI
             utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
         }
 
-        AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
-                std::stringstream strstr;
-                for (const auto& arg : utf8Args)
-                {
-                    strstr << " '" << arg << '\'';
-                }
-                return strstr.str();
-            }());
-
         Invocation invocation{ std::move(utf8Args) };
 
         // The root command is our fallback in the event of very bad or very little input
@@ -185,6 +243,8 @@ namespace AppInstaller::CLI
 
         try
         {
+            auto logArguments = wil::scope_exit([&]() { invocation.Log(context.Args, GetCommandLineW()); });
+
             // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
             if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
             {

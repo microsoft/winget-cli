@@ -326,11 +326,26 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::filesystem::path GetPathPart(const Manifest& manifest, char separator, bool dropUnknownVersion)
+    std::filesystem::path GetPathPart(const Manifest& manifest, char separator, PathPartVersionStrategy versionStrategy)
     {
         std::string value = manifest.Id;
 
-        if (!dropUnknownVersion || !Utility::Version{ manifest.Version }.IsUnknown())
+        bool includeVersion = false;
+        switch (versionStrategy)
+        {
+        case PathPartVersionStrategy::AlwaysIncludeVersion:
+            includeVersion = true;
+            break;
+        case PathPartVersionStrategy::DropUnknownVersion:
+            includeVersion = !Utility::Version{ manifest.Version }.IsUnknown();
+            break;
+        case PathPartVersionStrategy::NeverIncludeVersion:
+            break;
+        default:
+            THROW_HR(E_INVALIDARG);
+        }
+
+        if (includeVersion)
         {
             value += separator;
             value += manifest.Version;

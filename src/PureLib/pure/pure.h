@@ -1,3 +1,5 @@
+// This file has been modified for WinGet. See src/PureLib/readme.md for the local changes.
+
 // pure.h - C99 interface:
 
 #ifndef PURE_H
@@ -1658,10 +1660,6 @@ int pure_zip_meta(
       int error = pure_zip_diff_cdh_lfh(&cdh, &lfh);
       if (error) return error;
     }
-    {
-      int error = pure_zip_verify_symlink(&cdh, &lfh, buffer);
-      if (error) return error;
-    }
     assert(lfh.length >= PURE_ZIP_LFH_MIN);
     lfh_offset += lfh.length;
     // File Data (compressed or uncompressed):
@@ -1670,6 +1668,11 @@ int pure_zip_meta(
     }
     lfh_offset += cdh.compressed_size;
     if (lfh_offset > size) return PURE_E_ZIP_LFH_DATA_OVERFLOW;
+    // Verify symlink data only after checking that it is within the buffer:
+    {
+      int error = pure_zip_verify_symlink(&cdh, &lfh, buffer);
+      if (error) return error;
+    }
     // Data Descriptor Record (optional):
     if (lfh.general_purpose_bit_flag & (1 << 3)) {
       {

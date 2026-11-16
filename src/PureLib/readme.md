@@ -7,6 +7,13 @@ It is created using git subtree command:
 
 The PureLib.vcxitems is created to make pure code compiled as part of the WinGet solution.
 
+#### Local changes
+
+Keep these changes to pure.h when updating the subtree:
+
+- It includes `zlib.h` instead of `zlib/zlib.h`, since zlib comes from vcpkg.
+- `pure_zip_meta` verifies symlink data only after checking that the data is within the buffer.
+
 #### Steps used to create the VS project files.
 
 1. VS Create project from existing code wizard to create a Shared Items template.

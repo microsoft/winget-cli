@@ -146,7 +146,7 @@ namespace TestCommon
         ~TestUserSettings();
 
         template <AppInstaller::Settings::Setting S>
-        void Set(typename AppInstaller::Settings::details::SettingMapping<S>::value_t&& value)
+        void Set(typename AppInstaller::Settings::details::SettingMapping<S>::value_t value)
         {
             m_settings[S].emplace<AppInstaller::Settings::details::SettingIndex(S)>(std::move(value));
         }

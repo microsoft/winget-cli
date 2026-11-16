@@ -75,6 +75,30 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
         REQUIRE(PathEscapesBaseDirectory("C:target.exe"));
         REQUIRE(PathEscapesBaseDirectory("C:"));
     }
+
+    SECTION("Paths are decoded as UTF-8")
+    {
+        // The last byte of U+4E01 is a lead byte in some code pages and would hide the next separator.
+        REQUIRE_FALSE(PathEscapesBaseDirectory("\xE4\xB8\x81\\a\\..\\..\\target.exe"));
+        REQUIRE(PathEscapesBaseDirectory("\xE4\xB8\x81\\..\\..\\target.exe"));
+    }
+
+    SECTION("Paths can be checked without converting them to strings")
+    {
+        REQUIRE_FALSE(PathEscapesBaseDirectory(std::filesystem::path{ L"\u4E01\\a\\..\\..\\target.exe" }));
+        REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"\u4E01\\..\\..\\target.exe" }));
+        REQUIRE(PathEscapesBaseDirectory(std::filesystem::path{ L"C:\\target.exe" }));
+    }
+
+    SECTION("String and string-view inputs retain UTF-8 decoding")
+    {
+        std::string containedPath = "\xE4\xB8\x81\\a\\..\\..\\target.exe";
+        std::string escapingPath = "\xE4\xB8\x81\\..\\..\\target.exe";
+        REQUIRE_FALSE(PathEscapesBaseDirectory(containedPath));
+        REQUIRE(PathEscapesBaseDirectory(escapingPath));
+        REQUIRE_FALSE(PathEscapesBaseDirectory(std::string_view{ containedPath }));
+        REQUIRE(PathEscapesBaseDirectory(std::string_view{ escapingPath }));
+    }
 }
 
 TEST_CASE("VerifySymlink", "[filesystem]")

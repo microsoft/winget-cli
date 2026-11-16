@@ -4,8 +4,33 @@
 #include "winget/JsonSchemaValidation.h"
 #include "winget/Resources.h"
 
+#include <regex>
+
 namespace AppInstaller::JsonSchema
 {
+    namespace
+    {
+        struct MultilineRegexEngine
+        {
+            explicit MultilineRegexEngine(const std::string& pattern) :
+#if defined(_MSVC_STL_VERSION) && !defined(_REGEX_LEGACY_MULTILINE_MODE)
+                Regex(pattern, std::regex_constants::ECMAScript)
+#else
+                Regex(pattern, std::regex_constants::ECMAScript | std::regex_constants::multiline)
+#endif
+            {
+            }
+
+            static bool search(const std::string& target, const MultilineRegexEngine& expression)
+            {
+                return std::regex_search(target, expression.Regex);
+            }
+
+        private:
+            std::regex Regex;
+        };
+    }
+
     Json::Value LoadSchemaDoc(std::string_view schemaStr)
     {
         Json::Value schemaJson;
@@ -35,7 +60,7 @@ namespace AppInstaller::JsonSchema
 
     bool Validate(const valijson::Schema& schema, const Json::Value& json, valijson::ValidationResults& results)
     {
-        valijson::Validator schemaValidator;
+        valijson::ValidatorT<MultilineRegexEngine> schemaValidator;
         valijson::adapters::JsonCppAdapter jsonAdapter(json);
         return schemaValidator.validate(schema, jsonAdapter, &results);
     }

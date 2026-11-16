@@ -70,6 +70,8 @@ namespace AppInstaller::CLI::Execution
         MsixDigests,
         InstallerDownloadAuthenticators,
         SelectedIndex,
+        // Indicates that update selection found newer versions, but none had an applicable installer.
+        InstallerInapplicable,
         Max
     };
 
@@ -305,6 +307,12 @@ namespace AppInstaller::CLI::Execution
         {
             // The authenticator map shared with sub contexts
             using value_t = std::shared_ptr<std::map<Authentication::AuthenticationInfo, Authentication::Authenticator>>;
+        };
+
+        template<>
+        struct DataMapping<Data::InstallerInapplicable>
+        {
+            using value_t = bool;
         };
     }
 }

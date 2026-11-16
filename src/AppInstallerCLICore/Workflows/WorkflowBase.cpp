@@ -12,10 +12,10 @@
 #include <winget/ManifestComparator.h>
 #include <winget/FileCache.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
-#include <AppInstallerSHA256.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 #include <winget/IconExtraction.h>
@@ -951,9 +951,10 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
 
-            // Regardless of match type, always use an exact match for the system reference strings.
+            // Package family names use folded exact matching in the local index. Product codes
+            // must be case-insensitive for REST sources, which may preserve manifest casing.
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
@@ -1262,7 +1263,32 @@ namespace AppInstaller::CLI::Workflow
 
         if (lines.empty())
         {
-            context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            if (m_onlyShowUpgrades)
+            {
+                if (linesForExplicitUpgrade.empty() && linesForPins.empty() && packagesWithUnknownVersionSkipped == 0 && packagesWithUserPinsSkipped == 0)
+                {
+                    bool hasPackageFilter =
+                        context.Args.Contains(Execution::Args::Type::Query) ||
+                        context.Args.Contains(Execution::Args::Type::Id) ||
+                        context.Args.Contains(Execution::Args::Type::Name) ||
+                        context.Args.Contains(Execution::Args::Type::Moniker) ||
+                        context.Args.Contains(Execution::Args::Type::Tag) ||
+                        context.Args.Contains(Execution::Args::Type::Command);
+
+                    if (hasPackageFilter)
+                    {
+                        context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << Resource::String::NoPackagesNeedUpdate << std::endl;
+                    }
+                }
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            }
         }
         else
         {
@@ -1725,6 +1751,29 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+        }
+    }
+
+    void EnsureNotRunningWithNonDefaultFullToken(Execution::Context& context)
+    {
+        if (Runtime::IsRunningWithNonDefaultFullToken())
+        {
+            context.Reporter.Error() << Resource::String::AdminContextActionProhibited << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+        }
+    }
+
+    void EnsureSupportForInstalledPackageOperation(Execution::Context& context)
+    {
+        const auto& installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        THROW_HR_IF(E_UNEXPECTED, !installedVersion);
+        auto metadata = installedVersion->GetMetadata();
+        const auto scope = Manifest::ConvertToScopeEnum(metadata[PackageVersionMetadata::InstalledScope]);
+        const auto installedType = Manifest::ConvertToInstallerTypeEnum(metadata[PackageVersionMetadata::InstalledType]);
+
+        if (scope == Manifest::ScopeEnum::User && Manifest::InstallerDataWritableUnelevatedForUserScope(installedType))
+        {
+            context << EnsureNotRunningWithNonDefaultFullToken;
         }
     }
 

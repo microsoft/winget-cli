@@ -370,24 +370,51 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool PathEscapesBaseDirectory(std::string_view relativePath)
+    bool PathEscapesBaseDirectory(const std::filesystem::path& relativePath)
     {
-        std::filesystem::path path{ relativePath };
-
-        // Reject any path that has a root component. This covers absolute paths (e.g. "C:\foo"),
-        // drive-relative paths (e.g. "C:foo") and root-relative paths (e.g. "\foo").
-        if (path.has_root_path())
+        // Root components include drive-relative paths.
+        if (relativePath.has_root_path())
         {
             return true;
         }
 
-        // Resolve any "." and ".." components lexically (i.e. without touching the filesystem).
-        auto resolvedPath = path.lexically_normal();
+        auto resolvedPath = relativePath.lexically_normal();
 
-        // If the normalized path still begins with "..", it points to a parent of the base directory.
         if (!resolvedPath.empty() && *resolvedPath.begin() == "..")
         {
             return true;
+        }
+
+        return false;
+    }
+
+    bool PathEscapesBaseDirectory(std::string_view relativePath)
+    {
+        return PathEscapesBaseDirectory(std::filesystem::path{ Utility::ConvertToUTF16(relativePath) });
+    }
+
+    bool PathHasUnsuitableParts(const std::filesystem::path& relativePath)
+    {
+        for (const auto& part : relativePath)
+        {
+            if (part == "." || part == "..")
+            {
+                continue;
+            }
+
+            std::string name = part.u8string();
+
+            try
+            {
+                if (Utility::MakeSuitablePathPart(name) != name)
+                {
+                    return true;
+                }
+            }
+            catch (...)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -603,8 +630,23 @@ namespace AppInstaller::Filesystem
         return knownFolder.get();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsSameVolume_TestHook_Override = nullptr;
+
+    void TestHook_SetIsSameVolume_Override(bool* result)
+    {
+        s_IsSameVolume_TestHook_Override = result;
+    }
+#endif
+
     bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsSameVolume_TestHook_Override)
+        {
+            return *s_IsSameVolume_TestHook_Override;
+        }
+#endif
         WCHAR volumeName1[MAX_PATH];
         WCHAR volumeName2[MAX_PATH];
 

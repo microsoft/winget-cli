@@ -58,7 +58,7 @@ namespace AppInstaller::Http
         const auto& proxyUri = Settings::Network().GetProxyUri();
         if (proxyUri)
         {
-            AICLI_LOG(Repo, Info, << "Setting proxy for REST HTTP Client helper to " << proxyUri.value());
+            AICLI_LOG(Repo, Info, << "Setting proxy for REST HTTP Client helper to " << Settings::GetProxyUriForLog(proxyUri.value()));
             m_clientConfig.set_proxy(web::web_proxy{ Utility::ConvertToUTF16(proxyUri.value()) });
         }
         else

@@ -190,7 +190,7 @@ namespace AppInstaller::Logging
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup(bool isCOMCall = false) const noexcept;
+        void LogStartup(bool isCOMCall = false, bool logCommandLine = true) const noexcept;
 
         // Logs the invoked command.
         void LogCommand(std::string_view commandName) const noexcept;

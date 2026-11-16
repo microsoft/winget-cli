@@ -360,7 +360,7 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerUrl");
                 }
-                if (installer.Sha256.empty())
+                if (DoesInstallerTypeRequireHash(installer.EffectiveInstallerType()) && installer.Sha256.empty())
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "InstallerSha256");
                 }

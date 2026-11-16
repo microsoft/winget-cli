@@ -108,6 +108,7 @@
   <Import Project="$(ProjectDir)\..\vcpkg.props" />
   <ItemDefinitionGroup>
     <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
@@ -261,6 +262,7 @@
     <ClCompile Include="InstallFlow.cpp" />
     <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
+    <ClCompile Include="Logging.cpp" />
     <ClCompile Include="MatchCriteriaResolver.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
@@ -340,6 +342,7 @@
     <ClCompile Include="TestCertificates.cpp" />
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="TestMsixPackage.cpp" />
+    <ClCompile Include="WorkflowBase.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="Yaml.cpp" />
@@ -709,6 +712,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-InstallerUrl-BlockScalar.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-MultipleArpVersionDeclared.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -758,6 +764,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_MachineScope.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_ARPInstallerType.yaml">

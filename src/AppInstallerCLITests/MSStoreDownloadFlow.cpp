@@ -5,7 +5,7 @@
 #include "TestRestRequestHandler.h"
 #include "WorkflowCommon.h"
 #include <AppInstallerStrings.h>
-#include <AppInstallerSHA256.h>
+#include <winget/Hash.h>
 #include <winget/JsonUtil.h>
 #include <Commands/DownloadCommand.h>
 

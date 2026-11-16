@@ -29,6 +29,7 @@ If your tests uses the test source see the [LocalhostWebServer](#LocalhostWebSer
 | InprocTestbedUseTestPackage | Bool to indicate whether in-proc COM tests should target the test package. |
 | WinGetServerPath | Path to the WindowsPackageManagerServer executable used by the RPC security tests. Defaults to **..\WinGetServer\WindowsPackageManagerServer.exe** relative to the test binaries. |
 | RpcTestHelperPath | Path to the WinGetRpcTestHelper executable used by the RPC security tests. Defaults to **..\WinGetRpcTestHelper\WinGetRpcTestHelper.exe** relative to the test binaries. |
+| MCPServerPath | Command used to start the MCP server for the MCP tests. Defaults to the dev package alias **WindowsPackageManagerMCPServerDev.exe**. MCP tests only run in packaged context. |
 | ForcedExperimentalFeatures | Pipe-separated list of experimental features to force-enable during test setup. |
 | SkipTestSource | I solemnly swear the test won't use the local test source or the source is already set up. |
 
@@ -54,6 +55,7 @@ Assuming you clone winget-cli in c:\dev, the localhost web server is running in 
             <Parameter name="InprocTestbedUseTestPackage" value="false" />
             <Parameter name="WinGetServerPath" value="c:\dev\winget-cli\src\x64\Debug\WinGetServer\WindowsPackageManagerServer.exe" />
             <Parameter name="RpcTestHelperPath" value="c:\dev\winget-cli\src\x64\Debug\WinGetRpcTestHelper\WinGetRpcTestHelper.exe" />
+            <Parameter name="MCPServerPath" value="WindowsPackageManagerMCPServerDev.exe" />
             <Parameter name="ForcedExperimentalFeatures" value="directMSI|resume|fonts" />
             <Parameter name="SkipTestSource" value="false" />
         </TestRunParameters>

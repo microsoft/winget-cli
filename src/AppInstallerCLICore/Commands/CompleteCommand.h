@@ -18,6 +18,9 @@ namespace AppInstaller::CLI
 
         Utility::LocIndView HelpLink() const override;
 
+        // Adds nested proxy values to a logging-only copy of the arguments.
+        static Execution::Args GetArgumentsForLog(const Execution::Args& args);
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };

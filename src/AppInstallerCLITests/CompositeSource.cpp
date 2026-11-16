@@ -2058,6 +2058,95 @@ TEST_CASE("CompositeSource_SxS_Available_TwoVersions_SameAvailable", "[Composite
     REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
 }
 
+TEST_CASE("CompositeSource_SxS_FoldedResultIsNonPrimaryCandidate", "[CompositeSource][SideBySide]")
+{
+    // Installed A is tracked to available P. Installed B correlates to P and Q, so it folds into A.
+    // Installed C correlates only to Q, so B (now folded) and A (if moved into B's index) are candidates for C.
+    std::string productCodeA = "pc1";
+    std::string productCodeB = "pc2";
+    std::string productCodeC = "pc3";
+
+    CompositeWithTrackingTestSetup setup;
+    std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>("AvailableTestSource2");
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
+
+    auto installedA = setup.MakeInstalled().WithDefaultName("NameA").WithVersion("1.0").WithPC(productCodeA);
+    auto installedB = setup.MakeInstalled().WithDefaultName("NameB").WithVersion("2.0").WithPC(productCodeB);
+    auto installedC = setup.MakeInstalled().WithDefaultName("NameC").WithVersion("3.0").WithPC(productCodeC);
+    setup.Tracking->GetIndex().AddManifest(installedA);
+
+    auto availableP = setup.MakeAvailable().WithId("P").ToPackage();
+    auto availableQ = setup.MakeAvailable(secondAvailable).WithId("Q").ToPackage();
+
+    auto getProductCode = [](const SearchRequest& request) -> std::string
+        {
+            for (const auto& item : request.Inclusions)
+            {
+                if (item.Field == PackageMatchField::ProductCode)
+                {
+                    return item.Value;
+                }
+            }
+
+            return std::string{};
+        };
+
+    setup.Available->SearchFunction = [&](const SearchRequest& request)
+        {
+            SearchResult result;
+            std::string productCode = getProductCode(request);
+            if (productCode == productCodeA || productCode == productCodeB)
+            {
+                result.Matches.emplace_back(availableP, Criteria());
+            }
+            return result;
+        };
+
+    secondAvailable->SearchFunction = [&](const SearchRequest& request)
+        {
+            SearchResult result;
+            std::string productCode = getProductCode(request);
+            if (productCode == productCodeB || productCode == productCodeC)
+            {
+                result.Matches.emplace_back(availableQ, Criteria());
+            }
+            return result;
+        };
+
+    SECTION("Tracked result first")
+    {
+        setup.Installed->Everything.Matches.emplace_back(installedA, Criteria());
+        setup.Installed->Everything.Matches.emplace_back(installedB, Criteria());
+        setup.Installed->Everything.Matches.emplace_back(installedC, Criteria());
+    }
+    SECTION("Tracked result moved forward")
+    {
+        setup.Installed->Everything.Matches.emplace_back(installedB, Criteria());
+        setup.Installed->Everything.Matches.emplace_back(installedA, Criteria());
+        setup.Installed->Everything.Matches.emplace_back(installedC, Criteria());
+    }
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 2);
+
+    auto trackedPackage = result.Matches[0].Package;
+    REQUIRE(trackedPackage);
+    REQUIRE(trackedPackage->GetInstalled()->GetVersionKeys().size() == 2);
+    auto trackedAvailable = trackedPackage->GetAvailable();
+    REQUIRE(trackedAvailable.size() == 1);
+    REQUIRE(trackedAvailable[0]->IsSame(availableP->Available[0].get()));
+
+    auto otherPackage = result.Matches[1].Package;
+    REQUIRE(otherPackage);
+    auto otherInstalledVersions = otherPackage->GetInstalled()->GetVersionKeys();
+    REQUIRE(otherInstalledVersions.size() == 1);
+    REQUIRE(otherInstalledVersions[0].Version == "3.0");
+    auto otherAvailable = otherPackage->GetAvailable();
+    REQUIRE(otherAvailable.size() == 1);
+    REQUIRE(otherAvailable[0]->IsSame(availableQ->Available[0].get()));
+}
+
 TEST_CASE("CompositeSource_MappedVersions_ProperSorting", "[CompositeSource]")
 {
     std::string installedID = "Installed.Id";

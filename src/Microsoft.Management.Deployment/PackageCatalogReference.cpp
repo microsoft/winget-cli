@@ -393,4 +393,51 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return IsInProcCaller() && IsConnectionValidationHandlerEnabledForSource(m_sourceReference);
     }
+
+    bool PackageCatalogReference::SourceAgreementsSatisfied()
+    {
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+        if (IsComposite())
+        {
+            // Agreement state is per source. Callers should check each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        return m_sourceReference.CheckSourceAgreements();
+    }
+
+    winrt::Microsoft::Management::Deployment::ImplicitAgreementFields PackageCatalogReference::ImplicitAgreementFields()
+    {
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
+
+        if (IsComposite())
+        {
+            // Agreement state is per source. Callers should check each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        winrt::Microsoft::Management::Deployment::ImplicitAgreementFields result = winrt::Microsoft::Management::Deployment::ImplicitAgreementFields::None;
+        auto fields = m_sourceReference.GetAgreementFieldsFromSourceInformation();
+
+        if (WI_IsFlagSet(fields, ::AppInstaller::Repository::ImplicitAgreementFieldEnum::Market))
+        {
+            result |= winrt::Microsoft::Management::Deployment::ImplicitAgreementFields::Market;
+        }
+
+        return result;
+    }
+
+    void PackageCatalogReference::SaveAcceptedSourceAgreements()
+    {
+        THROW_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageManagement));
+
+        if (IsComposite())
+        {
+            // Agreement state is per source. Callers should save it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        m_sourceReference.SaveAcceptedSourceAgreements();
+    }
 }

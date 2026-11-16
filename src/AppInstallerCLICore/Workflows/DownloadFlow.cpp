@@ -543,10 +543,11 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& [expectedHash, downloadResult] = context.Get<Execution::Data::DownloadHashInfo>();
 
-        if (!std::equal(
+        if (downloadResult.Sha256Hash.empty() || !std::equal(
+            downloadResult.Sha256Hash.begin(),
+            downloadResult.Sha256Hash.end(),
             expectedHash.begin(),
-            expectedHash.end(),
-            downloadResult.Sha256Hash.begin()))
+            expectedHash.end()))
         {
             bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
 
@@ -750,7 +751,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', true));
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / GetPathPart(manifest, '_', PathPartVersionStrategy::DropUnknownVersion));
         }
     }
 

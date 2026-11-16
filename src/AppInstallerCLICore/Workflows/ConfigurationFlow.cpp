@@ -14,9 +14,9 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/Hash.h>
 #include <winget/SelfManagement.h>
 #include <winget/PathTree.h>
 #include <winrt/Microsoft.Management.Configuration.h>
