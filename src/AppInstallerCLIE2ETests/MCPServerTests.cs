@@ -152,14 +152,14 @@ namespace AppInstallerCLIE2ETests
         {
             await using McpClient client = await CreateClientAsync();
 
-            int progressCount = 0;
+            var progressReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             CallToolResult result = await client.CallToolAsync(
                 InstallPackageToolName,
                 new Dictionary<string, object> { ["identifier"] = Constants.ExeInstallerPackageId, ["source"] = Constants.TestSourceName },
-                progress: new Progress<ProgressNotificationValue>(_ => Interlocked.Increment(ref progressCount)));
+                progress: new Progress<ProgressNotificationValue>(_ => progressReceived.TrySetResult(true)));
 
             AssertInstalled(result);
-            Assert.That(() => Volatile.Read(ref progressCount), Is.GreaterThan(0).After(5000, 100));
+            await progressReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
         }
 
         /// <summary>
