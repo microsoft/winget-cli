@@ -20,6 +20,8 @@ issue id: <github issue id>
 ## Solution Design
 
 [comment]: # Outline the design of the solution. Feel free to include ASCII-art diagrams, etc.
+[comment]: # When proposing new settings, also propose corresponding CLI arguments (and vice versa). Settings define user defaults; CLI arguments provide per-invocation overrides.
+[comment]: # When proposing schema changes, address the cross-repository impact: winget-cli (client and schema), winget-cli-restsource (enterprise REST source), and winget-pkgs (validation pipeline and deprecation policy).
 
 ## UI/UX Design
 
@@ -51,7 +53,11 @@ issue id: <github issue id>
 
 [comment]: # What are some of the things that might cause problems with the fixes/features proposed? Consider how the user might be negatively impacted.
 
-## Future considerations
+## Deprecation Path
+
+[comment]: # If this spec replaces an existing field or feature, outline the phased deprecation plan. If not applicable, state that explicitly.
+
+## Future Considerations
 
 [comment]: # What are some of the things that the fixes/features might unlock in the future? Does the implementation of this spec enable scenarios?
 
