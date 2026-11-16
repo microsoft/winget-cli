@@ -24,6 +24,7 @@ namespace AppInstaller::Fonts
 #ifndef AICLI_DISABLE_TEST_HOOKS
     using GetFontRegistryHiveFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
     static GetFontRegistryHiveFunc s_GetFontRegistryHiveOverride;
+    static std::function<void()> s_PackageFontFilesReadCallback;
     static bool s_FontSessionChangesDisabled = false;
 
     void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value)
@@ -35,6 +36,11 @@ namespace AppInstaller::Fonts
     {
         s_FontSessionChangesDisabled = value;
     }
+
+    void TestHook_SetPackageFontFilesReadCallback(std::function<void()> value)
+    {
+        s_PackageFontFilesReadCallback = std::move(value);
+    }
 #endif
 
     namespace
@@ -45,6 +51,7 @@ namespace AppInstaller::Fonts
         constexpr std::wstring_view s_IdentifierPrefix = L"FONT";
         constexpr std::wstring_view s_Separator = L"\\";
         constexpr std::wstring_view s_FontsWinGetPrefix = L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
+        constexpr size_t s_MaxFontFileNameLength = 255;
         const int s_RemoveFontResourceMaxTries = 1000;
 
         Registry::Key GetFontRegistryHive(Manifest::ScopeEnum scope)
@@ -200,6 +207,13 @@ namespace AppInstaller::Fonts
 
         std::vector<PackageFontFile> GetPackageFontFiles(const FontContext& context)
         {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (s_PackageFontFilesReadCallback)
+            {
+                s_PackageFontFilesReadCallback();
+            }
+#endif
+
             auto hive = GetFontRegistryHive(context.Scope);
             auto key = Registry::Key::OpenIfExists(hive, GetFontRegistryPath(context));
             std::vector<PackageFontFile> result;
@@ -233,17 +247,21 @@ namespace AppInstaller::Fonts
             const auto destination = GetRootFontPath(scope);
             auto hive = GetFontRegistryHive(scope);
             auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
-            const auto stem = source.stem();
-            const auto ext = source.extension();
+            const auto stem = source.stem().wstring();
+            const auto ext = source.extension().wstring();
             auto uniqueName = source.filename();
             auto candidatePath = destination / uniqueName;
             int index = 0;
             while (std::filesystem::exists(candidatePath) || (root && root[uniqueName.wstring()].has_value()))
             {
-                std::filesystem::path appendId = { std::to_string(index) };
-                uniqueName = stem;
-                uniqueName += appendId;
-                uniqueName += ext;
+                const auto suffix = std::to_wstring(index);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED, suffix.size() + ext.size() > s_MaxFontFileNameLength);
+                auto stemLength = std::min(stem.size(), s_MaxFontFileNameLength - suffix.size() - ext.size());
+                if (stemLength > 0 && stemLength < stem.size() && IS_HIGH_SURROGATE(stem[stemLength - 1]))
+                {
+                    --stemLength;
+                }
+                uniqueName = stem.substr(0, stemLength) + suffix + ext;
                 candidatePath = destination / uniqueName;
                 index++;
             }
@@ -574,140 +592,160 @@ namespace AppInstaller::Fonts
         return stream.str();
     }
 
-    // Creates font file info used for install, validation, and enumeration.
-    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::wstring& title)
+    namespace
     {
-        auto fileInfo = FontFileInfo();
-        fileInfo.FilePath = filePath;
-        fileInfo.PackageIdentifier = context.GetPackageIdentifier();
-        fileInfo.PackageId = context.PackageId;
-        fileInfo.PackageVersion = context.PackageVersion;
-        fileInfo.InstallerSource = context.InstallerSource;
-        fileInfo.Scope = context.Scope;
-        fileInfo.Title = title;
-
-        // For font file paths in the registry, we may have a relative filename (because the path is assumed).
-        if (fileInfo.FilePath.is_relative())
+        // Creates font file info used for install, validation, and enumeration.
+        FontFileInfo CreateFontFileInfoImpl(const FontContext& context, const std::filesystem::path& filePath,
+            const std::wstring& title, const std::optional<std::filesystem::path>& installedPath)
         {
-            // Relative path is assumed to be relative to the default location for the scope.
-            // We are assuming that a relative file path input refers to an already-installed file.
-            auto fullPath = GetRootFontPath(fileInfo.Scope);
-            fullPath /= fileInfo.FilePath;
-            fileInfo.FilePath = std::move(fullPath);
+            auto fileInfo = FontFileInfo();
+            fileInfo.FilePath = filePath;
+            fileInfo.PackageIdentifier = context.GetPackageIdentifier();
+            fileInfo.PackageId = context.PackageId;
+            fileInfo.PackageVersion = context.PackageVersion;
+            fileInfo.InstallerSource = context.InstallerSource;
+            fileInfo.Scope = context.Scope;
+            fileInfo.Title = title;
+
+            // For font file paths in the registry, we may have a relative filename (because the path is assumed).
+            if (fileInfo.FilePath.is_relative())
+            {
+                // Relative path is assumed to be relative to the default location for the scope.
+                // We are assuming that a relative file path input refers to an already-installed file.
+                auto fullPath = GetRootFontPath(fileInfo.Scope);
+                fullPath /= fileInfo.FilePath;
+                fileInfo.FilePath = std::move(fullPath);
+            }
+
+            // Get information about the font file itself.
+            auto fontCatalog = FontCatalog();
+            fileInfo.WinGetSupported = fontCatalog.IsFontFileSupported(fileInfo.FilePath, fileInfo.FileType);
+            if (fileInfo.WinGetSupported && fileInfo.Title.empty())
+            {
+                try
+                {
+                    fileInfo.Title = GetFontFileTitle(fileInfo.FilePath);
+                }
+                CATCH_LOG();
+            }
+
+            if (fileInfo.Title.empty())
+            {
+                // If the title is still empty (such as failure to set it from the File), use the Filename
+                fileInfo.Title = fileInfo.FilePath.filename().wstring();
+            }
+
+            fileInfo.RegistryPackagePath = GetFontRegistryPath(context);
+            fileInfo.RegistryInstallPath = s_FontsPathSubkey;
+
+            auto registeredPath = installedPath;
+            if (!registeredPath && context.InstallerSource == InstallerSource::WinGet)
+            {
+                registeredPath = GetRegisteredFontInstallPath(context, fileInfo.FilePath);
+            }
+            if (registeredPath)
+            {
+                fileInfo.InstallPath = registeredPath.value();
+            }
+            else if (context.InstallerSource == InstallerSource::Unknown)
+            {
+                fileInfo.InstallPath = fileInfo.FilePath;
+            }
+            else
+            {
+                fileInfo.InstallPath = GetUniquePathForDestination(fileInfo.FilePath, context.Scope);
+            }
+
+            fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath);
+            fileInfo.IsFontFileRegistered = !GetFontRegistrations(fileInfo.Scope, fileInfo.InstallPath).empty();
+            if (fileInfo.IsFontFileInstalled && fileInfo.IsFontFileRegistered)
+            {
+                fileInfo.Status = FontStatus::OK;
+            }
+            else if (fileInfo.IsFontFileInstalled || fileInfo.IsFontFileRegistered)
+            {
+                fileInfo.Status = FontStatus::Corrupt;
+            }
+            else
+            {
+                fileInfo.Status = FontStatus::Absent;
+            }
+
+            return fileInfo;
         }
 
-        // Get information about the font file itself.
-        auto fontCatalog = FontCatalog();
-        fileInfo.WinGetSupported = fontCatalog.IsFontFileSupported(fileInfo.FilePath, fileInfo.FileType);
-        if (fileInfo.WinGetSupported && fileInfo.Title.empty())
+        FontValidationResult ValidateFontPackageImpl(FontContext& context, bool installedFiles)
         {
+            AssertPackageInformation(context);
+
+            auto result = FontValidationResult();
+
+            AICLI_LOG(Core, Info, << "Validating font package: " << context.PackageId.c_str() << " " << context.PackageVersion.c_str());
+
             try
             {
-                fileInfo.Title = GetFontFileTitle(fileInfo.FilePath);
+                const auto packageFiles = installedFiles ? GetPackageFontFiles(context) : std::vector<PackageFontFile>{};
+                const auto fileCount = installedFiles ? packageFiles.size() : context.PackageFiles.size();
+                for (size_t i = 0; i < fileCount; ++i)
+                {
+                    const auto& file = installedFiles ? packageFiles[i].FilePath : context.PackageFiles[i];
+                    THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
+                        std::any_of(result.FontFileInfos.begin(), result.FontFileInfos.end(), [&](const auto& info)
+                            { return FontPathsEqual(info.FilePath.filename(), file.filename()); }),
+                        "Font package contains duplicate filenames: %ls", file.filename().c_str());
+                    result.FontFileInfos.push_back(CreateFontFileInfoImpl(context, file, {},
+                        installedFiles ? std::optional<std::filesystem::path>{ file } : std::nullopt));
+                }
+
+                // We create an overall status for the validation with the following determination:
+                // If ALL of the files are OK, the package is OK.
+                // If ALL of the files are Absent, the package is Absent.
+                // If there is any combination, the package is Corrupt.
+                // We must check each file info to see if the package is supported by WinGet.
+                // If any file is unsupported then there are unsupported fonts in the package.
+                for (const auto& fontFileInfo : result.FontFileInfos)
+                {
+                    if (!fontFileInfo.WinGetSupported)
+                    {
+                        result.HasUnsupportedFonts = true;
+                    }
+
+                    if (fontFileInfo.Status != result.Status)
+                    {
+                        if (result.Status == FontStatus::Unknown)
+                        {
+                            // This is the first status we've seen, make it the default.
+                            result.Status = fontFileInfo.Status;
+                        }
+                        else
+                        {
+                            // Previous status now differs from current status, package is corrupt.
+                            result.Status = FontStatus::Corrupt;
+                        }
+                    }
+                }
+
+                result.Result = FontResult::Success;
             }
-            CATCH_LOG();
-        }
+            catch (...)
+            {
+                LOG_CAUGHT_EXCEPTION();
+                result.HResult = APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED;
+                result.Result = FontResult::Error;
+            }
 
-        if (fileInfo.Title.empty())
-        {
-            // If the title is still empty (such as failure to set it from the File), use the Filename
-            fileInfo.Title = fileInfo.FilePath.filename().wstring();
+            return result;
         }
+    }
 
-        fileInfo.RegistryPackagePath = GetFontRegistryPath(context);
-        fileInfo.RegistryInstallPath = s_FontsPathSubkey;
-
-        const auto registeredPath = context.InstallerSource == InstallerSource::WinGet ?
-            GetRegisteredFontInstallPath(context, fileInfo.FilePath) : std::nullopt;
-        if (registeredPath)
-        {
-            fileInfo.InstallPath = registeredPath.value();
-        }
-        else if (context.InstallerSource == InstallerSource::Unknown)
-        {
-            fileInfo.InstallPath = fileInfo.FilePath;
-        }
-        else
-        {
-            fileInfo.InstallPath = GetUniquePathForDestination(fileInfo.FilePath, context.Scope);
-        }
-
-        fileInfo.IsFontFileInstalled = std::filesystem::exists(fileInfo.InstallPath);
-        fileInfo.IsFontFileRegistered = !GetFontRegistrations(fileInfo.Scope, fileInfo.InstallPath).empty();
-        if (fileInfo.IsFontFileInstalled && fileInfo.IsFontFileRegistered)
-        {
-            fileInfo.Status = FontStatus::OK;
-        }
-        else if (fileInfo.IsFontFileInstalled || fileInfo.IsFontFileRegistered)
-        {
-            fileInfo.Status = FontStatus::Corrupt;
-        }
-        else
-        {
-            fileInfo.Status = FontStatus::Absent;
-        }
-
-        return fileInfo;
+    FontFileInfo CreateFontFileInfo(const FontContext& context, const std::filesystem::path& filePath, const std::wstring& title)
+    {
+        return CreateFontFileInfoImpl(context, filePath, title, std::nullopt);
     }
 
     FontValidationResult ValidateFontPackage(FontContext& context)
     {
-        AssertPackageInformation(context);
-
-        auto result = FontValidationResult();
-
-        AICLI_LOG(Core, Info, << "Validating font package: " << context.PackageId.c_str() << " " << context.PackageVersion.c_str());
-
-        try
-        {
-            // Create font file info for each package file
-            for (const auto& file : context.PackageFiles)
-            {
-                THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
-                    std::any_of(result.FontFileInfos.begin(), result.FontFileInfos.end(), [&](const auto& info)
-                        { return FontPathsEqual(info.FilePath.filename(), file.filename()); }),
-                    "Font package contains duplicate filenames: %ls", file.filename().c_str());
-                result.FontFileInfos.push_back(CreateFontFileInfo(context, file));
-            }
-
-            // We create an overall status for the validation with the following determination:
-            // If ALL of the files are OK, the package is OK.
-            // If ALL of the files are Absent, the package is Absent.
-            // If there is any combination, the package is Corrupt.
-            // We must check each file info to see if the package is supported by WinGet.
-            // If any file is unsupported then there are unsupported fonts in the package.
-            for (const auto& fontFileInfo : result.FontFileInfos)
-            {
-                if (!fontFileInfo.WinGetSupported)
-                {
-                    result.HasUnsupportedFonts = true;
-                }
-
-                if (fontFileInfo.Status != result.Status)
-                {
-                    if (result.Status == FontStatus::Unknown)
-                    {
-                        // This is the first status we've seen, make it the default.
-                        result.Status = fontFileInfo.Status;
-                    }
-                    else
-                    {
-                        // Previous status now differs from current status, package is corrupt.
-                        result.Status = FontStatus::Corrupt;
-                    }
-                }
-            }
-
-            result.Result = FontResult::Success;
-        }
-        catch (...)
-        {
-            LOG_CAUGHT_EXCEPTION();
-            result.HResult = APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED;
-            result.Result = FontResult::Error;
-        }
-
-        return result;
+        return ValidateFontPackageImpl(context, false);
     }
 
     FontOperationResult InstallFontPackage(FontContext& context)
@@ -1154,26 +1192,17 @@ namespace AppInstaller::Fonts
                                 {
                                     auto packageId = ConvertToUTF16(packageSubKey.Name());
                                     auto version = ConvertToUTF16(versionSubKey.Name());
-                                    auto packageVersionSubKey = versionSubKey.Open();
-                                    for (const auto& versionValue : packageVersionSubKey.Values())
+                                    auto context = FontContext();
+                                    context.Scope = scope;
+                                    context.InstallerSource = InstallerSource::WinGet;
+                                    context.PackageId = packageId;
+                                    context.PackageVersion = version;
+                                    const auto packageFiles = GetPackageFontFiles(context);
+                                    for (const auto& file : packageFiles)
                                     {
-                                        // Values are the files.
-                                        auto value = versionValue.Value();
-                                        if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
-                                        {
-                                            continue;
-                                        }
-
-                                        std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-
-                                        auto context = FontContext();
-                                        context.Scope = scope;
-                                        context.InstallerSource = InstallerSource::WinGet;
-                                        context.PackageId = packageId;
-                                        context.PackageVersion = version;
-                                        auto fontFile = CreateFontFileInfo(context, filePath);
+                                        auto fontFile = CreateFontFileInfoImpl(context, file.FilePath, {}, file.FilePath);
                                         fontFiles.push_back(std::move(fontFile));
-                                        wingetFonts.push_back(filePath);
+                                        wingetFonts.push_back(file.FilePath);
                                     }
                                 }
                             }
@@ -1257,20 +1286,7 @@ namespace AppInstaller::Fonts
                                 context.PackageId = packageId;
                                 context.PackageVersion = version;
 
-                                auto packageVersionSubKey = versionSubKey.Open();
-                                for (const auto& versionValue : packageVersionSubKey.Values())
-                                {
-                                    auto value = versionValue.Value();
-                                    if (!value.has_value() || (value.value().GetType() != Registry::Value::Type::String))
-                                    {
-                                        continue;
-                                    }
-
-                                    std::filesystem::path filePath = { value->GetValue<Registry::Value::Type::String>() };
-                                    context.AddPackageFile(filePath);
-                                }
-
-                                auto validationResult = ValidateFontPackage(context);
+                                auto validationResult = ValidateFontPackageImpl(context, true);
                                 if (validationResult.Status != FontStatus::Absent)
                                 {
                                     auto packageInfo = FontPackageInfo();

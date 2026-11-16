@@ -309,10 +309,9 @@ namespace AppInstaller::CLI::Workflow
         fontContext.PackageId = ConvertToUTF16(installedPackage->GetProperty(Repository::PackageVersionProperty::Moniker));
         fontContext.PackageVersion = ConvertToUTF16(installedPackage->GetProperty(Repository::PackageVersionProperty::Version));
 
-        if (fontContext.Scope == Manifest::ScopeEnum::User && Runtime::IsRunningWithNonDefaultFullToken())
+        if (fontContext.Scope != Manifest::ScopeEnum::Machine)
         {
-            context.Reporter.Error() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+            AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
         }
         if (fontContext.Scope == Manifest::ScopeEnum::Machine && !Runtime::IsRunningAsAdmin())
         {

@@ -68,6 +68,7 @@ namespace AppInstaller
         using GetFontRegistryHiveFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
         void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value);
         void TestHook_SetFontSessionChangesDisabled(bool value);
+        void TestHook_SetPackageFontFilesReadCallback(std::function<void()> value);
     }
 
     namespace Logging

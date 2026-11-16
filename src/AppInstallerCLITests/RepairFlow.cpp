@@ -16,7 +16,7 @@ using namespace AppInstaller::Repository;
 
 TEST_CASE("RepairFlow_AdminContextRejectsUserScopeBeforePreparation", "[RepairFlow][workflow]")
 {
-    const auto installedType = GENERATE("Burn", "Msi");
+    const auto installedType = GENERATE("Burn", "Msi", "Font");
     CAPTURE(installedType);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(true);
 
@@ -32,10 +32,12 @@ TEST_CASE("RepairFlow_AdminContextRejectsUserScopeBeforePreparation", "[RepairFl
     context << AppInstaller::CLI::Workflow::RepairSinglePackage;
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Data::OperationReturnCode));
 }
 
 TEST_CASE("RepairFlow_FontUsesInstalledMetadata", "[RepairFlow][workflow]")
 {
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
     const HRESULT repairResult = GENERATE(S_OK, APPINSTALLER_CLI_ERROR_FONT_FILE_NOT_FOUND);
     std::ostringstream output;
     TestContext context{ output, std::cin };
@@ -84,6 +86,8 @@ TEST_CASE("RepairFlow_FontBlocksElevatedUserRepair", "[RepairFlow][workflow]")
     context.Add<Data::InstalledPackageVersion>(TestPackageVersion::Make(manifest, metadata));
     context << AppInstaller::CLI::Workflow::FontRepairImpl;
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
+    REQUIRE_FALSE(context.Contains(Data::OperationReturnCode));
+    REQUIRE(output.str().find("non-administrator context") != std::string::npos);
 }
 
 TEST_CASE("RepairFlow_ArchiveFontNeedsNoExternalRepairInfo", "[RepairFlow][workflow]")

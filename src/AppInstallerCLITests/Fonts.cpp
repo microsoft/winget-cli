@@ -45,6 +45,7 @@ namespace
         {
             TestHook_SetGetFontRegistryHive_Override({});
             TestHook_SetFontSessionChangesDisabled(false);
+            TestHook_SetPackageFontFilesReadCallback({});
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsUserInstallLocation, UserPath);
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsMachineInstallLocation, MachinePath);
             AppInstaller::Registry::Key::DeleteTree(RegistryRoot, RegistryPath);
@@ -123,6 +124,11 @@ namespace
             result.push_back(value.Name());
         }
         return result;
+    }
+
+    std::filesystem::path ExtendedLengthPath(const std::filesystem::path& path)
+    {
+        return L"\\\\?\\" + path.wstring();
     }
 }
 
@@ -322,6 +328,136 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RejectsUnsafeFilenames", "[fonts][f
     REQUIRE(UninstallFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
     REQUIRE(RegistryString(Package(context), registryName) == filePath.wstring());
     REQUIRE(std::filesystem::exists(installed));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_MaximumFilenameCollisions", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const bool supplementaryCharacter = GENERATE(false, true);
+    const int suffix = GENERATE(0, 10);
+    auto context = Context(scope);
+    // Extended-length paths isolate the filename component limit from MAX_PATH.
+    const auto root = ExtendedLengthPath(RootPath(scope));
+    AppInstaller::Runtime::TestHook_SetPathOverride(scope == ScopeEnum::Machine ?
+        AppInstaller::Runtime::PathName::FontsMachineInstallLocation : AppInstaller::Runtime::PathName::FontsUserInstallLocation, root);
+    auto cleanup = wil::scope_exit([&]() { std::filesystem::remove_all(ExtendedLengthPath(Directory.GetPath())); });
+    const auto stem = std::wstring(249, L'f') + (supplementaryCharacter ? L"\U0001F600" : L"ff");
+    const std::filesystem::path name = stem + L".ttf";
+    const auto source = ExtendedLengthPath(Directory.GetPath()) / "Source" / name;
+    const auto existing = root / name;
+    const auto destination = root /
+        (std::wstring(suffix == 0 && !supplementaryCharacter ? 250 : 249, L'f') + std::to_wstring(suffix) + L".ttf");
+    REQUIRE(name.wstring().size() == 255);
+    CopyFont(source);
+    CopyFont(existing);
+    for (int i = 0; i < suffix; ++i)
+    {
+        Root(scope).SetValue(std::wstring(supplementaryCharacter ? 249 : 250, L'f') + std::to_wstring(i) + L".ttf", L"Unrelated.ttf");
+    }
+    context.AddPackageFile(source);
+
+    REQUIRE(InstallFontPackage(context).HResult == S_OK);
+    REQUIRE(std::filesystem::exists(destination));
+    REQUIRE(RegistryString(Package(context), name.wstring()) == destination.wstring());
+    REQUIRE(ValidateFontPackage(context).Status == FontStatus::OK);
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == static_cast<size_t>(suffix + 1));
+    REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+        {
+            return font.InstallerSource == InstallerSource::WinGet && font.FilePath == destination && font.Status == FontStatus::OK;
+        }) == 1);
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(destination));
+    REQUIRE(std::filesystem::exists(existing));
+    REQUIRE(RegistryValueNames(Root(scope)).size() == static_cast<size_t>(suffix));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairMigratesMaximumFilename", "[fonts][fontlayout]")
+{
+    auto context = Context(ScopeEnum::User);
+    const auto root = ExtendedLengthPath(RootPath(context.Scope));
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsUserInstallLocation, root);
+    auto cleanup = wil::scope_exit([&]() { std::filesystem::remove_all(ExtendedLengthPath(Directory.GetPath())); });
+    const std::filesystem::path name = std::wstring(251, L'f') + L".ttf";
+    const auto source = root / s_WinGetFontPrefix / context.PackageId / context.PackageVersion / name;
+    const auto existing = root / name;
+    const auto destination = root / (std::wstring(250, L'f') + L"0.ttf");
+    CopyFont(source);
+    CopyFont(existing);
+    Package(context).SetValue(L"Font title", source.wstring());
+    Root(context.Scope).SetValue(L"Font title (TrueType)", source.wstring());
+
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(std::filesystem::exists(destination));
+    REQUIRE_FALSE(std::filesystem::exists(source));
+    REQUIRE_FALSE(Package(context)[std::wstring{ L"Font title" }].has_value());
+    REQUIRE_FALSE(Root(context.Scope)[std::wstring{ L"Font title (TrueType)" }].has_value());
+    REQUIRE(RegistryString(Package(context), name.wstring()) == destination.wstring());
+    REQUIRE(RegistryString(Root(context.Scope), destination.filename().wstring()) == destination.wstring());
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(destination));
+    REQUIRE(std::filesystem::exists(existing));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsMappingsOncePerVersion", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    auto context = Context(scope);
+    for (const auto& version : { L"1.0", L"2.0" })
+    {
+        context.PackageVersion = version;
+        for (int i = 0; i < 3; ++i)
+        {
+            const auto name = L"Font" + std::to_wstring(i) + L".ttf";
+            const auto installed = RootPath(scope) / (context.PackageVersion + name);
+            CopyFont(installed);
+            Package(context).SetValue(name, installed.wstring());
+            Root(scope).SetValue(installed.filename().wstring(),
+                scope == ScopeEnum::Machine ? installed.filename().wstring() : installed.wstring());
+        }
+    }
+
+    size_t mappingReads = 0;
+    TestHook_SetPackageFontFilesReadCallback([&]() { ++mappingReads; });
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == 6);
+    REQUIRE(mappingReads == 2);
+    for (const auto& font : inventory)
+    {
+        REQUIRE(font.InstallerSource == InstallerSource::WinGet);
+        REQUIRE(font.Status == FontStatus::OK);
+        REQUIRE(font.InstallPath == font.FilePath);
+    }
+
+    mappingReads = 0;
+    const auto packages = GetInstalledFontPackages(scope);
+    REQUIRE(packages.size() == 2);
+    REQUIRE(mappingReads == 2);
+    for (const auto& package : packages)
+    {
+        REQUIRE(package.Status == FontStatus::OK);
+    }
+
+    const auto added = RootPath(scope) / L"Added.ttf";
+    CopyFont(added);
+    Package(context).SetValue(L"Added.ttf", added.wstring());
+    Root(scope).SetValue(L"Added.ttf", scope == ScopeEnum::Machine ? added.filename().wstring() : added.wstring());
+    mappingReads = 0;
+    REQUIRE(GetInstalledFontFiles().size() == 7);
+    REQUIRE(mappingReads == 2);
+
+    Package(context).SetValue(L"Invalid.ttf", DWORD{ 1 });
+    mappingReads = 0;
+    const auto updatedPackages = GetInstalledFontPackages(scope);
+    REQUIRE(updatedPackages.size() == 2);
+    REQUIRE(mappingReads == 2);
+    REQUIRE(std::count_if(updatedPackages.begin(), updatedPackages.end(), [&](const auto& package)
+        {
+            return package.PackageVersion == context.PackageVersion && package.Status == FontStatus::Unknown;
+        }) == 1);
+    REQUIRE(RepairFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
+    REQUIRE(UninstallFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
 }
 
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidPackage", "[fonts][fontlayout]")
