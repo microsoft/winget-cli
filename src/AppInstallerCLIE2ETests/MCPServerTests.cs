@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -14,6 +15,7 @@ namespace AppInstallerCLIE2ETests
     using System.Threading;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.Extensions.Logging;
     using ModelContextProtocol;
     using ModelContextProtocol.Client;
     using ModelContextProtocol.Protocol;
@@ -150,16 +152,39 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public async Task InstallPackage()
         {
-            await using McpClient client = await CreateClientAsync();
+            using var diagnostics = new McpDiagnostics();
+            try
+            {
+                await using McpClient client = await CreateClientAsync(diagnostics: diagnostics);
 
-            var progressReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            CallToolResult result = await client.CallToolAsync(
-                InstallPackageToolName,
-                new Dictionary<string, object> { ["identifier"] = Constants.ExeInstallerPackageId, ["source"] = Constants.TestSourceName },
-                progress: new Progress<ProgressNotificationValue>(_ => progressReceived.TrySetResult(true)));
+                var progressReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                diagnostics.Write($"Calling {InstallPackageToolName}; synchronization context: {SynchronizationContext.Current?.GetType().FullName ?? "(none)"}; 64-bit process: {Environment.Is64BitProcess}.");
+                CallToolResult result = await client.CallToolAsync(
+                    InstallPackageToolName,
+                    new Dictionary<string, object> { ["identifier"] = Constants.ExeInstallerPackageId, ["source"] = Constants.TestSourceName },
+                    progress: new Progress<ProgressNotificationValue>(value =>
+                    {
+                        diagnostics.Write($"Progress callback invoked: progress={value.Progress}, total={value.Total}, message={value.Message}");
+                        progressReceived.TrySetResult(true);
+                    }));
 
-            AssertInstalled(result);
-            await progressReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                diagnostics.Write($"Tool response received: {GetText(result)}");
+                AssertInstalled(result);
+                diagnostics.Write("Installation assertions passed; waiting up to five seconds for progress.");
+                try
+                {
+                    await progressReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                }
+                catch (TimeoutException)
+                {
+                    diagnostics.Write("Timed out waiting for the progress callback.");
+                    Assert.Fail("Installation succeeded, but no progress notification was received within five seconds. See the MCP diagnostics attachment.");
+                }
+            }
+            finally
+            {
+                diagnostics.Save();
+            }
         }
 
         /// <summary>
@@ -444,7 +469,7 @@ namespace AppInstallerCLIE2ETests
             File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeUninstallerFileName));
         }
 
-        private static Task<McpClient> CreateClientAsync(ElicitationRecorder elicitation = null)
+        private static Task<McpClient> CreateClientAsync(ElicitationRecorder elicitation = null, McpDiagnostics diagnostics = null)
         {
             McpClientOptions options = new McpClientOptions();
             if (elicitation != null)
@@ -452,13 +477,25 @@ namespace AppInstallerCLIE2ETests
                 options.Handlers.ElicitationHandler = elicitation.HandleAsync;
             }
 
-            return McpClient.CreateAsync(
-                new StdioClientTransport(new StdioClientTransportOptions()
+            var transportOptions = new StdioClientTransportOptions()
+            {
+                Name = "WinGet",
+                Command = TestSetup.Parameters.MCPServerPath,
+            };
+            if (diagnostics != null)
+            {
+                transportOptions.StandardErrorLines = line => diagnostics.Write($"Server stderr: {line}");
+                transportOptions.EnvironmentVariables = new Dictionary<string, string>
                 {
-                    Name = "WinGet",
-                    Command = TestSetup.Parameters.MCPServerPath,
-                }),
-                options);
+                    ["Logging__LogLevel__ModelContextProtocol"] = "Trace",
+                    ["Logging__LogLevel__WinGetMCPServer"] = "Debug",
+                    ["Logging__Console__FormatterOptions__TimestampFormat"] = "yyyy-MM-ddTHH:mm:ss.fffZ ",
+                    ["Logging__Console__FormatterOptions__UseUtcTimestamp"] = "true",
+                    ["Logging__Console__FormatterOptions__SingleLine"] = "true",
+                };
+            }
+
+            return McpClient.CreateAsync(new StdioClientTransport(transportOptions, diagnostics), options, diagnostics);
         }
 
         private static async Task<CallToolResult> InstallAgreementsPackageAsync(McpClient client, bool? acceptPackageAgreements)
@@ -574,6 +611,81 @@ namespace AppInstallerCLIE2ETests
             finally
             {
                 CleanupTestPackages();
+            }
+        }
+
+        /// <summary>
+        /// Captures MCP diagnostics from transport and progress callbacks for attachment to the test result.
+        /// </summary>
+        private sealed class McpDiagnostics : ILoggerFactory
+        {
+            private readonly ConcurrentQueue<string> entries = new ConcurrentQueue<string>();
+            private readonly LoggerExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
+
+            /// <inheritdoc />
+            public ILogger CreateLogger(string categoryName) => new DiagnosticLogger(this, categoryName);
+
+            /// <inheritdoc />
+            public void AddProvider(ILoggerProvider provider) => throw new NotSupportedException();
+
+            /// <inheritdoc />
+            public void Dispose()
+            {
+            }
+
+            /// <summary>
+            /// Records a timestamped diagnostic entry.
+            /// </summary>
+            /// <param name="message">The diagnostic message.</param>
+            public void Write(string message)
+            {
+                this.entries.Enqueue($"{DateTimeOffset.UtcNow:O} [thread {Environment.CurrentManagedThreadId}] {message}");
+            }
+
+            /// <summary>
+            /// Attaches diagnostics after client shutdown, including when connection or assertions fail.
+            /// </summary>
+            public void Save()
+            {
+                string path = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"MCP-{Guid.NewGuid():N}.log");
+                File.WriteAllLines(path, this.entries);
+                TestContext.AddTestAttachment(path, "MCP client, server stderr, and progress diagnostics");
+                TestContext.Out.WriteLine($"MCP diagnostics: {path}");
+            }
+
+            /// <summary>
+            /// Preserves the SDK's log categories and scopes in the shared diagnostics.
+            /// </summary>
+            private sealed class DiagnosticLogger : ILogger
+            {
+                private readonly McpDiagnostics diagnostics;
+                private readonly string categoryName;
+
+                /// <summary>
+                /// Initializes a new instance of the <see cref="DiagnosticLogger"/> class.
+                /// </summary>
+                /// <param name="diagnostics">The shared diagnostic sink.</param>
+                /// <param name="categoryName">The SDK log category.</param>
+                public DiagnosticLogger(McpDiagnostics diagnostics, string categoryName)
+                {
+                    this.diagnostics = diagnostics;
+                    this.categoryName = categoryName;
+                }
+
+                /// <inheritdoc />
+                public IDisposable BeginScope<TState>(TState state)
+                    where TState : notnull => this.diagnostics.scopeProvider.Push(state);
+
+                /// <inheritdoc />
+                public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+
+                /// <inheritdoc />
+                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                {
+                    var scopes = new List<string>();
+                    this.diagnostics.scopeProvider.ForEachScope((scope, values) => values.Add(scope?.ToString()), scopes);
+                    this.diagnostics.Write($"{logLevel} {this.categoryName} [{eventId}] [{string.Join(" => ", scopes)}]: {formatter(state, exception)}{(exception == null ? string.Empty : Environment.NewLine + exception)}");
+                }
             }
         }
 
