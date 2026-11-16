@@ -158,22 +158,23 @@ namespace AppInstaller::YAML::Wrapper
         size_t aliasDataSize = 0;
 
         // Aliases reuse document nodes, so limit the data their copies add to the result.
-        std::vector<bool> visited(static_cast<size_t>(m_document.nodes.top - m_document.nodes.start));
+        std::vector<std::optional<size_t>> nodeSizes(static_cast<size_t>(m_document.nodes.top - m_document.nodes.start));
         auto trackNode = [&](yaml_node_t* yamlNode)
         {
-            size_t index = static_cast<size_t>(yamlNode - m_document.nodes.start);
-            if (visited[index])
+            auto& nodeSize = nodeSizes[static_cast<size_t>(yamlNode - m_document.nodes.start)];
+            if (nodeSize.has_value())
             {
-                aliasDataSize += sizeof(Node) + strlen(reinterpret_cast<char*>(yamlNode->tag));
-                if (yamlNode->type == YAML_SCALAR_NODE)
-                {
-                    aliasDataSize += yamlNode->data.scalar.length;
-                }
-
+                aliasDataSize += nodeSize.value();
                 THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED, aliasDataSize > YAML_DOCUMENT_ALIAS_DATA_LIMIT, "Too much data created by aliases.");
             }
-
-            visited[index] = true;
+            else
+            {
+                nodeSize = sizeof(Node) + strlen(reinterpret_cast<char*>(yamlNode->tag));
+                if (yamlNode->type == YAML_SCALAR_NODE)
+                {
+                    nodeSize.value() += yamlNode->data.scalar.length;
+                }
+            }
         };
 
         trackNode(root);
