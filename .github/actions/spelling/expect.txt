@@ -622,6 +622,7 @@ tcs
 tellp
 temppath
 testexampleinstaller
+TESTFONT
 thiscouldbeapc
 THREADENTRY
 threehundred
