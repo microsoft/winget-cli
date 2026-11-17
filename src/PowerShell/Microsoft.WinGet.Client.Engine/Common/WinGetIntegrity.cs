@@ -20,6 +20,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
     /// </summary>
     internal static class WinGetIntegrity
     {
+        private const int ErrorFileNotFound = 2;
+
         /// <summary>
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
@@ -40,18 +42,19 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
 
             WinGetCLICommandResult? versionResult = null;
+            string? wingetPath = null;
 
             try
             {
-                // Start by calling winget without its WindowsApp PFN path.
-                // If it succeeds and the exit code is 0 then we are good.
-                versionResult = WinGetVersion.RunWinGetVersionFromCLI(pwshCmdlet, false);
+                // Use the installed package's winget instead of searching CWD or PATH.
+                wingetPath = GetWinGetPath(pwshCmdlet) ?? throw new Win32Exception(ErrorFileNotFound);
+                versionResult = WinGetVersion.RunWinGetVersionFromCLI(pwshCmdlet, wingetPath);
                 versionResult.VerifyExitCode();
             }
             catch (Win32Exception e)
             {
                 pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
-                throw new WinGetIntegrityException(GetReason(pwshCmdlet));
+                throw new WinGetIntegrityException(GetReason(pwshCmdlet, wingetPath));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
@@ -90,7 +93,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
         }
 
-        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)
+        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet, string? wingetPath)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
             var category = IntegrityCategory.Unknown;
@@ -103,8 +106,6 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 // ApplicationFailedException then is most likely that the license is not there.
                 try
                 {
-                    // Avoid PowerShell command lookup, which also searches relative PATH entries such as '.'.
-                    string? wingetPath = WingetCLIWrapper.FindInPath(Environment.GetEnvironmentVariable(Constants.PathEnvVar), Constants.WinGetExe);
                     if (wingetPath != null)
                     {
                         var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
@@ -177,6 +178,17 @@ namespace Microsoft.WinGet.Client.Engine.Common
 
             // If we get here, we know the package is in the machine but not registered for the user.
             return IntegrityCategory.AppInstallerNotRegistered;
+        }
+
+        private static string? GetWinGetPath(PowerShellCmdlet pwshCmdlet)
+        {
+#if USE_PROD_CLSIDS
+            string? location = new AppxModuleHelper(pwshCmdlet).GetStoreSignedAppInstallerLocation();
+            return location is null ? null : Path.Combine(location, Constants.WinGetExe);
+#else
+            // Development packages are not Store signed.
+            return WingetCLIWrapper.WinGetFullPath;
+#endif
         }
 
         private static bool IsSupportedOSVersion()

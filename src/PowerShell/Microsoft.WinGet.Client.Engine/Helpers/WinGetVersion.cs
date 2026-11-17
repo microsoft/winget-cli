@@ -74,11 +74,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Runs the winget version command.
         /// </summary>
         /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
-        /// <param name="fullPath">Use full path or not.</param>
+        /// <param name="wingetPath">The full path of winget, or null to use the default.</param>
         /// <returns>The command result.</returns>
-        public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, bool fullPath = true)
+        public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, string? wingetPath = null)
         {
-            var wingetCliWrapper = new WingetCLIWrapper(fullPath);
+            var wingetCliWrapper = new WingetCLIWrapper(wingetPath);
             return wingetCliWrapper.RunCommand(pwshCmdlet, new WinGetCLICommandBuilder().AppendSwitch("--version"));
         }
 
