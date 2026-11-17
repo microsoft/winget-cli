@@ -69,6 +69,7 @@ namespace AppInstaller
         void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value);
         void TestHook_SetFontSessionChangesDisabled(bool value);
         void TestHook_SetPackageFontFilesReadCallback(std::function<void()> value);
+        void TestHook_SetFontRegistrationsReadCallback(std::function<void()> value);
     }
 
     namespace Logging

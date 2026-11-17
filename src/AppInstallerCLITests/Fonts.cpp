@@ -46,6 +46,7 @@ namespace
             TestHook_SetGetFontRegistryHive_Override({});
             TestHook_SetFontSessionChangesDisabled(false);
             TestHook_SetPackageFontFilesReadCallback({});
+            TestHook_SetFontRegistrationsReadCallback({});
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsUserInstallLocation, UserPath);
             AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::FontsMachineInstallLocation, MachinePath);
             AppInstaller::Registry::Key::DeleteTree(RegistryRoot, RegistryPath);
@@ -460,6 +461,72 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsMappingsOncePerVersio
     REQUIRE(UninstallFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
 }
 
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsRegistrationsOncePerScope", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const auto fontCount = GENERATE(3, 10);
+    auto context = Context(scope);
+    for (int i = 0; i < fontCount; ++i)
+    {
+        const auto name = L"Font" + std::to_wstring(i) + L".ttf";
+        const auto installed = RootPath(scope) / name;
+        CopyFont(installed);
+        Package(context).SetValue(name, installed.wstring());
+        if (i % 2 == 0)
+        {
+            const auto registeredName = L"FONT" + std::to_wstring(i) + L".TTF";
+            const auto registeredPath = scope == ScopeEnum::Machine ?
+                std::filesystem::path{ L"." } / registeredName : RootPath(scope) / L"." / registeredName;
+            Root(scope).SetValue(name, registeredPath.wstring());
+        }
+    }
+    Root(scope).SetValue(L"Alias", (RootPath(scope) / L"FONT0.TTF").wstring());
+    Root(scope).SetValue(L"Invalid", DWORD{ 1 });
+    const auto external = RootPath(scope) / L"External.ttf";
+    CopyFont(external);
+    Root(scope).SetValue(L"External font", scope == ScopeEnum::Machine ? external.filename().wstring() : external.wstring());
+    const auto missing = RootPath(scope) / L"Missing.ttf";
+    Root(scope).SetValue(L"Missing font", missing.wstring());
+
+    size_t registrationReads = 0;
+    TestHook_SetFontRegistrationsReadCallback([&]() { ++registrationReads; });
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(registrationReads == 1);
+    REQUIRE(inventory.size() == static_cast<size_t>(fontCount + 2));
+    for (int i = 0; i < fontCount; ++i)
+    {
+        const auto installed = RootPath(scope) / (L"Font" + std::to_wstring(i) + L".ttf");
+        REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+            {
+                return font.Scope == scope && font.InstallerSource == InstallerSource::WinGet &&
+                    font.FilePath == installed && font.InstallPath == installed &&
+                    font.Status == (i % 2 == 0 ? FontStatus::OK : FontStatus::Corrupt);
+            }) == 1);
+    }
+    REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+        {
+            return font.Scope == scope && font.InstallerSource == InstallerSource::Unknown &&
+                font.FilePath == external && font.Title == L"External font" && font.Status == FontStatus::OK;
+        }) == 1);
+    REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+        {
+            return font.Scope == scope && font.InstallerSource == InstallerSource::Unknown &&
+                font.FilePath == missing && font.Status == FontStatus::Corrupt;
+        }) == 1);
+
+    const auto addedRegistration = RootPath(scope) / L"Font1.ttf";
+    Root(scope).SetValue(L"Font1.ttf", addedRegistration.wstring());
+    registrationReads = 0;
+    const auto updated = GetInstalledFontFiles();
+    REQUIRE(registrationReads == 1);
+    REQUIRE(updated.size() == inventory.size());
+    REQUIRE(std::count_if(updated.begin(), updated.end(), [&](const auto& font)
+        {
+            return font.Scope == scope && font.InstallerSource == InstallerSource::WinGet &&
+                font.FilePath == addedRegistration && font.Status == FontStatus::OK;
+        }) == 1);
+}
+
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidPackage", "[fonts][fontlayout]")
 {
     const bool nonStringValue = GENERATE(false, true);
@@ -509,6 +576,36 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidPacka
     REQUIRE(RepairFontPackage(invalidContext).HResult == APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
     REQUIRE(UninstallFontPackage(invalidContext).HResult == APPINSTALLER_CLI_ERROR_FONT_UNINSTALL_FAILED);
     REQUIRE(std::filesystem::exists(invalidPackageFont));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidVersion", "[fonts][fontlayout]")
+{
+    const bool nonStringValue = GENERATE(false, true);
+    auto invalidContext = Context(ScopeEnum::User);
+    invalidContext.PackageVersion = GENERATE(L"1.0", L"2.0");
+    AddPackageDirectoryFont(invalidContext);
+    if (nonStringValue)
+    {
+        Package(invalidContext).SetValue(L"Invalid.ttf", DWORD{ 1 });
+    }
+    else
+    {
+        Package(invalidContext).SetValue(L"Invalid.ttf", (Directory.GetPath() / "Outside.ttf").wstring());
+    }
+
+    auto context = Context(ScopeEnum::User);
+    context.PackageVersion = invalidContext.PackageVersion == L"1.0" ? L"2.0" : L"1.0";
+    const auto installed = AddPackageDirectoryFont(context);
+
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == 1);
+    REQUIRE(inventory[0].PackageId == context.PackageId);
+    REQUIRE(inventory[0].PackageVersion == context.PackageVersion);
+    REQUIRE(inventory[0].Scope == context.Scope);
+    REQUIRE(inventory[0].InstallerSource == InstallerSource::WinGet);
+    REQUIRE(inventory[0].FilePath == installed);
+    REQUIRE(inventory[0].InstallPath == installed);
+    REQUIRE(inventory[0].Status == FontStatus::Corrupt);
 }
 
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairMigratesPackageDirectory", "[fonts][fontlayout]")
