@@ -67,6 +67,14 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
 
+            var environmentCategory = GetEnvironmentIntegrityCategory(
+                Utilities.LocalDataWindowsAppPath,
+                Environment.GetEnvironmentVariable(Constants.PathEnvVar));
+            if (environmentCategory != IntegrityCategory.Installed)
+            {
+                throw new WinGetIntegrityException(environmentCategory);
+            }
+
             // WinGet is installed. Verify version if needed.
             if (!string.IsNullOrEmpty(expectedVersion))
             {
@@ -91,6 +99,25 @@ namespace Microsoft.WinGet.Client.Engine.Common
             {
                 throw new WinGetIntegrityException(IntegrityCategory.WinGetSourceNotInstalled);
             }
+        }
+
+        /// <summary>Checks app-execution alias and PATH availability without running a command.</summary>
+        /// <param name="windowsAppsPath">The WindowsApps directory.</param>
+        /// <param name="envPath">The current process PATH.</param>
+        /// <returns>The environment's integrity category.</returns>
+        internal static IntegrityCategory GetEnvironmentIntegrityCategory(string windowsAppsPath, string? envPath)
+        {
+            if (!File.Exists(Path.Combine(windowsAppsPath, Constants.WinGetExe)))
+            {
+                return IntegrityCategory.AppExecutionAliasDisabled;
+            }
+
+            if (!Utilities.PathContainsDirectory(envPath, windowsAppsPath))
+            {
+                return IntegrityCategory.NotInPath;
+            }
+
+            return IntegrityCategory.Installed;
         }
 
         private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet, string? wingetPath)
@@ -130,23 +157,12 @@ namespace Microsoft.WinGet.Client.Engine.Common
             // First lets check if the file is there, which means it is installed or someone is taking our place.
             if (File.Exists(WingetCLIWrapper.WinGetFullPath))
             {
-                // The file exists, but we couldn't call it... Well maybe winget's app execution alias is not enabled.
-                // The trick is knowing that a magical file appears under WindowsApp when its enabled.
-                string wingetAliasPath = Path.Combine(Utilities.LocalDataWindowsAppPath, Constants.WinGetExe);
-                if (File.Exists(wingetAliasPath))
+                var environmentCategory = GetEnvironmentIntegrityCategory(
+                    Utilities.LocalDataWindowsAppPath,
+                    Environment.GetEnvironmentVariable(Constants.PathEnvVar));
+                if (environmentCategory != IntegrityCategory.Installed)
                 {
-                    // App execution alias is enabled. Then maybe the path?
-                    string? envPath = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
-                    if (string.IsNullOrEmpty(envPath) ||
-                        !envPath.EndsWith(Utilities.LocalDataWindowsAppPath) ||
-                        !envPath.Contains($"{Utilities.LocalDataWindowsAppPath};"))
-                    {
-                        return IntegrityCategory.NotInPath;
-                    }
-                }
-                else
-                {
-                    return IntegrityCategory.AppExecutionAliasDisabled;
+                    return environmentCategory;
                 }
             }
 

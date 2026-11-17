@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Management.Automation;
     using System.Security.Principal;
     using System.Threading;
@@ -111,13 +112,36 @@ namespace Microsoft.WinGet.Client.Engine.Common
         {
             var scope = EnvironmentVariableTarget.User;
             string? envPathValue = Environment.GetEnvironmentVariable(Constants.PathEnvVar, scope);
-            if (string.IsNullOrEmpty(envPathValue) || !envPathValue.Contains(Utilities.LocalDataWindowsAppPath))
+            string updatedPath = AddDirectoryToPath(envPathValue, Utilities.LocalDataWindowsAppPath);
+            if (updatedPath != envPathValue)
             {
                 Environment.SetEnvironmentVariable(
                     Constants.PathEnvVar,
-                    $"{envPathValue};{Utilities.LocalDataWindowsAppPath}",
+                    updatedPath,
                     scope);
             }
+        }
+
+        /// <summary>Appends a missing directory without changing existing PATH entries.</summary>
+        /// <param name="envPath">The PATH value.</param>
+        /// <param name="directory">The directory to add.</param>
+        /// <returns>The updated PATH value.</returns>
+        public static string AddDirectoryToPath(string? envPath, string directory)
+        {
+            return PathContainsDirectory(envPath, directory) ? envPath! : $"{envPath};{directory}";
+        }
+
+        /// <summary>Checks whether PATH contains the directory as a complete entry.</summary>
+        /// <param name="envPath">The PATH value.</param>
+        /// <param name="directory">The directory to find.</param>
+        /// <returns>Whether the directory is present.</returns>
+        public static bool PathContainsDirectory(string? envPath, string directory)
+        {
+            return envPath is not null &&
+                envPath.Split(Path.PathSeparator).Any(path => string.Equals(
+                    path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                    directory,
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>

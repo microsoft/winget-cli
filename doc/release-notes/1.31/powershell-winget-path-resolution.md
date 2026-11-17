@@ -2,4 +2,4 @@
 
 ### Minor Bug Fixes
 
-* Fixed `Assert-WinGetPackageManager` and `Repair-WinGetPackageManager` running a `winget.exe` from the current directory. They now only run `winget.exe` from the installed App Installer package.
+* Fixed `Assert-WinGetPackageManager` and `Repair-WinGetPackageManager` running a `winget.exe` from the current directory. They now only run `winget.exe` from the installed App Installer package, while still checking PATH and app-execution alias availability.
