@@ -420,10 +420,13 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsMappingsOncePerVersio
     }
 
     size_t mappingReads = 0;
+    size_t registrationReads = 0;
     TestHook_SetPackageFontFilesReadCallback([&]() { ++mappingReads; });
+    TestHook_SetFontRegistrationsReadCallback([&]() { ++registrationReads; });
     const auto inventory = GetInstalledFontFiles();
     REQUIRE(inventory.size() == 6);
     REQUIRE(mappingReads == 2);
+    REQUIRE(registrationReads == 1);
     for (const auto& font : inventory)
     {
         REQUIRE(font.InstallerSource == InstallerSource::WinGet);
@@ -432,9 +435,11 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsMappingsOncePerVersio
     }
 
     mappingReads = 0;
+    registrationReads = 0;
     const auto packages = GetInstalledFontPackages(scope);
     REQUIRE(packages.size() == 2);
     REQUIRE(mappingReads == 2);
+    REQUIRE(registrationReads == 1);
     for (const auto& package : packages)
     {
         REQUIRE(package.Status == FontStatus::OK);
@@ -448,11 +453,25 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryReadsMappingsOncePerVersio
     REQUIRE(GetInstalledFontFiles().size() == 7);
     REQUIRE(mappingReads == 2);
 
+    Root(scope).DeleteValue(L"1.0Font0.ttf");
+    mappingReads = 0;
+    registrationReads = 0;
+    const auto changedPackages = GetInstalledFontPackages(scope);
+    REQUIRE(changedPackages.size() == 2);
+    REQUIRE(mappingReads == 2);
+    REQUIRE(registrationReads == 1);
+    REQUIRE(std::count_if(changedPackages.begin(), changedPackages.end(), [&](const auto& package)
+        {
+            return package.PackageVersion == L"1.0" && package.Status == FontStatus::Corrupt;
+        }) == 1);
+
     Package(context).SetValue(L"Invalid.ttf", DWORD{ 1 });
     mappingReads = 0;
+    registrationReads = 0;
     const auto updatedPackages = GetInstalledFontPackages(scope);
     REQUIRE(updatedPackages.size() == 2);
     REQUIRE(mappingReads == 2);
+    REQUIRE(registrationReads == 1);
     REQUIRE(std::count_if(updatedPackages.begin(), updatedPackages.end(), [&](const auto& package)
         {
             return package.PackageVersion == context.PackageVersion && package.Status == FontStatus::Unknown;
@@ -659,9 +678,10 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InstalledPathTakesPrecedenceOverSou
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RejectsDuplicateSourceFilenames", "[fonts][fontlayout]")
 {
     const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const auto secondName = GENERATE("TestFont.ttf", "TESTFONT.TTF");
     auto context = Context(scope);
     const auto first = Directory.GetPath() / "First" / s_FontFile;
-    const auto second = Directory.GetPath() / "Second" / s_FontFile;
+    const auto second = Directory.GetPath() / "Second" / secondName;
     CopyFont(first);
     CopyFont(second);
     context.AddPackageFile(first);

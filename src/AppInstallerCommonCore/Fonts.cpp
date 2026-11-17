@@ -301,6 +301,7 @@ namespace AppInstaller::Fonts
         }
 
         using FontRegistryEntry = std::pair<std::wstring, std::wstring>;
+        using FontPathSet = std::unordered_set<std::wstring>;
 
         std::vector<FontRegistryEntry> GetFontRegistrations(Manifest::ScopeEnum scope,
             const std::optional<std::filesystem::path>& filePath = std::nullopt)
@@ -337,6 +338,22 @@ namespace AppInstaller::Fonts
                 {
                     result.emplace_back(ConvertToUTF16(entry.Name()), std::move(data));
                 }
+            }
+            return result;
+        }
+
+        FontPathSet GetRegisteredFontPaths(const std::filesystem::path& rootPath, const std::vector<FontRegistryEntry>& registrations)
+        {
+            FontPathSet result;
+            result.reserve(registrations.size());
+            for (const auto& registration : registrations)
+            {
+                std::filesystem::path registeredPath = registration.second;
+                if (registeredPath.is_relative())
+                {
+                    registeredPath = rootPath / registeredPath;
+                }
+                result.emplace(GetFontPathKey(registeredPath));
             }
             return result;
         }
@@ -694,7 +711,8 @@ namespace AppInstaller::Fonts
             return fileInfo;
         }
 
-        FontValidationResult ValidateFontPackageImpl(FontContext& context, bool installedFiles)
+        FontValidationResult ValidateFontPackageImpl(FontContext& context,
+            std::optional<std::reference_wrapper<const FontPathSet>> installedRegistrationPaths)
         {
             AssertPackageInformation(context);
 
@@ -704,17 +722,25 @@ namespace AppInstaller::Fonts
 
             try
             {
+                const bool installedFiles = installedRegistrationPaths.has_value();
                 const auto packageFiles = installedFiles ? GetPackageFontFiles(context) : std::vector<PackageFontFile>{};
                 const auto fileCount = installedFiles ? packageFiles.size() : context.PackageFiles.size();
+                FontPathSet fileNames;
+                fileNames.reserve(fileCount);
                 for (size_t i = 0; i < fileCount; ++i)
                 {
                     const auto& file = installedFiles ? packageFiles[i].FilePath : context.PackageFiles[i];
                     THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED,
-                        std::any_of(result.FontFileInfos.begin(), result.FontFileInfos.end(), [&](const auto& info)
-                            { return FontPathsEqual(info.FilePath.filename(), file.filename()); }),
+                        !fileNames.emplace(GetFontPathKey(file.filename())).second,
                         "Font package contains duplicate filenames: %ls", file.filename().c_str());
+                    std::optional<bool> isRegistered;
+                    if (installedRegistrationPaths)
+                    {
+                        const auto& registeredPaths = installedRegistrationPaths->get();
+                        isRegistered = registeredPaths.find(GetFontPathKey(file)) != registeredPaths.end();
+                    }
                     result.FontFileInfos.push_back(CreateFontFileInfoImpl(context, file, {},
-                        installedFiles ? std::optional<std::filesystem::path>{ file } : std::nullopt));
+                        installedFiles ? std::optional<std::filesystem::path>{ file } : std::nullopt, isRegistered));
                 }
 
                 // We create an overall status for the validation with the following determination:
@@ -765,7 +791,7 @@ namespace AppInstaller::Fonts
 
     FontValidationResult ValidateFontPackage(FontContext& context)
     {
-        return ValidateFontPackageImpl(context, false);
+        return ValidateFontPackageImpl(context, std::nullopt);
     }
 
     FontOperationResult InstallFontPackage(FontContext& context)
@@ -1182,7 +1208,7 @@ namespace AppInstaller::Fonts
             // Iterate through scopes for machine and user
             for (const auto& scope : { Manifest::ScopeEnum::Machine, Manifest::ScopeEnum::User })
             {
-                std::unordered_set<std::wstring> wingetFonts;
+                FontPathSet wingetFonts;
                 auto hive = GetFontRegistryHive(scope);
                 auto root = Registry::Key::OpenIfExists(hive, std::wstring{ s_FontsPathSubkey });
                 if (!root)
@@ -1192,17 +1218,7 @@ namespace AppInstaller::Fonts
 
                 const auto registrations = GetFontRegistrations(scope);
                 const auto rootPath = GetRootFontPath(scope);
-                std::unordered_set<std::wstring> registeredPaths;
-                registeredPaths.reserve(registrations.size());
-                for (const auto& registration : registrations)
-                {
-                    std::filesystem::path registeredPath = registration.second;
-                    if (registeredPath.is_relative())
-                    {
-                        registeredPath = rootPath / registeredPath;
-                    }
-                    registeredPaths.emplace(GetFontPathKey(registeredPath));
-                }
+                const auto registeredPaths = GetRegisteredFontPaths(rootPath, registrations);
 
                 // There are two supported scenarios for tracking sub-keys.
                 // 1) We created the subkey, therefore it is a winget installed font.
@@ -1301,6 +1317,7 @@ namespace AppInstaller::Fonts
                 return fontPackages;
             }
 
+            const auto registeredPaths = GetRegisteredFontPaths(GetRootFontPath(scope), GetFontRegistrations(scope));
             for (const auto& subkey : root)
             {
                 auto subkeyName = ConvertToUTF16(subkey.Name());
@@ -1324,7 +1341,7 @@ namespace AppInstaller::Fonts
                                 context.PackageId = packageId;
                                 context.PackageVersion = version;
 
-                                auto validationResult = ValidateFontPackageImpl(context, true);
+                                auto validationResult = ValidateFontPackageImpl(context, std::cref(registeredPaths));
                                 if (validationResult.Status != FontStatus::Absent)
                                 {
                                     auto packageInfo = FontPackageInfo();
