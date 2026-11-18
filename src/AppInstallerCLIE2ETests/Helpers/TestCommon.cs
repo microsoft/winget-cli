@@ -376,58 +376,57 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         /// <param name="packageName">Name of the package.</param>
         /// <param name="packageVersion">Name of the package version.</param>
+        /// <param name="expectedFileNames">Original filenames of the package's fonts.</param>
         /// <param name="scope">Scope.</param>
         /// <param name="shouldExist">If package should exist.</param>
         public static void VerifyFontPackage(
             string packageName,
             string packageVersion,
+            IEnumerable<string> expectedFileNames,
             Scope scope = Scope.User,
             bool shouldExist = true)
         {
             RegistryKey baseKey = (scope == Scope.Machine) ? Registry.LocalMachine : Registry.CurrentUser;
 
             var fileList = new List<string>();
-            using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey, true))
+            using (RegistryKey fontsRegistryKey = baseKey.OpenSubKey(Constants.FontsSubKey))
             {
-                using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-                if (shouldExist)
+                if (!shouldExist)
                 {
-                    Assert.That(winGetRootKey, Is.Not.Null);
-                }
-                else
-                {
+                    using var installedVersion = fontsRegistryKey?.OpenSubKey(
+                        $"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\{packageName}\\{packageVersion}");
+                    Assert.That(installedVersion, Is.Null);
                     return;
                 }
 
+                Assert.That(fontsRegistryKey, Is.Not.Null);
+                using var winGetRootKey = fontsRegistryKey.OpenSubKey("Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+                Assert.That(winGetRootKey, Is.Not.Null);
+
                 using var packageNameSubkey = winGetRootKey.OpenSubKey(packageName);
-                if (shouldExist)
+                Assert.That(packageNameSubkey, Is.Not.Null);
+
+                using var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
+                Assert.That(versionSubkey, Is.Not.Null);
+
+                Assert.That(expectedFileNames, Is.Not.Empty);
+                var valueNames = versionSubkey.GetValueNames();
+                Assert.That(valueNames, Is.EquivalentTo(expectedFileNames));
+                foreach (var valueName in valueNames)
                 {
-                    Assert.That(packageNameSubkey, Is.Not.Null);
-                }
+                    Assert.That(versionSubkey.GetValueKind(valueName), Is.EqualTo(RegistryValueKind.String));
+                    var installedPath = (string)versionSubkey.GetValue(valueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+                    Assert.That(installedPath, Is.Not.Null.And.Not.Empty);
+                    Assert.That(Path.IsPathFullyQualified(installedPath), Is.True);
+                    Assert.That(Path.GetDirectoryName(installedPath), Is.EqualTo(GetFontsDirectory(scope)).IgnoreCase);
+                    fileList.Add(installedPath);
 
-                if (packageNameSubkey is not null)
-                {
-                    using var versionSubkey = packageNameSubkey.OpenSubKey(packageVersion);
-
-                    if (shouldExist)
-                    {
-                        Assert.That(versionSubkey, Is.Not.Null);
-                    }
-                    else
-                    {
-                        Assert.That(versionSubkey, Is.Null);
-                    }
-
-                    if (versionSubkey is not null)
-                    {
-                        var valueNames = versionSubkey.GetValueNames();
-                        foreach (var valueName in valueNames)
-                        {
-                            fileList.Add(versionSubkey.GetValue(valueName).ToString());
-                        }
-
-                        Assert.That(fileList.Count, Is.EqualTo(valueNames.Length));
-                    }
+                    var registrationName = Path.GetFileName(installedPath);
+                    var expectedRegistration = scope == Scope.Machine ? registrationName : installedPath;
+                    Assert.That(
+                        fontsRegistryKey.GetValue(registrationName, null, RegistryValueOptions.DoNotExpandEnvironmentNames),
+                        Is.EqualTo(expectedRegistration));
+                    Assert.That(fontsRegistryKey.GetValueKind(registrationName), Is.EqualTo(RegistryValueKind.String));
                 }
             }
 

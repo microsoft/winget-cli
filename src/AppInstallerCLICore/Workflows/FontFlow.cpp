@@ -300,6 +300,30 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void FontRepairImpl(Execution::Context& context)
+    {
+        const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        Fonts::FontContext fontContext;
+        fontContext.InstallerSource = InstallerSource::WinGet;
+        fontContext.Scope = Manifest::ConvertToScopeEnum(installedPackage->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope]);
+        fontContext.PackageId = ConvertToUTF16(installedPackage->GetProperty(Repository::PackageVersionProperty::Moniker));
+        fontContext.PackageVersion = ConvertToUTF16(installedPackage->GetProperty(Repository::PackageVersionProperty::Version));
+
+        if (fontContext.Scope != Manifest::ScopeEnum::Machine)
+        {
+            AICLI_RETURN_IF_TERMINATED(context << EnsureNotRunningWithNonDefaultFullToken);
+        }
+        if (fontContext.Scope == Manifest::ScopeEnum::Machine && !Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Error() << Resource::String::CommandRequiresAdmin << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+        }
+
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+        const auto result = Fonts::RepairFontPackage(fontContext);
+        context.Add<Execution::Data::OperationReturnCode>(result.HResult);
+    }
+
     void FontUninstallImpl(Execution::Context& context)
     {
         try
