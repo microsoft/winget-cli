@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.UnitTests
     {
         private const string WindowsAppsPath = @"C:\Users\Test\AppData\Local\Microsoft\WindowsApps";
 
-        /// <summary>Repairs missing entries without mistaking lookalikes for the WindowsApps directory.</summary>
+        /// <summary>Repairs missing entries without mistaking similar paths for the WindowsApps directory.</summary>
         /// <param name="pathFormat">The original PATH format.</param>
         /// <param name="expectedFormat">The expected PATH format.</param>
         [Theory]
