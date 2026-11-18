@@ -81,9 +81,9 @@ namespace AppInstaller::Fonts
             }
         }
 
-        std::wstring GetFontPathKey(const std::filesystem::path& path)
+        std::string GetFontPathKey(const std::filesystem::path& path)
         {
-            return ToLower(path.lexically_normal().wstring());
+            return FoldCase(static_cast<std::string_view>(path.lexically_normal().u8string()));
         }
 
         bool FontPathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
@@ -301,7 +301,7 @@ namespace AppInstaller::Fonts
         }
 
         using FontRegistryEntry = std::pair<std::wstring, std::wstring>;
-        using FontPathSet = std::unordered_set<std::wstring>;
+        using FontPathSet = std::unordered_set<std::string>;
 
         std::vector<FontRegistryEntry> GetFontRegistrations(Manifest::ScopeEnum scope,
             const std::optional<std::filesystem::path>& filePath = std::nullopt)
@@ -381,7 +381,7 @@ namespace AppInstaller::Fonts
                 const auto registrations = GetFontRegistrations(context.Scope, installPath);
                 THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED,
                     std::none_of(registrations.begin(), registrations.end(), [&](const auto& entry)
-                        { return CaseInsensitiveEquals(entry.first, valueName); }),
+                        { return ICUCaseInsensitiveEquals(ConvertToUTF8(entry.first), ConvertToUTF8(valueName)); }),
                     "Font registration is owned by another file: %ls", valueName.c_str());
             }
 
@@ -581,7 +581,7 @@ namespace AppInstaller::Fonts
             sourceUnloaded = true;
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, !std::filesystem::remove(file.FilePath));
             sourceRemoved = true;
-            if (!CaseInsensitiveEquals(file.RegistryName, originalName))
+            if (!ICUCaseInsensitiveEquals(ConvertToUTF8(file.RegistryName), ConvertToUTF8(originalName)))
             {
                 package.DeleteValue(file.RegistryName);
             }

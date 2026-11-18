@@ -597,6 +597,35 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidPacka
     REQUIRE(std::filesystem::exists(invalidPackageFont));
 }
 
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_UnicodeCaseInsensitiveRegistrations", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const auto names = GENERATE(
+        std::make_pair(L"\u03C3.ttf", L"\u03C2.TTF"),
+        std::make_pair(L"\u00E9.ttf", L"\u00C9.TTF"));
+    auto context = Context(scope);
+    const auto installed = RootPath(scope) / names.first;
+    const auto registered = RootPath(scope) / names.second;
+    CopyFont(installed);
+    Package(context).SetValue(installed.filename().wstring(), installed.wstring());
+    Root(scope).SetValue(registered.filename().wstring(),
+        scope == ScopeEnum::Machine ? registered.filename().wstring() : registered.wstring());
+    context.AddPackageFile(installed);
+
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == 1);
+    REQUIRE(inventory[0].InstallerSource == InstallerSource::WinGet);
+    REQUIRE(inventory[0].Status == FontStatus::OK);
+    const auto packages = GetInstalledFontPackages(scope);
+    REQUIRE(packages.size() == 1);
+    REQUIRE(packages[0].Status == FontStatus::OK);
+    REQUIRE(ValidateFontPackage(context).Status == FontStatus::OK);
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(Root(scope)[registered.filename().wstring()].has_value());
+    REQUIRE_FALSE(std::filesystem::exists(installed));
+}
+
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InventoryContinuesAfterInvalidVersion", "[fonts][fontlayout]")
 {
     const bool nonStringValue = GENERATE(false, true);
@@ -678,10 +707,14 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InstalledPathTakesPrecedenceOverSou
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RejectsDuplicateSourceFilenames", "[fonts][fontlayout]")
 {
     const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
-    const auto secondName = GENERATE("TestFont.ttf", "TESTFONT.TTF");
+    const auto names = GENERATE(
+        std::make_pair(L"TestFont.ttf", L"TestFont.ttf"),
+        std::make_pair(L"TestFont.ttf", L"TESTFONT.TTF"),
+        std::make_pair(L"\u03C3.ttf", L"\u03C2.TTF"),
+        std::make_pair(L"\u00DF.ttf", L"ss.ttf"));
     auto context = Context(scope);
-    const auto first = Directory.GetPath() / "First" / s_FontFile;
-    const auto second = Directory.GetPath() / "Second" / secondName;
+    const auto first = Directory.GetPath() / "First" / names.first;
+    const auto second = Directory.GetPath() / "Second" / names.second;
     CopyFont(first);
     CopyFont(second);
     context.AddPackageFile(first);
@@ -691,7 +724,24 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RejectsDuplicateSourceFilenames", "
     REQUIRE(validation.HResult == APPINSTALLER_CLI_ERROR_FONT_VALIDATION_FAILED);
     REQUIRE(std::filesystem::exists(first));
     REQUIRE(std::filesystem::exists(second));
-    REQUIRE_FALSE(std::filesystem::exists(RootPath(scope) / s_FontFile));
+    REQUIRE_FALSE(std::filesystem::exists(RootPath(scope) / names.first));
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairPreservesUnicodeMapping", "[fonts][fontlayout]")
+{
+    auto context = Context(ScopeEnum::User);
+    const auto source = RootPath(context.Scope) / s_WinGetFontPrefix / context.PackageId / context.PackageVersion / L"\u00E9.ttf";
+    const auto destination = RootPath(context.Scope) / source.filename();
+    CopyFont(source);
+    Package(context).SetValue(L"\u00C9.TTF", source.wstring());
+    Root(context.Scope).SetValue(L"Font title", source.wstring());
+
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(RegistryString(Package(context), source.filename().wstring()) == destination.wstring());
+    REQUIRE_FALSE(Root(context.Scope)[std::wstring{ L"Font title" }].has_value());
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(destination));
 }
 
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairMoveFailurePreservesMappings", "[fonts][fontlayout]")
