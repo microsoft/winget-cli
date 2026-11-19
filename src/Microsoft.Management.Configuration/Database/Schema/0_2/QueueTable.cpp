@@ -95,7 +95,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     void QueueTable::SetActiveQueueItem(const std::string& objectName)
     {
         StatementBuilder builder;
-        builder.Update(s_QueueTable_Table).Set().Column(s_QueueTable_Column_Active).Equals(true).Where(s_QueueTable_Column_ObjectName).Equals(objectName);
+        builder.Update(s_QueueTable_Table).Set().Column(s_QueueTable_Column_Active).AssignValue(true).Where(s_QueueTable_Column_ObjectName).Equals(objectName);
 
         builder.Execute(m_connection);
     }

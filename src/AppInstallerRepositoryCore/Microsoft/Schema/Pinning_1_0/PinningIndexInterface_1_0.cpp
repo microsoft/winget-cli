@@ -35,6 +35,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
     }
 
+    bool PinningIndexInterface::MigrateFrom(SQLite::Connection&, const IPinningIndex*)
+    {
+        // Version 1.0 cannot migrate from any prior version.
+        return false;
+    }
+
     SQLite::rowid_t PinningIndexInterface::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
         auto existingPin = GetExistingPinId(connection, pin.GetKey());
@@ -76,6 +82,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
         savepoint.Commit();
         return existingPinId.value();
+    }
+
+    bool PinningIndexInterface::TryRemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
+    {
+        auto existingPinId = GetExistingPinId(connection, pinKey);
+        if (!existingPinId)
+        {
+            return false;
+        }
+
+        PinTable::RemovePinById(connection, existingPinId.value());
+        return true;
     }
 
     std::optional<Pinning::Pin> PinningIndexInterface::GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
