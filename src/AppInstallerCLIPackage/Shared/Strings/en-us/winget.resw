@@ -1414,15 +1414,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Select the architecture</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
-    <value>Upgrade packages even if their current version cannot be determined</value>
+    <value>Upgrade packages with unknown versions</value>
+    <comment>Unknown refers to the currently installed package version, not the available upgrade version.</comment>
   </data>
   <data name="IgnoreUnknownArgumentDescription" xml:space="preserve">
-    <value>Suppress notices about skipped packages whose current version cannot be determined</value>
+    <value>Hide unknown version notices</value>
     <comment>These packages are already skipped by default when listing or installing upgrades. This option only suppresses the aggregate notice; it does not allow upgrading them or suppress other diagnostics.</comment>
   </data>
   <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
-    <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument</value>
-    <comment>{Locked="--upgrade-available"}</comment>
+    <value>List upgrades with unknown versions</value>
+    <comment>Unknown refers to the currently installed package version. This option requires upgrade-available and only lists packages; it does not install upgrades.</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
@@ -1796,11 +1797,12 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="WinGet"}</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
-    <value>Upgrade packages even if they have a non-blocking pin</value>
+    <value>Upgrade packages with non-blocking pins</value>
+    <comment>A pin is a package upgrade restriction. This option includes non-blocking pins but does not bypass blocking or version-gating pins.</comment>
   </data>
   <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
-    <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument</value>
-    <comment>{Locked="--upgrade-available"}</comment>
+    <value>List upgrades blocked by pins</value>
+    <comment>A pin is a package upgrade restriction. This option requires upgrade-available and only lists packages; it does not bypass pins to install upgrades.</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
     <value>Pin removed successfully</value>
