@@ -115,8 +115,14 @@ BeforeAll {
             }
             ([TestModuleLocation]::DefaultLocation)
             {
-                $path = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
-                return Join-Path $path "Microsoft\WinGet\Configuration\Modules"
+                $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+                $principal = [System.Security.Principal.WindowsPrincipal]::new($identity)
+                if ($principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))
+                {
+                    return GetExpectedModulePath AllUsers
+                }
+
+                return GetExpectedModulePath CurrentUser
             }
             ([TestModuleLocation]::Custom)
             {
@@ -131,7 +137,7 @@ BeforeAll {
 
     function CleanupPsModulePath()
     {
-        $wingetPath = GetExpectedModulePath DefaultLocation
+        $wingetPath = Join-Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)) 'Microsoft\WinGet\Configuration\Modules'
         $customPath = GetExpectedModulePath Custom
         $modulePath = $env:PsModulePath
         $newModulePath = ($modulePath.Split(';') | Where-Object { $_ -ne $wingetPath } | Where-Object { $_ -ne $customPath }) -join ';'
