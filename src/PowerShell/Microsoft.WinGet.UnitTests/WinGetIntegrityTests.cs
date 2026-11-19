@@ -9,11 +9,20 @@ namespace Microsoft.WinGet.UnitTests
     using System;
     using System.IO;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Helpers;
     using Xunit;
 
-    /// <summary>Tests the independent PATH and app-execution alias checks.</summary>
+    /// <summary>Tests WinGet executable paths and environment integrity checks.</summary>
     public class WinGetIntegrityTests
     {
+        /// <summary>A missing executable path must not select the package alias.</summary>
+        [Fact]
+        public void MissingExecutablePathDoesNotFallBackToAlias()
+        {
+            static void CreateWithoutPath() => _ = new WingetCLIWrapper(null!);
+            Assert.Throws<ArgumentNullException>(CreateWithoutPath);
+        }
+
         /// <summary>Checks environment health independently of executable launch success.</summary>
         /// <param name="aliasEnabled">Whether the app-execution alias exists.</param>
         /// <param name="pathFormat">The PATH, with placeholders for the WindowsApps directory.</param>

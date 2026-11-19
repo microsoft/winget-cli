@@ -74,9 +74,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Runs the winget version command.
         /// </summary>
         /// <param name="pwshCmdlet">PowerShell cmdlet.</param>
-        /// <param name="wingetPath">The full path of winget, or null to use the default.</param>
+        /// <param name="wingetPath">The full path to the WinGet executable.</param>
         /// <returns>The command result.</returns>
-        public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, string? wingetPath = null)
+        public static WinGetCLICommandResult RunWinGetVersionFromCLI(PowerShellCmdlet pwshCmdlet, string wingetPath)
         {
             var wingetCliWrapper = new WingetCLIWrapper(wingetPath);
             return wingetCliWrapper.RunCommand(pwshCmdlet, new WinGetCLICommandBuilder().AppendSwitch("--version"));
@@ -99,7 +99,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     return new WinGetVersion(comVersion);
                 }
 
-                versionResult = RunWinGetVersionFromCLI(pwshCmdlet);
+                versionResult = RunWinGetVersionFromCLI(pwshCmdlet, WingetCLIWrapper.WinGetFullPath);
             }
 
             return new WinGetVersion(versionResult.StdOut.Replace(Environment.NewLine, string.Empty));

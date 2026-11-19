@@ -25,25 +25,20 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WingetCLIWrapper"/> class.
-        /// When app execution alias is disabled the path of the exe is
-        /// in the package family name directory in the local app data windows app directory. If its enabled then there's
-        /// link in the windows app data directory. To avoid checking if its enabled or not, just look in the package
-        /// family name directory.
-        /// For test, point to the wingetdev executable.
         /// </summary>
-        /// <param name="wingetPath">The full path of winget, or null to use <see cref="WinGetFullPath"/>.</param>
-        public WingetCLIWrapper(string? wingetPath = null)
+        /// <param name="wingetPath">The full path to the WinGet executable.</param>
+        public WingetCLIWrapper(string wingetPath)
         {
+            this.wingetPath = wingetPath ?? throw new ArgumentNullException(nameof(wingetPath));
+
             if (Utilities.ExecutingAsSystem)
             {
                 throw new NotSupportedException();
             }
-
-            this.wingetPath = wingetPath ?? WinGetFullPath;
         }
 
         /// <summary>
-        /// Gets the full path of winget executable.
+        /// Gets the WinGet app execution alias path in the package family directory.
         /// </summary>
         public static string WinGetFullPath
         {
