@@ -42,6 +42,10 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
     /// also opened without following reparse points and rejected if it is one, so a component that is
     /// swapped for a link while the path is being pinned is detected rather than followed.
     /// </para>
+    /// <para>
+    /// For registered Store DSC packages, pinning stops at the immutable installation directory
+    /// reported by the package APIs. Its ancestors need not be accessible to the caller.
+    /// </para>
     /// </summary>
     internal sealed class ProcessorPathBinding : IDisposable
     {
@@ -122,6 +126,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             try
             {
                 string finalPath = ProcessorPathIntegrity.GetFinalPath(file.ContentHandle);
+                string? packageRoot = isAlias ? null : PackageInformation.FindTrustedPackageRoot(finalPath);
 
                 // Pinning the ancestors is itself done by path, so a rename that happens while the
                 // ancestors are being pinned could leave a directory pinned that is no longer part of
@@ -132,7 +137,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                 {
                     try
                     {
-                        this.PinAncestors(finalPath);
+                        this.PinAncestors(finalPath, packageRoot);
 
                         string currentPath = ProcessorPathIntegrity.GetFinalPath(file.ContentHandle);
                         if (string.Equals(currentPath, finalPath, StringComparison.OrdinalIgnoreCase))
@@ -170,7 +175,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
             }
         }
 
-        private void PinAncestors(string finalPath)
+        private void PinAncestors(string finalPath, string? packageRoot)
         {
             // Stop below the root; a volume root cannot be renamed or deleted, and holding a handle
             // to it would interfere with operations such as dismounting the volume.
@@ -179,6 +184,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                  directory = Path.GetDirectoryName(directory))
             {
                 this.directoryHandles.Add(ProcessorPathIntegrity.PinDirectory(directory));
+
+                if (string.Equals(directory, packageRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
             }
         }
 

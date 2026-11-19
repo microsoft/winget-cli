@@ -7,15 +7,13 @@
 namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 {
     using System;
+    using static Microsoft.Management.Configuration.Processor.DSCv3.Helpers.PackageInformation;
 
     /// <summary>
     /// Provides the state machine that decides which DSC package to use.
     /// </summary>
     internal class FindDscPackageStateMachine
     {
-        private const string StableDscPackageFamilyName = "Microsoft.DesiredStateConfiguration_8wekyb3d8bbwe";
-        private const string PreviewDscPackageFamilyName = "Microsoft.DesiredStateConfiguration-Preview_8wekyb3d8bbwe";
-
         private readonly Version minimumStableVersion = new Version(3, 1);
         private readonly Version minimumPreviewVersion = new Version(3, 1, 7);
 
@@ -75,6 +73,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         }
 
         /// <summary>
+        /// Gets or sets the diagnostics sink.
+        /// </summary>
+        public IDiagnosticsSink? DiagnosticsSink { get; set; }
+
+        /// <summary>
         /// Gets the file path of the DSC (Desired State Configuration) executable.
         /// </summary>
         public string? DscExecutablePath
@@ -90,14 +93,14 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
                     PackageInformation stableInformation = new PackageInformation(StableDscPackageFamilyName);
                     if (stableInformation.IsInstalled && stableInformation.Version >= this.minimumStableVersion)
                     {
-                        return stableInformation.AliasPath;
+                        return stableInformation.GetExecutablePath(this.DiagnosticsSink);
                     }
                     else
                     {
                         PackageInformation previewInformation = new PackageInformation(PreviewDscPackageFamilyName);
                         if (previewInformation.IsInstalled && previewInformation.Version >= this.minimumPreviewVersion)
                         {
-                            return previewInformation.AliasPath;
+                            return previewInformation.GetExecutablePath(this.DiagnosticsSink);
                         }
                         else
                         {
@@ -178,7 +181,7 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
 
         private Transition Found(PackageInformation packageInformation)
         {
-            this.dscExecutablePath = packageInformation.AliasPath;
+            this.dscExecutablePath = packageInformation.GetExecutablePath(this.DiagnosticsSink);
             this.currentState = State.Terminated;
             return Transition.Found;
         }
