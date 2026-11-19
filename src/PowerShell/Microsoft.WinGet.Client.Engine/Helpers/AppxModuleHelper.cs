@@ -66,7 +66,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
         private const string Version = "Version";
-        private const string InstallLocation = "InstallLocation";
         private const string PublisherId = "PublisherId";
         private const string SignatureKind = "SignatureKind";
         private const string MicrosoftPublisherId = "8wekyb3d8bbwe";
@@ -120,14 +119,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Gets the Microsoft-published, Store-signed AppInstaller package.
+        /// Calls Get-AppxPackage Microsoft.DesktopAppInstaller.
         /// </summary>
         /// <param name="allUsers">Whether to get for all users.</param>
         /// <returns>Result of Get-AppxPackage.</returns>
         public PSObject? GetAppInstallerObject(bool allUsers = false)
         {
-            return this.GetAppxObjects(AppInstallerName, allUsers)
-                .FirstOrDefault(p => IsStoreSignedMicrosoftPackage(p.Properties[PublisherId]?.Value, p.Properties[SignatureKind]?.Value));
+            return this.GetAppxObjects(AppInstallerName, allUsers).FirstOrDefault();
         }
 
         /// <summary>
@@ -162,13 +160,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Gets the install location of the AppInstaller package, if it is published by Microsoft and signed by the Store.
+        /// Gets a string property from the Microsoft-published, Store-signed AppInstaller package.
         /// </summary>
-        /// <returns>The install location, or null if there is no such package.</returns>
-        public string? GetStoreSignedAppInstallerLocation()
+        /// <param name="propertyName">Property name.</param>
+        /// <returns>The property value, or null if the package or property is missing.</returns>
+        public string? GetStoreSignedAppInstallerPropertyValue(string propertyName)
         {
-            string? location = this.GetAppInstallerPropertyValue(InstallLocation);
-            return string.IsNullOrEmpty(location) ? null : location;
+            var packageObj = this.GetAppxObjects(AppInstallerName)
+                .FirstOrDefault(p => IsStoreSignedMicrosoftPackage(p.Properties[PublisherId]?.Value, p.Properties[SignatureKind]?.Value));
+            return packageObj?.Properties[propertyName]?.Value as string;
         }
 
         /// <summary>

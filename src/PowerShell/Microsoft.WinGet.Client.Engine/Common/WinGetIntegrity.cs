@@ -177,7 +177,11 @@ namespace Microsoft.WinGet.Client.Engine.Common
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
             var appxModule = new AppxModuleHelper(pwshCmdlet);
+#if USE_PROD_CLSIDS
+            string? version = appxModule.GetStoreSignedAppInstallerPropertyValue("Version");
+#else
             string? version = appxModule.GetAppInstallerPropertyValue("Version");
+#endif
             if (version is null)
             {
                 // This can happen in Windows Sandbox.
@@ -199,8 +203,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
         private static string? GetWinGetPath(PowerShellCmdlet pwshCmdlet)
         {
 #if USE_PROD_CLSIDS
-            string? location = new AppxModuleHelper(pwshCmdlet).GetStoreSignedAppInstallerLocation();
-            return location is null ? null : Path.Combine(location, Constants.WinGetExe);
+            string? location = new AppxModuleHelper(pwshCmdlet).GetStoreSignedAppInstallerPropertyValue("InstallLocation");
+            return string.IsNullOrEmpty(location) ? null : Path.Combine(location, Constants.WinGetExe);
 #else
             // Development packages are not Store signed.
             return WingetCLIWrapper.WinGetFullPath;
