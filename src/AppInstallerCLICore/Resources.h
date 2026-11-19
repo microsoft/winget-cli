@@ -355,6 +355,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreResumeLimitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreUnavailableArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreWarningsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);

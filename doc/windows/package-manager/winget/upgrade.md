@@ -42,6 +42,7 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **--force**                       | When a hash mismatch is discovered will ignore the error and attempt to install the package.                                |
 | **--all**                         | Updates all available packages to the latest application.                                                                  |
 | **--include-unknown**            | Attempt to upgrade a package even if the package's current version is unknown.                                              |
+| **--ignore-unknown**             | Suppress notices about skipped packages with unknown versions. Available when listing upgrades or using `--all`; cannot be combined with `--include-unknown`. |
 | **--purge**                       | Deletes all files and directories in the package directory (portable).                                                      |
 | **--custom**                      | Arguments to be passed on to the installer in addition to the defaults.                                                     |
 | **--scope**                       | Select installed package scope filter (user or machine).                                                                    |
@@ -93,6 +94,16 @@ In the example below you will see [**list**](list.md) identifies that an update 
 ## **upgrade** --all
 
 **upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the upgrade.
+
+Packages with unknown installed versions are skipped by default, with a summary explaining how to include them. To keep skipping these packages without that summary, use:
+
+```CMD
+winget upgrade --all --ignore-unknown
+```
+
+You can also use `winget upgrade --ignore-unknown` to list available upgrades without the unknown-version summary. This option does not change which packages are eligible for upgrades, suppress other diagnostics, or apply to an explicit package or manifest upgrade. If only ignored packages remain, WinGet reports that no applicable upgrade was found.
+
+Omit `--ignore-unknown` to restore the default notices. Do not combine it with `--include-unknown`: that option allows upgrading packages whose installed version cannot be determined, rather than silently skipping them.
 
 ## Related topics
 
