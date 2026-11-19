@@ -21,7 +21,7 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [-Version <String>] [-Id <String>] [-Name <String>]
  [-Moniker <String>] [-Source <String>] [[-Query] <String[]>] [-MatchOption <PSPackageFieldMatchOption>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-AcceptPackageAgreements] [-AcceptSourceAgreements] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### GivenSet
@@ -30,7 +30,7 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
 Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
  [-Scope <PSPackageInstallScope>] [-SkipDependencies] [[-PSCatalogPackage] <PSCatalogPackage>]
- [-Version <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Version <String>] [-AcceptPackageAgreements] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -80,6 +80,45 @@ Microsoft.PowerShell. The command puts the files a new folder in your `Downloads
 folder name is created by concatenating the package identifier and version number.
 
 ## PARAMETERS
+
+### -AcceptPackageAgreements
+
+Accepts the agreements of the package that is selected. The agreements are shown as a warning.
+Without this parameter, an interactive session asks you to accept or decline them; declining stops
+the operation for that package. In a non-interactive session, the agreements are currently accepted
+and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AcceptSourceAgreements
+
+Accepts the agreements of every source that is searched. When the agreements of a source have not
+been accepted before, they are shown as a warning and the acceptance is recorded, so later commands
+don't ask again. Without this parameter, an interactive session asks you to accept or decline them;
+declined sources are excluded from the search. In a non-interactive session, the agreements are
+currently accepted and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: FoundSet
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AllowHashMismatch
 

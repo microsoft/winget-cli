@@ -19,7 +19,8 @@ Uninstalls a WinGet Package.
 ```
 Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>] [-Version <String>]
  [-Id <String>] [-Name <String>] [-Moniker <String>] [-Source <String>] [[-Query] <String[]>]
- [-MatchOption <PSPackageFieldMatchOption>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-MatchOption <PSPackageFieldMatchOption>] [-AcceptSourceAgreements] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### GivenSet
@@ -78,6 +79,26 @@ a query search for packages matching `Microsoft.PowerShell`. The results of the 
 matches with the version of `7.4.4.0`.
 
 ## PARAMETERS
+
+### -AcceptSourceAgreements
+
+Accepts the agreements of every source that is searched. When the agreements of a source have not
+been accepted before, they are shown as a warning and the acceptance is recorded, so later commands
+don't ask again. Without this parameter, an interactive session asks you to accept or decline them;
+declined sources are excluded from the search. In a non-interactive session, the agreements are
+currently accepted and shown as a warning. A future release will require this parameter instead.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: FoundSet
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Force
 
