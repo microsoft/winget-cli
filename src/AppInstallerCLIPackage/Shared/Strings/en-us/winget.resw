@@ -1416,6 +1416,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
   </data>
+  <data name="IgnoreUnknownArgumentDescription" xml:space="preserve">
+    <value>Suppress notices about skipped packages whose current version cannot be determined</value>
+    <comment>These packages are already skipped by default when listing or installing upgrades. This option only suppresses the aggregate notice; it does not allow upgrading them or suppress other diagnostics.</comment>
+  </data>
   <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
     <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument</value>
     <comment>{Locked="--upgrade-available"}</comment>

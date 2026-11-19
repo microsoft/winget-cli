@@ -294,6 +294,7 @@ TEST_CASE("UpdateFlow_UnknownVersion_IncludeUnknownArg", "[UpdateFlow][workflow]
 
 TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
 {
+    const bool ignoreUnknown = GENERATE(false, true);
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -306,13 +307,63 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
         TSR::TestInstaller_Zip,
         }));
 
+    if (ignoreUnknown)
+    {
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
+    }
+
     UpgradeCommand update({});
     context.SetExecutingCommand(&update);
     update.Execute(context);
     INFO(updateOutput.str());
 
-    // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
-    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
+    REQUIRE((updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos) == !ignoreUnknown);
+    REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
+    REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
+}
+
+TEST_CASE("UpdateFlow_IgnoreUnknown_OnlyUnknownVersions", "[UpdateFlow][workflow][ignore-unknown]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnknownVersion }));
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
+    bool listUpgrades = false;
+
+    SECTION("Discovery")
+    {
+    }
+    SECTION("Bulk upgrade")
+    {
+        context.Args.AddArg(Execution::Args::Type::All);
+    }
+    SECTION("List upgrades")
+    {
+        context.Args.AddArg(Execution::Args::Type::Upgrade);
+        listUpgrades = true;
+    }
+
+    if (listUpgrades)
+    {
+        ListCommand command({});
+        command.Execute(context);
+    }
+    else
+    {
+        UpgradeCommand command({});
+        command.Execute(context);
+    }
+    INFO(output.str());
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(output.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
+    REQUIRE(output.str().find(Resource::String::UpgradeUnknownVersionCount(1)) == std::string::npos);
+    REQUIRE(output.str().find(Resource::LocString(Resource::String::NoPackagesNeedUpdate).get()) == std::string::npos);
+    REQUIRE(output.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
@@ -530,6 +581,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
 
 TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 {
+    const bool ignoreUnknown = GENERATE(false, true);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
 
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
@@ -554,12 +606,16 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     OverrideForPortableInstall(context);
     context.Args.AddArg(Execution::Args::Type::All);
 
+    if (ignoreUnknown)
+    {
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
+    }
+
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
-    // Verify that --include-unknown help message is displayed.
-    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
+    REQUIRE((updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos) == !ignoreUnknown);
     REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
 
     // Verify installers are called.
@@ -571,22 +627,31 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 
 TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicable", "[UpdateFlow][workflow]")
 {
+    const bool ignoreUnknown = GENERATE(false, true);
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({
         TSR::TestInstaller_Exe_NotApplicable,
+        TSR::TestInstaller_Exe_UnknownVersion,
         TSR::TestInstaller_Exe_LatestInstalled,
         TSR::TestInstaller_Msix_UpgradeRequiresExplicit,
         }));
     context.Args.AddArg(Execution::Args::Type::All);
     context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
+    if (ignoreUnknown)
+    {
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
+    }
+
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
     REQUIRE(updateOutput.str().find(Resource::String::UpgradeNotApplicableCount(1)) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeRequireExplicitCount(1)) != std::string::npos);
+    REQUIRE((updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos) == !ignoreUnknown);
 }
 
 TEST_CASE("UpdateFlow_UpdateAll_ReportsNotApplicableWithPinnedVersion", "[UpdateFlow][workflow]")
@@ -1146,6 +1211,29 @@ TEST_CASE("UpdateFlow_UpdateWithReboot", "[UpdateFlow][workflow][reboot]")
         REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
         REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
+}
+
+TEST_CASE("ListCommand_UpgradeAvailable_UnknownVersion", "[ListCommand][workflow][ignore-unknown]")
+{
+    const bool ignoreUnknown = GENERATE(false, true);
+    std::ostringstream listOutput;
+    TestContext context{ listOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Exe_UnknownVersion }));
+    context.Args.AddArg(Execution::Args::Type::Upgrade);
+    if (ignoreUnknown)
+    {
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
+    }
+
+    ListCommand list({});
+    list.Execute(context);
+    INFO(listOutput.str());
+
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE((listOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos) == !ignoreUnknown);
+    REQUIRE(listOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
+    REQUIRE(listOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
 }
 
 TEST_CASE("ListCommand_UpgradeAvailable_LatestInstalled", "[ListCommand][workflow]")
