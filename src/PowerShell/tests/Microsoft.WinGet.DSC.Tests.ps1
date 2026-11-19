@@ -110,6 +110,7 @@ Describe 'WinGetUserSettings' {
     It 'Get user settings' {
         $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property @{ Settings = $userSettingsHash }
         $result.Settings.Count | Should -Be 0
+        $result.Context | Should -Be 'User'
     }
 
     It 'Test user settings' {
@@ -141,10 +142,10 @@ Describe 'WinGetUserSettings protected target' {
 
     It 'Routes Get, Test, and Set to the protected file' {
         $desired = @{ visual = @{ progressBar = 'rainbow' } }
-        $properties = @{ Settings = $desired; Admin = $true }
+        $properties = @{ Settings = $desired; Context = 'Administrator' }
         InvokeWinGetDSC -Name WinGetUserSettings -Method Set -Property $properties
         $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property $properties
-        $result.Admin | Should -Be $true
+        $result.Context | Should -Be 'Administrator'
         $result.Settings.visual.progressBar | Should -Be 'rainbow'
         (InvokeWinGetDSC -Name WinGetUserSettings -Method Test -Property $properties).InDesiredState | Should -Be $true
         [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($ordinaryPath)) |

@@ -12,6 +12,8 @@ using namespace AppInstaller::Settings;
 
 #define ACTION_FULL "Full"
 #define ACTION_PARTIAL "Partial"
+#define CONTEXT_USER "User"
+#define CONTEXT_ADMINISTRATOR "Administrator"
 
 namespace AppInstaller::CLI
 {
@@ -19,21 +21,30 @@ namespace AppInstaller::CLI
     {
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_FLAGS(SettingsProperty, Json::Value, Settings, "settings", DscComposablePropertyFlag::Required | DscComposablePropertyFlag::CopyToOutput, Resource::String::DscResourcePropertyDescriptionUserSettingsFileSettings);
         WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ActionProperty, std::string, Action, "action", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAction, ({ ACTION_PARTIAL, ACTION_FULL }), ACTION_PARTIAL);
-        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_DEFAULT(AdminProperty, bool, Admin, "admin", Resource::String::DscResourcePropertyDescriptionUserSettingsFileAdmin, false);
+        WINGET_DSC_DEFINE_COMPOSABLE_PROPERTY_ENUM(ContextProperty, std::string, Context, "context", Resource::String::DscResourcePropertyDescriptionUserSettingsFileContext, ({ CONTEXT_USER, CONTEXT_ADMINISTRATOR }), CONTEXT_USER);
 
-        using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty, AdminProperty>;
+        using UserSettingsFileResourceObject = DscComposableObject<StandardInDesiredStateProperty, SettingsProperty, ActionProperty, ContextProperty>;
 
         struct UserSettingsFileFunctionData
         {
             UserSettingsFileFunctionData(const std::optional<Json::Value>& json, bool ignoreFieldRequirements = false) :
-                Input(json, ignoreFieldRequirements),
-                _userSettingsPath(Input.Admin().value_or(false) ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath())
+                Input(json, ignoreFieldRequirements)
             {
-                Output.Admin(Input.Admin().value_or(false));
+                const auto context = Input.Context().value_or(CONTEXT_USER);
+                THROW_HR_IF_MSG(E_INVALIDARG,
+                    !Utility::CaseInsensitiveEquals(context, CONTEXT_USER) && !Utility::CaseInsensitiveEquals(context, CONTEXT_ADMINISTRATOR),
+                    "Invalid user settings context: %hs", context.c_str());
+                Output.Context(IsAdministratorContext() ? CONTEXT_ADMINISTRATOR : CONTEXT_USER);
+                _userSettingsPath = IsAdministratorContext() ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath();
             }
 
             const UserSettingsFileResourceObject Input;
             UserSettingsFileResourceObject Output;
+
+            bool IsAdministratorContext() const
+            {
+                return Utility::CaseInsensitiveEquals(Input.Context().value_or(CONTEXT_USER), CONTEXT_ADMINISTRATOR);
+            }
 
             void Get()
             {
@@ -83,7 +94,7 @@ namespace AppInstaller::CLI
                 Json::StreamWriterBuilder writer;
                 writer["indentation"] = "  ";
                 auto content = Json::writeString(writer, *Output.Settings());
-                if (Input.Admin().value_or(false))
+                if (IsAdministratorContext())
                 {
                     return Stream{ Stream::PrimaryAdminSettingsFile }.Set(content);
                 }
@@ -211,7 +222,7 @@ namespace AppInstaller::CLI
         {
             UserSettingsFileFunctionData data{ json };
 
-            if (data.Input.Admin().value_or(false))
+            if (data.IsAdministratorContext())
             {
                 context << Workflow::EnsureRunningAsAdmin;
                 AICLI_RETURN_IF_TERMINATED(context);

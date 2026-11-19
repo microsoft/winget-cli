@@ -462,9 +462,11 @@ TEST_CASE("Settings_AdminFileMissingReadOnly", "[Settings][workflow]")
 TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
 {
     auto files = DeleteUserSettingsFiles();
-    const bool admin = GENERATE(false, true);
+    const std::string settingsContext = GENERATE("", "User", "Administrator", "administrator");
+    const bool admin = CaseInsensitiveEquals(settingsContext, "Administrator");
+    const std::string expectedContext = admin ? "Administrator" : "User";
     const std::string action = GENERATE("Partial", "Full");
-    CAPTURE(admin, action);
+    CAPTURE(settingsContext, action);
     auto ordinary = ConvertToJson(R"({ "file": "ordinary", "retained": true, "array": [1, 2] })");
     auto protectedSettings = ConvertToJson(R"({ "file": "protected", "retained": true, "array": [1, 2] })");
     SetSetting(Stream::PrimaryUserSettings, Json::writeString(Json::StreamWriterBuilder{}, ordinary));
@@ -478,9 +480,9 @@ TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
     }
 
     Json::Value input{ Json::ValueType::objectValue };
-    if (admin)
+    if (!settingsContext.empty())
     {
-        input["admin"] = true;
+        input["context"] = settingsContext;
     }
     auto invoke = [&](Args::Type function)
     {
@@ -509,20 +511,22 @@ TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
     {
         auto result = invoke(function);
         REQUIRE(result.size() == 1);
-        REQUIRE(result[0]["admin"].isBool());
-        REQUIRE(result[0]["admin"].asBool() == admin);
+        REQUIRE(result[0]["context"].asString() == expectedContext);
+        REQUIRE_FALSE(result[0].isMember("admin"));
         REQUIRE(result[0]["settings"] == expected);
     }
 
     auto schema = invoke(Args::Type::DscResourceFunctionSchema)[0];
-    REQUIRE(schema["properties"]["admin"]["type"].asString() == "boolean");
-    REQUIRE(schema["properties"]["admin"]["default"] == Json::Value{ false });
+    REQUIRE(schema["properties"]["context"]["type"].asString() == "string");
+    REQUIRE(schema["properties"]["context"]["default"].asString() == "User");
+    REQUIRE(schema["properties"]["context"]["enum"] == ConvertToJson(R"(["User", "Administrator"])"));
+    REQUIRE_FALSE(schema["properties"].isMember("admin"));
 
     input["action"] = action;
     input["settings"] = expected;
     auto result = invoke(Args::Type::DscResourceFunctionTest);
     REQUIRE(result.size() == 2);
-    REQUIRE(result[0]["admin"].asBool() == admin);
+    REQUIRE(result[0]["context"].asString() == expectedContext);
     REQUIRE(result[0]["_inDesiredState"].asBool());
     REQUIRE(result[1].empty());
 
@@ -561,7 +565,7 @@ TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
     }
     result = invoke(Args::Type::DscResourceFunctionSet);
     REQUIRE(result.size() == 2);
-    REQUIRE(result[0]["admin"].asBool() == admin);
+    REQUIRE(result[0]["context"].asString() == expectedContext);
     REQUIRE(result[0]["settings"] == expected);
     REQUIRE(result[1][0].asString() == "settings");
     result = invoke(Args::Type::DscResourceFunctionTest);
@@ -581,7 +585,7 @@ TEST_CASE("Settings_DscUserSettingsFileTarget", "[Settings][workflow]")
 TEST_CASE("Settings_DscUserSettingsFileAdminRequiresElevation", "[Settings][workflow]")
 {
     auto files = DeleteUserSettingsFiles();
-    std::istringstream input{ R"({ "admin": true, "settings": {} })" };
+    std::istringstream input{ R"({ "context": "Administrator", "settings": {} })" };
     std::ostringstream output;
     TestContext context{ output, input };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -594,6 +598,21 @@ TEST_CASE("Settings_DscUserSettingsFileAdminRequiresElevation", "[Settings][work
     command.Execute(context);
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+    REQUIRE_FALSE(std::filesystem::exists(UserSettings::AdminSettingsFilePath()));
+    REQUIRE_FALSE(std::filesystem::exists(UserSettings::SettingsFilePath()));
+}
+
+TEST_CASE("Settings_DscUserSettingsFileInvalidContext", "[Settings][workflow]")
+{
+    auto files = DeleteUserSettingsFiles();
+    std::istringstream input{ R"({ "context": "Unknown", "settings": {} })" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Args::Type::DscResourceFunctionSet);
+    DscUserSettingsFileResource command({});
+
+    REQUIRE_THROWS_HR(command.Execute(context), E_INVALIDARG);
     REQUIRE_FALSE(std::filesystem::exists(UserSettings::AdminSettingsFilePath()));
     REQUIRE_FALSE(std::filesystem::exists(UserSettings::SettingsFilePath()));
 }

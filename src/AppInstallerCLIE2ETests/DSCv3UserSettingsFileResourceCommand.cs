@@ -69,6 +69,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         Assert.That(getOutput, Is.Not.Null);
         Assert.That(getOutput.Action, Is.Null);
+        Assert.That(getOutput.Context, Is.EqualTo("User"));
         AssertSettingsAreEqual(expected, getOutput.Settings);
     }
 
@@ -244,6 +245,7 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         Assert.That(exportOutput, Is.Not.Null);
         Assert.That(exportOutput.Action, Is.Null);
+        Assert.That(exportOutput.Context, Is.EqualTo("User"));
         AssertSettingsAreEqual(expected, exportOutput.Settings);
     }
 
@@ -356,6 +358,9 @@ public class DSCv3UserSettingsFileResourceCommand : DSCv3ResourceTestBase
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Action { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string Context { get; set; }
 
         public JsonObject Settings { get; set; }
     }

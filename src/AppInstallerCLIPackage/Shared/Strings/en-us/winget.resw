@@ -3478,9 +3478,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
     <value>The action used to apply the settings.</value>
   </data>
-  <data name="DscResourcePropertyDescriptionUserSettingsFileAdmin" xml:space="preserve">
-    <value>Select the protected per-user administrator settings file instead of the ordinary user settings file. Set requires administrator privileges; Get, Test, and Export do not. This does not select administrator capability controls.</value>
-    <comment>Describes the optional Boolean admin property on the native DSCv3 UserSettingsFile resource. The default is false.</comment>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileContext" xml:space="preserve">
+    <value>Select User for the ordinary user settings file or Administrator for the protected per-user administrator settings file. Setting administrator settings requires administrator privileges; Get, Test, and Export do not. This does not select administrator capability controls.</value>
+    <comment>Describes the context property on the native DSCv3 UserSettingsFile resource. The default is User. User and Administrator are literal enum values and must not be translated.</comment>
   </data>
   <data name="CorrelationArgumentDescription" xml:space="preserve">
     <value>Value is logged for correlation</value>

@@ -87,7 +87,7 @@ the selected file, rather than combining the two files.
 `Set-WinGetUserSetting -Merge` skips values set to `$null`. To save a null, omit
 `-Merge` and include all settings you want to keep, since this replaces the file.
 
-For DSC, use `Admin = $true` with `WinGetUserSettings`, or `"admin": true` with
+For DSC, use `Context = 'Administrator'` with `WinGetUserSettings`, or `"context": "Administrator"` with
 the DSCv3 `UserSettingsFile` resource. Saving administrator settings requires
 administrator privileges. With PowerShell DSC, use `Action = 'Full'` to save a null.
 

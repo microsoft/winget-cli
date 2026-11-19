@@ -470,11 +470,12 @@ interfaces and receive applicable effective values through existing consumers.
 
 ### WinGet Configuration and DSC
 
-Add an optional Boolean target selector, defaulting to false, to both
-`WinGetUserSettings` in the PowerShell DSC module and the native
-`UserSettingsFile` resource. Use `Admin` in PowerShell and `admin` in native
-JSON input/output. Preserve existing default targeting and Full/Partial action
-semantics.
+Add a `Context` key of enum type `WinGetUserSettingsContext` to the PowerShell DSC
+`WinGetUserSettings` resource, with `User` (default) and `Administrator` values.
+PowerShell DSC does not support Boolean key properties. The native
+`UserSettingsFile` resource uses a string enum `context` selector with the same
+values, defaulting to `User`, in JSON input/output. Preserve existing default targeting
+and Full/Partial action semantics.
 
 Get/Test/Export describe the selected raw file, not effective settings. Set of
 the protected target requires elevation; Get/Test can run unelevated. Return
@@ -487,7 +488,7 @@ For example, the native resource input can select the protected file:
 
 ```json
 {
-  "admin": true,
+  "context": "Administrator",
   "action": "Partial",
   "settings": {
     "downloadBehavior": {
@@ -503,7 +504,7 @@ The PowerShell DSC resource can express the same intent:
 WinGetUserSettings ProtectedDownloads
 {
     SID = ''
-    Admin = $true
+    Context = 'Administrator'
     Action = 'Partial'
     Settings = @{
         downloadBehavior = @{
