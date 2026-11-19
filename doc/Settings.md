@@ -345,6 +345,12 @@ Configurations that require administrator privileges use the administrator modul
 
 You can still choose a folder with `--module-path` (or PowerShell `-ModulePath`). Specifying `default` uses WinGet's default folder rather than this setting.
 
+PowerShell configuration commands do not use this setting from either settings
+file. They use PowerShell's `AllUsers` module folder when running as
+administrator and `CurrentUser` otherwise, unless you choose a folder with
+`-ModulePath`. For these commands, `-ModulePath default` selects that same
+PowerShell default.
+
 > Note: This setting value must be an absolute path.
 
 ```json

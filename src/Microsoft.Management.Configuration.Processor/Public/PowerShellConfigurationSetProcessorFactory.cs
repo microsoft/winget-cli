@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
+    using System.Security.Principal;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Factory;
@@ -342,22 +343,66 @@ namespace Microsoft.Management.Configuration.Processor
             }
         }
 
+        /// <summary>
+        /// Configures the PowerShell module without native settings or path resolution.
+        /// </summary>
+        /// <param name="processorEnvironment">The processor environment.</param>
+        /// <param name="elevated">Whether PowerShell is running as administrator.</param>
+        internal void ConfigurePowerShellModulePaths(IProcessorEnvironment processorEnvironment, bool elevated)
+        {
+            if (elevated)
+            {
+                processorEnvironment.CleanupPSModulePath(GetUnsecuredDefaultWinGetModulePath());
+            }
+
+            if (this.AdditionalModulePaths is not null)
+            {
+                processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
+            }
+
+            var moduleLocation = this.Location;
+            if (moduleLocation == PowerShellConfigurationProcessorLocation.Default)
+            {
+                moduleLocation = elevated ? PowerShellConfigurationProcessorLocation.AllUsers : PowerShellConfigurationProcessorLocation.CurrentUser;
+            }
+
+            if (moduleLocation == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                string customPath = this.CustomLocation ?? throw new ArgumentNullException(nameof(this.CustomLocation));
+                processorEnvironment.SetLocation(moduleLocation, customPath);
+                processorEnvironment.PrependPSModulePath(customPath);
+            }
+            else
+            {
+                processorEnvironment.SetLocation(moduleLocation, null);
+            }
+        }
+
         /// <inheritdoc />
         protected override IConfigurationSetProcessor CreateSetProcessorInternal(ConfigurationSet? set, bool isLimitMode)
         {
-            (string defaultModulePath, bool fullToken) = GetDefaultWinGetModulePath(false);
-            string settingsModulePath = defaultModulePath;
-            if (this.useSettingsForModulePath)
-            {
-                (settingsModulePath, fullToken) = GetDefaultWinGetModulePath(true);
-            }
-
             var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
             var processorEnvironment = envFactory.CreateEnvironment(
                 this,
                 this.Policy);
 
-            this.ConfigureModulePaths(processorEnvironment, fullToken, defaultModulePath, settingsModulePath);
+            if (this.ProcessorType == PowerShellConfigurationProcessorType.Hosted)
+            {
+                (string defaultModulePath, bool fullToken) = GetDefaultWinGetModulePath(false);
+                string settingsModulePath = defaultModulePath;
+                if (this.useSettingsForModulePath)
+                {
+                    (settingsModulePath, fullToken) = GetDefaultWinGetModulePath(true);
+                }
+
+                this.ConfigureModulePaths(processorEnvironment, fullToken, defaultModulePath, settingsModulePath);
+            }
+            else
+            {
+                using WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                bool elevated = new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+                this.ConfigurePowerShellModulePaths(processorEnvironment, elevated);
+            }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
 

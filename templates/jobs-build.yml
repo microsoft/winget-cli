@@ -218,7 +218,6 @@ jobs:
       SourceFolder: $(buildOutDir)
       Contents: |
           Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
-          WindowsPackageManager\WindowsPackageManager.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 

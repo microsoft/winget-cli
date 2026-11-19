@@ -10,9 +10,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using System.IO;
     using Microsoft.Management.Configuration.Processor;
+    using Microsoft.Management.Configuration.Processor.PowerShell.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.PowerShell.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
+    using Moq;
     using WinRT;
     using Xunit;
     using Xunit.Abstractions;
@@ -107,6 +109,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory
             {
+                ProcessorType = PowerShellConfigurationProcessorType.Hosted,
                 ImplicitModulePaths = new List<string> { this.fixture.ExternalModulesPath },
             };
 
@@ -254,6 +257,48 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             {
                 Assert.DoesNotContain(@"C:\Protected\Configured", paths);
             }
+        }
+
+        /// <summary>
+        /// PowerShell defaults use standard scopes without replacing explicit selections.
+        /// </summary>
+        /// <param name="elevated">Whether the caller is elevated.</param>
+        /// <param name="selection">The requested location.</param>
+        /// <param name="expected">The effective PowerShell location.</param>
+        [Theory]
+        [InlineData(false, PowerShellConfigurationProcessorLocation.Default, PowerShellConfigurationProcessorLocation.CurrentUser)]
+        [InlineData(true, PowerShellConfigurationProcessorLocation.Default, PowerShellConfigurationProcessorLocation.AllUsers)]
+        [InlineData(true, PowerShellConfigurationProcessorLocation.CurrentUser, PowerShellConfigurationProcessorLocation.CurrentUser)]
+        [InlineData(false, PowerShellConfigurationProcessorLocation.AllUsers, PowerShellConfigurationProcessorLocation.AllUsers)]
+        [InlineData(false, PowerShellConfigurationProcessorLocation.Custom, PowerShellConfigurationProcessorLocation.Custom)]
+        [InlineData(true, PowerShellConfigurationProcessorLocation.Custom, PowerShellConfigurationProcessorLocation.Custom)]
+        public void ConfigurePowerShellModulePaths_StandardScopes(
+            bool elevated,
+            PowerShellConfigurationProcessorLocation selection,
+            PowerShellConfigurationProcessorLocation expected)
+        {
+            const string customPath = @"C:\Explicit\Modules";
+            var factory = new PowerShellConfigurationSetProcessorFactory
+            {
+                Location = selection,
+                CustomLocation = selection == PowerShellConfigurationProcessorLocation.Custom ? customPath : null,
+            };
+            var environment = new Mock<IProcessorEnvironment>(MockBehavior.Strict);
+            if (elevated)
+            {
+                environment.Setup(e => e.CleanupPSModulePath(PowerShellConfigurationSetProcessorFactory.GetUnsecuredDefaultWinGetModulePath()));
+            }
+
+            environment.Setup(e => e.SetLocation(expected, expected == PowerShellConfigurationProcessorLocation.Custom ? customPath : null));
+            if (expected == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                environment.Setup(e => e.PrependPSModulePath(customPath));
+            }
+
+            factory.ConfigurePowerShellModulePaths(environment.Object, elevated);
+
+            environment.VerifyAll();
+            environment.VerifyNoOtherCalls();
         }
 
         /// <summary>

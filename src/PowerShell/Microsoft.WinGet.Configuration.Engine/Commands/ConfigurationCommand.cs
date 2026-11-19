@@ -388,13 +388,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
             properties.Policy = openParams.Policy;
             properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
-            if (openParams.HasExplicitModulePath)
+            // PowerShell uses built-in defaults or explicit parameters, not CLI user settings.
+            properties.Location = openParams.Location;
+            if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
             {
-                properties.Location = openParams.Location;
-                if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
-                {
-                    properties.CustomLocation = openParams.CustomLocation;
-                }
+                properties.CustomLocation = openParams.CustomLocation;
             }
 
             return factory;

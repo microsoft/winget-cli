@@ -1,7 +1,7 @@
 ---
 author: JohnMcPMS, GitHub Copilot <Copilot>
 created on: 2026-10-29
-last updated: 2026-11-10
+last updated: 2026-11-19
 ---
 
 # Protected Settings Overlay
@@ -292,9 +292,14 @@ parser or shared-library path implementation.
 For file-backed CLI settings, leave the factory location unset when no module
 path argument is supplied. The receiving processor, including an elevated
 receiver, resolves its own effective `ConfigureDefaultModuleRoot`. PowerShell
-configuration cmdlets likewise preserve an omitted module path. An explicitly
-assigned default instead chooses the built-in default, ignoring the configured
-root. Preserve explicit current-user/all-users/custom roots and authoritative
+configuration cmdlets instead use PowerShell's standard module locations:
+AllUsers when elevated and CurrentUser otherwise. An explicit `-ModulePath`
+continues to select current-user/all-users/custom locations; `default` selects
+the corresponding standard scope. They do not read user settings or call the
+native export. WindowsPackageManager.dll is not included in the Configuration
+module; the packaged remoting server continues to use its existing copy.
+An explicitly assigned default likewise chooses the built-in default, ignoring
+the configured root. Preserve explicit current-user/all-users/custom roots and authoritative
 in-process content, including a custom-content selection of the default.
 
 The dynamic factory omits `modulePath` for an implicit default and serializes
