@@ -329,7 +329,6 @@ TEST_CASE("UpdateFlow_IgnoreUnknown_OnlyUnknownVersions", "[UpdateFlow][workflow
     TestContext context{ output, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnknownVersion }));
-    OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::IgnoreUnknown);
     bool listUpgrades = false;
 
