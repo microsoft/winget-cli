@@ -66,9 +66,12 @@ namespace AppInstaller
 
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);
+            WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFileFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidValueFromPolicy);
+            WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningIgnoredWithFullToken);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
+            WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningReadError);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningUsingDefault);
 
             WINGET_DEFINE_RESOURCE_STRINGID(UnknownErrorCode);

@@ -15,12 +15,16 @@ Tests the current state of WinGet user settings.
 ## SYNTAX
 
 ```
-Test-WinGetUserSetting -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParameters>]
+Test-WinGetUserSetting -UserSettings <Hashtable> [-IgnoreNotSet] [-Admin] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 This command tests the current state of WinGet user settings against a provided set of values.
+
+Use `-Admin` to compare against the raw protected per-user administrator settings file instead
+of the ordinary file. This does not compare the effective overlay or administrator capability
+controls. Testing does not require elevation or create files.
 
 ## EXAMPLES
 
@@ -54,6 +58,23 @@ This examples tests whether the progress bar theme is set to `rainbow`. When you
 WinGet settings in the comparison.
 
 ## PARAMETERS
+
+### -Admin
+
+Tests the protected administrator settings file. Its path is available as
+`(Get-WinGetSetting).adminSettingsFile`.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
 
 ### -IgnoreNotSet
 

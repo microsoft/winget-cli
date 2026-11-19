@@ -5,6 +5,27 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    enum class SettingsWarningType
+    {
+        Migration,
+        NonMigration,
+    };
+
+    // Displays settings warnings of the selected type.
+    struct ShowSettingsWarnings : public WorkflowTask
+    {
+        explicit ShowSettingsWarnings(SettingsWarningType type) :
+            WorkflowTask("ShowSettingsWarnings"), m_type(type) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        SettingsWarningType m_type;
+    };
+
+    // Creates the protected settings file without opening it or creating a backup.
+    void CreateAdminSettingsFile(Execution::Context& context);
+
     // Enables an admin setting.
     // Required Args: AdminSettingEnable
     // Inputs: None
@@ -35,7 +56,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ResetAllAdminSettings(Execution::Context& context);
 
-    // Opens the user settings.
+    // Opens the ordinary or protected per-user settings file.
     // Required Args: None
     // Inputs: None
     // Outputs: None

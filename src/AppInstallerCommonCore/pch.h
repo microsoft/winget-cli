@@ -39,6 +39,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <cwctype>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <functional>

@@ -110,6 +110,7 @@ Describe 'WinGetUserSettings' {
     It 'Get user settings' {
         $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property @{ Settings = $userSettingsHash }
         $result.Settings.Count | Should -Be 0
+        $result.Context | Should -Be 'User'
     }
 
     It 'Test user settings' {
@@ -125,6 +126,39 @@ Describe 'WinGetUserSettings' {
         $userSettings = $result.Settings
         $userSettings.experimentalFeatures.directMSI | Should -Be $true
         $userSettings.installBehavior.Preferences.Scope | Should -Be 'User'
+    }
+}
+
+Describe 'WinGetUserSettings protected target' {
+    BeforeAll {
+        $protectedPath = (Get-WinGetSetting).adminSettingsFile
+        $protectedExisted = Test-Path -LiteralPath $protectedPath
+        if ($protectedExisted) {
+            $protectedContent = [System.IO.File]::ReadAllBytes($protectedPath)
+        }
+        $ordinaryPath = (Get-WinGetSetting).userSettingsFile
+        $ordinaryContent = [System.IO.File]::ReadAllBytes($ordinaryPath)
+    }
+
+    It 'Routes Get, Test, and Set to the protected file' {
+        $desired = @{ visual = @{ progressBar = 'rainbow' } }
+        $properties = @{ Settings = $desired; Context = 'Administrator' }
+        InvokeWinGetDSC -Name WinGetUserSettings -Method Set -Property $properties
+        $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property $properties
+        $result.Context | Should -Be 'Administrator'
+        $result.Settings.visual.progressBar | Should -Be 'rainbow'
+        (InvokeWinGetDSC -Name WinGetUserSettings -Method Test -Property $properties).InDesiredState | Should -Be $true
+        [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($ordinaryPath)) |
+            Should -Be ([Convert]::ToBase64String($ordinaryContent))
+    }
+
+    AfterAll {
+        if ($protectedExisted) {
+            [System.IO.File]::WriteAllBytes($protectedPath, $protectedContent)
+        }
+        elseif (Test-Path -LiteralPath $protectedPath) {
+            Remove-Item -LiteralPath $protectedPath
+        }
     }
 }
 

@@ -161,6 +161,10 @@ namespace AppInstaller::CLI
             return { type, "ignore-versions"_liv };
 
         // Setting Command
+        case Execution::Args::Type::AdminSettingsFile:
+            return { type, "admin"_liv };
+        case Execution::Args::Type::CreateAdminSettingsFile:
+            return { type, "create"_liv };
         case Execution::Args::Type::AdminSettingEnable:
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::EnableDisable };
         case Execution::Args::Type::AdminSettingDisable:
