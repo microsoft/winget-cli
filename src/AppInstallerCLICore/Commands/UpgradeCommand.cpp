@@ -74,6 +74,9 @@ namespace AppInstaller::CLI
             Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::Sort),
+            Argument::ForType(Args::Type::SortAscending),
+            Argument::ForType(Args::Type::SortDescending),
         };
     }
 

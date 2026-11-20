@@ -95,6 +95,14 @@ namespace AppInstaller::Repository
         }
     };
 
+    using MatchCriteriaSortKey = std::pair<MatchType, PackageMatchField>;
+
+    // The relevance key orders match types first, then matched fields, by their declared preference.
+    inline MatchCriteriaSortKey GetMatchCriteriaSortKey(const PackageMatchFilter& criteria)
+    {
+        return { criteria.Type, criteria.Field };
+    }
+
     // The search purpose of the search request.
     enum class SearchPurpose
     {

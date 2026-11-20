@@ -808,17 +808,7 @@ namespace AppInstaller::Repository
                 const U& match1,
                 const V& match2)
             {
-                if (match1.MatchCriteria.Type != match2.MatchCriteria.Type)
-                {
-                    return match1.MatchCriteria.Type < match2.MatchCriteria.Type;
-                }
-
-                if (match1.MatchCriteria.Field != match2.MatchCriteria.Field)
-                {
-                    return match1.MatchCriteria.Field < match2.MatchCriteria.Field;
-                }
-
-                return false;
+                return GetMatchCriteriaSortKey(match1.MatchCriteria) < GetMatchCriteriaSortKey(match2.MatchCriteria);
             }
         };
 

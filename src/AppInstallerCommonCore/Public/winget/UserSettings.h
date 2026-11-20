@@ -57,7 +57,7 @@ namespace AppInstaller::Settings
         Version   = 0x4,
         Source    = 0x8,
         Available = 0x10,
-        Relevance = 0x20,  // Preserves current natural order (source-defined relevance ranking)
+        Relevance = 0x20,  // Match type, then matched-field importance
         Max       = 0x40,  // Sentinel for iteration via GetAllExponentialEnumValues; not a valid sort field
     };
 

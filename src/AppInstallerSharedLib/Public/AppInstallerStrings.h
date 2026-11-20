@@ -113,6 +113,10 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::wstring_view a, std::wstring_view b);
 
+    // Compares UTF16 strings using invariant, case-insensitive Windows numeric string sorting.
+    // Returns negative, zero, or positive for less, equal, or greater. For display, not persistent ordering.
+    int CompareNatural(std::wstring_view a, std::wstring_view b);
+
     // Returns if a UTF8 string is contained within a vector in a case-insensitive manner.
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
 

@@ -13,9 +13,6 @@ namespace AppInstaller::CLI
 
     std::vector<Argument> ListCommand::GetArguments() const
     {
-        // Compile-time count of sort field values, used to cap --sort argument count.
-        static constexpr size_t s_sortFieldCount = AppInstaller::GetExponentialEnumValuesCount(Settings::SortField::None);
-
         return {
             Argument::ForType(Execution::Args::Type::Query),
             Argument::ForType(Execution::Args::Type::Id),
@@ -35,9 +32,9 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
-            Argument{ Execution::Args::Type::Sort, Resource::String::SortArgumentDescription, ArgumentType::Standard }.SetCountLimit(s_sortFieldCount),
-            Argument{ Execution::Args::Type::SortAscending, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag },
-            Argument{ Execution::Args::Type::SortDescending, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::Sort),
+            Argument::ForType(Execution::Args::Type::SortAscending),
+            Argument::ForType(Execution::Args::Type::SortDescending),
         };
     }
 

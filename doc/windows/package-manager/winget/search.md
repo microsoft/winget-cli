@@ -50,6 +50,9 @@ Search strings can be filtered with the following options.
 | **--header** | Optional Windows-Package-Manager REST source HTTP header. |
 | **--accept-source-agreements** | Accept all source agreements during source operations. |
 | **--versions** | Show available versions of the package. |
+| **--sort** | Sort package results by a field; repeat to add tie-breakers. |
+| **--ascending, --asc** | Sort package results in ascending order. |
+| **--descending, --desc** | Sort package results in descending order. |
 | **-?, --help** | Gets additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |
@@ -71,6 +74,14 @@ The search commands supports a number of options or filters to help limit the re
 | **-e, --exact** | Uses the exact string in the query, including checking for case-sensitivity. It will not use the default behavior of a substring. |
 | **-n, --count** | Restricts the output of the display to the specified count. |
 | **-s, --source** | Restricts the search to the specified [source](source.md) name. |
+
+## Result ordering
+
+Results are displayed by relevance, then by name within equal-relevance groups, with or without a query. Relevance compares match type first, then matched-field importance. Name sorting is case-insensitive and uses Windows numeric sorting, so otherwise matching names containing `9.0` precede `10.0`.
+
+Use `--sort` repeatedly to select fields in priority order, for example `winget search Runtime --sort relevance --sort name --descending`. Sort fields override `output.sortOrder`; `--ascending` / `--descending` override `output.sortDirection`. These [settings](list.md#sort-via-user-settings) override the presentation defaults when the corresponding arguments are absent. For example, `["relevance"]` retains incoming order within relevance groups, while `["name"]` makes name the primary key. Fields without a corresponding column do not distinguish rows.
+
+Result limits are applied before presentation sorting. This changes neither repository/API result ordering nor the version ordering shown by `--versions`. Multiple-match candidate tables, including interactive package selection, use the same presentation policy.
 
 ## Related topics
 

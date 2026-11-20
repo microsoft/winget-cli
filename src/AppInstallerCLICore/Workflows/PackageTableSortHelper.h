@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
+#include <winget/RepositorySearch.h>
 #include <winget/UserSettings.h>
 
 #include <algorithm>
@@ -19,10 +20,11 @@ namespace AppInstaller::CLI::Workflow
     {
         size_t OriginalIndex = 0;
 
-        // Precomputed case-folded sort keys
-        std::string FoldedName;
+        // Precomputed UTF16 name and case-folded UTF8 keys
+        std::wstring Name;
         std::string FoldedId;
         std::string FoldedSource;
+        Repository::MatchCriteriaSortKey RelevanceKey;
 
         // Precomputed parsed versions
         Utility::Version ParsedInstalledVersion;
@@ -37,7 +39,8 @@ namespace AppInstaller::CLI::Workflow
             std::string_view installedVersion,
             std::string_view availableVersion,
             std::string_view source,
-            Settings::SortField fieldMask);
+            Settings::SortField fieldMask,
+            Repository::MatchCriteriaSortKey relevanceKey);
     };
 
     // Compares two sortable entries by the given field using precomputed sort keys.
@@ -48,9 +51,15 @@ namespace AppInstaller::CLI::Workflow
     Settings::SortField ComputeSortFieldMask(const std::vector<Settings::SortField>& sortFields);
 
     // Result of sort parameter resolution. If ShouldSort is false, the caller should
-    // preserve the current ordering (relevance or no-op).
+    // preserve the current ordering.
     struct SortParameters
     {
+        enum class DefaultOrder
+        {
+            RelevanceAndName,
+            NameWithoutQuery,
+        };
+
         bool ShouldSort = false;
         std::vector<Settings::SortField> Fields;
         Settings::SortDirection Direction = Settings::SortDirection::Ascending;
@@ -59,10 +68,9 @@ namespace AppInstaller::CLI::Workflow
         // sort algorithm logic independently from CLI/settings parameter resolution.
         SortParameters() = default;
 
-        // Resolves the effective sort parameters by reading CLI args, user settings,
-        // and query context directly from the execution context.
-        // Resolution order: explicit --sort args > settings > query-aware default.
-        explicit SortParameters(const Execution::Context& context);
+        // Resolution order: explicit --sort args > settings > optional Name override > relevance, then name.
+        explicit SortParameters(const Execution::Context& context,
+            DefaultOrder defaultOrder = DefaultOrder::RelevanceAndName);
     };
 
     // Sorts a vector of sortable entries using the resolved sort parameters.

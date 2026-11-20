@@ -6,9 +6,12 @@
 #include "TestSettings.h"
 #include "TestRestRequestHandler.h"
 #include <Rest/RestSource.h>
+#include <Microsoft/PinningIndex.h>
 #include <winget/ManifestYamlParser.h>
 #include <Commands/DscSourceResource.h>
+#include <Commands/SearchCommand.h>
 #include <Commands/SourceCommand.h>
+#include <Commands/UpgradeCommand.h>
 #include <Workflows/PromptFlow.h>
 #include <Workflows/SourceFlow.h>
 
@@ -17,6 +20,127 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
+
+TEST_CASE("PackageTable_PresentationOrder", "[listsort][workflow]")
+{
+    enum class Presentation { Search, List, Upgrades, Candidates };
+    auto presentation = GENERATE(Presentation::Search, Presentation::List, Presentation::Upgrades, Presentation::Candidates);
+    TestUserSettings settings;
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{200} };
+    TempFile indexFile("sortPinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+    auto source = std::make_shared<TestSource>();
+    auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    SearchResult result;
+    auto add = [&](std::string name, MatchType type, PackageMatchField field)
+    {
+        manifest.Id = "Test." + std::to_string(result.Matches.size());
+        manifest.Version = "2.0";
+        manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>(name);
+        auto installed = manifest;
+        installed.Version = "1.0";
+        result.Matches.emplace_back(TestCompositePackage::Make(installed, TestPackage::MetadataMap{}, std::vector{ manifest }, source),
+            PackageMatchFilter{ field, type, name });
+    };
+    add("A weak match", MatchType::Substring, PackageMatchField::Id);
+    add("A name match", MatchType::Exact, PackageMatchField::Name);
+    add("Runtime 10.0", MatchType::Exact, PackageMatchField::Id);
+    add("Runtime 9.0", MatchType::Exact, PackageMatchField::Id);
+    std::vector<std::shared_ptr<ICompositePackage>> originalPackages;
+    for (const auto& match : result.Matches)
+    {
+        originalPackages.emplace_back(match.Package);
+    }
+    std::vector<std::string> expected{ "Runtime 9.0", "Runtime 10.0", "A name match", "A weak match" };
+    bool useDefault = true;
+    bool useSortArguments = false;
+    SECTION("Default")
+    {
+    }
+    SECTION("Empty settings")
+    {
+        settings.Set<Setting::OutputSortOrder>(std::vector<SortField>{});
+    }
+    SECTION("Settings override")
+    {
+        useDefault = false;
+        settings.Set<Setting::OutputSortOrder>(std::vector{ SortField::Name });
+        expected = { "A name match", "A weak match", "Runtime 9.0", "Runtime 10.0" };
+    }
+    SECTION("Relevance only preserves equal-rank order")
+    {
+        useDefault = false;
+        settings.Set<Setting::OutputSortOrder>(std::vector{ SortField::Relevance });
+        expected = { "Runtime 10.0", "Runtime 9.0", "A name match", "A weak match" };
+    }
+    SECTION("Sort arguments override settings")
+    {
+        useDefault = false;
+        useSortArguments = true;
+        settings.Set<Setting::OutputSortOrder>(std::vector{ SortField::Relevance });
+        expected = { "Runtime 10.0", "Runtime 9.0", "A weak match", "A name match" };
+    }
+
+    std::ostringstream output;
+    TestContext context{ output, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    bool hasQuery = GENERATE(false, true);
+    if (hasQuery)
+    {
+        context.Args.AddArg(Execution::Args::Type::Query, "Runtime"sv);
+    }
+    if (useSortArguments)
+    {
+        context.Args.AddArg(Execution::Args::Type::Sort, "name"sv);
+        context.Args.AddArg(Execution::Args::Type::SortDescending);
+    }
+    if (useDefault && !hasQuery && (presentation == Presentation::List || presentation == Presentation::Upgrades))
+    {
+        expected = { "A name match", "A weak match", "Runtime 9.0", "Runtime 10.0" };
+    }
+    context.Add<Execution::Data::Source>(Source{ source });
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    if (presentation == Presentation::Search)
+    {
+        context.Override({ "OpenSource", [](TestContext&) {} });
+        context.Override({ SearchSourceForMany, [](TestContext&) {} });
+        SearchCommand search({});
+        search.Execute(context);
+    }
+    else if (presentation == Presentation::Upgrades && !hasQuery)
+    {
+        context.Override({ "OpenSource", [](TestContext&) {} });
+        context.Override({ "OpenCompositeSource", [](TestContext&) {} });
+        context.Override({ SearchSourceForMany, [](TestContext&) {} });
+        UpgradeCommand upgrade({});
+        upgrade.Execute(context);
+    }
+    else if (presentation == Presentation::Candidates)
+    {
+        context << EnsureOneMatchFromSearchResult(OperationType::Install);
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+    }
+    else
+    {
+        context << ReportListResult(presentation == Presentation::Upgrades);
+    }
+
+    INFO(output.str());
+    size_t previous = 0;
+    for (const auto& name : expected)
+    {
+        auto position = output.str().find(name, previous);
+        REQUIRE(position != std::string::npos);
+        previous = position + name.size();
+    }
+    const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
+    REQUIRE(matches.size() == originalPackages.size());
+    for (size_t i = 0; i < matches.size(); ++i)
+    {
+        REQUIRE(matches[i].Package == originalPackages[i]);
+    }
+    REQUIRE(source->CountOfCallsRequiringManifestData == 0);
+}
 
 TEST_CASE("SourcePriority_Arguments", "[SourcePriority][workflow]")
 {

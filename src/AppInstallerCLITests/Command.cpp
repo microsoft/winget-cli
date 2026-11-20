@@ -670,10 +670,14 @@ TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
 }
 
-TEST_CASE("EnsureListSortFieldCountMatchesLimit", "[command]")
+TEST_CASE("EnsurePackageSortFieldCountMatchesLimit", "[command][listsort]")
 {
-    ListCommand listCommand({});
-    const auto& args = listCommand.GetArguments();
+    auto commandName = GENERATE("list"s, "search"s, "upgrade"s);
+    RootCommand root;
+    Invocation commandInvocation{ std::vector<std::string>{ commandName } };
+    auto command = root.FindSubCommand(commandInvocation);
+    REQUIRE(command);
+    const auto& args = command->GetArguments();
 
     size_t sortLimit = 0;
     for (const auto& arg : args)
@@ -688,6 +692,38 @@ TEST_CASE("EnsureListSortFieldCountMatchesLimit", "[command]")
     // The product's configured limit must match Max: adding a new field
     // without bumping Max (or changing limit) will fail this check.
     REQUIRE((1u << sortLimit) == static_cast<uint32_t>(Settings::SortField::Max));
+}
+
+TEST_CASE("ParseArguments_PackageTableSorting", "[command][listsort]")
+{
+    auto commandName = GENERATE("list"s, "search"s, "upgrade"s);
+    RootCommand root;
+    Invocation commandInvocation{ std::vector<std::string>{ commandName } };
+    auto command = root.FindSubCommand(commandInvocation);
+    REQUIRE(command);
+    Args args;
+
+    SECTION("Sort fields and direction aliases")
+    {
+        auto direction = GENERATE("--ascending"s, "--asc"s, "--descending"s, "--desc"s);
+        Invocation invocation{ std::vector<std::string>{ "--sort", "relevance", "--sort", "name", direction } };
+        REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+        REQUIRE_NOTHROW(command->ValidateArguments(args));
+        RequireValuesParsedToArg({ "relevance", "name" }, Args::Type::Sort, args);
+        REQUIRE(args.Contains(direction == "--ascending" || direction == "--asc" ? Args::Type::SortAscending : Args::Type::SortDescending));
+    }
+    SECTION("Invalid sort field")
+    {
+        Invocation invocation{ std::vector<std::string>{ "--sort", "invalid" } };
+        REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+        REQUIRE_THROWS_AS(command->ValidateArguments(args), CommandException);
+    }
+    SECTION("Conflicting directions")
+    {
+        Invocation invocation{ std::vector<std::string>{ "--ascending", "--descending" } };
+        REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
+        REQUIRE_THROWS_AS(command->ValidateArguments(args), CommandException);
+    }
 }
 
 TEST_CASE("ParseArguments_OutputLocaleSeparatedValue", "[command][output-locale]")
