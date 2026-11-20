@@ -697,6 +697,7 @@ TEST_CASE("EnsurePackageSortFieldCountMatchesLimit", "[command][listsort]")
 TEST_CASE("ParseArguments_PackageTableSorting", "[command][listsort]")
 {
     auto commandName = GENERATE("list"s, "search"s, "upgrade"s);
+    CAPTURE(commandName);
     RootCommand root;
     Invocation commandInvocation{ std::vector<std::string>{ commandName } };
     auto command = root.FindSubCommand(commandInvocation);
@@ -706,7 +707,8 @@ TEST_CASE("ParseArguments_PackageTableSorting", "[command][listsort]")
     SECTION("Sort fields and direction aliases")
     {
         auto direction = GENERATE("--ascending"s, "--asc"s, "--descending"s, "--desc"s);
-        Invocation invocation{ std::vector<std::string>{ "--sort", "relevance", "--sort", "name", direction } };
+        CAPTURE(direction);
+        Invocation invocation{ std::vector<std::string>{ "package", "--sort", "relevance", "--sort", "name", direction } };
         REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
         REQUIRE_NOTHROW(command->ValidateArguments(args));
         RequireValuesParsedToArg({ "relevance", "name" }, Args::Type::Sort, args);
@@ -714,15 +716,17 @@ TEST_CASE("ParseArguments_PackageTableSorting", "[command][listsort]")
     }
     SECTION("Invalid sort field")
     {
-        Invocation invocation{ std::vector<std::string>{ "--sort", "invalid" } };
+        Invocation invocation{ std::vector<std::string>{ "package", "--sort", "invalid" } };
         REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
-        REQUIRE_THROWS_AS(command->ValidateArguments(args), CommandException);
+        REQUIRE_COMMAND_EXCEPTION(command->ValidateArguments(args),
+            CLI::Resource::String::InvalidArgumentValueError(Argument::ForType(Args::Type::Sort).Name(), "name, id, version, source, available, relevance"_liv));
     }
     SECTION("Conflicting directions")
     {
-        Invocation invocation{ std::vector<std::string>{ "--ascending", "--descending" } };
+        Invocation invocation{ std::vector<std::string>{ "package", "--ascending", "--descending" } };
         REQUIRE_NOTHROW(command->ParseArguments(invocation, args));
-        REQUIRE_THROWS_AS(command->ValidateArguments(args), CommandException);
+        REQUIRE_COMMAND_EXCEPTION(command->ValidateArguments(args),
+            CLI::Resource::String::MultipleExclusiveArgumentsProvided("ascending|descending"_lis));
     }
 }
 

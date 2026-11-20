@@ -25,6 +25,7 @@ TEST_CASE("PackageTable_PresentationOrder", "[listsort][workflow]")
 {
     enum class Presentation { Search, List, Upgrades, Candidates };
     auto presentation = GENERATE(Presentation::Search, Presentation::List, Presentation::Upgrades, Presentation::Candidates);
+    bool hasQuery = GENERATE(false, true);
     TestUserSettings settings;
     TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{200} };
     TempFile indexFile("sortPinningIndex", ".db");
@@ -84,7 +85,6 @@ TEST_CASE("PackageTable_PresentationOrder", "[listsort][workflow]")
     std::ostringstream output;
     TestContext context{ output, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    bool hasQuery = GENERATE(false, true);
     if (hasQuery)
     {
         context.Args.AddArg(Execution::Args::Type::Query, "Runtime"sv);
