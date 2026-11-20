@@ -54,7 +54,11 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            if (searchResult.Matches[i].MatchCriteria.Value.empty())
+            if (searchResult.Matches[i].MatchCriteria.Field == Repository::PackageMatchField::NormalizedName)
+            {
+                OutputCompletionString(stream, searchResult.Matches[i].Package->GetProperty(Repository::PackageProperty::Name));
+            }
+            else if (searchResult.Matches[i].MatchCriteria.Value.empty())
             {
                 OutputCompletionString(stream, searchResult.Matches[i].Package->GetProperty(Repository::PackageProperty::Id));
             }

@@ -211,6 +211,8 @@ namespace AppInstaller::Repository
             return "Moniker"sv;
         case PackageMatchField::Name:
             return "Name"sv;
+        case PackageMatchField::NormalizedName:
+            return "NormalizedName"sv;
         case PackageMatchField::Tag:
             return "Tag"sv;
         case PackageMatchField::PackageFamilyName:

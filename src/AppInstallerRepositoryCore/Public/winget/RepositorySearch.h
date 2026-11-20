@@ -42,6 +42,7 @@ namespace AppInstaller::Repository
     {
         Id = 0,
         Name,
+        NormalizedName,
         Moniker,
         Command,
         Tag,

@@ -35,7 +35,8 @@ namespace AppInstaller::CLI::Workflow
     {
         std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
         {
-            if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name)
+            if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name &&
+                match.MatchCriteria.Field != PackageMatchField::NormalizedName)
             {
                 std::string result{ ToString(match.MatchCriteria.Field) };
                 result += ": ";
