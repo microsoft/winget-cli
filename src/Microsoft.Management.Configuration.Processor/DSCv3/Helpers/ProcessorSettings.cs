@@ -125,7 +125,11 @@ namespace Microsoft.Management.Configuration.Processor.DSCv3.Helpers
         /// <summary>
         /// Gets or sets the diagnostics sink to use.
         /// </summary>
-        public IDiagnosticsSink? DiagnosticsSink { get; set; } = null;
+        public IDiagnosticsSink? DiagnosticsSink
+        {
+            get => this.dscPackageStateMachine.DiagnosticsSink;
+            set => this.dscPackageStateMachine.DiagnosticsSink = value;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the processor should produce more verbose output.

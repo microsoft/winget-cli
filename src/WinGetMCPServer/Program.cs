@@ -61,6 +61,29 @@ namespace WinGetMCPServer
                     configureOptions.ServerInstructions = ServerInstructions;
                 })
                 .WithStdioServerTransport()
+                .WithMessageFilters(filters => filters.AddOutgoingFilter(next => async (context, cancellationToken) =>
+                {
+                    if (context.JsonRpcMessage is not JsonRpcNotification { Method: NotificationMethods.ProgressNotification } notification)
+                    {
+                        await next(context, cancellationToken);
+                        return;
+                    }
+
+                    var services = context.Server.Services ?? throw new InvalidOperationException("The MCP server service provider is unavailable.");
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    string? progressToken = notification.Params?["progressToken"]?.ToJsonString();
+                    logger.LogDebug("Sending progress notification. ProgressToken={ProgressToken}", progressToken);
+                    try
+                    {
+                        await next(context, cancellationToken);
+                        logger.LogDebug("Progress notification sent. ProgressToken={ProgressToken}", progressToken);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Progress notification send failed. ProgressToken={ProgressToken}", progressToken);
+                        throw;
+                    }
+                }))
                 .WithToolsAndIcons<WingetPackageTools>(icons);
 
             builder.Build().Run();

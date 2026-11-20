@@ -12,6 +12,9 @@ _tisf_sqliteReturnValue
 # Compact installer log timestamp format
 \bYYMMDDhhmmss\b
 
+# MCP server log timestamp format
+\byyyy-MM-ddTHH:mm:ss\.fffZ\b
+
 El proyecto .* diferentes
 
 # Package family names and package full names

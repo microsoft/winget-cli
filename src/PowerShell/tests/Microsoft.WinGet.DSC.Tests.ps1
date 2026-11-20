@@ -171,6 +171,7 @@ Describe 'WinGetPackage' {
 
         $testPackageId = 'AppInstallerTest.TestExeInstaller'
         $testPackageVersion = '1.0.0.0'
+        $agreementsPackageId = 'AppInstallerTest.PackageAgreements'
 
         InvokeWinGetDSC -Name WinGetSource -Method Set -Property @{ Name = $testSourceName; Argument = $testSourceArg; Type = $testSourceType; TrustLevel = 'Trusted'; Explicit = $false }
     }
@@ -221,8 +222,18 @@ Describe 'WinGetPackage' {
         $result.Ensure | Should -Be 'Absent'
     }
 
+    It 'Install WinGetPackage with agreements' {
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $agreementsPackageId }
+
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $agreementsPackageId }
+        $result.Ensure | Should -Be 'Present'
+
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $agreementsPackageId }
+    }
+
     AfterAll {
         InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId}
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $agreementsPackageId}
     }
 }
 

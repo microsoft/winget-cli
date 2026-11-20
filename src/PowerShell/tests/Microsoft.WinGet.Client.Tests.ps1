@@ -10,7 +10,10 @@
 [CmdletBinding()]
 param(
     # Whether to use production or developement targets.
-    [switch]$TargetProduction
+    [switch]$TargetProduction,
+
+    # The root directory served by the localhost web server; source agreement tests are skipped without it.
+    [string]$StaticFileRootPath
 )
 
 BeforeAll {
@@ -363,6 +366,178 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         if ($testPortable.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestPortableExe
+        }
+    }
+}
+
+Describe 'Package agreements' {
+
+    BeforeAll {
+        AddTestSource
+
+        $agreementsPackageId = 'AppInstallerTest.PackageAgreements'
+
+        # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
+        $canPrompt = [Environment]::UserInteractive -and
+            -not ([Environment]::GetCommandLineArgs() | Where-Object { $arg = $_.TrimStart('-', '/'); $arg.Length -ge 4 -and 'NonInteractive'.StartsWith($arg, [StringComparison]::OrdinalIgnoreCase) })
+    }
+
+    It 'Install with AcceptPackageAgreements shows the agreements' {
+        $result = Install-WinGetPackage -Id $agreementsPackageId -AcceptPackageAgreements -WarningVariable agreementWarnings -WarningAction SilentlyContinue
+
+        $result.Status | Should -Be 'Ok'
+        $warningText = $agreementWarnings -join [Environment]::NewLine
+        $warningText | Should -BeLike '*testAgreementLabel*'
+        $warningText | Should -BeLike '*testAgreementText*'
+        $warningText | Should -BeLike '*https://testAgreementUrl.net*'
+        $warningText | Should -BeLike '*-AcceptPackageAgreements*'
+    }
+
+    It 'Install without AcceptPackageAgreements in a non-interactive host accepts with a warning' {
+        if ($canPrompt)
+        {
+            Set-ItResult -Skipped -Because 'the host can prompt the user'
+            return
+        }
+
+        $result = Install-WinGetPackage -Id $agreementsPackageId -WarningVariable agreementWarnings -WarningAction SilentlyContinue
+
+        $result.Status | Should -Be 'Ok'
+        $warningText = $agreementWarnings -join [Environment]::NewLine
+        $warningText | Should -BeLike '*testAgreementLabel*'
+        $warningText | Should -BeLike '*-AcceptPackageAgreements*'
+    }
+
+    AfterEach {
+        $installed = Get-WinGetPackage -Id $agreementsPackageId -MatchOption Equals
+        if ($installed.Count -gt 0)
+        {
+            Uninstall-WinGetPackage -Id $agreementsPackageId -MatchOption Equals
+        }
+    }
+}
+
+Describe 'Source agreements' {
+
+    BeforeAll {
+        # The source serves only its information, so it cannot be searched. It is always targeted with -Source,
+        # and is removed after each test so that it does not break other searches.
+        $agreementsSourceName = 'TestPesterAgreementsRestSource'
+        $agreementsSourceUrl = "https://localhost:5001/TestKit/$agreementsSourceName"
+        $agreementsSourceDirectory = if ($StaticFileRootPath) { Join-Path $StaticFileRootPath $agreementsSourceName } else { $null }
+
+        # Approximates whether the host will prompt; a host started with -NonInteractive refuses to.
+        $canPrompt = [Environment]::UserInteractive -and
+            -not ([Environment]::GetCommandLineArgs() | Where-Object { $arg = $_.TrimStart('-', '/'); $arg.Length -ge 4 -and 'NonInteractive'.StartsWith($arg, [StringComparison]::OrdinalIgnoreCase) })
+
+        function WriteAgreementsSourceInformation([string]$agreementsIdentifier, [switch]$RequiresMarket) {
+            $data = [ordered]@{
+                SourceIdentifier = $agreementsSourceName
+                ServerSupportedVersions = @('1.0.0')
+                SourceAgreements = [ordered]@{
+                    AgreementsIdentifier = $agreementsIdentifier
+                    Agreements = @(
+                        [ordered]@{
+                            AgreementLabel = 'Test Agreement'
+                            Agreement = 'Test agreement text'
+                            AgreementUrl = 'https://localhost:5001/TestKit/agreement'
+                        }
+                    )
+                }
+            }
+
+            if ($RequiresMarket)
+            {
+                $data.RequiredPackageMatchFields = @('Market')
+            }
+
+            $null = New-Item -Path $agreementsSourceDirectory -ItemType Directory -Force
+            $information = ConvertTo-Json @{ Data = $data } -Depth 5
+            [System.IO.File]::WriteAllText((Join-Path $agreementsSourceDirectory 'information'), $information)
+        }
+
+        # Adding a source accepts its current agreements, so they are changed afterwards to make them unaccepted.
+        function AddAgreementsSourceWithUnacceptedAgreements([switch]$RequiresMarket) {
+            WriteAgreementsSourceInformation 'AgreementsV1' -RequiresMarket:$RequiresMarket
+            & $wingetExeName source add -n $agreementsSourceName -a $agreementsSourceUrl -t Microsoft.Rest --trust-level trusted --accept-source-agreements | Out-Null
+            $LASTEXITCODE | Should -Be 0
+            WriteAgreementsSourceInformation 'AgreementsV2' -RequiresMarket:$RequiresMarket
+        }
+
+        function FindInAgreementsSource([switch]$AcceptSourceAgreements) {
+            $warnings = [System.Collections.Generic.List[string]]::new()
+            $errorText = ''
+
+            try
+            {
+                Find-WinGetPackage -Source $agreementsSourceName -Id 'AppInstallerTest.TestExampleInstaller' -AcceptSourceAgreements:$AcceptSourceAgreements -ErrorAction Stop 3>&1 |
+                    Where-Object { $_ -is [System.Management.Automation.WarningRecord] } |
+                    ForEach-Object { $warnings.Add($_.Message) }
+            }
+            catch
+            {
+                # Searching fails once the source is admitted, as it serves only its information.
+                $errorText = $_.ToString()
+            }
+
+            [PSCustomObject]@{
+                Warnings = $warnings -join [Environment]::NewLine
+                Error = $errorText
+            }
+        }
+    }
+
+    It 'AcceptSourceAgreements shows the agreements and saves their acceptance' -Skip:(-not $StaticFileRootPath) {
+        AddAgreementsSourceWithUnacceptedAgreements -RequiresMarket
+
+        $first = FindInAgreementsSource -AcceptSourceAgreements
+        $first.Warnings | Should -BeLike '*Test Agreement*'
+        $first.Warnings | Should -BeLike '*Test agreement text*'
+        $first.Warnings | Should -BeLike '*https://localhost:5001/TestKit/agreement*'
+        $first.Warnings | Should -BeLike '*geographic region*'
+        $first.Warnings | Should -BeLike '*-AcceptSourceAgreements*'
+        $first.Error | Should -Not -BeLike '*No sources are available*'
+
+        $second = FindInAgreementsSource
+        $second.Warnings | Should -Not -BeLike '*Test Agreement*'
+        $second.Error | Should -Not -BeLike '*No sources are available*'
+    }
+
+    It 'Without AcceptSourceAgreements in a non-interactive host accepts with a warning but does not save' -Skip:(-not $StaticFileRootPath) {
+        if ($canPrompt)
+        {
+            Set-ItResult -Skipped -Because 'the host can prompt the user'
+            return
+        }
+
+        AddAgreementsSourceWithUnacceptedAgreements
+
+        $first = FindInAgreementsSource
+        $first.Warnings | Should -BeLike '*Test Agreement*'
+        $first.Warnings | Should -BeLike '*deprecated*-AcceptSourceAgreements*'
+        $first.Error | Should -Not -BeLike '*No sources are available*'
+
+        $second = FindInAgreementsSource
+        $second.Warnings | Should -BeLike '*Test Agreement*'
+    }
+
+    It 'Unreadable agreements exclude the source' -Skip:(-not $StaticFileRootPath) {
+        AddAgreementsSourceWithUnacceptedAgreements
+        Remove-Item -Path (Join-Path $agreementsSourceDirectory 'information') -Force
+
+        $result = FindInAgreementsSource -AcceptSourceAgreements
+        $result.Warnings | Should -BeLike "*$agreementsSourceName*could not be read*"
+        $result.Error | Should -BeLike '*No sources are available*'
+    }
+
+    AfterEach {
+        if ($agreementsSourceDirectory)
+        {
+            & $wingetExeName source remove -n $agreementsSourceName | Out-Null
+            if (Test-Path $agreementsSourceDirectory)
+            {
+                Remove-Item -Path $agreementsSourceDirectory -Recurse -Force
+            }
         }
     }
 }

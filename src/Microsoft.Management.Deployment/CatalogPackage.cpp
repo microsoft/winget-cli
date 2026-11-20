@@ -172,13 +172,42 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return CheckInstalledStatus(InstalledStatusType::AllChecks);
     }
-    std::shared_ptr<::AppInstaller::Repository::ICompositePackage> CatalogPackage::GetRepositoryPackage()
+    std::shared_ptr<::AppInstaller::Repository::ICompositePackage> CatalogPackage::GetRepositoryPackage(
+        winrt::Microsoft::Management::Deployment::CatalogPackage const& catalogPackage)
     {
-        return m_package;
+        THROW_HR_IF(E_INVALIDARG, !catalogPackage);
+        auto catalogPackageInternal = catalogPackage.try_as<ICatalogPackageInternal>();
+        THROW_HR_IF(E_INVALIDARG, !catalogPackageInternal);
+
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> package;
+        THROW_IF_FAILED(catalogPackageInternal->GetRepositoryPackage(&package));
+        THROW_HR_IF(E_INVALIDARG, !package);
+        return package;
+    }
+    HRESULT STDMETHODCALLTYPE CatalogPackage::GetRepositoryPackage(
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage>* package) noexcept
+    {
+        RETURN_HR_IF(E_POINTER, !package);
+        *package = m_package;
+        return S_OK;
     }
 
     Windows::Foundation::IReference<int32_t> CatalogPackage::CatalogPriority()
     {
         return AppInstaller::Repository::GetSourcePriority(m_package);
+    }
+
+    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::RepairVersion()
+    {
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> repairVersion = ::AppInstaller::Repository::GetRepairVersion(m_package);
+        if (!repairVersion)
+        {
+            return nullptr;
+        }
+
+        auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
+            winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>>();
+        packageVersionInfoImpl->Initialize(std::move(repairVersion));
+        return *packageVersionInfoImpl;
     }
 }

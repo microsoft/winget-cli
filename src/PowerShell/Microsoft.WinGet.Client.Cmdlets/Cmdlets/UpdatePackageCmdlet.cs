@@ -52,6 +52,8 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Source,
                         this.Query,
                         this.SkipDependencies);
+            command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
+            command.AcceptPackageAgreements = this.AcceptPackageAgreements.ToBool();
             command.Update(this.IncludeUnknown.ToBool(), this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.Mode.ToString(), this.InstallerType.ToString());
         }
     }

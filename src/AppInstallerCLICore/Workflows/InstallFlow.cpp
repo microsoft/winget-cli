@@ -386,6 +386,18 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void UninstallPreviousPackage(Execution::Context& context)
+    {
+        const auto& installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        THROW_HR_IF(E_UNEXPECTED, !installedVersion);
+        context.Add<Execution::Data::UninstalledPackageMetadata>(installedVersion->GetMetadata());
+
+        AICLI_RETURN_IF_TERMINATED(context <<
+            GetUninstallInfo <<
+            ExecuteUninstaller);
+        context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+    }
+
     void ExecuteInstallerForType::operator()(Execution::Context& context) const
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
@@ -422,10 +434,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Wix:
             if (doUninstallPrevious)
             {
-                context <<
-                    GetUninstallInfo <<
-                    ExecuteUninstaller;
-                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+                context << UninstallPreviousPackage;
             }
             if (ShouldUseDirectMSIInstall(m_installerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
@@ -447,10 +456,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Portable:
             if (doUninstallPrevious)
             {
-                context <<
-                    GetUninstallInfo <<
-                    ExecuteUninstaller;
-                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+                context << UninstallPreviousPackage;
             }
             context << details::PortableInstall;
             break;
