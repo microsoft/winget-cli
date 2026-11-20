@@ -57,7 +57,7 @@ $clientConfig = New-PesterConfiguration
 $clientConfig.TestResult.OutputFormat = "NUnitXML"
 $clientConfig.TestResult.OutputPath = "$outputPath\Tests-WinGetClient.XML"
 $clientConfig.TestResult.Enabled = $true
-$clientConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1" -Data @{ TargetProduction = $TargetProduction; StaticFileRootPath = $StaticFileRootPath }
+$clientConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Client*.Tests.ps1" -Data @{ TargetProduction = $TargetProduction; StaticFileRootPath = $StaticFileRootPath }
 
 Invoke-Pester -Configuration $clientConfig
 
