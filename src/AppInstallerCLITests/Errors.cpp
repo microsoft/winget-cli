@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerErrors.h>
+#include <winget/Resources.h>
 #include <system_error>
 
 using namespace AppInstaller;
@@ -16,6 +17,21 @@ TEST_CASE("EnsureSortedErrorList", "[errors]")
     {
         INFO(errors[i - 1]->Symbol() << " then " << errors[i]->Symbol());
         REQUIRE(errors[i]->Value() > errors[i - 1]->Value());
+    }
+}
+
+TEST_CASE("ErrorDescriptionsMatchEnglishResources", "[errors]")
+{
+    auto resetOverride = wil::scope_exit([]() { Resource::SetLanguageOverride({}); });
+    REQUIRE(Resource::SetLanguageOverride("en-US"));
+
+    for (const auto& error : Errors::GetWinGetErrors())
+    {
+        INFO(error->Symbol());
+
+        auto resource = StringResource::TryResolveString(ConvertToUTF16(error->Symbol()));
+        REQUIRE(resource.has_value());
+        CHECK(error->GetDescription().get() == resource->get());
     }
 }
 
