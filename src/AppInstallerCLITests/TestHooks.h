@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <msi.h>
 #include "TestSettings.h"
 
 #include <SourceFactory.h>
@@ -52,6 +53,9 @@ namespace AppInstaller
 
         using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
         void SetGetARPKeyOverride(GetARPKeyFunc value);
+
+        using EnumMSIProductsFunc = std::function<UINT(LPCWSTR, LPCWSTR, DWORD, DWORD, LPWSTR, MSIINSTALLCONTEXT*, LPWSTR, LPDWORD)>;
+        void SetEnumMSIProductsOverride(EnumMSIProductsFunc value);
 
         using GetFontRegistryRootFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
         void TestHook_SetGetFontRegistryRootFunc(GetFontRegistryRootFunc value);
