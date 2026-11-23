@@ -51,6 +51,12 @@ namespace Microsoft.WinGet.Client.Commands
         public SwitchParameter Force { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to accept the package agreements without prompting.
+        /// </summary>
+        [Parameter]
+        public SwitchParameter AcceptPackageAgreements { get; set; }
+
+        /// <summary>
         /// Repairs a package from the local system.
         /// </summary>
         protected override void ProcessRecord()
@@ -67,6 +73,8 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Moniker,
                         this.Source,
                         this.Query);
+            this.command.AcceptSourceAgreements = this.AcceptSourceAgreements.ToBool();
+            this.command.AcceptPackageAgreements = this.AcceptPackageAgreements.ToBool();
             this.command.Repair(this.MatchOption.ToString(), this.Mode.ToString());
         }
 

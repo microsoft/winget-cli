@@ -120,6 +120,7 @@ CPIL
 createmanifestmetadata
 createview
 crt
+CSTR
 cswinrt
 ctc
 CTL
@@ -305,6 +306,7 @@ kool
 ktf
 LASTEXITCODE
 LCID
+LCMAP
 learnxinyminutes
 LEBOM
 lhs

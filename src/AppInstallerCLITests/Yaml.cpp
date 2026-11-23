@@ -178,3 +178,40 @@ TEST_CASE("YamlContainsTooManyNestedLayers", "[YAML]")
 {
     REQUIRE_THROWS_HR(Load(TestDataFile("ContainsTooManyNestedLayers.yaml")), APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
 }
+
+TEST_CASE("YamlAliases", "[YAML]")
+{
+    std::string_view input = R"(
+Key: &key Shared
+Switches: &switches
+  Silent: /S
+Copy: *switches
+*key : Aliased key
+)";
+
+    Node document = Load(input);
+    REQUIRE(document["Copy"]["Silent"].as<std::string>() == "/S");
+    REQUIRE(document["Shared"].as<std::string>() == "Aliased key");
+}
+
+TEST_CASE("YamlContainsTooManyAliasedNodes", "[YAML]")
+{
+    // Each level references the previous one ten times, expanding to over 100,000 small nodes.
+    std::string_view input = R"(
+a: &a [x, x, x, x, x, x, x, x, x, x]
+b: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a]
+c: &c [*b, *b, *b, *b, *b, *b, *b, *b, *b, *b]
+d: &d [*c, *c, *c, *c, *c, *c, *c, *c, *c, *c]
+e: [*d, *d, *d, *d, *d, *d, *d, *d, *d, *d]
+)";
+
+    REQUIRE_THROWS_HR(Load(input), APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
+}
+
+TEST_CASE("YamlContainsTooMuchAliasedData", "[YAML]")
+{
+    // A few aliases of a large value copy more data than allowed.
+    std::string input = "a: &a " + std::string(1024 * 1024, 'x') + "\nb: [*a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a, *a]\n";
+
+    REQUIRE_THROWS_HR(Load(input), APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
+}

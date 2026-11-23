@@ -7,6 +7,7 @@
 namespace WinGetMCPServer
 {
     using System.ComponentModel;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Management.Deployment;
     using ModelContextProtocol.Protocol;
     using ModelContextProtocol.Server;
@@ -33,10 +34,13 @@ namespace WinGetMCPServer
 
         private const string AcceptPackageAgreementsParameterDescription = "Only set this to relay the user's explicit decision on package agreements returned by a previous call: true if the user accepted them, false if the user declined them. Never set this without asking the user.";
 
+        private readonly ILogger<WingetPackageTools> logger;
+
         private PackageManager packageManager;
 
-        public WingetPackageTools()
+        public WingetPackageTools(ILogger<WingetPackageTools> logger)
         {
+            this.logger = logger;
             packageManager = ServerConnection.Instance;
         }
 
@@ -136,6 +140,7 @@ namespace WinGetMCPServer
         [Description("Install or upgrade a package using WinGet. When upgradeOnly is true, only upgrades an already-installed package and returns an error if it is not installed. When upgradeOnly is false (default), installs the package if not present or upgrades it if already installed. Package sources and packages may require the user to accept agreements; " + AgreementsDescription)]
         public async Task<CallToolResult> InstallPackage(
             McpServer server,
+            RequestContext<CallToolRequestParams> requestContext,
             [Description("The identifier of the WinGet package")] string identifier,
             IProgress<ProgressNotificationValue> progress,
             CancellationToken cancellationToken,
@@ -146,23 +151,36 @@ namespace WinGetMCPServer
         {
             ExcludedSources excludedSources = new ExcludedSources();
             CallToolResult result;
+            RequestId requestId = requestContext.JsonRpcRequest.Id;
+            ProgressToken? progressToken = requestContext.Params?.ProgressToken;
+
+            logger.LogDebug("Install tool started. RequestId={RequestId}, ProgressToken={ProgressToken}", requestId, progressToken);
+
+            void ReportProgress(ProgressNotificationValue value)
+            {
+                logger.LogDebug(
+                    "Reporting install progress. RequestId={RequestId}, ProgressToken={ProgressToken}, Progress={Progress}, Total={Total}, Message={Message}",
+                    requestId, progressToken, value.Progress, value.Total, value.Message);
+                progress.Report(value);
+            }
 
             try
             {
-                result = await InstallPackageCore(server, identifier, progress, source, upgradeOnly, acceptSourceAgreements, acceptPackageAgreements, excludedSources, cancellationToken);
+                result = await InstallPackageCore(server, identifier, ReportProgress, source, upgradeOnly, acceptSourceAgreements, acceptPackageAgreements, excludedSources, cancellationToken);
             }
             catch (ToolResponseException e)
             {
                 result = e.Response;
             }
 
+            logger.LogDebug("Install tool returning. RequestId={RequestId}, ProgressToken={ProgressToken}, IsError={IsError}", requestId, progressToken, result.IsError);
             return ToolResponse.WithExcludedSources(result, excludedSources);
         }
 
         private async Task<CallToolResult> InstallPackageCore(
             McpServer server,
             string identifier,
-            IProgress<ProgressNotificationValue> progress,
+            Action<ProgressNotificationValue> reportProgress,
             string? source,
             bool upgradeOnly,
             bool? acceptSourceAgreements,
@@ -279,16 +297,17 @@ namespace WinGetMCPServer
                 operation = packageManager.UpgradePackageAsync(catalogPackage, options);
             }
 
-            operation.Progress = (asyncInfo, progressInfo) => progress.Report(CreateInstallProgressNotification(ref progressInfo));
+            operation.Progress = (asyncInfo, progressInfo) => reportProgress(CreateInstallProgressNotification(ref progressInfo));
             using CancellationTokenRegistration registration = cancellationToken.Register(() => operation.Cancel());
 
             var installResult = await operation;
+            logger.LogDebug("Install operation completed. Status={Status}", installResult.Status);
             findResult = null;
 
             if (installResult.Status == InstallResultStatus.Ok)
             {
                 // Send a completed progress entry in the event that async progress forwarding didn't
-                progress.Report(CreateInstallProgressNotification(PackageInstallProgressState.Finished, 1.0, 1.0));
+                reportProgress(CreateInstallProgressNotification(PackageInstallProgressState.Finished, 1.0, 1.0));
                 findResult = ReFindForPackage(catalogPackage.DefaultInstallVersion);
             }
 

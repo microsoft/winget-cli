@@ -15,6 +15,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.WinGet.Client.Engine.Attributes;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -30,6 +32,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             : base(psCmdlet)
         {
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user accepted the agreements of all sources.
+        /// </summary>
+        public bool AcceptSourceAgreements { get; set; }
 
         /// <summary>
         /// Gets or sets the field that is matched against the identifier of a package.
@@ -158,6 +165,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             CreateCompositePackageCatalogOptions options = ManagementDeploymentFactory.Instance.CreateCreateCompositePackageCatalogOptions();
             IReadOnlyList<PackageCatalogReference> references = this.GetPackageCatalogReferences(this.Source);
+            bool anyExcluded = false;
             for (var i = 0; i < references.Count; i++)
             {
                 var reference = references[i];
@@ -175,12 +183,106 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
                 if (!isExplicit)
                 {
-                    options.Catalogs.Add(reference);
+                    if (this.ObtainSourceAgreementsConsent(reference))
+                    {
+                        options.Catalogs.Add(reference);
+                    }
+                    else
+                    {
+                        anyExcluded = true;
+                    }
                 }
+            }
+
+            // Searches that include installed packages can continue without any remote source.
+            if (anyExcluded && options.Catalogs.Count == 0 &&
+                (behavior == CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs || behavior == CompositeSearchBehavior.RemotePackagesFromAllCatalogs))
+            {
+                throw new NoSourcesAvailableException();
             }
 
             options.CompositeSearchBehavior = behavior;
             return PackageManagerWrapper.Instance.CreateCompositePackageCatalog(options);
+        }
+
+        /// <summary>
+        /// Obtains consent to the agreements of a source.
+        /// </summary>
+        /// <param name="reference">The source.</param>
+        /// <returns>True if the source can be used; false if it must be excluded.</returns>
+        private bool ObtainSourceAgreementsConsent(PackageCatalogReference reference)
+        {
+            string sourceName = reference.Info.Name;
+            string? agreements;
+
+            try
+            {
+                if (reference.SourceAgreementsSatisfied)
+                {
+                    return true;
+                }
+
+                agreements = AgreementConsent.FormatSourceAgreements(reference, includeImplicitFields: true);
+            }
+            catch (Exception e) when (AgreementConsent.IsMissingContract(e))
+            {
+                // The server cannot report whether the agreements were accepted, so keep its behavior of accepting them.
+                string? legacyAgreements = null;
+                try
+                {
+                    legacyAgreements = AgreementConsent.FormatSourceAgreements(reference, includeImplicitFields: false);
+                }
+                catch (Exception legacyException)
+                {
+                    this.Write(StreamType.Warning, string.Format(Resources.SourceAgreementsUnavailableUnsupported, sourceName, legacyException.Message));
+                }
+
+                if (legacyAgreements != null)
+                {
+                    this.Write(StreamType.Warning, legacyAgreements + Environment.NewLine + string.Format(Resources.AgreementsAcceptedUnsupported, AgreementConsent.AcceptSourceAgreementsParameter));
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                this.Write(StreamType.Warning, string.Format(Resources.SourceAgreementsUnavailable, sourceName, e.Message));
+                return false;
+            }
+
+            // The agreements are not satisfied, but there are none to show; the source removed them all.
+            if (agreements == null)
+            {
+                return true;
+            }
+
+            AgreementConsent.Decision decision = AgreementConsent.Obtain(
+                this,
+                agreements,
+                Resources.SourceAgreementsPrompt,
+                Resources.SourceAgreementsCaption,
+                this.AcceptSourceAgreements,
+                AgreementConsent.AcceptSourceAgreementsParameter);
+
+            switch (decision)
+            {
+                case AgreementConsent.Decision.Accepted:
+                    try
+                    {
+                        reference.SaveAcceptedSourceAgreements();
+                    }
+                    catch
+                    {
+                        // Failing to record acceptance only means that the user will be asked again.
+                    }
+
+                    return true;
+                case AgreementConsent.Decision.AcceptedWithoutPrompt:
+                    return true;
+                default:
+                    this.Write(StreamType.Warning, string.Format(Resources.SourceAgreementsDeclined, sourceName));
+                    return false;
+            }
         }
 
         private FindPackagesOptions GetFindPackagesOptions(uint limit, PackageFieldMatchOption match)

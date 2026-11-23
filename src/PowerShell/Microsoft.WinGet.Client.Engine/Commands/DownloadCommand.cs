@@ -111,6 +111,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
                     async (package, version) =>
                     {
+                        // Without a version, the latest available version is downloaded.
+                        PackageVersionInfo? versionInfo = version != null
+                            ? package.GetPackageVersionInfo(version)
+                            : (package.AvailableVersions.Count > 0 ? package.GetPackageVersionInfo(package.AvailableVersions[0]) : null);
+                        this.ObtainPackageAgreementsConsent(package, versionInfo, this.Locale);
                         DownloadOptions options = this.GetDownloadOptions(version);
 
                         if (!string.IsNullOrEmpty(downloadDirectory))
@@ -165,6 +170,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             options.AllowHashMismatch = this.AllowHashMismatch;
             options.SkipDependencies = this.SkipDependencies;
+
+            // Consent to the package agreements is obtained before the options are created.
+            options.AcceptPackageAgreements = true;
 
             return options;
         }

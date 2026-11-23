@@ -81,14 +81,35 @@ namespace AppInstaller::Fonts
             }
         }
 
-        std::string GetFontPathKey(const std::filesystem::path& path)
+        std::wstring GetFontPathKey(const std::filesystem::path& path)
         {
-            return FoldCase(static_cast<std::string_view>(path.lexically_normal().u8string()));
+            const auto normalized = path.lexically_normal().wstring();
+            if (normalized.empty())
+            {
+                return {};
+            }
+
+            const int sourceLength = static_cast<int>(normalized.size());
+            const int keyLength = LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_UPPERCASE,
+                normalized.c_str(), sourceLength, nullptr, 0, nullptr, nullptr, 0);
+            THROW_LAST_ERROR_IF(keyLength == 0);
+
+            std::wstring result(static_cast<size_t>(keyLength), L'\0');
+            THROW_LAST_ERROR_IF(LCMapStringEx(LOCALE_NAME_INVARIANT, LCMAP_UPPERCASE,
+                normalized.c_str(), sourceLength, result.data(), keyLength, nullptr, nullptr, 0) == 0);
+            return result;
         }
 
         bool FontPathsEqual(const std::filesystem::path& left, const std::filesystem::path& right)
         {
             return GetFontPathKey(left) == GetFontPathKey(right);
+        }
+
+        bool FontNamesEqual(const std::wstring& left, const std::wstring& right)
+        {
+            const int result = CompareStringOrdinal(left.c_str(), -1, right.c_str(), -1, TRUE);
+            THROW_LAST_ERROR_IF(result == 0);
+            return result == CSTR_EQUAL;
         }
 
         std::wstring GetFontFileTitle(const std::filesystem::path& fontFilePath)
@@ -301,7 +322,7 @@ namespace AppInstaller::Fonts
         }
 
         using FontRegistryEntry = std::pair<std::wstring, std::wstring>;
-        using FontPathSet = std::unordered_set<std::string>;
+        using FontPathSet = std::unordered_set<std::wstring>;
 
         std::vector<FontRegistryEntry> GetFontRegistrations(Manifest::ScopeEnum scope,
             const std::optional<std::filesystem::path>& filePath = std::nullopt)
@@ -381,7 +402,7 @@ namespace AppInstaller::Fonts
                 const auto registrations = GetFontRegistrations(context.Scope, installPath);
                 THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_FONT_INSTALL_FAILED,
                     std::none_of(registrations.begin(), registrations.end(), [&](const auto& entry)
-                        { return ICUCaseInsensitiveEquals(ConvertToUTF8(entry.first), ConvertToUTF8(valueName)); }),
+                        { return FontNamesEqual(entry.first, valueName); }),
                     "Font registration is owned by another file: %ls", valueName.c_str());
             }
 
@@ -581,7 +602,7 @@ namespace AppInstaller::Fonts
             sourceUnloaded = true;
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, !std::filesystem::remove(file.FilePath));
             sourceRemoved = true;
-            if (!ICUCaseInsensitiveEquals(ConvertToUTF8(file.RegistryName), ConvertToUTF8(originalName)))
+            if (!FontNamesEqual(file.RegistryName, originalName))
             {
                 package.DeleteValue(file.RegistryName);
             }

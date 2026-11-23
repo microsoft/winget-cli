@@ -485,6 +485,9 @@ class WinGetPackage
     [DSCProperty()]
     [WinGetInstallMode]$InstallMode = [WinGetInstallMode]::Silent
 
+    [DscProperty()]
+    [bool]$AcceptAgreements = $true
+
     [PSObject] hidden $CatalogPackage = $null
 
     [WinGetPackage] Get()
@@ -499,6 +502,11 @@ class WinGetPackage
         $hashArgs = @{
             Id = $this.Id
             MatchOption = $this.MatchOption
+        }
+
+        if ($this.AcceptAgreements)
+        {
+            $hashArgs.Add("AcceptSourceAgreements", $true)
         }
 
         if (-not([string]::IsNullOrWhiteSpace($this.Source)))
@@ -541,6 +549,12 @@ class WinGetPackage
                 Id = $this.Id
                 MatchOption = $this.MatchOption
                 Mode = $this.InstallMode
+            }
+
+            if ($this.AcceptAgreements)
+            {
+                $hashArgs.Add("AcceptSourceAgreements", $true)
+                $hashArgs.Add("AcceptPackageAgreements", $true)
             }
             
             if ($this.Ensure -eq [WinGetEnsure]::Present)

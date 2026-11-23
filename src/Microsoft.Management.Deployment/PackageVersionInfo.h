@@ -5,13 +5,28 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    // This local-only interface must not be added to WinMD or registered for marshaling.
+    MIDL_INTERFACE("33b5886b-925c-4da5-b30d-e83e2132dd04")
+    IPackageVersionInfoInternal : public ::IUnknown
+    {
+        virtual HRESULT STDMETHODCALLTYPE GetRepositoryPackageVersion(
+            std::shared_ptr<::AppInstaller::Repository::IPackageVersion>* packageVersion) noexcept = 0;
+    };
+
+    struct PackageVersionInfo : PackageVersionInfoT<PackageVersionInfo, winrt::cloaked<IPackageVersionInfoInternal>>
+#else
     struct PackageVersionInfo : PackageVersionInfoT<PackageVersionInfo>
+#endif
     {
         PackageVersionInfo() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(std::shared_ptr<::AppInstaller::Repository::IPackageVersion> packageVersion);
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> GetRepositoryPackageVersion();
+        static std::shared_ptr<::AppInstaller::Repository::IPackageVersion> GetRepositoryPackageVersion(
+            winrt::Microsoft::Management::Deployment::PackageVersionInfo const& packageVersionInfo);
+        HRESULT STDMETHODCALLTYPE GetRepositoryPackageVersion(
+            std::shared_ptr<::AppInstaller::Repository::IPackageVersion>* packageVersion) noexcept override;
 #endif
 
         hstring GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField);
