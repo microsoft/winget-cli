@@ -212,6 +212,42 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InstallRepairAndUninstall", "[fonts
     REQUIRE(RegistryString(Root(scope), L"Unrelated.ttf") == unrelated.wstring());
 }
 
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_ExistingMachineInstallation", "[fonts][fontlayout]")
+{
+    auto context = Context(ScopeEnum::Machine);
+    const auto source = Directory.GetPath() / "Source" / s_FontFile;
+    const auto installed = RootPath(context.Scope) / "TestFont7.ttf";
+    const auto external = RootPath(context.Scope) / "External.ttf";
+    CopyFont(source);
+    CopyFont(installed);
+    CopyFont(external);
+    context.AddPackageFile(source);
+    Package(context).SetValue(L"TestFont.ttf", installed.wstring());
+    Root(context.Scope).SetValue(L"TestFont7.ttf", installed.filename().wstring());
+    Root(context.Scope).SetValue(L"External font (TrueType)", external.filename().wstring());
+
+    REQUIRE(ValidateFontPackage(context).Status == FontStatus::OK);
+    REQUIRE(InstallFontPackage(context).HResult == APPINSTALLER_CLI_ERROR_FONT_ALREADY_INSTALLED);
+    const auto inventory = GetInstalledFontFiles();
+    REQUIRE(inventory.size() == 2);
+    REQUIRE(std::count_if(inventory.begin(), inventory.end(), [&](const auto& font)
+        {
+            return font.InstallerSource == InstallerSource::WinGet && font.PackageId == context.PackageId &&
+                font.FilePath == installed && font.Status == FontStatus::OK;
+        }) == 1);
+    const auto packages = GetInstalledFontPackages(context.Scope);
+    REQUIRE(packages.size() == 1);
+    REQUIRE(packages[0].PackageId == context.PackageId);
+    REQUIRE(packages[0].Status == FontStatus::OK);
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    REQUIRE(RegistryString(Package(context), L"TestFont.ttf") == installed.wstring());
+    REQUIRE(RegistryString(Root(context.Scope), L"TestFont7.ttf") == installed.filename().wstring());
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
+    REQUIRE_FALSE(std::filesystem::exists(installed));
+    REQUIRE(std::filesystem::exists(external));
+    REQUIRE(RegistryString(Root(context.Scope), L"External font (TrueType)") == external.filename().wstring());
+}
+
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_FileAndRegistryCollisions", "[fonts][fontlayout]")
 {
     const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
@@ -251,6 +287,83 @@ TEST_CASE_METHOD(FontLayoutTest, "FontLayout_FileAndRegistryCollisions", "[fonts
     REQUIRE(RegistryString(Root(scope), L"TestFont0.ttf") == L"Unrelated.ttf");
     REQUIRE(std::filesystem::exists(RootPath(scope) / s_FontFile));
     REQUIRE(UninstallFontPackage(second).HResult == S_OK);
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_InstallPreservesMissingMappings", "[fonts][fontlayout]")
+{
+    const auto scope = GENERATE(ScopeEnum::User, ScopeEnum::Machine);
+    const bool samePackage = GENERATE(false, true);
+    const std::wstring name = GENERATE(L"TestFont.ttf", L"TESTFONT.TTF");
+    auto first = Context(scope);
+    const auto firstSource = Directory.GetPath() / "First" / s_FontFile;
+    const auto firstDestination = RootPath(scope) / s_FontFile;
+    CopyFont(firstSource);
+    first.AddPackageFile(firstSource);
+    REQUIRE(InstallFontPackage(first).HResult == S_OK);
+    REQUIRE(std::filesystem::remove(firstDestination));
+    Root(scope).DeleteValue(firstDestination.filename().wstring());
+    REQUIRE(RegistryString(Package(first), L"TestFont.ttf") == firstDestination.wstring());
+
+    auto second = Context(scope);
+    if (samePackage)
+    {
+        second.PackageVersion = L"2.0.0.0";
+    }
+    else
+    {
+        second.PackageId = L"OtherPackage";
+    }
+    const auto secondSource = Directory.GetPath() / "Second" / name;
+    CopyFont(secondSource);
+    second.AddPackageFile(secondSource);
+    const auto predictedDestination = CreateFontFileInfo(second, secondSource).InstallPath;
+    REQUIRE(InstallFontPackage(second).HResult == S_OK);
+    const std::filesystem::path secondDestination = RegistryString(Package(second), name);
+    const auto expectedDestination = RootPath(scope) / (secondSource.stem().wstring() + L"0" + secondSource.extension().wstring());
+
+    REQUIRE(UninstallFontPackage(first).HResult == S_OK);
+    REQUIRE(std::filesystem::exists(secondDestination));
+    REQUIRE(secondDestination == expectedDestination);
+    REQUIRE(predictedDestination == secondDestination);
+    REQUIRE(RegistryString(Root(scope), secondDestination.filename().wstring()) ==
+        (scope == ScopeEnum::Machine ? secondDestination.filename().wstring() : secondDestination.wstring()));
+    REQUIRE(RegistryString(Package(second), name) == secondDestination.wstring());
+    REQUIRE(ValidateFontPackage(second).Status == FontStatus::OK);
+    REQUIRE(RepairFontPackage(second).HResult == S_OK);
+
+    const auto replacement = Directory.GetPath() / "Replacement" / name;
+    CopyFont(replacement);
+    REQUIRE(CreateFontFileInfo(first, replacement).InstallPath == RootPath(scope) / name);
+    REQUIRE(UninstallFontPackage(second).HResult == S_OK);
+}
+
+TEST_CASE_METHOD(FontLayoutTest, "FontLayout_RepairReservesMissingMappings", "[fonts][fontlayout]")
+{
+    auto other = Context(ScopeEnum::User);
+    other.PackageId = L"OtherPackage";
+    other.PackageVersion = L"1.0";
+    const auto first = RootPath(other.Scope) / s_FontFile;
+    Package(other).SetValue(L"TestFont.ttf", first.wstring());
+    Package(other).SetValue(L"Invalid.ttf", DWORD{ 1 });
+    other.PackageVersion = L"2.0";
+    const auto second = RootPath(other.Scope) / "TestFont0.ttf";
+    Package(other).SetValue(L"TestFont.ttf", second.wstring());
+
+    auto context = Context(ScopeEnum::User);
+    const auto source = AddPackageDirectoryFont(context);
+    Root(context.Scope).SetValue(L"Font title", source.wstring());
+    REQUIRE(RepairFontPackage(context).HResult == S_OK);
+    const auto destination = RootPath(context.Scope) / "TestFont1.ttf";
+    REQUIRE(std::filesystem::exists(destination));
+    REQUIRE_FALSE(std::filesystem::exists(first));
+    REQUIRE_FALSE(std::filesystem::exists(second));
+    REQUIRE_FALSE(std::filesystem::exists(source));
+    REQUIRE(RegistryString(Package(context), L"TestFont.ttf") == destination.wstring());
+    REQUIRE(RegistryString(Root(context.Scope), L"TestFont1.ttf") == destination.wstring());
+    REQUIRE(RegistryString(Package(other), L"TestFont.ttf") == second.wstring());
+    other.PackageVersion = L"1.0";
+    REQUIRE(RegistryString(Package(other), L"TestFont.ttf") == first.wstring());
+    REQUIRE(UninstallFontPackage(context).HResult == S_OK);
 }
 
 TEST_CASE_METHOD(FontLayoutTest, "FontLayout_DistinctSourceNamesShareDestinationCandidate", "[fonts][fontlayout]")
