@@ -147,6 +147,7 @@ DFX
 DHAVE
 dic
 digicert
+DIGITSASNUMBERS
 diskfull
 DISPLAYCATALOG
 DMC
@@ -597,6 +598,7 @@ STARTUPINFOEX
 STDMETHODCALLTYPE
 storeapps
 storeorigin
+STRINGSORT
 STRRET
 stylecop
 subauthority
