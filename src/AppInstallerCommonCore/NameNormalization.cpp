@@ -269,9 +269,9 @@ namespace AppInstaller::Utility
             Regex::Expression NonLetterDigitOrSpace{ R"([^\p{L}\p{Nd}\s])", reOptions };
             Regex::Expression URIProtocol{ R"((?<!\p{L})(?:http[s]?|ftp):\/\/)", reOptions }; // remove protocol from URIs
 
-            Regex::Expression VersionDelimited{ R"(((?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+([\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(RC|B|A|R|SP|K)?\p{Nd}+)+([\p{Po}\p{Pd}\p{Pc}]?[\p{L}\p{Nd}]+)*)", reOptions };
-            Regex::Expression Version{ R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?(\p{Nd}|\.\p{Nd})+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
-            Regex::Expression VersionLetter{ R"((?<!\p{L})(?:(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L})?\p{Lu}\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}+)+)", reOptions };
+            Regex::Expression VersionDelimited{ u8R"(((?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+([\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(RC|B|A|R|SP|K)?\p{Nd}+)+([\p{Po}\p{Pd}\p{Pc}]?[\p{L}\p{Nd}]+)*)", reOptions };
+            Regex::Expression Version{ u8R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?(\p{Nd}|\.\p{Nd})+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
+            Regex::Expression VersionLetter{ u8R"((?<!\p{L})(?:(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L})?\p{Lu}\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}+)+)", reOptions };
             Regex::Expression NonNestedBracket{ R"(\([^\(\)]*\)|\[[^\[\]]*\])", reOptions }; // remove things in parentheses, if there aren't parentheses nested inside
             Regex::Expression BracketEnclosed{ R"((?:\p{Ps}.*\p{Pe}|".*"))", reOptions }; // Impossible to properly handle nested parens with regex
             Regex::Expression LeadingSymbols{ R"(^[^\p{L}\p{Nd}]+)", reOptions }; // remove symbols at the beginning
