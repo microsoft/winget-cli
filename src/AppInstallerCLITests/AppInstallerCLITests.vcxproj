@@ -232,6 +232,7 @@
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="ArpHelper.cpp" />
     <ClCompile Include="Certificates.cpp" />
+    <ClCompile Include="ChannelStreams.cpp" />
     <ClCompile Include="CheckpointDatabase.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />

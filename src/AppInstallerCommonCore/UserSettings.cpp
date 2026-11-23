@@ -573,6 +573,23 @@ namespace AppInstaller::Settings
 
             return {};
         }
+
+        WINGET_VALIDATE_SIGNATURE(OutputPipedEncoding)
+        {
+            static constexpr std::string_view s_pipedEncoding_console = "console";
+            static constexpr std::string_view s_pipedEncoding_utf8 = "utf8";
+
+            if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_console))
+            {
+                return PipedEncoding::Console;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_utf8))
+            {
+                return PipedEncoding::Utf8;
+            }
+
+            return {};
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -400,6 +400,15 @@
             "zh-CN",
             "zh-TW"
           ]
+        },
+        "pipedEncoding": {
+          "description": "Encoding of human-readable output that is redirected to a pipe",
+          "type": "string",
+          "enum": [
+            "console",
+            "utf8"
+          ],
+          "default": "console"
         }
       }
     }

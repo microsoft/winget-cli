@@ -36,6 +36,32 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    DWORD GetStandardHandleType(DWORD standardHandle)
+    {
+        DWORD result = FILE_TYPE_UNKNOWN;
+
+        HANDLE handle = GetStdHandle(standardHandle);
+        if (handle != INVALID_HANDLE_VALUE && handle != nullptr)
+        {
+            result = GetFileType(handle);
+        }
+
+        return result;
+    }
+
+    bool ShouldTranscodeRedirectedOutput(DWORD standardOutputStreamType, UINT consumerCodePage)
+    {
+        if (standardOutputStreamType != FILE_TYPE_PIPE)
+        {
+            // A console renders UTF-8 itself, and a file keeps the UTF-8 that other tools read.
+            return false;
+        }
+
+        // A code page of 0 means that there is no console to take a code page from, and CP_UTF8
+        // is what is written without any conversion.
+        return consumerCodePage != 0 && consumerCodePage != CP_UTF8;
+    }
+
     BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
         m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled) {}
 
@@ -176,5 +202,238 @@ namespace AppInstaller::CLI::Execution
         }
         return *this;
         
+    }
+
+    Utf8ToCodePageStreamBuf::Utf8ToCodePageStreamBuf(std::ostream& out, UINT codePage) :
+        m_out(out), m_target(out.rdbuf()), m_codePage(codePage)
+    {
+        // Write anything already buffered before taking over the stream.
+        m_out.flush();
+        m_out.rdbuf(this);
+    }
+
+    Utf8ToCodePageStreamBuf::~Utf8ToCodePageStreamBuf()
+    {
+        Restore();
+    }
+
+    void Utf8ToCodePageStreamBuf::Restore()
+    {
+        if (m_target)
+        {
+            FlushAll();
+
+            if (m_out.rdbuf() == this)
+            {
+                m_out.rdbuf(m_target);
+            }
+
+            m_target->pubsync();
+            m_target = nullptr;
+        }
+    }
+
+    void Utf8ToCodePageStreamBuf::SetBypass(bool bypass)
+    {
+        if (m_bypass == bypass)
+        {
+            return;
+        }
+
+        if (bypass)
+        {
+            // A held sequence can never be completed once the bytes that follow are forwarded unchanged.
+            FlushAll();
+        }
+
+        m_bypass = bypass;
+    }
+
+    std::streambuf::int_type Utf8ToCodePageStreamBuf::overflow(int_type value)
+    {
+        if (!traits_type::eq_int_type(value, traits_type::eof()))
+        {
+            const char byte = traits_type::to_char_type(value);
+            Put(&byte, 1);
+        }
+
+        return traits_type::not_eof(value);
+    }
+
+    std::streamsize Utf8ToCodePageStreamBuf::xsputn(const char* data, std::streamsize count)
+    {
+        Put(data, static_cast<size_t>(count));
+        return count;
+    }
+
+    int Utf8ToCodePageStreamBuf::sync()
+    {
+        Flush();
+        return m_target ? m_target->pubsync() : 0;
+    }
+
+    // Gets the length of the buffer that ends on a complete UTF-8 sequence.
+    static size_t GetCompleteUtf8Length(const std::string& value)
+    {
+        size_t sequenceStart = value.size();
+        size_t continuationBytes = 0;
+
+        while (sequenceStart > 0 && continuationBytes < 3 &&
+            (static_cast<unsigned char>(value[sequenceStart - 1]) & 0xC0) == 0x80)
+        {
+            --sequenceStart;
+            ++continuationBytes;
+        }
+
+        if (sequenceStart == 0)
+        {
+            // Braces the whole buffer; let the conversion handle it as invalid.
+            return value.size();
+        }
+
+        // The lead byte determines how many bytes the sequence needs.
+        const unsigned char leadByte = static_cast<unsigned char>(value[sequenceStart - 1]);
+        size_t expectedBytes = 1;
+        if ((leadByte & 0xE0) == 0xC0)
+        {
+            expectedBytes = 2;
+        }
+        else if ((leadByte & 0xF0) == 0xE0)
+        {
+            expectedBytes = 3;
+        }
+        else if ((leadByte & 0xF8) == 0xF0)
+        {
+            expectedBytes = 4;
+        }
+
+        return (value.size() - (sequenceStart - 1)) < expectedBytes ? sequenceStart - 1 : value.size();
+    }
+
+    void Utf8ToCodePageStreamBuf::Put(const char* data, size_t count)
+    {
+        if (m_bypass)
+        {
+            // Machine readable output is forwarded as it was written, without conversion.
+            if (m_target)
+            {
+                m_target->sputn(data, static_cast<std::streamsize>(count));
+            }
+
+            return;
+        }
+
+        m_pending.append(data, count);
+        Flush();
+    }
+
+    void Utf8ToCodePageStreamBuf::Flush()
+    {
+        if (m_pending.empty())
+        {
+            return;
+        }
+
+        const size_t completeLength = GetCompleteUtf8Length(m_pending);
+        if (completeLength == 0)
+        {
+            // The output ends with an incomplete UTF-8 sequence; wait for the rest of it.
+            return;
+        }
+
+        Convert(std::string_view{ m_pending }.substr(0, completeLength));
+        m_pending.erase(0, completeLength);
+    }
+
+    void Utf8ToCodePageStreamBuf::FlushAll()
+    {
+        if (!m_pending.empty())
+        {
+            Convert(m_pending);
+            m_pending.clear();
+        }
+    }
+
+    void Utf8ToCodePageStreamBuf::Convert(std::string_view value)
+    {
+        if (!m_target || value.empty())
+        {
+            return;
+        }
+
+        // Most CLI output is ASCII, which has the same bytes in every ANSI and OEM code page.
+        bool ascii = true;
+        for (const char c : value)
+        {
+            if (static_cast<unsigned char>(c) >= 0x80)
+            {
+                ascii = false;
+                break;
+            }
+        }
+
+        if (ascii)
+        {
+            m_target->sputn(value.data(), static_cast<std::streamsize>(value.size()));
+            return;
+        }
+
+        DWORD flags = MB_ERR_INVALID_CHARS;
+        int wideLength = MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), nullptr, 0);
+
+        if (wideLength == 0)
+        {
+            // Let Windows substitute a replacement character for the invalid sequence.
+            flags = 0;
+            wideLength = MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), nullptr, 0);
+        }
+
+        if (wideLength <= 0)
+        {
+            return;
+        }
+
+        m_wide.resize(static_cast<size_t>(wideLength));
+        if (MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), m_wide.data(), wideLength) != wideLength)
+        {
+            return;
+        }
+
+        const int byteLength = WideCharToMultiByte(m_codePage, 0, m_wide.data(), wideLength, nullptr, 0, nullptr, nullptr);
+        if (byteLength <= 0)
+        {
+            return;
+        }
+
+        m_bytes.resize(static_cast<size_t>(byteLength));
+        if (WideCharToMultiByte(m_codePage, 0, m_wide.data(), wideLength, m_bytes.data(), byteLength, nullptr, nullptr) == byteLength)
+        {
+            m_target->sputn(m_bytes.data(), static_cast<std::streamsize>(m_bytes.size()));
+        }
+    }
+
+    RedirectedOutputEncoding::RedirectedOutputEncoding(std::ostream& out, DWORD standardOutputStreamType, UINT consumerCodePage)
+    {
+        if (ShouldTranscodeRedirectedOutput(standardOutputStreamType, consumerCodePage))
+        {
+            m_conversion = std::make_unique<Utf8ToCodePageStreamBuf>(out, consumerCodePage);
+        }
+    }
+
+    RedirectedOutputEncoding::~RedirectedOutputEncoding() = default;
+
+    void RedirectedOutputEncoding::SetMachineReadable(bool machineReadable)
+    {
+        m_machineReadable = machineReadable;
+
+        if (m_conversion)
+        {
+            m_conversion->SetBypass(machineReadable);
+        }
+    }
+
+    bool RedirectedOutputEncoding::IsConverting() const
+    {
+        return m_conversion != nullptr && !m_machineReadable;
     }
 }

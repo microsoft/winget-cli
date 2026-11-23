@@ -47,26 +47,13 @@ namespace AppInstaller::CLI::Execution
 #endif
             return ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), buffer, size, charactersRead, nullptr);
         }
-
-        DWORD GetStdHandleType(DWORD stdHandle)
-        {
-            DWORD result = FILE_TYPE_UNKNOWN;
-
-            HANDLE handle = GetStdHandle(stdHandle);
-            if (handle != INVALID_HANDLE_VALUE && handle != NULL)
-            {
-                result = GetFileType(handle);
-            }
-
-            return result;
-        }
     }
 
     Reporter::Reporter() :
         Reporter(std::cout, std::cin)
     {
-        m_outStreamFileType = GetStdHandleType(STD_OUTPUT_HANDLE);
-        m_inStreamFileType = GetStdHandleType(STD_INPUT_HANDLE);
+        m_outStreamFileType = GetStandardHandleType(STD_OUTPUT_HANDLE);
+        m_inStreamFileType = GetStandardHandleType(STD_INPUT_HANDLE);
         DWORD mode = 0;
         m_consoleStreams = GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mode) &&
             GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &mode);
@@ -106,6 +93,7 @@ namespace AppInstaller::CLI::Execution
         m_outStreamFileType = other.m_outStreamFileType;
         m_inStreamFileType = other.m_inStreamFileType;
         m_consoleStreams = other.m_consoleStreams;
+        m_outputEncoding = other.m_outputEncoding;
 
         SetChannel(other.m_channel);
 
@@ -160,12 +148,24 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetBasicOutputStream()
     {
+        ApplyOutputEncoding();
         return { *m_out, m_channel == Channel::Output };
+    }
+
+    void Reporter::ApplyOutputEncoding()
+    {
+        if (m_outputEncoding)
+        {
+            // Machine readable channels must stay UTF-8 for the consumers that parse them.
+            m_outputEncoding->SetMachineReadable(m_channel != Channel::Output);
+        }
     }
 
     void Reporter::SetChannel(Channel channel)
     {
         m_channel = channel;
+
+        ApplyOutputEncoding();
 
         if (m_channel != Channel::Output)
         {
@@ -173,6 +173,13 @@ namespace AppInstaller::CLI::Execution
             m_spinner.reset();
             m_progressBar.reset();
         }
+    }
+
+    void Reporter::SetOutputEncoding(std::shared_ptr<RedirectedOutputEncoding> outputEncoding)
+    {
+        m_outputEncoding = std::move(outputEncoding);
+
+        ApplyOutputEncoding();
     }
 
     void Reporter::SetStyle(VisualStyle style)

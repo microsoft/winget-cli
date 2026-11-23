@@ -414,6 +414,20 @@ The `locale` setting selects the language used to resolve winget interface strin
     },
 ```
 
+### pipedEncoding
+
+The `pipedEncoding` setting controls how human-readable output is encoded when winget's standard output is redirected to a pipe, as it is inside a PowerShell pipeline.
+
+A console host decodes the output of a native command with the code page that was active before the command started; PowerShell, for example, decodes native command output with the console output code page. The default `console` value writes human-readable output in that code page, so that localized text such as package names displays correctly. Characters that the code page cannot represent are written as `?`, and characters that the code page has a closest equivalent for use that equivalent. On a system whose console uses code page 866, for example, the `…` table truncation marker is written as `:` and Japanese or Ukrainian `і`/`ґ` characters are written as `?`.
+
+Set the value to `utf8` to always write UTF-8, for example when the other end of the pipe is a script or tool that expects UTF-8. Machine-readable output (such as the JSON output of the DSC commands) and completion output are always written as UTF-8. Output that the operating system redirects to a file is not converted either.
+
+```json
+    "output": {
+        "pipedEncoding": "utf8"
+    },
+```
+
 ## Experimental Features
 
 To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features.
