@@ -5,6 +5,7 @@
 #include "Public/winget/Runtime.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Security.h"
 
 
 namespace AppInstaller::Runtime
@@ -65,6 +66,25 @@ namespace AppInstaller::Runtime
 
             PACKAGE_ID* packageId = reinterpret_cast<PACKAGE_ID*>(buffer.get());
             return packageId->version;
+        }
+
+        void LogTokenInformation(HANDLE token, std::string_view tokenName)
+        {
+            try
+            {
+                const auto elevationType = wil::get_token_information<TOKEN_ELEVATION_TYPE>(token);
+                const auto elevation = wil::get_token_information<TOKEN_ELEVATION>(token);
+                const auto integrityLevel = wil::get_token_information<TOKEN_MANDATORY_LABEL>(token);
+
+                AICLI_LOG(Core, Info, << tokenName << " token: TokenElevationType=" << elevationType <<
+                    ", TokenIsElevated=" << elevation.TokenIsElevated <<
+                    ", IntegrityLevel=" << Security::ToString(integrityLevel->Label.Sid));
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Warning, << "Failed to log " << tokenName << " token diagnostics");
+                LOG_CAUGHT_EXCEPTION();
+            }
         }
     }
 
@@ -257,6 +277,12 @@ namespace AppInstaller::Runtime
         }
 #endif
         return wil::get_token_information<TOKEN_ELEVATION_TYPE>() == TokenElevationTypeFull;
+    }
+
+    void LogTokenDiagnostics()
+    {
+        LogTokenInformation(GetCurrentProcessToken(), "Process");
+        LogTokenInformation(GetCurrentThreadEffectiveToken(), "Effective thread");
     }
 
     DECLSPEC_NOINLINE bool IsStackAvailable(size_t bytes)

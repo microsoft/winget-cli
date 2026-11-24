@@ -62,6 +62,9 @@ namespace AppInstaller::Runtime
     //  3. the token is elevated
     bool IsRunningWithNonDefaultFullToken();
 
+    // Logs elevation and integrity information for the process and effective thread tokens.
+    void LogTokenDiagnostics();
+
     // Determines if the given amount of stack bytes are available.
     // If the answer cannot be determined properly, the return value will be `false`.
     DECLSPEC_NOINLINE bool IsStackAvailable(size_t bytes);
