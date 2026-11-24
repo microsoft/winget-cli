@@ -17,6 +17,42 @@ namespace
 
     // The same text in code page 866.
     constexpr const char* s_cp866Name = "\x88\xAC\xEF";
+
+    // A target buffer that accepts at most the given number of bytes, one per call, so that a
+    // conversion has to retry a short write and then observe a refused one.
+    struct ShortWriteStreamBuf : public std::streambuf
+    {
+        explicit ShortWriteStreamBuf(size_t limit) : m_limit(limit) {}
+
+        const std::string& Written() const { return m_written; }
+
+    protected:
+        std::streamsize xsputn(const char* data, std::streamsize count) override
+        {
+            if (count <= 0 || m_written.size() >= m_limit)
+            {
+                return 0;
+            }
+
+            m_written.push_back(*data);
+            return 1;
+        }
+
+        int_type overflow(int_type value) override
+        {
+            if (traits_type::eq_int_type(value, traits_type::eof()))
+            {
+                return traits_type::not_eof(value);
+            }
+
+            const char byte = traits_type::to_char_type(value);
+            return xsputn(&byte, 1) == 1 ? traits_type::not_eof(value) : traits_type::eof();
+        }
+
+    private:
+        size_t m_limit = 0;
+        std::string m_written;
+    };
 }
 
 TEST_CASE("ShouldTranscodeRedirectedOutput", "[channelstreams]")
@@ -146,6 +182,48 @@ TEST_CASE("Utf8ToCodePageStreamBuf_WritesHeldOutputWhenBypassed", "[channelstrea
         output << "\xD0\x98";
         REQUIRE(output.str() == "?\xD0\x98");
     }
+}
+
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[channelstreams]")
+{
+    // The target accepts three bytes in total and then refuses the rest.
+    ShortWriteStreamBuf target{ 3 };
+    std::ostream output{ &target };
+
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+
+        // A single byte goes through overflow; the target accepts it.
+        output.put('N');
+        REQUIRE_FALSE(output.bad());
+
+        // The conversion produces three bytes. The short write is retried, and the refusal that
+        // follows is reported to the stream instead of being discarded silently.
+        const std::string utf8Name = s_utf8Name;
+        output.write(utf8Name.data(), utf8Name.size());
+        REQUIRE(output.bad());
+    }
+
+    REQUIRE(target.Written() == std::string{ "N" } + std::string{ s_cp866Name }.substr(0, 2));
+}
+
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[channelstreams]")
+{
+    // The target accepts two bytes in total and then refuses the rest.
+    ShortWriteStreamBuf target{ 2 };
+    std::ostream output{ &target };
+
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+        buffer.SetBypass(true);
+
+        // Bypassed output is forwarded unchanged, and a refused write is still reported.
+        const std::string utf8Name = s_utf8Name;
+        output.write(utf8Name.data(), utf8Name.size());
+        REQUIRE(output.bad());
+    }
+
+    REQUIRE(target.Written() == std::string{ s_utf8Name }.substr(0, 2));
 }
 
 TEST_CASE("RedirectedOutputEncoding_SkipsFileRedirect", "[channelstreams]")

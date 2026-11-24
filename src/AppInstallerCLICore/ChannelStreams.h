@@ -59,14 +59,19 @@ namespace AppInstaller::CLI::Execution
 
     private:
         // Writes the output that is ready to be converted; an incomplete UTF-8 sequence is held.
-        void Flush();
+        // Returns false if the target could not be written, leaving the output held.
+        bool Flush();
 
         // Writes all held output, converting an incomplete sequence with a replacement character.
-        void FlushAll();
+        bool FlushAll();
 
-        void Put(const char* data, size_t count);
+        // Returns false if the target could not be written, leaving the output held.
+        bool Put(const char* data, size_t count);
 
-        void Convert(std::string_view value);
+        // Writes every byte to the target and returns false if the target refused any of them.
+        bool Write(const char* data, size_t count);
+
+        bool Convert(std::string_view value);
 
         std::ostream& m_out;
         std::streambuf* m_target = nullptr;

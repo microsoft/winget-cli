@@ -254,7 +254,10 @@ namespace AppInstaller::CLI::Execution
         if (!traits_type::eq_int_type(value, traits_type::eof()))
         {
             const char byte = traits_type::to_char_type(value);
-            Put(&byte, 1);
+            if (!Put(&byte, 1))
+            {
+                return traits_type::eof();
+            }
         }
 
         return traits_type::not_eof(value);
@@ -262,13 +265,17 @@ namespace AppInstaller::CLI::Execution
 
     std::streamsize Utf8ToCodePageStreamBuf::xsputn(const char* data, std::streamsize count)
     {
-        Put(data, static_cast<size_t>(count));
-        return count;
+        // Report a failed write to the owning stream instead of claiming that it succeeded.
+        return Put(data, static_cast<size_t>(count)) ? count : 0;
     }
 
     int Utf8ToCodePageStreamBuf::sync()
     {
-        Flush();
+        if (!Flush())
+        {
+            return -1;
+        }
+
         return m_target ? m_target->pubsync() : 0;
     }
 
@@ -310,55 +317,91 @@ namespace AppInstaller::CLI::Execution
         return (value.size() - (sequenceStart - 1)) < expectedBytes ? sequenceStart - 1 : value.size();
     }
 
-    void Utf8ToCodePageStreamBuf::Put(const char* data, size_t count)
+    bool Utf8ToCodePageStreamBuf::Put(const char* data, size_t count)
     {
         if (m_bypass)
         {
             // Machine readable output is forwarded as it was written, without conversion.
-            if (m_target)
-            {
-                m_target->sputn(data, static_cast<std::streamsize>(count));
-            }
-
-            return;
+            return Write(data, count);
         }
 
         m_pending.append(data, count);
-        Flush();
+        return Flush();
     }
 
-    void Utf8ToCodePageStreamBuf::Flush()
+    bool Utf8ToCodePageStreamBuf::Flush()
     {
         if (m_pending.empty())
         {
-            return;
+            return true;
         }
 
         const size_t completeLength = GetCompleteUtf8Length(m_pending);
         if (completeLength == 0)
         {
             // The output ends with an incomplete UTF-8 sequence; wait for the rest of it.
-            return;
+            return true;
         }
 
-        Convert(std::string_view{ m_pending }.substr(0, completeLength));
+        if (!Convert(std::string_view{ m_pending }.substr(0, completeLength)))
+        {
+            return false;
+        }
+
         m_pending.erase(0, completeLength);
+        return true;
     }
 
-    void Utf8ToCodePageStreamBuf::FlushAll()
+    bool Utf8ToCodePageStreamBuf::FlushAll()
     {
-        if (!m_pending.empty())
+        if (m_pending.empty())
         {
-            Convert(m_pending);
-            m_pending.clear();
+            return true;
         }
+
+        if (!Convert(m_pending))
+        {
+            return false;
+        }
+
+        m_pending.clear();
+        return true;
     }
 
-    void Utf8ToCodePageStreamBuf::Convert(std::string_view value)
+    // Writes all of the given bytes to the target, retrying a short write, and reports whether
+    // every byte was written.
+    bool Utf8ToCodePageStreamBuf::Write(const char* data, size_t count)
     {
-        if (!m_target || value.empty())
+        if (!m_target)
         {
-            return;
+            return false;
+        }
+
+        size_t written = 0;
+        while (written < count)
+        {
+            const std::streamsize result = m_target->sputn(data + written, static_cast<std::streamsize>(count - written));
+            if (result <= 0)
+            {
+                return false;
+            }
+
+            written += static_cast<size_t>(result);
+        }
+
+        return true;
+    }
+
+    bool Utf8ToCodePageStreamBuf::Convert(std::string_view value)
+    {
+        if (value.empty())
+        {
+            return true;
+        }
+
+        if (!m_target)
+        {
+            return false;
         }
 
         // Most CLI output is ASCII, which has the same bytes in every ANSI and OEM code page.
@@ -374,8 +417,7 @@ namespace AppInstaller::CLI::Execution
 
         if (ascii)
         {
-            m_target->sputn(value.data(), static_cast<std::streamsize>(value.size()));
-            return;
+            return Write(value.data(), value.size());
         }
 
         DWORD flags = MB_ERR_INVALID_CHARS;
@@ -390,26 +432,28 @@ namespace AppInstaller::CLI::Execution
 
         if (wideLength <= 0)
         {
-            return;
+            return false;
         }
 
         m_wide.resize(static_cast<size_t>(wideLength));
         if (MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), m_wide.data(), wideLength) != wideLength)
         {
-            return;
+            return false;
         }
 
         const int byteLength = WideCharToMultiByte(m_codePage, 0, m_wide.data(), wideLength, nullptr, 0, nullptr, nullptr);
         if (byteLength <= 0)
         {
-            return;
+            return false;
         }
 
         m_bytes.resize(static_cast<size_t>(byteLength));
-        if (WideCharToMultiByte(m_codePage, 0, m_wide.data(), wideLength, m_bytes.data(), byteLength, nullptr, nullptr) == byteLength)
+        if (WideCharToMultiByte(m_codePage, 0, m_wide.data(), wideLength, m_bytes.data(), byteLength, nullptr, nullptr) != byteLength)
         {
-            m_target->sputn(m_bytes.data(), static_cast<std::streamsize>(m_bytes.size()));
+            return false;
         }
+
+        return Write(m_bytes.data(), m_bytes.size());
     }
 
     RedirectedOutputEncoding::RedirectedOutputEncoding(std::ostream& out, DWORD standardOutputStreamType, UINT consumerCodePage)

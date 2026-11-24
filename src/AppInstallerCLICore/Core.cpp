@@ -30,6 +30,14 @@ namespace AppInstaller::CLI
 {
     namespace
     {
+        // Whether the given standard handle is attached to a console. A character device is not
+        // necessarily a console; NUL is also a character device, and it never interprets the code page.
+        bool IsConsoleStandardHandle(DWORD standardHandle)
+        {
+            DWORD mode = 0;
+            return GetConsoleMode(GetStdHandle(standardHandle), &mode) != FALSE;
+        }
+
         // RAII class to restore the console output codepage.
         struct ConsoleOutputCPRestore
         {
@@ -41,8 +49,8 @@ namespace AppInstaller::CLI
                 // Only the console host interprets the code page. Changing it affects every process
                 // that shares the console, so only do it while this process still writes to the
                 // console through one of its text streams.
-                m_changedCodePage = m_standardOutputStreamType == FILE_TYPE_CHAR ||
-                    Execution::GetStandardHandleType(STD_ERROR_HANDLE) == FILE_TYPE_CHAR;
+                m_changedCodePage = IsConsoleStandardHandle(STD_OUTPUT_HANDLE) ||
+                    IsConsoleStandardHandle(STD_ERROR_HANDLE);
 
                 if (m_changedCodePage)
                 {
