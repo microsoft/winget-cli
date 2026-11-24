@@ -225,7 +225,24 @@ namespace AppInstaller::CLI::Execution
 
             if (m_out.rdbuf() == this)
             {
+                // basic_ios::rdbuf(streambuf*) clears the stream state, which would hide a failed
+                // write from callers that check the stream after this buffer is gone.
+                const std::ios_base::iostate state = m_out.rdstate();
+                const std::ios_base::iostate exceptions = m_out.exceptions();
+
+                // Restoring the buffer and the state must not throw from a destructor.
+                m_out.exceptions(std::ios_base::goodbit);
                 m_out.rdbuf(m_target);
+                m_out.clear(state);
+
+                try
+                {
+                    m_out.exceptions(exceptions);
+                }
+                catch (...)
+                {
+                    // The state already reports the failure that the exception would repeat.
+                }
             }
 
             m_target->pubsync();
@@ -319,10 +336,23 @@ namespace AppInstaller::CLI::Execution
 
     bool Utf8ToCodePageStreamBuf::Put(const char* data, size_t count)
     {
+        if (m_failed)
+        {
+            // A refused target may already have written a prefix of the output, so the input is
+            // never retried.
+            return false;
+        }
+
         if (m_bypass)
         {
             // Machine readable output is forwarded as it was written, without conversion.
-            return Write(data, count);
+            if (!Write(data, count))
+            {
+                m_failed = true;
+                return false;
+            }
+
+            return true;
         }
 
         m_pending.append(data, count);
@@ -331,6 +361,11 @@ namespace AppInstaller::CLI::Execution
 
     bool Utf8ToCodePageStreamBuf::Flush()
     {
+        if (m_failed)
+        {
+            return false;
+        }
+
         if (m_pending.empty())
         {
             return true;
@@ -345,6 +380,10 @@ namespace AppInstaller::CLI::Execution
 
         if (!Convert(std::string_view{ m_pending }.substr(0, completeLength)))
         {
+            // The target may have written a prefix of the encoded output, so the input cannot be
+            // retried without writing that prefix a second time.
+            m_pending.clear();
+            m_failed = true;
             return false;
         }
 
@@ -354,6 +393,11 @@ namespace AppInstaller::CLI::Execution
 
     bool Utf8ToCodePageStreamBuf::FlushAll()
     {
+        if (m_failed)
+        {
+            return false;
+        }
+
         if (m_pending.empty())
         {
             return true;
@@ -361,6 +405,9 @@ namespace AppInstaller::CLI::Execution
 
         if (!Convert(m_pending))
         {
+            // As in Flush(), a refused write cannot be retried without repeating its prefix.
+            m_pending.clear();
+            m_failed = true;
             return false;
         }
 

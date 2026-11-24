@@ -43,7 +43,8 @@ namespace AppInstaller::CLI::Execution
         Utf8ToCodePageStreamBuf(std::ostream& out, UINT codePage);
         ~Utf8ToCodePageStreamBuf() override;
 
-        // Writes any held output and restores the stream's original buffer.
+        // Writes any held output and restores the stream's original buffer. The state that a
+        // failed write set on the stream is kept, so callers still see the failure.
         void Restore();
 
         // Sets whether output is forwarded unchanged instead of being converted.
@@ -59,13 +60,15 @@ namespace AppInstaller::CLI::Execution
 
     private:
         // Writes the output that is ready to be converted; an incomplete UTF-8 sequence is held.
-        // Returns false if the target could not be written, leaving the output held.
+        // Returns false if the target could not be written; the output is then dropped, because the
+        // failed write may already have emitted a prefix of it.
         bool Flush();
 
         // Writes all held output, converting an incomplete sequence with a replacement character.
+        // Returns false if the target could not be written; the output is then dropped.
         bool FlushAll();
 
-        // Returns false if the target could not be written, leaving the output held.
+        // Returns false if the target could not be written or already refused output before.
         bool Put(const char* data, size_t count);
 
         // Writes every byte to the target and returns false if the target refused any of them.
@@ -80,6 +83,10 @@ namespace AppInstaller::CLI::Execution
         std::wstring m_wide;
         std::string m_bytes;
         bool m_bypass = false;
+
+        // Whether the target refused output. A refused target is not written to again, because a
+        // partial write may already have emitted some of the bytes that a retry would repeat.
+        bool m_failed = false;
     };
 
     // Applies the code page that a consumer of redirected output uses to a stream's human readable

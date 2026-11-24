@@ -26,6 +26,10 @@ namespace
 
         const std::string& Written() const { return m_written; }
 
+        // Makes the target accept the given number of additional bytes, as a pipe whose reader
+        // resumed would.
+        void Recover(size_t additional = 16) { m_limit = m_written.size() + additional; }
+
     protected:
         std::streamsize xsputn(const char* data, std::streamsize count) override
         {
@@ -205,6 +209,9 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[channelstreams]")
     }
 
     REQUIRE(target.Written() == std::string{ "N" } + std::string{ s_cp866Name }.substr(0, 2));
+
+    // Restoring the original buffer does not hide the failure from the caller.
+    REQUIRE(output.bad());
 }
 
 TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[channelstreams]")
@@ -224,6 +231,31 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[channelstreams]
     }
 
     REQUIRE(target.Written() == std::string{ s_utf8Name }.substr(0, 2));
+
+    // Restoring the original buffer does not hide the failure from the caller.
+    REQUIRE(output.bad());
+}
+
+TEST_CASE("Utf8ToCodePageStreamBuf_DoesNotReplayPartiallyWrittenOutput", "[channelstreams]")
+{
+    // The target accepts two bytes, refuses the rest, and then accepts output again.
+    ShortWriteStreamBuf target{ 2 };
+    std::ostream output{ &target };
+
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+
+        // 'A' and 'B' are written before the target refuses 'C'.
+        output.write("ABCDE", 5);
+        REQUIRE(output.bad());
+
+        target.Recover();
+    }
+
+    // The bytes that were emitted before the failure are not written again when the held output is
+    // flushed, so the recovery cannot turn "ABCDE" into "ABABCDE".
+    REQUIRE(target.Written() == "AB");
+    REQUIRE(output.bad());
 }
 
 TEST_CASE("RedirectedOutputEncoding_SkipsFileRedirect", "[channelstreams]")
