@@ -142,5 +142,5 @@ jobs:
       - name: comment
         uses: check-spelling/check-spelling@cfb6f7e75bbfc89c71eaa30366d0c166f1bd9c8c # v0.0.26
         with:
-          checkout: true
-          task: ${{ needs.spelling.outputs.followup }}
+          checkout: false
+          task: comment
