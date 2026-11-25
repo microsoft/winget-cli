@@ -53,7 +53,6 @@ jobs:
 
 - job: 'Fuzzing'
   timeoutInMinutes: 60
-  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
   # Use custom agent with additional resources.
   pool:
     name: 1es-pool-winget
@@ -107,6 +106,7 @@ jobs:
     condition: succeededOrFailed()
 
   - task: onefuzz-task@0
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     inputs:
       onefuzzOSes: 'Windows'
     env:
