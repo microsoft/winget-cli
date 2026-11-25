@@ -1758,6 +1758,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (Runtime::IsRunningWithNonDefaultFullToken())
         {
+            Runtime::LogTokenDiagnostics();
             context.Reporter.Error() << Resource::String::AdminContextActionProhibited << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
         }

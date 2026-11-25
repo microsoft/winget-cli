@@ -4,6 +4,9 @@
 #include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include <COMContext.h>
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerStrings.h>
+#include <winget/ThreadGlobals.h>
 
 using namespace AppInstaller::CLI;
 using namespace TestCommon;
@@ -15,6 +18,14 @@ TEST_CASE("WorkflowBase_EnsureNotRunningWithNonDefaultFullToken", "[WorkflowBase
     const bool comContext = GENERATE(false, true);
     CAPTURE(fullToken, comContext);
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride{ fullToken };
+
+    TempFile logFile{ "FullTokenBlock", ".log" };
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+    auto previousThreadGlobals = threadGlobals.SetForCurrentThread();
+    auto& logger = AppInstaller::Logging::Log();
+    logger.SetEnabledChannels(AppInstaller::Logging::Channel::Core);
+    logger.SetLevel(AppInstaller::Logging::Level::Info);
+    AppInstaller::Logging::FileLogger::Add(logFile.GetPath());
 
     std::ostringstream output;
     std::unique_ptr<Execution::Context> context;
@@ -34,8 +45,17 @@ TEST_CASE("WorkflowBase_EnsureNotRunningWithNonDefaultFullToken", "[WorkflowBase
             nextContext.Add<Execution::Data::OperationReturnCode>(0);
         };
 
+    logger.RemoveLogger(AppInstaller::Logging::FileLogger::GetNameForPath(logFile.GetPath()));
+    std::ifstream logStream{ logFile.GetPath(), std::ios::binary };
+    const auto logContents = AppInstaller::Utility::ReadEntireStream(logStream);
+    INFO("Log contents:\n" << logContents);
+
     if (fullToken)
     {
+        REQUIRE(logContents.find("Process token: TokenElevationType=") != std::string::npos);
+        REQUIRE(logContents.find("Effective thread token: TokenElevationType=") != std::string::npos);
+        REQUIRE(logContents.find(", TokenIsElevated=") != std::string::npos);
+        REQUIRE(logContents.find(", IntegrityLevel=S-1-16-") != std::string::npos);
         REQUIRE_TERMINATED_WITH((*context), APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
         REQUIRE_FALSE(context->Contains(Execution::Data::OperationReturnCode));
         if (!comContext)
@@ -45,6 +65,7 @@ TEST_CASE("WorkflowBase_EnsureNotRunningWithNonDefaultFullToken", "[WorkflowBase
     }
     else
     {
+        REQUIRE(logContents.find("token:") == std::string::npos);
         REQUIRE_FALSE(context->IsTerminated());
         REQUIRE(context->Contains(Execution::Data::OperationReturnCode));
         REQUIRE(output.str().empty());
