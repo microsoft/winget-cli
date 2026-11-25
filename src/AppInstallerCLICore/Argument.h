@@ -93,6 +93,7 @@ namespace AppInstaller::CLI
         DscResourceFunction = 0x100,
         DependenciesConflict = 0x200,
         SortDirection = 0x400,
+        UnknownVersion = 0x800,
 
         // This must always be at the end
         Max
