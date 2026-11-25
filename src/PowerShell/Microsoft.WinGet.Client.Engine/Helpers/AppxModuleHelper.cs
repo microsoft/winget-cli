@@ -66,6 +66,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
         private const string Version = "Version";
+        private const string PublisherId = "PublisherId";
+        private const string SignatureKind = "SignatureKind";
+        private const string MicrosoftPublisherId = "8wekyb3d8bbwe";
+        private const string StoreSignatureKind = "Store";
 
         private const string DependencyArchitectureEnvironmentVariable = "WINGET_PACKAGE_MANAGER_REPAIR_DEPENDENCY_ARCHITECTURES";
 
@@ -121,7 +125,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>Result of Get-AppxPackage.</returns>
         public PSObject? GetAppInstallerObject(bool allUsers = false)
         {
-            return this.GetAppxObject(AppInstallerName, allUsers);
+            return this.GetAppxObjects(AppInstallerName, allUsers).FirstOrDefault();
         }
 
         /// <summary>
@@ -130,7 +134,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>Result of Get-AppxPackage.</returns>
         public PSObject? GetWinGetSourceObject()
         {
-            return this.GetAppxObject(WinGetSourceName);
+            return this.GetAppxObjects(WinGetSourceName).FirstOrDefault();
         }
 
         /// <summary>
@@ -153,6 +157,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Gets a string property from the Microsoft-published, Store-signed AppInstaller package.
+        /// </summary>
+        /// <param name="propertyName">Property name.</param>
+        /// <returns>The property value, or null if the package or property is missing.</returns>
+        public string? GetStoreSignedAppInstallerPropertyValue(string propertyName)
+        {
+            var packageObj = this.GetAppxObjects(AppInstallerName)
+                .FirstOrDefault(p => IsStoreSignedMicrosoftPackage(p.Properties[PublisherId]?.Value, p.Properties[SignatureKind]?.Value));
+            return packageObj?.Properties[propertyName]?.Value as string;
         }
 
         /// <summary>
@@ -243,6 +259,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public async Task InstallWinGetSourceAsync()
         {
             await this.DownloadPackageAndAddAsync(WinGetSourceUrl, WinGetSourceMsixName, options: null);
+        }
+
+        /// <summary>
+        /// Checks if a package is published by Microsoft and signed by the Store.
+        /// </summary>
+        /// <param name="publisherId">The PublisherId of the package.</param>
+        /// <param name="signatureKind">The SignatureKind of the package.</param>
+        /// <returns>True if the package is published by Microsoft and signed by the Store.</returns>
+        internal static bool IsStoreSignedMicrosoftPackage(object? publisherId, object? signatureKind)
+        {
+            // SignatureKind is an enum, or a string when the Appx module is loaded with -UseWindowsPowerShell.
+            return publisherId?.ToString() == MicrosoftPublisherId && signatureKind?.ToString() == StoreSignatureKind;
         }
 
         /// <summary>
@@ -338,7 +366,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private PSObject? GetAppxObject(string packageName, bool allUsers = false)
+        private Collection<PSObject> GetAppxObjects(string packageName, bool allUsers = false)
         {
             var options = new List<string>();
             if (allUsers)
@@ -352,8 +380,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     { Name, packageName },
                 },
-                options)
-                .FirstOrDefault();
+                options);
         }
 
         private async Task InstallDependenciesAsync(string releaseTag)
@@ -664,7 +691,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             string xamlAssetX86 = string.Format("{0}.x86.appx", xamlPackageName);
             string xamlAssetArm64 = string.Format("{0}.arm64.appx", xamlPackageName);
 
-            var uiXamlObjs = this.GetAppxObject(xamlPackageName);
+            var uiXamlObjs = this.GetAppxObjects(xamlPackageName).FirstOrDefault();
             if (uiXamlObjs is null)
             {
                 var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml, this.pwshCmdlet);

@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // Here would be "The specified method is not supported."
             if (winGetSettingsFilePath == null)
             {
-                var wingetCliWrapper = new WingetCLIWrapper();
+                var wingetCliWrapper = new WingetCLIWrapper(WingetCLIWrapper.WinGetFullPath);
                 var settingsResult = wingetCliWrapper.RunCommand(this, new WinGetCLICommandBuilder("settings").AppendSubCommand("export"));
 
                 // Read the user settings file property.
