@@ -92,6 +92,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 auto pwshFactory = m_defaultRemoteFactory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>();
                 pwshFactory.Location(value);
                 m_location = value;
+                m_locationSet = true;
+            }
+
+            bool HasExplicitModuleLocation() const
+            {
+                return m_locationSet;
             }
 
             winrt::hstring CustomLocation() const
@@ -143,6 +149,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::mutex m_diagnosticsMutex;
             DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
             SetProcessorFactory::PwshConfigurationProcessorLocation m_location = SetProcessorFactory::PwshConfigurationProcessorLocation::Default;
+            bool m_locationSet = false;
             winrt::hstring m_customLocation;
             ProcessorEngine m_processorEngine;
             std::map<winrt::hstring, winrt::hstring> m_factoryMapValues;
@@ -328,6 +335,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     locationString = Utility::ConvertToUTF8(m_dynamicFactory->CustomLocation());
                     break;
                 case SetProcessorFactory::PwshConfigurationProcessorLocation::Default:
+                    if (m_dynamicFactory->HasExplicitModuleLocation())
+                    {
+                        locationString = "Default";
+                    }
                     break;
                 }
 

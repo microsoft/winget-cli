@@ -6,6 +6,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <winget/AdminSettings.h>
+#include <AppInstallerRuntime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -21,6 +22,7 @@ namespace AppInstaller::CLI::Workflow
                 root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
                 root["adminSettings"] = Json::ValueType::objectValue;
                 root["userSettingsFile"] = UserSettings::SettingsFilePath().u8string();
+                root["adminSettingsFile"] = UserSettings::AdminSettingsFilePath().u8string();
             }
 
             void AddAdminSetting(BoolAdminSetting setting)
@@ -119,49 +121,43 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::ResetAllAdminSettingsSucceeded << std::endl;
     }
 
-    void OpenUserSetting(Execution::Context& context)
+    void ShowSettingsWarnings::operator()(Execution::Context& context) const
     {
-        // Show warnings only when the setting command is executed.
-        if (!User().GetWarnings().empty())
+        const bool migrationOnly = m_type == SettingsWarningType::Migration;
+        bool headerShown = false;
+        for (const auto& warning : User().GetWarnings())
         {
-            context.Reporter.Warn() << Resource::String::SettingLoadFailure << std::endl;
-            for (const auto& warning : User().GetWarnings())
+            if (warning.IsMigrationWarning == migrationOnly)
             {
-                auto warn = context.Reporter.Warn();
-                warn << warning.Message;
-                if (!warning.Path.empty())
+                if (!headerShown && !migrationOnly)
                 {
-                    if (warning.IsFieldWarning)
-                    {
-                        warn << ' ' << Resource::String::SettingsWarningField(warning.Path);
-                    }
-                    else
-                    {
-                        warn << ' ' << warning.Path;
-                    }
+                    context.Reporter.Warn() << Resource::String::SettingLoadFailure << std::endl;
+                    headerShown = true;
                 }
-
-                if (!warning.Data.empty())
-                {
-                    if (warning.IsFieldWarning)
-                    {
-                        warn << ' ' << Resource::String::SettingsWarningValue(warning.Data);
-                    }
-                    else
-                    {
-                        warn <<
-                            std::endl <<
-                            warning.Data;
-                    }
-                }
-
-                warn << std::endl;
+                context.Reporter.Warn() << warning.Message(warning.Path, warning.Data, warning.Source) << std::endl;
             }
         }
+    }
 
-        User().PrepareToShellExecuteFile();
+    void CreateAdminSettingsFile(Execution::Context&)
+    {
+        UserSettings::CreateAdminSettingsFile();
+    }
 
-        auto filePathUTF16 = UserSettings::SettingsFilePath().wstring();
+    void OpenUserSetting(Execution::Context& context)
+    {
+        context << ShowSettingsWarnings{ SettingsWarningType::NonMigration };
+        const bool admin = context.Args.Contains(Execution::Args::Type::AdminSettingsFile);
+        const auto filePath = admin ? UserSettings::AdminSettingsFilePath() : UserSettings::SettingsFilePath();
+        if (admin && !Runtime::IsRunningAsAdminOrSystem() && !std::filesystem::exists(filePath))
+        {
+            context.Reporter.Error() << Resource::String::AdminSettingsFileRequiresCreation(LocIndString{ filePath.u8string() }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ACCESSDENIED);
+        }
+
+        User().PrepareToShellExecuteFile(admin);
+
+        auto filePathUTF16 = filePath.wstring();
 
         // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
         // to make the user pick their default.

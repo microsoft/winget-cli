@@ -20,6 +20,12 @@ namespace Microsoft.WinGet.Client.Commands
     public sealed class TestUserSettingCmdlet : PSCmdlet
     {
         /// <summary>
+        /// Gets or sets a value indicating whether to target the protected administrator settings file.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Admin { get; set; }
+
+        /// <summary>
         /// Gets or sets the input user settings.
         /// </summary>
         [Parameter(
@@ -38,7 +44,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            var command = new UserSettingsCommand(this);
+            var command = new UserSettingsCommand(this, this.Admin.ToBool());
             command.Test(this.UserSettings, this.IgnoreNotSet.ToBool());
         }
     }

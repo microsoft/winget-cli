@@ -9,7 +9,7 @@
       "properties": {
         "autoUpdateIntervalInMinutes": {
           "description": "Number of minutes before source update",
-          "type": "integer",
+          "type": ["integer", "null"],
           "default": 5,
           "minimum": 0,
           "maximum": 43200
@@ -22,23 +22,24 @@
       "properties": {
         "progressBar": {
           "description": "Progress bar display style",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "accent",
             "rainbow",
             "retro",
             "sixel",
-            "disabled"
+            "disabled",
+            null
           ]
         },
         "anonymizeDisplayedPaths": {
           "description": "Replaces some known folder paths with their respective environment variable",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": true
         },
         "enableSixels": {
           "description": "Enables output of sixel images in certain contexts",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         }
       }
@@ -49,18 +50,19 @@
       "properties": {
         "level": {
           "description": "Preferred logging level",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "verbose",
             "info",
             "warning",
             "error",
-            "critical"
+            "critical",
+            null
           ]
         },
         "channels": {
           "description": "The logging channels to enable",
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "uniqueItems": true,
             "type": "string",
@@ -83,12 +85,13 @@
         },
         "fileNameStrategy": {
           "description": "Controls the default naming of log files for installers that support it",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "manifest",
             "timestamp",
             "guid",
-            "shortguid"
+            "shortguid",
+            null
           ]
         },
         "file": {
@@ -97,25 +100,25 @@
           "properties": {
             "ageLimitInDays": {
               "description": "The maximum age, in days, of a log file before it is deleted. Set to 0 to disable automatic deletion based on age.",
-              "type": "integer",
+              "type": ["integer", "null"],
               "default": 7,
               "minimum": 0
             },
             "totalSizeLimitInMB": {
               "description": "The maximum total size, in megabytes, of all log files. If the total size exceeds this limit, the oldest files will be deleted first. Set to 0 to disable this limit.",
-              "type": "integer",
+              "type": ["integer", "null"],
               "default": 128,
               "minimum": 0
             },
             "countLimit": {
               "description": "The maximum number of log files to retain. If the number of log files exceeds this limit, the oldest files will be deleted first. Set to 0 (the default) to disable this limit.",
-              "type": "integer",
+              "type": ["integer", "null"],
               "default": 0,
               "minimum": 0
             },
             "individualSizeLimitInMB": {
               "description": "The maximum size, in megabytes, of an individual log file. If a file would exceed this limit, new log lines will overwrite the file from the beginning. Set to 0 to disable this limit.",
-              "type": "integer",
+              "type": ["integer", "null"],
               "default": 16,
               "minimum": 0
             }
@@ -129,16 +132,17 @@
       "properties": {
         "scope": {
           "description": "The scope of a package install",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "user",
-            "machine"
+            "machine",
+            null
           ],
           "default": "user"
         },
         "locale": {
           "description": "The locales of a package install",
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "type": "string",
             "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
@@ -149,7 +153,7 @@
         },
         "architectures": {
           "description": "The architecture(s) to use for a package install",
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "uniqueItems": true,
             "type": "string",
@@ -166,7 +170,7 @@
         },
         "installerTypes": {
           "description": "The installerType(s) to use for a package install",
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "uniqueItems": true,
             "type": "string",
@@ -196,41 +200,42 @@
         "requirements": { "$ref": "#/definitions/InstallPrefReq" },
         "skipDependencies": {
           "description": "Controls whether package dependencies and Windows Features are skipped during installation",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "disableInstallNotes": {
           "description": "Controls whether installation notes are shown after a successful install",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "portablePackageUserRoot": {
-          "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
-          "type": "string",
+          "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type. Values in the ordinary user settings file are ignored when WinGet runs with a non-default full token. Configure this setting in the protected admin-settings.json file using 'winget settings --admin'; its value is shared across token contexts.",
+          "type": ["string", "null"],
           "default": "%LOCALAPPDATA%/Microsoft/WinGet/Packages/"
         },
         "portablePackageMachineRoot": {
-          "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
-          "type": "string",
+          "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type. Machine-scope portable package changes require elevation. Values in the ordinary user settings file are ignored when WinGet runs with a non-default full token. Configure this setting in the protected admin-settings.json file using 'winget settings --admin'; its value is shared across token contexts.",
+          "type": ["string", "null"],
           "default": "%PROGRAMFILES%/WinGet/Packages/"
         },
         "defaultInstallRoot": {
-          "description": "Default install location to use for packages that require it when not specified",
-          "type": "string",
+          "description": "Default install location to use for packages that require it when not specified. With a non-default full token, only values in the protected admin-settings.json file apply; configure them using 'winget settings --admin'. Without that full token, only values in the ordinary user settings file apply, allowing separate install roots.",
+          "type": ["string", "null"],
           "maxLength": 32767
         },
         "maxResumes": {
           "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",
-          "type": "integer",
+          "type": ["integer", "null"],
           "default": 3,
           "minimum": 1
         },
         "archiveExtractionMethod": {
           "description": "Controls the behavior how the installer extracts archives. The current two supported values are 'shellApi' and 'tar'. 'shellApi' uses the Windows Shell API to extract archives. 'tar' uses the tar command to extract archives.",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "shellApi",
-            "tar"
+            "tar",
+            null
           ],
           "default": "shellApi"
         }
@@ -241,8 +246,8 @@
       "type": "object",
       "properties": {
         "purgePortablePackage": {
-          "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType.",
-          "type": "boolean",
+          "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType. Values in the ordinary user settings file are ignored when WinGet runs with a non-default full token. Configure this setting in the protected admin-settings.json file using 'winget settings --admin'; its value is shared across token contexts.",
+          "type": ["boolean", "null"],
           "default": false
         }
       }
@@ -252,8 +257,8 @@
       "type": "object",
       "properties": {
         "defaultModuleRoot": {
-          "description": "The default root directory where PowerShell modules are installed to when applying a configuration.",
-          "type": "string",
+          "description": "The default root directory where PowerShell modules are installed to when applying a configuration. With a non-default full token, only values in the protected admin-settings.json file apply; configure them using 'winget settings --admin'. Without that full token, only values in the ordinary user settings file apply, allowing separate module roots. The default below is for ordinary-token use; the full-token default is a separate administrator-writable per-user module directory.",
+          "type": ["string", "null"],
           "maxLength": 32767,
           "default": "%LOCALAPPDATA%/Microsoft/WinGet/Configuration/Modules/"
         }
@@ -264,8 +269,8 @@
       "type": "object",
       "properties": {
         "defaultDownloadDirectory": {
-          "description": "The default directory where installers are downloaded to.",
-          "type": "string",
+          "description": "The default directory where installers are downloaded to. Values in the ordinary user settings file are ignored when WinGet runs with a non-default full token. Configure this setting in the protected admin-settings.json file using 'winget settings --admin'; its value is shared across token contexts.",
+          "type": ["string", "null"],
           "default": "%USERPROFILE%/Downloads/"
         }
       }
@@ -276,7 +281,7 @@
       "properties": {
         "disable": {
           "description": "Controls whether telemetry events are written",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         }
       }
@@ -287,17 +292,18 @@
       "properties": {
         "downloader": {
           "description": "Control which download code is used for packages",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "default",
             "wininet",
-            "do"
+            "do",
+            null
           ],
           "default": "default"
         },
         "doProgressTimeoutInSeconds": {
           "description": "Number of seconds to wait without progress before fallback",
-          "type": "integer",
+          "type": ["integer", "null"],
           "default": 60,
           "minimum": 1,
           "maximum": 600
@@ -310,7 +316,7 @@
       "properties": {
         "disable": {
           "description": "Controls whether interactive prompts are shown by the Windows Package Manager client",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         }
       }
@@ -321,37 +327,37 @@
       "properties": {
         "experimentalCMD": {
           "description": "Reference implementation for an experimental command",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "experimentalARG": {
           "description": "Reference implementation for an experimental argument",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "fonts": {
           "description": "Enable support for managing fonts",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "interactivePackageSelection": {
           "description": "Enable interactive selection for ambiguous package matches",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "resume": {
           "description": "Enable support for some commands to resume",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         },
         "deltaIndex": {
           "description": "Enable acquiring source index updates as a delta against a baseline, rather than downloading the full index",
-          "type": "boolean",
+          "type": ["boolean", "null"],
           "default": false
         }
       }
@@ -362,7 +368,7 @@
       "properties": {
         "sortOrder": {
           "description": "Fields to sort output by, in priority order. An empty array results in default sorting.",
-          "type": "array",
+          "type": ["array", "null"],
           "items": {
             "type": "string",
             "enum": [
@@ -377,16 +383,17 @@
         },
         "sortDirection": {
           "description": "Sort direction for output ordering",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "ascending",
-            "descending"
+            "descending",
+            null
           ],
           "default": "ascending"
         },
         "locale": {
           "description": "Overrides winget interface output language using a supported locale",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": [
             "en-US",
             "de-DE",
@@ -398,7 +405,8 @@
             "pt-BR",
             "ru-RU",
             "zh-CN",
-            "zh-TW"
+            "zh-TW",
+            null
           ]
         }
       }

@@ -13,16 +13,14 @@ namespace TestCommon
     {
         void DeleteUserSettingsFilesInternal()
         {
-            auto settingsPath = UserSettings::SettingsFilePath();
-            if (std::filesystem::exists(settingsPath))
+            for (const auto& stream : { Stream::PrimaryUserSettings, Stream::BackupUserSettings,
+                Stream::PrimaryAdminSettingsFile, Stream::BackupAdminSettingsFile })
             {
-                std::filesystem::remove(settingsPath);
-            }
-
-            auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
-            if (std::filesystem::exists(settingsBackupPath))
-            {
-                std::filesystem::remove(settingsBackupPath);
+                auto path = GetPathTo(stream);
+                if (std::filesystem::exists(path))
+                {
+                    std::filesystem::remove(path);
+                }
             }
         }
     }

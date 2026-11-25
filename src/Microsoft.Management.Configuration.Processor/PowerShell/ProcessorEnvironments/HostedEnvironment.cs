@@ -78,9 +78,7 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
                 throw new NotSupportedException("Only PowerShell Core is supported.");
             }
 
-            // If opening a runspace has failures, like one of the modules in ImportPSModule is not found, it won't throw but
-            // write to the error output. This is not a fatal error, since we install PSDesiredStateConfiguration
-            // module if not found, so unless there's a real reason keep it in verbose.
+            // Report nonfatal runspace initialization errors before validating required modules.
             var errors = this.GetVariable<ArrayList>(Variables.Error);
             if (errors.Count > 0)
             {
@@ -491,11 +489,33 @@ namespace Microsoft.Management.Configuration.Processor.PowerShell.Runspaces
         /// <inheritdoc/>
         public void CleanupPSModulePath(string path)
         {
-            string newModulePath = this.GetVariable<string>(Variables.PSModulePath)
-                                       .Replace($"{path};", null)
-                                       .Replace($";{path}", null);
+            string normalizedPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var remainingPaths = new List<string>();
+            foreach (string entry in this.GetVariable<string>(Variables.PSModulePath).Split(';'))
+            {
+                if (entry.Length > 0 && string.IsNullOrWhiteSpace(entry))
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Warning, "Ignoring whitespace-only PSModulePath entry.");
+                    continue;
+                }
 
-            this.SetPSModulePath(newModulePath);
+                try
+                {
+                    if (entry.Length == 0 || !string.Equals(
+                        Path.GetFullPath(entry).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                        normalizedPath,
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        remainingPaths.Add(entry);
+                    }
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException)
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Warning, $"Ignoring invalid PSModulePath entry '{entry}': {ex.Message}");
+                }
+            }
+
+            this.SetPSModulePath(string.Join(";", remainingPaths));
         }
 
         /// <inheritdoc/>

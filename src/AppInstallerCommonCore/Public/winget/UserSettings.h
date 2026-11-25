@@ -156,18 +156,25 @@ namespace AppInstaller::Settings
 
     namespace details
     {
+        enum class SettingTreatment
+        {
+            Unrestricted,
+            RestrictedShared,
+            RestrictedSplit,
+        };
+
         template <Setting S>
         struct SettingMapping
         {
             // json_t - type the setting in json.
             // value_t - the type of this setting.
             // DefaultValue - the value_t default value when setting is absent or semantically wrong.
-            // Path - json path to the property. See Json::Path in json.h for syntax. So far, this is sufficient
-            //        but since is "brief" and "untested" we might implement our own if needed.
+            // Path - Dot-separated object member path, beginning with '.'.
             // Validate - Function that does semantic validation.
+            // Treatment - File-source eligibility with and without the non-default full token.
         };
 
-#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
+#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _treatment_, _valuePolicy_) \
         template <> \
         struct SettingMapping<_setting_> \
         { \
@@ -175,77 +182,78 @@ namespace AppInstaller::Settings
             using value_t = _value_; \
             inline static const value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
+            static constexpr SettingTreatment Treatment = SettingTreatment::_treatment_; \
             static std::optional<value_t> Validate(const json_t& value); \
             static constexpr ValuePolicy Policy = _valuePolicy_; \
             using policy_t = GroupPolicy::ValueType<Policy>; \
             static_assert(Policy == ValuePolicy::None || std::is_same<json_t, policy_t>::value); \
         }
 
-#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
-        SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, ValuePolicy::None)
+#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_, _treatment_) \
+        SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _treatment_, ValuePolicy::None)
 
         // Visual
-        SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AnonymizePathForDisplay, bool, bool, true, ".visual.anonymizeDisplayedPaths"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EnableSixelDisplay, bool, bool, false, ".visual.enableSixels"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AnonymizePathForDisplay, bool, bool, true, ".visual.anonymizeDisplayedPaths"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EnableSixelDisplay, bool, bool, false, ".visual.enableSixels"sv, Unrestricted);
         // Source
-        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 15min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
+        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 15min, ".source.autoUpdateIntervalInMinutes"sv, Unrestricted, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         // Experimental
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFInteractivePackageSelection, bool, bool, false, ".experimentalFeatures.interactivePackageSelection"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFDeltaIndex, bool, bool, false, ".experimentalFeatures.deltaIndex"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFFonts, bool, bool, false, ".experimentalFeatures.fonts"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFInteractivePackageSelection, bool, bool, false, ".experimentalFeatures.interactivePackageSelection"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFDeltaIndex, bool, bool, false, ".experimentalFeatures.deltaIndex"sv, Unrestricted);
         // Telemetry
-        SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv, Unrestricted);
         // Install behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitecturePreference, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.preferences.architectures"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitectureRequirement, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.requirements.architectures"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::User, ".installBehavior.preferences.scope"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::Unknown, ".installBehavior.requirements.scope"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypePreference, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.preferences.installerTypes"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypeRequirement, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.requirements.installerTypes"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::ArchiveExtractionMethod, std::string, Archive::ExtractionMethod, Archive::ExtractionMethod::ShellApi, ".installBehavior.archiveExtractionMethod"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::MaxResumes, uint32_t, int, 3, ".installBehavior.maxResumes"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitecturePreference, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.preferences.architectures"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitectureRequirement, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.requirements.architectures"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::User, ".installBehavior.preferences.scope"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::Unknown, ".installBehavior.requirements.scope"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypePreference, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.preferences.installerTypes"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypeRequirement, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.requirements.installerTypes"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::ArchiveExtractionMethod, std::string, Archive::ExtractionMethod, Archive::ExtractionMethod::ShellApi, ".installBehavior.archiveExtractionMethod"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv, RestrictedShared);
+        SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv, RestrictedShared);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv, RestrictedSplit);
+        SETTINGMAPPING_SPECIALIZATION(Setting::MaxResumes, uint32_t, int, 3, ".installBehavior.maxResumes"sv, Unrestricted);
         // Uninstall behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv, RestrictedShared);
         // Download behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv, RestrictedShared);
         // Configure behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigureDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configureBehavior.defaultModuleRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::ConfigureDefaultModuleRoot, std::string, std::filesystem::path, {}, ".configureBehavior.defaultModuleRoot"sv, RestrictedSplit);
 
         // Network
-        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkWingetAlternateSourceURL, bool, bool, true, ".network.enableWingetAlternateSourceURL"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkWingetAlternateSourceURL, bool, bool, true, ".network.enableWingetAlternateSourceURL"sv, Unrestricted);
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
-        SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::KeepAllLogFiles, bool, bool, false, ".debugging.keepAllLogFiles"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::KeepAllLogFiles, bool, bool, false, ".debugging.keepAllLogFiles"sv, Unrestricted);
 #endif
         // Logging
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileAgeLimitInDays, uint32_t, std::chrono::hours, (7 * 24h), ".logging.file.ageLimitInDays"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileTotalSizeLimitInMB, uint32_t, uint32_t, 128, ".logging.file.totalSizeLimitInMB"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileIndividualSizeLimitInMB, uint32_t, uint32_t, 16, ".logging.file.individualSizeLimitInMB"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileNameStrategy, std::string, Logging::LogNameStrategy, Logging::LogNameStrategy::Manifest, ".logging.fileNameStrategy"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileAgeLimitInDays, uint32_t, std::chrono::hours, (7 * 24h), ".logging.file.ageLimitInDays"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileTotalSizeLimitInMB, uint32_t, uint32_t, 128, ".logging.file.totalSizeLimitInMB"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileIndividualSizeLimitInMB, uint32_t, uint32_t, 16, ".logging.file.individualSizeLimitInMB"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingFileCountLimit, uint32_t, uint32_t, 0, ".logging.file.countLimit"sv, Unrestricted);
         // Interactivity
-        SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv, Unrestricted);
         // Output behavior
-        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::OutputLocale, std::string, std::string, std::string{}, ".output.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv, Unrestricted);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputLocale, std::string, std::string, std::string{}, ".output.locale"sv, Unrestricted);
         
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
@@ -264,6 +272,7 @@ namespace AppInstaller::Settings
         // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
         struct Warning
         {
+            // Message placeholders are {0} = Path, {1} = Data, and {2} = Source.
             Warning(StringResource::StringId message) : Message(message) {}
             Warning(StringResource::StringId message, std::string_view settingPath) : Message(message), Path(settingPath) {}
             Warning(StringResource::StringId message, std::string_view settingPath, std::string_view settingValue, bool isField = true) :
@@ -272,12 +281,16 @@ namespace AppInstaller::Settings
             StringResource::StringId Message;
             Utility::LocIndString Path;
             Utility::LocIndString Data;
+            Utility::LocIndString Source;
             bool IsFieldWarning = true;
+            bool IsMigrationWarning = false;
         };
 
         static UserSettings const& Instance(const std::optional<std::string>& content = std::nullopt);
 
         static std::filesystem::path SettingsFilePath(bool forDisplay = false);
+        static std::filesystem::path AdminSettingsFilePath();
+        static void CreateAdminSettingsFile();
 
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;
@@ -288,7 +301,7 @@ namespace AppInstaller::Settings
         UserSettingsType GetType() const { return m_type; }
         std::vector<Warning> const& GetWarnings() const { return m_warnings; }
 
-        void PrepareToShellExecuteFile() const;
+        void PrepareToShellExecuteFile(bool admin = false) const;
 
         // Gets setting value, if its not in the map it returns the default value.
         template <Setting S>
@@ -305,6 +318,7 @@ namespace AppInstaller::Settings
 
     protected:
         UserSettingsType m_type = UserSettingsType::Default;
+        UserSettingsType m_adminType = UserSettingsType::Default;
         std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 

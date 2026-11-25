@@ -24,6 +24,12 @@ enum WinGetAction
     Full
 }
 
+enum WinGetUserSettingsContext
+{
+    User
+    Administrator
+}
+
 enum WinGetEnsure
 {
     Absent
@@ -74,13 +80,19 @@ class WinGetUserSettings
     [DscProperty()]
     [WinGetAction]$Action = [WinGetAction]::Full
 
+    # Target the protected administrator settings file instead of the ordinary file.
+    [DscProperty(Key)]
+    [WinGetUserSettingsContext]$Context = [WinGetUserSettingsContext]::User
+
     # Gets the current UserSettings by looking at the settings.json file for the current user.
     [WinGetUserSettings] Get()
     {
-        $userSettings = Get-WinGetUserSetting
+        $userSettings = Get-WinGetUserSetting -Admin:($this.Context -eq [WinGetUserSettingsContext]::Administrator)
         $result = @{
             SID = ''
             Settings = $userSettings
+            Context = $this.Context
+            Action = $this.Action
         }
         return $result
     }
@@ -90,6 +102,7 @@ class WinGetUserSettings
     {
         $hashArgs = @{
             UserSettings = $this.Settings
+            Admin = ($this.Context -eq [WinGetUserSettingsContext]::Administrator)
         }
 
         if ($this.Action -eq [WinGetAction]::Partial)
@@ -105,6 +118,7 @@ class WinGetUserSettings
     {
         $hashArgs = @{
             UserSettings = $this.Settings
+            Admin = ($this.Context -eq [WinGetUserSettingsContext]::Administrator)
         }
 
         if ($this.Action -eq [WinGetAction]::Partial)

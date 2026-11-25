@@ -14,7 +14,9 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
 #include <winget/GroupPolicy.h>
+#include <winget/UserSettings.h>
 #include <ShutdownMonitoring.h>
 #include <winget/COMStaticStorage.h>
 #include <ComClsids.h>
@@ -145,6 +147,30 @@ extern "C"
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerLog(const char* message) try
     {
         AppInstaller::Logging::Log().Write(AppInstaller::Logging::Channel::Core, AppInstaller::Logging::Level::Info, message);
+        return S_OK;
+    }
+    CATCH_RETURN();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerConfigurationGetModulePath(BOOL useSettings, BOOL* fullToken, BSTR* path) try
+    {
+        RETURN_HR_IF_NULL(E_POINTER, fullToken);
+        RETURN_HR_IF_NULL(E_POINTER, path);
+        *path = nullptr;
+        *fullToken = AppInstaller::Runtime::IsRunningWithNonDefaultFullToken();
+
+        std::filesystem::path modulePath;
+        if (useSettings)
+        {
+            modulePath = AppInstaller::Settings::User().Get<AppInstaller::Settings::Setting::ConfigureDefaultModuleRoot>();
+        }
+        if (modulePath.empty())
+        {
+            modulePath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::DefaultConfigurationModules);
+        }
+
+        BSTR result = SysAllocString(modulePath.c_str());
+        RETURN_HR_IF_NULL(E_OUTOFMEMORY, result);
+        *path = result;
         return S_OK;
     }
     CATCH_RETURN();
