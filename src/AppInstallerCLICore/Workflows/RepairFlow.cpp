@@ -7,6 +7,7 @@
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/ArchiveFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/FontFlow.h"
 #include "Workflows/PromptFlow.h"
 #include "winget/ManifestCommon.h"
 #include "AppInstallerDeployment.h"
@@ -346,6 +347,13 @@ namespace AppInstaller::CLI::Workflow
                 MSStoreRepair;
         }
         break;
+        case InstallerTypeEnum::Font:
+        {
+            context <<
+                FontRepairImpl <<
+                ReportRepairResult("Font", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, true);
+        }
+        break;
         case InstallerTypeEnum::Portable:
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -384,6 +392,12 @@ namespace AppInstaller::CLI::Workflow
         }
         break;
         case InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::Font:
+            break;
+        case InstallerTypeEnum::Zip:
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED),
+                !context.Contains(Execution::Data::Installer) ||
+                context.Get<Execution::Data::Installer>()->EffectiveInstallerType() != InstallerTypeEnum::Font);
             break;
         case InstallerTypeEnum::Portable:
         default:
@@ -471,8 +485,6 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectApplicableInstallerIfNecessary(Execution::Context& context)
     {
-        // For MSI installers, the platform provides built-in support for repair via msiexec, hence no need to select an installer.
-        // Similarly, for MSIX packages that are not from the Microsoft Store, selecting an installer is not required.
         if (IsInstallerMappingRequired(context))
         {
             context <<

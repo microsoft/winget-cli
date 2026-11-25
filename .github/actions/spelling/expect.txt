@@ -120,6 +120,7 @@ CPIL
 createmanifestmetadata
 createview
 crt
+CSTR
 cswinrt
 ctc
 CTL
@@ -198,6 +199,7 @@ FOF
 FOLDERID
 FONTCHANGE
 FONTHASH
+fontlayout
 FORPARSING
 foundfr
 fsanitize
@@ -304,6 +306,7 @@ kool
 ktf
 LASTEXITCODE
 LCID
+LCMAP
 learnxinyminutes
 LEBOM
 lhs
@@ -621,6 +624,7 @@ tcs
 tellp
 temppath
 testexampleinstaller
+TESTFONT
 thiscouldbeapc
 THREADENTRY
 threehundred

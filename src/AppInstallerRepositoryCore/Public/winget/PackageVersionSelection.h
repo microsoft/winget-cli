@@ -43,7 +43,7 @@ namespace AppInstaller::Repository
     std::optional<int32_t> GetSourcePriority(const std::shared_ptr<ICompositePackage>& composite);
 
     // Determines whether repairing the installed version uses an available version of the package.
-    // MSI and MSIX packages not from the Microsoft Store are repaired by the platform without one.
+    // MSI, font, and non-Store MSIX repairs use installed metadata.
     // The composite may be null, such as when repairing from a manifest.
     bool IsAvailableVersionRequiredForRepair(const std::shared_ptr<ICompositePackage>& composite, const std::shared_ptr<IPackageVersion>& installedVersion);
 

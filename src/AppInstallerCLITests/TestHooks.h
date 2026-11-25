@@ -63,6 +63,15 @@ namespace AppInstaller
         void TestHook_SetDeployedPackageStore_Override(std::function<std::unique_ptr<IPackageStore>(const SourceDetails&)>* value);
     }
 
+    namespace Fonts
+    {
+        using GetFontRegistryHiveFunc = std::function<Registry::Key(Manifest::ScopeEnum)>;
+        void TestHook_SetGetFontRegistryHive_Override(GetFontRegistryHiveFunc value);
+        void TestHook_SetFontSessionChangesDisabled(bool value);
+        void TestHook_SetPackageFontFilesReadCallback(std::function<void()> value);
+        void TestHook_SetFontRegistrationsReadCallback(std::function<void()> value);
+    }
+
     namespace Logging
     {
         void TestHook_SetTelemetryOverride(std::shared_ptr<TelemetryTraceLogger> ttl);

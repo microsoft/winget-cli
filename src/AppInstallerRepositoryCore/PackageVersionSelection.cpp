@@ -313,6 +313,7 @@ namespace AppInstaller::Repository
         switch (Manifest::ConvertToInstallerTypeEnum(installedType))
         {
         case Manifest::InstallerTypeEnum::Msi:
+        case Manifest::InstallerTypeEnum::Font:
             return false;
         case Manifest::InstallerTypeEnum::Msix:
             if (composite)
