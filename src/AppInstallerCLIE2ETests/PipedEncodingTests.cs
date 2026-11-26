@@ -22,6 +22,10 @@ namespace AppInstallerCLIE2ETests
         // differently, so decoding the output with the wrong code page is visible in the text.
         private const string TestPackageId = "AppInstallerTest.TëstExeInstaller";
 
+        // Code page 866 has no character for ë, so the conversion writes the closest equivalent
+        // that the code page has for it. The UTF-8 test asserts the original id instead.
+        private const string ConsoleTestPackageId = "AppInstallerTest.TestExeInstaller";
+
         // The console output code page of Russian and Ukrainian systems, where the garbled output
         // that the conversion addresses was reported.
         private const int ConsoleCodePage = 866;
@@ -75,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("show", TestPackageId, standardOutputEncoding: ConsoleEncoding);
 
             Assert.That(result.ExitCode, Is.EqualTo(Constants.ErrorCode.S_OK));
-            Assert.That(result.StdOut, Does.Contain(TestPackageId));
+            Assert.That(result.StdOut, Does.Contain(ConsoleTestPackageId));
         }
 
         /// <summary>
