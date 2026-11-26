@@ -16,10 +16,12 @@ always stay UTF-8.
 Characters that the console code page cannot represent are written as `?`, and characters that
 the code page has a closest equivalent for use that equivalent. On a system whose console uses
 code page 866, for example, the `…` table truncation marker is written as `:`, and Japanese or
-Ukrainian `і`/`ґ` characters are written as `?`. Use a UTF-8 code page (`chcp 65001`) with a
-terminal that supports it, such as [Windows Terminal](https://github.com/microsoft/terminal),
-for lossless output; or set the new [`output.pipedEncoding`](https://github.com/microsoft/winget-cli/blob/master/doc/Settings.md#pipedencoding)
-setting to `utf8` to always write UTF-8.
+Ukrainian `і`/`ґ` characters are written as `?`. For lossless output in PowerShell, set
+`[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()` to update both the console
+code page and PowerShell's cached decoder. Use a UTF-8-capable terminal such as
+[Windows Terminal](https://github.com/microsoft/terminal). For tools that already expect UTF-8,
+set the new [`output.pipedEncoding`](https://github.com/microsoft/winget-cli/blob/master/doc/Settings.md#pipedencoding)
+setting to `utf8`.
 
 This works around the console host decoding behavior. The underlying PowerShell issues are
 https://github.com/PowerShell/PowerShell/issues/28496 and
