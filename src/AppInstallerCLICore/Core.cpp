@@ -321,10 +321,9 @@ namespace AppInstaller::CLI
             command->ParseArguments(invocation, context.Args);
             context.UpdateForArgs();
             context.SetExecutingCommand(command.get());
-            command->ValidateArguments(context.Args);
-
             // The argument overrides the setting for this invocation, so that a script can pick the
-            // encoding without changing the settings file.
+            // encoding without changing the settings file. It is applied before validation, so that
+            // the localized text that reports an invalid argument uses the requested encoding too.
             if (context.Args.Contains(Execution::Args::Type::OutputPipedEncoding))
             {
                 const auto pipedEncoding = Settings::TryParsePipedEncoding(context.Args.GetArg(Execution::Args::Type::OutputPipedEncoding));
@@ -333,6 +332,8 @@ namespace AppInstaller::CLI
                     redirectedOutputEncoding->SetConsumerCodePage(getHumanReadableCodePage(pipedEncoding.value()));
                 }
             }
+
+            command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)
