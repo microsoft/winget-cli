@@ -170,6 +170,15 @@ namespace AppInstaller::Utility
         return ToLower(a) == ToLower(b);
     }
 
+    int CompareNatural(std::wstring_view a, std::wstring_view b)
+    {
+        int result = CompareStringEx(LOCALE_NAME_INVARIANT, SORT_DIGITSASNUMBERS | SORT_STRINGSORT | LINGUISTIC_IGNORECASE,
+            a.empty() ? L"" : a.data(), wil::safe_cast<int>(a.size()),
+            b.empty() ? L"" : b.data(), wil::safe_cast<int>(b.size()), nullptr, nullptr, 0);
+        THROW_LAST_ERROR_IF(result == 0);
+        return result - CSTR_EQUAL;
+    }
+
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b)
     {
         auto B = ToLower(b);

@@ -171,6 +171,22 @@ TEST_CASE("CompleteCommand_FindRoot", "[complete]")
     REQUIRE(out.str() == expected.str());
 }
 
+TEST_CASE("CompleteCommand_PackageSortOptions", "[complete][listsort]")
+{
+    auto commandName = GENERATE("list"s, "search"s, "upgrade"s);
+    auto option = GENERATE("--sort"s, "--ascending"s, "--descending"s);
+    std::string commandLine = "winget " + commandName + " " + option;
+    std::stringstream out, in;
+    Context context{ out, in };
+    context.Args.AddArg(Args::Type::Word, option);
+    context.Args.AddArg(Args::Type::CommandLine, commandLine);
+    context.Args.AddArg(Args::Type::Position, std::to_string(commandLine.size()));
+    CompleteCommand complete{ "test" };
+    complete.Execute(context);
+
+    REQUIRE(out.str().find(option + '\n') != std::string::npos);
+}
+
 TEST_CASE("CompleteCommand_FindSource", "[complete]")
 {
     std::stringstream out, in;

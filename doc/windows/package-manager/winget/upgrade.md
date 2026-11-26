@@ -60,6 +60,9 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **--logs,--open-logs**           | Open the default logs location.                                                                                             |
 | **--verbose,--verbose-logs**     | Enable verbose logging for winget.                                                                                          |
 | **--disable-interactivity**      | Disable interactive prompts.                                                                                                |
+| **--sort**                      | Sort displayed packages by a field; repeat to add tie-breakers.                                                               |
+| **--ascending, --asc**           | Sort displayed packages in ascending order.                                                                                   |
+| **--descending, --desc**         | Sort displayed packages in descending order.                                                                                  |
 | **--installer-type**             |        Select the installer type
 | **--skip-dependencies**          |        Skips processing package dependencies and Windows features                                                           |
 
@@ -94,6 +97,8 @@ In the example below you will see [**list**](list.md) identifies that an update 
 ## **upgrade** --all
 
 **upgrade --all** will identify all the applications with upgrades available. When you run **winget upgrade --all** the Windows Package Manager will look for all applications that have updates available and attempt to install the upgrade.
+
+Upgrade lists, including the preview for `--all`, retain the installed-package list default: natural name order without a query; relevance and then natural name order with a query. The `output.sortOrder` and `output.sortDirection` [settings](list.md#sort-via-user-settings) override this order. `--sort` (repeatable) overrides the configured fields, and `--ascending` / `--descending` override the configured direction. For example, `winget upgrade --sort name --descending` lists available upgrades in descending name order without installing them. Separate pinned-package sections are sorted independently. Presentation sorting does not change upgrade eligibility or execution order.
 
 Packages with unknown installed versions are skipped by default, with a summary explaining how to include them. To keep skipping these packages without that summary, use:
 

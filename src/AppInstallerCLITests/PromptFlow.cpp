@@ -903,7 +903,7 @@ TEST_CASE("PackageSelection_CandidateRowIdentity", "[PackageSelection][workflow]
     result.Matches.emplace_back(TestCompositePackage::Make(std::vector{ manifest }, firstSource),
         PackageMatchFilter{ PackageMatchField::Id, MatchType::Exact, manifest.Id });
 
-    std::istringstream input{ "1\n" };
+    std::istringstream input{ "2\n" };
     std::ostringstream output;
     TestContext context{ output, input };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -924,8 +924,8 @@ TEST_CASE("PackageSelection_CandidateRowIdentity", "[PackageSelection][workflow]
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
     REQUIRE(static_cast<bool>(std::getline(tableStream, line)));
     std::vector<std::vector<std::string>> expectedRows{
-        { "1", secondName, secondId },
-        { "2", "OtherName", "Other.App" }
+        { "1", "OtherName", "Other.App" },
+        { "2", secondName, secondId }
     };
     if (!missingSourceName)
     {
@@ -947,6 +947,42 @@ TEST_CASE("PackageSelection_CandidateRowIdentity", "[PackageSelection][workflow]
     REQUIRE_FALSE(std::getline(tableStream, line));
     REQUIRE(firstSource->CountOfCallsRequiringManifestData == 0);
     REQUIRE(secondSource->CountOfCallsRequiringManifestData == 0);
+}
+
+TEST_CASE("PackageSelection_NaturalOrderMapsToOriginalMatch", "[listsort][PackageSelection][workflow]")
+{
+    TestUserSettings settings;
+    settings.Set<Setting::EFInteractivePackageSelection>(true);
+    TestHook::SetConsoleWidth_Override widthOverride{ std::optional<size_t>{120} };
+    auto operation = GENERATE(OperationType::Install, OperationType::Uninstall);
+    auto source = std::make_shared<TestSource>();
+    auto manifest = AppInstaller::Manifest::YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+    SearchResult result;
+    for (auto number : { 10, 9 })
+    {
+        manifest.Id = "Test.Runtime" + std::to_string(number);
+        manifest.DefaultLocalization.Add<AppInstaller::Manifest::Localization::PackageName>("Runtime " + std::to_string(number));
+        result.Matches.emplace_back(TestCompositePackage::Make(manifest, TestPackage::MetadataMap{}, std::vector{ manifest }, source),
+            PackageMatchFilter{ PackageMatchField::Name, MatchType::Substring });
+    }
+    auto expectedPackage = result.Matches[1].Package;
+    auto firstPackage = result.Matches[0].Package;
+    std::istringstream input{ "1\n" };
+    std::ostringstream output;
+    TestContext context{ output, input };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Reporter.SetConsoleStreamsForTest(true);
+    context.Reporter.SetStyle(VisualStyle::NoVT);
+    context.Add<Execution::Data::SearchResult>(std::move(result));
+    context << EnsureOneMatchFromSearchResult(operation, PackageSelectionBehavior::Prompt);
+
+    INFO(output.str());
+    REQUIRE_FALSE(context.IsTerminated());
+    REQUIRE(context.Get<Execution::Data::Package>() == expectedPackage);
+    REQUIRE(output.str().find("Runtime 9") < output.str().find("Runtime 10"));
+    REQUIRE(context.Get<Execution::Data::SearchResult>().Matches[0].Package == firstPackage);
+    REQUIRE(context.Get<Execution::Data::SearchResult>().Matches[1].Package == expectedPackage);
+    REQUIRE(source->CountOfCallsRequiringManifestData == 0);
 }
 
 TEST_CASE("PackageSelection_SharedAmbiguityTables", "[PackageSelection][workflow]")

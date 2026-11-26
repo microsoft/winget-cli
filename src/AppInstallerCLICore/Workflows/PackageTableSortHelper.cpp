@@ -15,12 +15,13 @@ namespace AppInstaller::CLI::Workflow
         std::string_view installedVersion,
         std::string_view availableVersion,
         std::string_view source,
-        SortField fieldMask)
-        : OriginalIndex(originalIndex)
+        SortField fieldMask,
+        Repository::MatchCriteriaSortKey relevanceKey)
+        : OriginalIndex(originalIndex), RelevanceKey(relevanceKey)
     {
         if (WI_IsFlagSet(fieldMask, SortField::Name))
         {
-            FoldedName = Utility::FoldCase(name);
+            Name = Utility::ConvertToUTF16(name);
         }
         if (WI_IsFlagSet(fieldMask, SortField::Id))
         {
@@ -53,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
         return mask;
     }
 
-    SortParameters::SortParameters(const Execution::Context& context)
+    SortParameters::SortParameters(const Execution::Context& context, DefaultOrder defaultOrder)
     {
         if (context.Args.Contains(Execution::Args::Type::Sort))
         {
@@ -73,25 +74,16 @@ namespace AppInstaller::CLI::Workflow
 
             if (Fields.empty())
             {
-                bool hasQuery = context.Args.Contains(Execution::Args::Type::Query) ||
-                    context.Args.Contains(Execution::Args::Type::MultiQuery);
-
-                if (hasQuery)
+                if (defaultOrder == DefaultOrder::NameWithoutQuery &&
+                    !context.Args.Contains(Execution::Args::Type::Query) && !context.Args.Contains(Execution::Args::Type::MultiQuery))
                 {
-                    // Preserve relevance ordering when a free-text query is present
-                    // and no explicit sort preference is configured.
-                    return; // ShouldSort remains false
+                    Fields = { SortField::Name };
                 }
-
-                // No settings, no query — default to name sort.
-                Fields.emplace_back(SortField::Name);
+                else
+                {
+                    Fields = { SortField::Relevance, SortField::Name };
+                }
             }
-        }
-
-        // Relevance-only means preserve source ordering.
-        if (Fields.size() == 1 && Fields[0] == SortField::Relevance)
-        {
-            return; // ShouldSort remains false
         }
 
         // Resolve direction: CLI flags override settings
@@ -99,7 +91,7 @@ namespace AppInstaller::CLI::Workflow
             context.Args.Contains(Execution::Args::Type::SortAscending) ? SortDirection::Ascending :
             User().Get<Setting::OutputSortDirection>();
 
-        ShouldSort = true;
+        ShouldSort = !Fields.empty();
     }
 
     int CompareByField(const SortablePackageEntry& a, const SortablePackageEntry& b, SortField field)
@@ -107,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
         switch (field)
         {
         case SortField::Name:
-            return a.FoldedName.compare(b.FoldedName);
+            return Utility::CompareNatural(a.Name, b.Name);
         case SortField::Id:
             return a.FoldedId.compare(b.FoldedId);
         case SortField::Version:
@@ -138,7 +130,8 @@ namespace AppInstaller::CLI::Workflow
             return 0;
         }
         case SortField::Relevance:
-            // Relevance has no precomputed sort key — preserve original ordering.
+            if (a.RelevanceKey < b.RelevanceKey) return -1;
+            if (b.RelevanceKey < a.RelevanceKey) return 1;
             return 0;
         default:
             WI_ASSERT(false);

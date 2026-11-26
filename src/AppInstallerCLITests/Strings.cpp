@@ -136,6 +136,20 @@ TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
     REQUIRE(!CaseInsensitiveStartsWith(" starts", "starts"));
 }
 
+TEST_CASE("CompareNatural", "[strings][listsort]")
+{
+    REQUIRE(CompareNatural(L"App 9.9", L"APP 9.10") < 0);
+    REQUIRE(CompareNatural(L"App 10", L"app 9") > 0);
+    REQUIRE(CompareNatural(L"App 10", L"APP 10") == 0);
+    REQUIRE(CompareNatural(L"\u00c4pp 9", L"\u00e4PP 9") == 0);
+    REQUIRE(CompareNatural(L"Stra\u00dfe 10", L"STRASSE 10") == 0);
+    REQUIRE(CompareNatural(L"co-op", L"coop") < 0);
+    REQUIRE(CompareNatural({}, {}) == 0);
+    REQUIRE(CompareNatural({}, L"App") < 0);
+    REQUIRE(CompareNatural(L"App", {}) > 0);
+    REQUIRE(CompareNatural(L"App 9suffix"sv.substr(0, 5), L"APP 9") == 0);
+}
+
 TEST_CASE("ICUCaseInsensitiveStartsWith", "[strings]")
 {
     REQUIRE(ICUCaseInsensitiveStartsWith("startswith", "starts"));

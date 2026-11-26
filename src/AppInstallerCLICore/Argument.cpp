@@ -191,6 +191,8 @@ namespace AppInstaller::CLI
             return { type, "upgrade-available"_liv};
         case Execution::Args::Type::ListDetails:
             return { type, "details"_liv };
+
+        // Package table sorting
         case Execution::Args::Type::Sort:
             return { type, "sort"_liv };
         case Execution::Args::Type::SortAscending:
@@ -416,6 +418,13 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
         case Args::Type::ListVersions:
             return Argument{ type, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::Sort:
+            return Argument{ type, Resource::String::SortArgumentDescription, ArgumentType::Standard }
+                .SetCountLimit(AppInstaller::GetExponentialEnumValuesCount(Settings::SortField::None));
+        case Args::Type::SortAscending:
+            return Argument{ type, Resource::String::SortAscendingArgumentDescription, ArgumentType::Flag };
+        case Args::Type::SortDescending:
+            return Argument{ type, Resource::String::SortDescendingArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ type, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::SkipDependencies:

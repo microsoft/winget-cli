@@ -29,6 +29,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::AuthenticationAccount),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::ListVersions),
+            Argument::ForType(Execution::Args::Type::Sort),
+            Argument::ForType(Execution::Args::Type::SortAscending),
+            Argument::ForType(Execution::Args::Type::SortDescending),
         };
     }
 

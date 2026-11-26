@@ -361,7 +361,7 @@
       "type": "object",
       "properties": {
         "sortOrder": {
-          "description": "Fields to sort output by, in priority order. An empty array results in default sorting.",
+          "description": "Fields to sort CLI package tables by, in priority order. An empty array uses default sorting.",
           "type": "array",
           "items": {
             "type": "string",

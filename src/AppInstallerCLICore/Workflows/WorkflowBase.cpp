@@ -48,63 +48,64 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        Execution::TableOutputBase GetMultiplePackageFoundResultTable(Execution::Context& context)
+        struct PackageMatchTable
         {
-            auto& searchResult = context.Get<Execution::Data::SearchResult>();
+            Execution::TableOutputBase Table;
+            std::vector<size_t> MatchIndices;
+        };
 
-            Execution::TableOutput<2> table(context.Reporter,
-                {
-                    Resource::String::SearchName,
-                    Resource::String::SearchId
-                });
-
-            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        PackageMatchTable GetMultiplePackageFoundResultTable(Execution::Context& context, bool showSource)
+        {
+            const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
+            const SortParameters params(context);
+            const SortField mask = ComputeSortFieldMask(params.Fields);
+            std::vector<Resource::LocString> header{ Resource::String::SearchName, Resource::String::SearchId };
+            if (showSource)
             {
-                auto package = searchResult.Matches[i].Package;
-
-                table.OutputLine({
-                    package->GetProperty(PackageProperty::Name),
-                    package->GetProperty(PackageProperty::Id)
-                    });
+                header.emplace_back(Resource::String::SearchSource);
             }
+            PackageMatchTable result{ Execution::TableOutputBase{ context.Reporter, std::move(header) }, {} };
+            std::vector<std::vector<std::string>> lines;
+            std::vector<SortablePackageEntry> entries;
+            lines.reserve(matches.size());
+            entries.reserve(matches.size());
 
-            return table;
-        }
-
-        Execution::TableOutputBase GetMultiplePackageFoundResultTableWithSource(Execution::Context& context)
-        {
-            auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-            Execution::TableOutput<3> table(context.Reporter,
-                {
-                    Resource::String::SearchName,
-                    Resource::String::SearchId,
-                    Resource::String::SearchSource
-                });
-
-            for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+            for (size_t i = 0; i < matches.size(); ++i)
             {
-                auto package = searchResult.Matches[i].Package;
-
+                const auto& match = matches[i];
+                auto name = match.Package->GetProperty(PackageProperty::Name);
+                auto id = match.Package->GetProperty(PackageProperty::Id);
                 std::string sourceName;
-                auto available = package->GetAvailable();
-                if (!available.empty())
+                if (showSource)
                 {
-                    auto source = available[0]->GetSource();
-                    if (source)
+                    auto available = match.Package->GetAvailable();
+                    if (!available.empty())
                     {
-                        sourceName = source.GetDetails().Name;
+                        auto source = available[0]->GetSource();
+                        if (source)
+                        {
+                            sourceName = source.GetDetails().Name;
+                        }
                     }
                 }
 
-                table.OutputLine({
-                    package->GetProperty(PackageProperty::Name),
-                    package->GetProperty(PackageProperty::Id),
-                    std::move(sourceName)
-                    });
+                entries.emplace_back(i, name.get(), id.get(), "", "", sourceName, mask, GetMatchCriteriaSortKey(match.MatchCriteria));
+                std::vector<std::string> line{ std::move(name).get(), std::move(id).get() };
+                if (showSource)
+                {
+                    line.emplace_back(std::move(sourceName));
+                }
+                lines.emplace_back(std::move(line));
             }
 
-            return table;
+            SortEntries(entries, params);
+            result.MatchIndices.reserve(entries.size());
+            for (const auto& entry : entries)
+            {
+                result.Table.OutputLine(std::move(lines[entry.OriginalIndex]));
+                result.MatchIndices.emplace_back(entry.OriginalIndex);
+            }
+            return result;
         }
 
         void ReportIdentity(
@@ -382,8 +383,10 @@ namespace AppInstaller::CLI::Workflow
                 std::shared_ptr<ICompositePackage> package,
                 std::shared_ptr<IPackageVersion> installedVersion,
                 const Utility::LocIndString& availableVersion,
-                const Utility::LocIndString& source)
-                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source)
+                const Utility::LocIndString& source,
+                const PackageMatchFilter& matchCriteria)
+                : Package(std::move(package)), InstalledPackageVersion(std::move(installedVersion)), AvailableVersion(availableVersion), Source(source),
+                RelevanceKey(GetMatchCriteriaSortKey(matchCriteria))
             {
                 Name = InstalledPackageVersion->GetProperty(PackageVersionProperty::Name);
                 Id = Package->GetProperty(PackageProperty::Id);
@@ -398,6 +401,7 @@ namespace AppInstaller::CLI::Workflow
             Utility::LocIndString InstalledVersion;
             Utility::LocIndString AvailableVersion;
             Utility::LocIndString Source;
+            MatchCriteriaSortKey RelevanceKey;
         };
 
         void OutputInstalledPackagesTable(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
@@ -520,8 +524,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Sorts a vector of InstalledPackagesTableLine according to the user's sort preferences.
-        // Resolution order: CLI args (--sort) > settings (output.sortOrder) > query-aware default.
         void SortInstalledPackagesTableLines(Execution::Context& context, std::vector<InstalledPackagesTableLine>& lines)
         {
             if (lines.size() <= 1)
@@ -529,15 +531,7 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            const SortParameters params(context);
-
-            // Not strictly required — SortBy handles this internally — but avoids
-            // constructing the SortablePackageEntry vector when no sorting is needed.
-            if (!params.ShouldSort)
-            {
-                return;
-            }
-
+            const SortParameters params(context, SortParameters::DefaultOrder::NameWithoutQuery);
             const SortField mask = ComputeSortFieldMask(params.Fields);
             SortBy(lines,
                 [mask](const InstalledPackagesTableLine& line, size_t index) {
@@ -548,7 +542,8 @@ namespace AppInstaller::CLI::Workflow
                         line.InstalledVersion.get(),
                         line.AvailableVersion.get(),
                         line.Source.get(),
-                        mask);
+                        mask,
+                        line.RelevanceKey);
                 },
                 params);
         }
@@ -1033,7 +1028,32 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
+        struct SearchResultLine
+        {
+            const ResultMatch* Match;
+            std::shared_ptr<IPackageVersion> Version;
+        };
+        std::vector<SearchResultLine> lines;
+        lines.reserve(searchResult.Matches.size());
+        for (const auto& match : searchResult.Matches)
+        {
+            lines.push_back({ &match, GetAllAvailableVersions(match.Package)->GetLatestVersion() });
+        }
+
         bool sourceIsComposite = context.Get<Execution::Data::Source>().IsComposite();
+        const SortParameters params(context);
+        const SortField mask = ComputeSortFieldMask(params.Fields);
+        SortBy(lines,
+            [mask, sourceIsComposite](const SearchResultLine& line, size_t index)
+            {
+                return SortablePackageEntry(index,
+                    line.Version->GetProperty(PackageVersionProperty::Name).get(),
+                    line.Version->GetProperty(PackageVersionProperty::Id).get(),
+                    line.Version->GetProperty(PackageVersionProperty::Version).get(),
+                    "", sourceIsComposite ? line.Version->GetProperty(PackageVersionProperty::SourceName).get() : "",
+                    mask, GetMatchCriteriaSortKey(line.Match->MatchCriteria));
+            }, params);
+
         Execution::TableOutput<5> table(context.Reporter,
             {
                 Resource::String::SearchName,
@@ -1043,16 +1063,14 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::SearchSource
             });
 
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        for (const auto& line : lines)
         {
-            auto latestVersion = GetAllAvailableVersions(searchResult.Matches[i].Package)->GetLatestVersion();
-
             table.OutputLine({
-                latestVersion->GetProperty(PackageVersionProperty::Name),
-                latestVersion->GetProperty(PackageVersionProperty::Id),
-                latestVersion->GetProperty(PackageVersionProperty::Version),
-                GetMatchCriteriaDescriptor(searchResult.Matches[i]),
-                sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
+                line.Version->GetProperty(PackageVersionProperty::Name),
+                line.Version->GetProperty(PackageVersionProperty::Id),
+                line.Version->GetProperty(PackageVersionProperty::Version),
+                GetMatchCriteriaDescriptor(*line.Match),
+                sourceIsComposite ? static_cast<std::string>(line.Version->GetProperty(PackageVersionProperty::SourceName)) : ""s
                 });
         }
 
@@ -1103,8 +1121,8 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         context.Reporter.Info() << std::endl << Resource::String::SearchFailureErrorListMatches << std::endl;
-                        auto table = GetMultiplePackageFoundResultTableWithSource(context);
-                        table.Complete();
+                        auto candidates = GetMultiplePackageFoundResultTable(context, true);
+                        candidates.Table.Complete();
                         if (searchResult.Truncated)
                         {
                             context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
@@ -1240,7 +1258,8 @@ namespace AppInstaller::CLI::Workflow
                          match.Package,
                          installedVersion,
                          availableVersion,
-                         shouldShowSource ? sourceName : Utility::LocIndString()
+                         shouldShowSource ? sourceName : Utility::LocIndString(),
+                         match.MatchCriteria
                     );
 
                     auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
@@ -1430,8 +1449,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                auto table = operationTargetsInstalled ? GetMultiplePackageFoundResultTable(context) :
-                    GetMultiplePackageFoundResultTableWithSource(context);
+                auto candidates = GetMultiplePackageFoundResultTable(context, !operationTargetsInstalled);
+                auto& table = candidates.Table;
                 bool selectionSupported = m_selectionBehavior == PackageSelectionBehavior::Prompt &&
                     Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::InteractivePackageSelection);
                 std::optional<size_t> selection;
@@ -1444,7 +1463,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (selection)
                 {
-                    selectedIndex = *selection;
+                    selectedIndex = candidates.MatchIndices.at(*selection);
                     auto package = searchResult.Matches[selectedIndex].Package;
                     context.Reporter.Info() << Resource::String::PackageSelectionSelected(package->GetProperty(PackageProperty::Name),
                         package->GetProperty(PackageProperty::Id)) << std::endl;

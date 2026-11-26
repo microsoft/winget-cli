@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 //
 // Integration tests for SortParameters(Context&) constructor.
-// These exercise the full resolution chain: CLI args → user settings → query-aware default.
+// Resolution: CLI args > user settings > optional Name override > relevance and name.
 // Pure sort algorithm tests live in PackageTableSortHelper.cpp.
 #include "pch.h"
 #include "TestCommon.h"
@@ -14,7 +14,7 @@ using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Settings;
 using namespace TestCommon;
 
-TEST_CASE("ListSort_SortParameters_NoArgs_NoQuery_DefaultsByName", "[listsort]")
+TEST_CASE("ListSort_SortParameters_NoArgs_DefaultsByRelevanceAndName", "[listsort]")
 {
     TestUserSettings testSettings;
 
@@ -24,12 +24,13 @@ TEST_CASE("ListSort_SortParameters_NoArgs_NoQuery_DefaultsByName", "[listsort]")
     SortParameters params(context);
 
     REQUIRE(params.ShouldSort);
-    REQUIRE(params.Fields.size() == 1);
-    REQUIRE(params.Fields[0] == SortField::Name);
+    REQUIRE(params.Fields.size() == 2);
+    REQUIRE(params.Fields[0] == SortField::Relevance);
+    REQUIRE(params.Fields[1] == SortField::Name);
     REQUIRE(params.Direction == SortDirection::Ascending);
 }
 
-TEST_CASE("ListSort_SortParameters_WithQuery_PreservesRelevance", "[listsort]")
+TEST_CASE("ListSort_SortParameters_WithQuery_DefaultsByRelevanceAndName", "[listsort]")
 {
     TestUserSettings testSettings;
 
@@ -39,11 +40,11 @@ TEST_CASE("ListSort_SortParameters_WithQuery_PreservesRelevance", "[listsort]")
 
     SortParameters params(context);
 
-    REQUIRE(params.Fields.empty());
-    REQUIRE_FALSE(params.ShouldSort);
+    REQUIRE(params.ShouldSort);
+    REQUIRE(params.Fields == (std::vector<SortField>{ SortField::Relevance, SortField::Name }));
 }
 
-TEST_CASE("ListSort_SortParameters_WithMultiQuery_PreservesRelevance", "[listsort]")
+TEST_CASE("ListSort_SortParameters_WithMultiQuery_DefaultsByRelevanceAndName", "[listsort]")
 {
     TestUserSettings testSettings;
 
@@ -54,8 +55,70 @@ TEST_CASE("ListSort_SortParameters_WithMultiQuery_PreservesRelevance", "[listsor
 
     SortParameters params(context);
 
-    REQUIRE(params.Fields.empty());
-    REQUIRE_FALSE(params.ShouldSort);
+    REQUIRE(params.ShouldSort);
+    REQUIRE(params.Fields == (std::vector<SortField>{ SortField::Relevance, SortField::Name }));
+}
+
+TEST_CASE("ListSort_SortParameters_EmptySettings_UsesDefaultAndDirection", "[listsort]")
+{
+    TestUserSettings settings;
+    settings.Set<Setting::OutputSortOrder>(std::vector<SortField>{});
+    settings.Set<Setting::OutputSortDirection>(SortDirection::Descending);
+    std::ostringstream output;
+    Context context{ output, std::cin };
+    context.Args.AddArg(Args::Type::Query, "Runtime"sv);
+
+    SortParameters params(context);
+
+    REQUIRE(params.ShouldSort);
+    REQUIRE(params.Fields == (std::vector<SortField>{ SortField::Relevance, SortField::Name }));
+    REQUIRE(params.Direction == SortDirection::Descending);
+}
+
+TEST_CASE("ListSort_SortParameters_NameWithoutQueryOverride", "[listsort]")
+{
+    enum class Input { None, Query, MultiQuery, NameFilter };
+    auto input = GENERATE(Input::None, Input::Query, Input::MultiQuery, Input::NameFilter);
+    TestUserSettings settings;
+    settings.Set<Setting::OutputSortDirection>(SortDirection::Descending);
+    std::ostringstream output;
+    Context context{ output, std::cin };
+    if (input != Input::None)
+    {
+        auto argument = input == Input::Query ? Args::Type::Query :
+            input == Input::MultiQuery ? Args::Type::MultiQuery : Args::Type::Name;
+        context.Args.AddArg(argument, "Runtime"sv);
+    }
+
+    std::vector<SortField> expected = input == Input::None || input == Input::NameFilter ?
+        std::vector{ SortField::Name } : std::vector{ SortField::Relevance, SortField::Name };
+    auto expectedDirection = SortDirection::Descending;
+    SECTION("Built-in order")
+    {
+    }
+    SECTION("Empty settings use the built-in order")
+    {
+        settings.Set<Setting::OutputSortOrder>(std::vector<SortField>{});
+    }
+    SECTION("Settings override the built-in order")
+    {
+        settings.Set<Setting::OutputSortOrder>(std::vector{ SortField::Version });
+        expected = { SortField::Version };
+    }
+    SECTION("Parameters override settings and the built-in order")
+    {
+        settings.Set<Setting::OutputSortOrder>(std::vector{ SortField::Version });
+        context.Args.AddArg(Args::Type::Sort, "id"sv);
+        context.Args.AddArg(Args::Type::SortAscending);
+        expected = { SortField::Id };
+        expectedDirection = SortDirection::Ascending;
+    }
+
+    SortParameters params(context, SortParameters::DefaultOrder::NameWithoutQuery);
+
+    REQUIRE(params.ShouldSort);
+    REQUIRE(params.Fields == expected);
+    REQUIRE(params.Direction == expectedDirection);
 }
 
 TEST_CASE("ListSort_SortParameters_ExplicitSort_OverridesDefault", "[listsort]")
@@ -109,7 +172,7 @@ TEST_CASE("ListSort_SortParameters_ExplicitSort_Descending", "[listsort]")
     REQUIRE(params.Direction == SortDirection::Descending);
 }
 
-TEST_CASE("ListSort_SortParameters_ExplicitRelevance_NoSort", "[listsort]")
+TEST_CASE("ListSort_SortParameters_ExplicitRelevance", "[listsort]")
 {
     TestUserSettings testSettings;
 
@@ -121,7 +184,7 @@ TEST_CASE("ListSort_SortParameters_ExplicitRelevance_NoSort", "[listsort]")
 
     REQUIRE(params.Fields.size() == 1);
     REQUIRE(params.Fields[0] == SortField::Relevance);
-    REQUIRE_FALSE(params.ShouldSort);
+    REQUIRE(params.ShouldSort);
 }
 
 TEST_CASE("ListSort_SortParameters_ExplicitSort_OverridesQuery", "[listsort]")
@@ -135,7 +198,6 @@ TEST_CASE("ListSort_SortParameters_ExplicitSort_OverridesQuery", "[listsort]")
 
     SortParameters params(context);
 
-    // Explicit --sort overrides query-based relevance preservation
     REQUIRE(params.ShouldSort);
     REQUIRE(params.Fields.size() == 1);
     REQUIRE(params.Fields[0] == SortField::Name);

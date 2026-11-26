@@ -80,7 +80,9 @@ To list available upgrades while silently skipping packages with unknown install
 
 ## Sorting output
 
-By default, results are sorted by name in ascending order. When a query argument is used (for example, `winget list foo`), results preserve relevance ordering from the package source. You can override either default through command-line arguments or user settings.
+Without a query argument, results default to sorting by name. With a query, results default to sorting by relevance, then by name within each relevance group. A field filter such as `--name` does not replace the name-only default. Relevance compares the match type first (for example, exact matches before substring matches), then the matched field (for example, ID before name).
+
+Names use case-insensitive Windows numeric sorting: otherwise matching names containing `3.1`, `9.0`, and `10.0` appear in that order. This does not normalize different publisher naming or define preview/release-channel precedence. Names that compare equal retain their incoming order unless another sort field breaks the tie.
 
 ### Sort via command-line arguments
 
@@ -88,9 +90,14 @@ Use `--sort` to sort by one or more fields. When multiple `--sort` options are s
 
 ```cmd
 winget list --sort name
+winget list --sort relevance --sort name
 winget list --sort source --sort name
 winget list --sort name --descending
 ```
+
+`--sort relevance` sorts only by match importance, retaining incoming order within each relevance group. `--sort relevance --sort name` adds natural name ordering within those groups. `--sort name` instead makes name the primary key, regardless of match importance. The selected direction applies to all sort keys; ascending puts the most relevant matches first.
+
+The `search` and `upgrade` commands accept the same sort arguments. They affect package-table presentation, not version ordering or upgrade execution order.
 
 ### Sort via user settings
 
@@ -104,7 +111,9 @@ You can set a default sort order in your [settings](https://aka.ms/winget-settin
 }
 ```
 
-An empty array (`[]`) results in default sorting (sorted by name when listing, relevance preserved when querying).
+An empty array (`[]`) uses the built-in defaults: `name` without a query; `relevance`, then `name` with a query. `output.sortDirection` selects `ascending` (the default) or `descending`.
+
+These settings also control search results, upgrade lists, and the candidate tables shown when a command finds multiple packages. Fields without a corresponding column in a table do not distinguish its rows. Sorting changes presentation only: it does not change repository/API result ordering, package selection eligibility, or upgrade execution order.
 
 ### Resolution order
 
@@ -112,7 +121,9 @@ When both settings and command-line arguments are present, the following priorit
 
 1. **`--sort` command-line argument** — takes highest priority, overrides settings.
 2. **`output.sortOrder` in settings** — used when no `--sort` argument is provided. If the user has configured a sort order in settings, it is applied even when a query is present.
-3. **Default** — sorted by name in ascending order. When a query is used, relevance ordering is preserved instead.
+3. **Built-in defaults** — natural name order without a query; relevance, then natural name order with a query.
+
+Sort direction is resolved separately: an explicit `--ascending` or `--descending` overrides `output.sortDirection`; otherwise the default is ascending. Result limits such as `--count` apply to the repository results before presentation sorting, not to the full installed-package set after sorting. Separate upgrade/pin tables are sorted independently.
 
 ## List with Update
 

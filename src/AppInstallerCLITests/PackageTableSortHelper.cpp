@@ -5,6 +5,7 @@
 #include "Workflows/PackageTableSortHelper.h"
 
 using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 
 namespace
@@ -13,11 +14,12 @@ namespace
     constexpr SortField AllFieldsMask =
         SortField::Name | SortField::Id |
         SortField::Version | SortField::Source |
-        SortField::Available;
+        SortField::Available | SortField::Relevance;
 
-    SortablePackageEntry MakeEntry(std::string name, std::string id, std::string version, std::string available = {}, std::string source = {})
+    SortablePackageEntry MakeEntry(std::string name, std::string id, std::string version, std::string available = {}, std::string source = {},
+        PackageMatchFilter matchCriteria = { PackageMatchField::Id, MatchType::Wildcard })
     {
-        return SortablePackageEntry{ 0, name, id, version, available, source, AllFieldsMask };
+        return SortablePackageEntry{ 0, name, id, version, available, source, AllFieldsMask, GetMatchCriteriaSortKey(matchCriteria) };
     }
 
     // Validates that all precomputed fields in actual match expected, entry by entry.
@@ -29,23 +31,21 @@ namespace
         for (size_t i = 0; i < actual.size(); ++i)
         {
             INFO("Entry index: " << i);
-            REQUIRE(actual[i].FoldedName == expected[i].FoldedName);
+            REQUIRE(actual[i].Name == expected[i].Name);
             REQUIRE(actual[i].FoldedId == expected[i].FoldedId);
             REQUIRE(actual[i].FoldedSource == expected[i].FoldedSource);
             REQUIRE(actual[i].ParsedInstalledVersion == expected[i].ParsedInstalledVersion);
             REQUIRE(actual[i].ParsedAvailableVersion == expected[i].ParsedAvailableVersion);
+            REQUIRE(actual[i].RelevanceKey == expected[i].RelevanceKey);
         }
     }
 
-    // Creates a SortParameters matching production constructor logic:
-    // ShouldSort is true only when fields contain non-relevance values.
     SortParameters MakeSortParams(std::vector<SortField> fields, SortDirection direction = SortDirection::Ascending)
     {
         SortParameters params;
         params.Fields = std::move(fields);
         params.Direction = direction;
-        params.ShouldSort = !params.Fields.empty() &&
-            !(params.Fields.size() == 1 && params.Fields[0] == SortField::Relevance);
+        params.ShouldSort = !params.Fields.empty();
         return params;
     }
 
@@ -88,6 +88,70 @@ TEST_CASE("ListSort_CompareByField_Id", "[listsort]")
         auto upper = MakeEntry("Name", "COM.ALPHA", "1.0");
         REQUIRE(CompareByField(a, upper, SortField::Id) == 0);
     }
+    SECTION("Numbers remain lexical")
+    {
+        auto two = MakeEntry("App 2", "com.app.2", "1.0");
+        auto ten = MakeEntry("App 10", "com.app.10", "1.0");
+        REQUIRE(CompareByField(two, ten, SortField::Id) > 0);
+        REQUIRE(CompareByField(two, ten, SortField::Name) < 0);
+    }
+}
+
+TEST_CASE("ListSort_CompareByField_Name_Natural", "[listsort]")
+{
+    auto compare = [](std::string a, std::string b)
+    {
+        return CompareByField(MakeEntry(a, "a", "1.0"), MakeEntry(b, "b", "1.0"), SortField::Name);
+    };
+
+    REQUIRE(compare("Microsoft .NET Runtime 3.1", "Microsoft .NET Runtime 9.0") < 0);
+    REQUIRE(compare("Microsoft .NET Runtime 9.0", "Microsoft .NET Runtime 10.0") < 0);
+    REQUIRE(compare("App 9.9", "App 9.10") < 0);
+    REQUIRE(compare("App 10.0", "App 10.0 Preview") < 0);
+    REQUIRE(compare("App 09", "App 9") < 0);
+    REQUIRE(compare("App 00", "App 0") < 0);
+    REQUIRE(compare("App 09b", "App 9a") < 0);
+    REQUIRE(compare("co-op", "coop") < 0);
+    REQUIRE(compare("", "App") < 0);
+    REQUIRE(compare("", "") == 0);
+    REQUIRE(compare("Stra\xC3\x9F" "e 10", "STRASSE 10") == 0);
+    REQUIRE(compare("\xC3\x84pp 9", "\xC3\xA4PP 9") == 0);
+}
+
+TEST_CASE("ListSort_SortEntries_RelevanceAndNaturalName", "[listsort]")
+{
+    auto direction = GENERATE(SortDirection::Ascending, SortDirection::Descending);
+    auto make = [](std::string name, std::string id, MatchType type, PackageMatchField field)
+    {
+        return MakeEntry(name, id, "1.0", "", "", PackageMatchFilter{ field, type });
+    };
+    auto weakId = make("A weak match", "weak", MatchType::Substring, PackageMatchField::Id);
+    auto exactName = make("A name match", "name", MatchType::Exact, PackageMatchField::Name);
+    auto ten = make("Runtime 10.0", "ten", MatchType::Exact, PackageMatchField::Id);
+    auto nine = make("Runtime 9.0", "nine", MatchType::Exact, PackageMatchField::Id);
+    auto tie = make("RUNTIME 9.0", "tie", MatchType::Exact, PackageMatchField::Id);
+    std::vector<SortablePackageEntry> entries{ weakId, exactName, ten, nine, tie };
+    std::vector<SortablePackageEntry> expected;
+
+    SECTION("Natural names within relevance buckets")
+    {
+        SortEntries(entries, MakeSortParams({ SortField::Relevance, SortField::Name }, direction));
+        expected = direction == SortDirection::Ascending ?
+            std::vector{ nine, tie, ten, exactName, weakId } : std::vector{ weakId, exactName, ten, nine, tie };
+    }
+    SECTION("Relevance alone preserves ties")
+    {
+        SortEntries(entries, MakeSortParams({ SortField::Relevance }, direction));
+        expected = direction == SortDirection::Ascending ?
+            std::vector{ ten, nine, tie, exactName, weakId } : std::vector{ weakId, exactName, ten, nine, tie };
+    }
+    SECTION("Explicit name sort replaces relevance")
+    {
+        SortEntries(entries, MakeSortParams({ SortField::Name }, direction));
+        expected = direction == SortDirection::Ascending ?
+            std::vector{ exactName, weakId, nine, tie, ten } : std::vector{ ten, nine, tie, weakId, exactName };
+    }
+    ValidateSortResult(entries, expected);
 }
 
 TEST_CASE("ListSort_CompareByField_Version", "[listsort]")
@@ -188,7 +252,6 @@ TEST_CASE("ListSort_SortEntries_ByName_CaseInsensitive", "[listsort]")
 
     SortEntries(entries, MakeSortParams({ SortField::Name }));
 
-    // Expected uses same casing as input — ValidateSortResult compares folded values
     std::vector<SortablePackageEntry> expected = {
         MakeEntry("ALPHA", "a", "1.0"),
         MakeEntry("Beta", "b", "1.0"),
@@ -271,7 +334,7 @@ TEST_CASE("ListSort_SortEntries_Available_GroupsByPresence", "[listsort]")
     ValidateSortResult(entries, expected);
 }
 
-TEST_CASE("ListSort_SortEntries_Relevance_NoOp", "[listsort]")
+TEST_CASE("ListSort_SortEntries_Relevance_StableTies", "[listsort]")
 {
     std::vector<SortablePackageEntry> entries = {
         MakeEntry("Charlie", "c", "1.0"),
@@ -279,7 +342,6 @@ TEST_CASE("ListSort_SortEntries_Relevance_NoOp", "[listsort]")
         MakeEntry("Beta", "b", "1.0"),
     };
 
-    // Relevance means preserve original order — exercises CompareByField(Relevance) returning 0.
     SortEntries(entries, MakeSortParams({ SortField::Relevance }));
 
     std::vector<SortablePackageEntry> expected = {
@@ -352,7 +414,8 @@ TEST_CASE("ListSort_SortBy_ReordersSourceItems", "[listsort]")
 
     SortBy(rows,
         [](const Row& r, size_t i) {
-            return SortablePackageEntry(i, r.name, r.id, r.ver, "", "", AllFieldsMask);
+            return SortablePackageEntry(i, r.name, r.id, r.ver, "", "", AllFieldsMask,
+                GetMatchCriteriaSortKey(PackageMatchFilter{ PackageMatchField::Id, MatchType::Wildcard }));
         },
         MakeSortParams({ SortField::Name }));
 
@@ -383,7 +446,8 @@ TEST_CASE("ListSort_SortBy_PreservesExtraFields", "[listsort]")
 
     SortBy(rows,
         [](const Row& r, size_t i) {
-            return SortablePackageEntry(i, r.name, "", "", "", "", AllFieldsMask);
+            return SortablePackageEntry(i, r.name, "", "", "", "", AllFieldsMask,
+                GetMatchCriteriaSortKey(PackageMatchFilter{ PackageMatchField::Id, MatchType::Wildcard }));
         },
         MakeSortParams({ SortField::Name }));
 
