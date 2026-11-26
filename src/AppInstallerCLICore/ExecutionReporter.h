@@ -91,10 +91,18 @@ namespace AppInstaller::CLI::Execution
         OutputStream Error() { return GetOutputStream(Level::Error); }
 
         // Get a stream for outputting completion words.
-        OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
+        OutputStream Completion()
+        {
+            ApplyOutputEncoding();
+            return OutputStream(*m_out, m_channel == Channel::Completion, false);
+        }
 
-        // Get a stream for outputting completion words.
-        OutputStream Json() { return OutputStream(*m_out, m_channel == Channel::Json, false); }
+        // Get a stream for outputting JSON.
+        OutputStream Json()
+        {
+            ApplyOutputEncoding();
+            return OutputStream(*m_out, m_channel == Channel::Json, false);
+        }
 
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
@@ -104,6 +112,10 @@ namespace AppInstaller::CLI::Execution
         // Sets the channel that will be reported to.
         // Only do this once and as soon as the channel is determined.
         void SetChannel(Channel channel);
+
+        // Sets the conversion that applies to the stream's human readable output, if any.
+        // Machine readable channels bypass the conversion so that they stay UTF-8.
+        void SetOutputEncoding(std::shared_ptr<RedirectedOutputEncoding> outputEncoding);
 
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
@@ -213,6 +225,10 @@ namespace AppInstaller::CLI::Execution
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
 
+        // Applies the current channel to the output encoding. Every writer sets the state that it
+        // needs instead of relying on the last channel that was selected on any reporter.
+        void ApplyOutputEncoding();
+
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
         // running: shows indefinite progress if set to true, stops indefinite progress if set to false
@@ -220,6 +236,7 @@ namespace AppInstaller::CLI::Execution
 
         Channel m_channel = Channel::Output;
         std::shared_ptr<BaseStream> m_out;
+        std::shared_ptr<RedirectedOutputEncoding> m_outputEncoding;
         std::istream& m_in;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
         std::unique_ptr<IIndefiniteSpinner> m_spinner;

@@ -6,6 +6,10 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
+    using System.IO;
+    using System.Security;
+    using System.Text;
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -20,6 +24,7 @@ namespace AppInstallerCLIE2ETests
         private static bool shouldRevertDefaultFileTypeRiskOnExit = true;
         private static bool shouldDoAnyTeardown = true;
         private static string defaultFileTypes = string.Empty;
+        private static Encoding defaultOutputEncoding;
 
         /// <summary>
         /// Set up.
@@ -27,6 +32,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
+            UseUtf8ConsoleEncoding();
+
             var testParams = TestSetup.Parameters;
 
             if (testParams.IsDefault)
@@ -69,6 +76,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void TearDown()
         {
+            RestoreConsoleEncoding();
+
             if (shouldDoAnyTeardown)
             {
                 if (shouldDisableDevModeOnExit)
@@ -87,6 +96,49 @@ namespace AppInstallerCLIE2ETests
                 {
                     TestCommon.RemoveMsix(Constants.AICLIPackageName);
                 }
+            }
+        }
+
+        // Pins the console output code page to UTF-8 while the tests run, so that winget sees a
+        // UTF-8 consumer and keeps writing UTF-8 to the pipes that these tests capture. Captured
+        // output is decoded with the same encoding, which keeps the tests independent of the code
+        // page that the machine uses.
+        private static void UseUtf8ConsoleEncoding()
+        {
+            try
+            {
+                defaultOutputEncoding = Console.OutputEncoding;
+                Console.OutputEncoding = Encoding.UTF8;
+            }
+            catch (IOException)
+            {
+                // There is no console to configure, so there is no code page for children to inherit.
+            }
+            catch (SecurityException)
+            {
+                // The console code page cannot be changed; the machine default is used instead.
+            }
+        }
+
+        // Restores the console output code page that the test host started with.
+        private static void RestoreConsoleEncoding()
+        {
+            if (defaultOutputEncoding == null)
+            {
+                return;
+            }
+
+            try
+            {
+                Console.OutputEncoding = defaultOutputEncoding;
+            }
+            catch (IOException)
+            {
+                // There is no console to configure.
+            }
+            catch (SecurityException)
+            {
+                // The console code page cannot be changed.
             }
         }
 

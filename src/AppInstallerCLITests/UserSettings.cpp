@@ -983,6 +983,64 @@ TEST_CASE("SettingOutputLocale", "[settings]")
     }
 }
 
+TEST_CASE("SettingOutputPipedEncoding", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Console);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Console")
+    {
+        std::string_view json = R"({ "output": { "pipedEncoding": "console" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Console);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Utf8")
+    {
+        std::string_view json = R"({ "output": { "pipedEncoding": "utf8" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Utf8);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Case insensitive")
+    {
+        std::string_view json = R"({ "output": { "pipedEncoding": "UTF8" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Utf8);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Unsupported value")
+    {
+        std::string_view json = R"({ "output": { "pipedEncoding": "utf-16" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Console);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Wrong type")
+    {
+        std::string_view json = R"({ "output": { "pipedEncoding": ["utf8"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::OutputPipedEncoding>() == PipedEncoding::Console);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("ConvertToSortField", "[settings]")
 {
     SECTION("Valid values - lowercase")

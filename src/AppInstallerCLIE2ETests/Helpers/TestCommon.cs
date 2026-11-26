@@ -114,6 +114,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <param name="environmentVariables">Environment variables to set.</param>
+        /// <param name="standardOutputEncoding">Optional encoding used to decode the standard output; UTF-8 when null.</param>
         /// <returns>The result of the command.</returns>
         public static RunCommandResult RunAICLICommand(
             string command,
@@ -121,7 +122,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             string stdIn = null,
             int timeOut = 60000,
             bool throwOnTimeout = true,
-            Dictionary<string, string> environmentVariables = null)
+            Dictionary<string, string> environmentVariables = null,
+            Encoding standardOutputEncoding = null)
         {
             string correlationParameter = " --correlation " + Guid.NewGuid().ToString();
 
@@ -134,7 +136,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             }
 
-            return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout, environmentVariables);
+            return RunAICLICommandViaDirectProcess(command, parameters + correlationParameter, stdIn, timeOut, throwOnTimeout, environmentVariables, standardOutputEncoding);
         }
 
         /// <summary>
@@ -1211,6 +1213,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <param name="environmentVariables">Environment variables to set.</param>
+        /// <param name="standardOutputEncoding">Optional encoding used to decode the standard output; UTF-8 when null.</param>
         /// <returns>The result of the command.</returns>
         public static RunCommandResult RunProcess(
             string executablePath,
@@ -1219,7 +1222,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             string stdIn,
             int timeOut,
             bool throwOnTimeout,
-            Dictionary<string, string> environmentVariables)
+            Dictionary<string, string> environmentVariables,
+            Encoding standardOutputEncoding = null)
         {
             string inputMsg =
                     "Exe path: " + executablePath +
@@ -1237,7 +1241,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             p.StartInfo = new ProcessStartInfo(executablePath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
 
-            p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+            p.StartInfo.StandardOutputEncoding = standardOutputEncoding ?? Encoding.UTF8;
             p.StartInfo.RedirectStandardOutput = true;
             StringBuilder outputData = new ();
             p.OutputDataReceived += (sender, args) =>
@@ -1321,6 +1325,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="timeOut">Optional timeout.</param>
         /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <param name="environmentVariables">Environment variables to set.</param>
+        /// <param name="standardOutputEncoding">Optional encoding used to decode the standard output; UTF-8 when null.</param>
         /// <returns>The result of the command.</returns>
         private static RunCommandResult RunAICLICommandViaDirectProcess(
             string command,
@@ -1328,9 +1333,10 @@ namespace AppInstallerCLIE2ETests.Helpers
             string stdIn,
             int timeOut,
             bool throwOnTimeout,
-            Dictionary<string, string> environmentVariables)
+            Dictionary<string, string> environmentVariables,
+            Encoding standardOutputEncoding)
         {
-            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout, environmentVariables);
+            return RunProcess(TestSetup.Parameters.AICLIPath, command, parameters, stdIn, timeOut, throwOnTimeout, environmentVariables, standardOutputEncoding);
         }
 
         /// <summary>

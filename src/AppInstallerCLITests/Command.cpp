@@ -884,3 +884,47 @@ TEST_CASE("EnsureOutputLocaleIsCommonArgument", "[command][output-locale]")
     REQUIRE(itr->Type() == ArgumentType::Standard);
 }
 
+TEST_CASE("ParseArguments_PipedEncoding", "[command][piped-encoding]")
+{
+    Args args;
+    TestCommand command({ Argument::ForType(Args::Type::OutputPipedEncoding) });
+
+    Invocation inv{ std::vector<std::string>{ "--piped-encoding=utf8" } };
+
+    command.ParseArguments(inv, args);
+
+    RequireValueParsedToArg("utf8", command.m_args[0], args);
+}
+
+TEST_CASE("ValidateArguments_PipedEncoding", "[command][piped-encoding]")
+{
+    TestCommand command({ Argument::ForType(Args::Type::OutputPipedEncoding) });
+
+    for (const auto& value : { "console"s, "utf8"s, "Console"s, "UTF8"s })
+    {
+        Args args;
+        args.AddArg(Args::Type::OutputPipedEncoding, value);
+        REQUIRE_NOTHROW(command.ValidateArguments(args));
+    }
+
+    auto expectedMessage = CLI::Resource::String::InvalidArgumentValueError(
+        Argument::ForType(Args::Type::OutputPipedEncoding).Name(),
+        "console, utf8"_liv);
+
+    Args args;
+    args.AddArg(Args::Type::OutputPipedEncoding, "utf-16"s);
+    REQUIRE_COMMAND_EXCEPTION(command.ValidateArguments(args), expectedMessage);
+}
+
+TEST_CASE("EnsurePipedEncodingIsCommonArgument", "[command][piped-encoding]")
+{
+    std::vector<Argument> commonArgs;
+    Argument::GetCommon(commonArgs);
+
+    auto itr = std::find_if(commonArgs.begin(), commonArgs.end(), [](const Argument& arg) { return arg.ExecArgType() == Args::Type::OutputPipedEncoding; });
+
+    REQUIRE(itr != commonArgs.end());
+    REQUIRE("piped-encoding" == itr->Name());
+    REQUIRE(itr->Type() == ArgumentType::Standard);
+}
+

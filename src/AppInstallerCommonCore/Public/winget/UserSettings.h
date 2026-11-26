@@ -73,6 +73,20 @@ namespace AppInstaller::Settings
         Descending,
     };
 
+    // How human readable output is encoded when it is redirected to a pipe.
+    enum class PipedEncoding
+    {
+        // Write in the code page that the consumer of the pipe uses, which is the console output
+        // code page for console hosts such as PowerShell.
+        Console,
+        // Write UTF-8 regardless of the consumer, for tooling that always reads UTF-8 from a pipe.
+        Utf8,
+    };
+
+    // Parses the value of the output.pipedEncoding setting, or of the --piped-encoding argument that
+    // overrides it.
+    std::optional<PipedEncoding> TryParsePipedEncoding(std::string_view value);
+
     // The download code to use for *installers*.
     enum class InstallerDownloader
     {
@@ -146,6 +160,7 @@ namespace AppInstaller::Settings
         OutputSortOrder,
         OutputSortDirection,
         OutputLocale,
+        OutputPipedEncoding,
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
@@ -246,6 +261,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortOrder, std::vector<std::string>, std::vector<SortField>, std::vector<SortField>{}, ".output.sortOrder"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::OutputSortDirection, std::string, SortDirection, SortDirection::Ascending, ".output.sortDirection"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::OutputLocale, std::string, std::string, std::string{}, ".output.locale"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::OutputPipedEncoding, std::string, PipedEncoding, PipedEncoding::Console, ".output.pipedEncoding"sv);
         
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
