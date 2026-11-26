@@ -235,6 +235,23 @@ namespace AppInstaller::Settings
         return std::nullopt;
     }
 
+    std::optional<PipedEncoding> TryParsePipedEncoding(std::string_view value)
+    {
+        static constexpr std::string_view s_pipedEncoding_console = "console";
+        static constexpr std::string_view s_pipedEncoding_utf8 = "utf8";
+
+        if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_console))
+        {
+            return PipedEncoding::Console;
+        }
+        else if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_utf8))
+        {
+            return PipedEncoding::Utf8;
+        }
+
+        return {};
+    }
+
     namespace details
     {
 #define WINGET_VALIDATE_SIGNATURE(_setting_) \
@@ -576,19 +593,7 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(OutputPipedEncoding)
         {
-            static constexpr std::string_view s_pipedEncoding_console = "console";
-            static constexpr std::string_view s_pipedEncoding_utf8 = "utf8";
-
-            if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_console))
-            {
-                return PipedEncoding::Console;
-            }
-            else if (Utility::CaseInsensitiveEquals(value, s_pipedEncoding_utf8))
-            {
-                return PipedEncoding::Utf8;
-            }
-
-            return {};
+            return TryParsePipedEncoding(value);
         }
     }
 

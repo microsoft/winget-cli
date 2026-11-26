@@ -541,6 +541,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionSelected);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageSelectionTitle);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
+        WINGET_DEFINE_RESOURCE_STRINGID(PipedEncodingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandShortDescription);

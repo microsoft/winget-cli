@@ -83,6 +83,10 @@ namespace AppInstaller::Settings
         Utf8,
     };
 
+    // Parses the value of the output.pipedEncoding setting, or of the --piped-encoding argument that
+    // overrides it.
+    std::optional<PipedEncoding> TryParsePipedEncoding(std::string_view value);
+
     // The download code to use for *installers*.
     enum class InstallerDownloader
     {

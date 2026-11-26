@@ -422,6 +422,9 @@ A console host decodes the output of a native command with the code page that wa
 
 Set the value to `utf8` to always write UTF-8, for example when the other end of the pipe is a script or tool that expects UTF-8. Machine-readable output (such as the JSON output of the DSC commands) and completion output are always written as UTF-8. Output that the operating system redirects to a file is not converted either.
 
+> [!NOTE]
+> The `--piped-encoding` argument overrides this setting for a single invocation and accepts the same values.
+
 ```json
     "output": {
         "pipedEncoding": "utf8"

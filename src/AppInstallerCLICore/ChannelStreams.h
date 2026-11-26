@@ -50,6 +50,10 @@ namespace AppInstaller::CLI::Execution
         // Sets whether output is forwarded unchanged instead of being converted.
         void SetBypass(bool bypass);
 
+        // Sets the code page that the output is converted to. Held output belongs to the code page
+        // that is being replaced, so it is written before the new code page is used.
+        void SetCodePage(UINT codePage);
+
         Utf8ToCodePageStreamBuf(const Utf8ToCodePageStreamBuf&) = delete;
         Utf8ToCodePageStreamBuf& operator=(const Utf8ToCodePageStreamBuf&) = delete;
 
@@ -110,12 +114,21 @@ namespace AppInstaller::CLI::Execution
         // Sets whether the output that follows is machine readable and must stay UTF-8.
         void SetMachineReadable(bool machineReadable);
 
+        // Sets the code page that decodes the output; CP_UTF8 forwards the output unchanged.
+        void SetConsumerCodePage(UINT consumerCodePage);
+
         // Whether output is currently converted to the consumer's code page.
         bool IsConverting() const;
 
     private:
+        // Applies the machine readable and code page choices to the conversion, if one is installed.
+        void UpdateBypass();
+
+        std::ostream* m_out = nullptr;
+        DWORD m_standardOutputStreamType = FILE_TYPE_UNKNOWN;
         std::unique_ptr<Utf8ToCodePageStreamBuf> m_conversion;
         bool m_machineReadable = false;
+        bool m_convert = false;
     };
 
     // The base stream for all channels.

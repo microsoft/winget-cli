@@ -796,6 +796,16 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::OutputPipedEncoding))
+        {
+            if (!Settings::TryParsePipedEncoding(execArgs.GetArg(Execution::Args::Type::OutputPipedEncoding)))
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueError(
+                    Argument::ForType(Execution::Args::Type::OutputPipedEncoding).Name(),
+                    "console, utf8"_liv));
+            }
+        }
+
         if (execArgs.Contains(Execution::Args::Type::InstallScope))
         {
             if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)

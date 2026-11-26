@@ -178,6 +178,7 @@ namespace AppInstaller::CLI::Execution
             Wait, // Prompts the user to press any key before exiting
             OpenLogs, // Opens the default logs directory after executing the command
             OutputLocale, // Overrides the language used for winget's own output strings
+            OutputPipedEncoding, // Overrides how human readable output is encoded when it is redirected to a pipe
             Force, // Forces the execution of the workflow with non security related issues
             OutputFile,
             Correlation,

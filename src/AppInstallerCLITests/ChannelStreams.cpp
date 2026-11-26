@@ -125,6 +125,26 @@ TEST_CASE("Utf8ToCodePageStreamBuf_HoldsSplitThreeByteSequence", "[ChannelStream
     }
 }
 
+TEST_CASE("RedirectedOutputEncoding_SwitchesCodePage", "[ChannelStreams]")
+{
+    std::ostringstream output;
+    {
+        RedirectedOutputEncoding encoding{ output, FILE_TYPE_PIPE, 866 };
+        output << s_utf8Name;
+        REQUIRE(output.str() == s_cp866Name);
+
+        // A single invocation can pick the code page that the output is written in.
+        encoding.SetConsumerCodePage(1251);
+        output << s_utf8Name;
+        REQUIRE(output.str() == std::string{ s_cp866Name } + "\xC8\xEC\xFF");
+
+        // UTF-8 leaves the output as it is written.
+        encoding.SetConsumerCodePage(CP_UTF8);
+        output << s_utf8Name;
+        REQUIRE(output.str() == std::string{ s_cp866Name } + "\xC8\xEC\xFF" + s_utf8Name);
+    }
+}
+
 TEST_CASE("Utf8ToCodePageStreamBuf_RestoresOriginalBuffer", "[ChannelStreams]")
 {
     std::ostringstream output;

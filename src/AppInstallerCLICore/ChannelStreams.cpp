@@ -267,6 +267,18 @@ namespace AppInstaller::CLI::Execution
         m_bypass = bypass;
     }
 
+    void Utf8ToCodePageStreamBuf::SetCodePage(UINT codePage)
+    {
+        if (m_codePage == codePage)
+        {
+            return;
+        }
+
+        // The held output belongs to the code page that is being replaced.
+        FlushAll();
+        m_codePage = codePage;
+    }
+
     std::streambuf::int_type Utf8ToCodePageStreamBuf::overflow(int_type value)
     {
         if (!traits_type::eq_int_type(value, traits_type::eof()))
@@ -479,12 +491,10 @@ namespace AppInstaller::CLI::Execution
         return Write(m_bytes.data(), m_bytes.size());
     }
 
-    RedirectedOutputEncoding::RedirectedOutputEncoding(std::ostream& out, DWORD standardOutputStreamType, UINT consumerCodePage)
+    RedirectedOutputEncoding::RedirectedOutputEncoding(std::ostream& out, DWORD standardOutputStreamType, UINT consumerCodePage) :
+        m_out(&out), m_standardOutputStreamType(standardOutputStreamType)
     {
-        if (ShouldTranscodeRedirectedOutput(standardOutputStreamType, consumerCodePage))
-        {
-            m_conversion = std::make_unique<Utf8ToCodePageStreamBuf>(out, consumerCodePage);
-        }
+        SetConsumerCodePage(consumerCodePage);
     }
 
     RedirectedOutputEncoding::~RedirectedOutputEncoding() = default;
@@ -492,15 +502,35 @@ namespace AppInstaller::CLI::Execution
     void RedirectedOutputEncoding::SetMachineReadable(bool machineReadable)
     {
         m_machineReadable = machineReadable;
+        UpdateBypass();
+    }
 
-        if (m_conversion)
+    void RedirectedOutputEncoding::SetConsumerCodePage(UINT consumerCodePage)
+    {
+        m_convert = ShouldTranscodeRedirectedOutput(m_standardOutputStreamType, consumerCodePage);
+
+        if (m_convert && !m_conversion)
         {
-            m_conversion->SetBypass(machineReadable);
+            m_conversion = std::make_unique<Utf8ToCodePageStreamBuf>(*m_out, consumerCodePage);
         }
+        else if (m_conversion)
+        {
+            m_conversion->SetCodePage(consumerCodePage);
+        }
+
+        UpdateBypass();
     }
 
     bool RedirectedOutputEncoding::IsConverting() const
     {
-        return m_conversion != nullptr && !m_machineReadable;
+        return m_conversion != nullptr && m_convert && !m_machineReadable;
+    }
+
+    void RedirectedOutputEncoding::UpdateBypass()
+    {
+        if (m_conversion)
+        {
+            m_conversion->SetBypass(m_machineReadable || !m_convert);
+        }
     }
 }

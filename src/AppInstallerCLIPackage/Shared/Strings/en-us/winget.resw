@@ -883,6 +883,10 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
     <value>File where the result is to be written</value>
   </data>
+  <data name="PipedEncodingArgumentDescription" xml:space="preserve">
+    <value>Encoding to use when human-readable output is redirected to a pipe: console or utf8</value>
+    <comment>{Locked="console"}{Locked="utf8"} Description for the --piped-encoding argument. "console" writes human-readable output in the code page that the consumer of the pipe uses, and "utf8" always writes UTF-8.</comment>
+  </data>
   <data name="OutputLocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use for the output of this command (BCP47 format)</value>
     <comment>{Locked="BCP47"} Description for the --output-locale argument. This sets the locale used for WinGet's own output messages for a single invocation, and is separate from the --locale argument, which selects the package/manifest localization.</comment>
