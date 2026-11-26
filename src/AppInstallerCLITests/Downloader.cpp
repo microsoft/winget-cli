@@ -271,6 +271,21 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
     REQUIRE(motwContentStr.find("ZoneId=3") != std::string::npos);
 }
 
+TEST_CASE("ApplyAndRemoveMotw", "[Downloader]")
+{
+    TestCommon::TempFile tempFile("motw_test"s, ".test"s);
+    std::ofstream{ tempFile.GetPath() } << "test";
+
+    std::filesystem::path motwFile(tempFile);
+    motwFile += ":Zone.Identifier:$data";
+
+    ApplyMotwIfApplicable(tempFile, URLZONE_INTERNET);
+    REQUIRE(std::ifstream{ motwFile }.is_open());
+
+    RemoveMotwIfApplicable(tempFile);
+    REQUIRE_FALSE(std::ifstream{ motwFile }.is_open());
+}
+
 TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 {
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
