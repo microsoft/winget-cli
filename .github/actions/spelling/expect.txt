@@ -84,7 +84,6 @@ casemappings
 ccc
 cch
 centralus
-channelstreams
 certmgr
 certs
 cgi

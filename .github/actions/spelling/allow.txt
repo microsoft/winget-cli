@@ -36,7 +36,6 @@ cer
 certutil
 cfr
 cguid
-channelstreams
 checkbox
 cla
 CLASSNOTAVAILABLE

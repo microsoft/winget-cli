@@ -59,7 +59,7 @@ namespace
     };
 }
 
-TEST_CASE("ShouldTranscodeRedirectedOutput", "[channelstreams]")
+TEST_CASE("ShouldTranscodeRedirectedOutput", "[ChannelStreams]")
 {
     REQUIRE(ShouldTranscodeRedirectedOutput(FILE_TYPE_PIPE, 866));
     REQUIRE(ShouldTranscodeRedirectedOutput(FILE_TYPE_PIPE, 1251));
@@ -75,7 +75,7 @@ TEST_CASE("ShouldTranscodeRedirectedOutput", "[channelstreams]")
     REQUIRE_FALSE(ShouldTranscodeRedirectedOutput(FILE_TYPE_UNKNOWN, 866));
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_ConvertsOutput", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_ConvertsOutput", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -87,7 +87,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ConvertsOutput", "[channelstreams]")
     REQUIRE(output.str() == s_cp866Name);
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_HoldsIncompleteSequence", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_HoldsIncompleteSequence", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -104,7 +104,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_HoldsIncompleteSequence", "[channelstreams]")
     }
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_RestoresOriginalBuffer", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_RestoresOriginalBuffer", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -118,7 +118,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_RestoresOriginalBuffer", "[channelstreams]")
     REQUIRE(output.str() == std::string(s_cp866Name) + s_utf8Name);
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_ReplacesUnmappableCharacters", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_ReplacesUnmappableCharacters", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -131,7 +131,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReplacesUnmappableCharacters", "[channelstrea
     REQUIRE(output.str() == "?");
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_UsesCodePageBestFit", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_UsesCodePageBestFit", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -144,7 +144,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_UsesCodePageBestFit", "[channelstreams]")
     REQUIRE(output.str() == ":");
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_PassesAsciiThrough", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_PassesAsciiThrough", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -155,7 +155,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_PassesAsciiThrough", "[channelstreams]")
     REQUIRE(output.str() == "Name Id Version\n");
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_BypassesMachineReadableOutput", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_BypassesMachineReadableOutput", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -168,7 +168,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_BypassesMachineReadableOutput", "[channelstre
     REQUIRE(output.str() == s_utf8Name);
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_WritesHeldOutputWhenBypassed", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_WritesHeldOutputWhenBypassed", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -188,7 +188,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_WritesHeldOutputWhenBypassed", "[channelstrea
     }
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[ChannelStreams]")
 {
     // The target accepts three bytes in total and then refuses the rest.
     ShortWriteStreamBuf target{ 3 };
@@ -214,7 +214,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[channelstreams]")
     REQUIRE(output.bad());
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[ChannelStreams]")
 {
     // The target accepts two bytes in total and then refuses the rest.
     ShortWriteStreamBuf target{ 2 };
@@ -236,7 +236,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReportsBypassWriteFailure", "[channelstreams]
     REQUIRE(output.bad());
 }
 
-TEST_CASE("Utf8ToCodePageStreamBuf_DoesNotReplayPartiallyWrittenOutput", "[channelstreams]")
+TEST_CASE("Utf8ToCodePageStreamBuf_DoesNotReplayPartiallyWrittenOutput", "[ChannelStreams]")
 {
     // The target accepts two bytes, refuses the rest, and then accepts output again.
     ShortWriteStreamBuf target{ 2 };
@@ -258,7 +258,7 @@ TEST_CASE("Utf8ToCodePageStreamBuf_DoesNotReplayPartiallyWrittenOutput", "[chann
     REQUIRE(output.bad());
 }
 
-TEST_CASE("RedirectedOutputEncoding_SkipsFileRedirect", "[channelstreams]")
+TEST_CASE("RedirectedOutputEncoding_SkipsFileRedirect", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -271,7 +271,7 @@ TEST_CASE("RedirectedOutputEncoding_SkipsFileRedirect", "[channelstreams]")
     REQUIRE(output.str() == s_utf8Name);
 }
 
-TEST_CASE("RedirectedOutputEncoding_ConvertsPipeOutput", "[channelstreams]")
+TEST_CASE("RedirectedOutputEncoding_ConvertsPipeOutput", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -284,7 +284,7 @@ TEST_CASE("RedirectedOutputEncoding_ConvertsPipeOutput", "[channelstreams]")
     REQUIRE(output.str() == s_cp866Name);
 }
 
-TEST_CASE("RedirectedOutputEncoding_BypassesMachineReadableOutput", "[channelstreams]")
+TEST_CASE("RedirectedOutputEncoding_BypassesMachineReadableOutput", "[ChannelStreams]")
 {
     std::ostringstream output;
     {
@@ -303,7 +303,7 @@ TEST_CASE("RedirectedOutputEncoding_BypassesMachineReadableOutput", "[channelstr
     REQUIRE(output.str() == std::string{ s_utf8Name } + s_cp866Name);
 }
 
-TEST_CASE("Reporter_AppliesEncodingToOutputChannelOnly", "[channelstreams]")
+TEST_CASE("Reporter_AppliesEncodingToOutputChannelOnly", "[ChannelStreams]")
 {
     std::ostringstream output;
     std::istringstream input;
@@ -326,7 +326,7 @@ TEST_CASE("Reporter_AppliesEncodingToOutputChannelOnly", "[channelstreams]")
     REQUIRE(output.str() == std::string{ s_cp866Name } + s_utf8Name);
 }
 
-TEST_CASE("Reporter_ReappliesEncodingAfterMachineReadableChannel", "[channelstreams]")
+TEST_CASE("Reporter_ReappliesEncodingAfterMachineReadableChannel", "[ChannelStreams]")
 {
     std::ostringstream output;
     std::istringstream input;
