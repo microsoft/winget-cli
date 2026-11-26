@@ -116,6 +116,14 @@ namespace AppInstaller::Repository::Microsoft
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
+    using EnumMSIProductsFunc = std::function<UINT(LPCWSTR, LPCWSTR, DWORD, DWORD, LPWSTR, MSIINSTALLCONTEXT*, LPWSTR, LPDWORD)>;
+    static EnumMSIProductsFunc s_EnumMSIProducts_Override;
+
+    void SetEnumMSIProductsOverride(EnumMSIProductsFunc value)
+    {
+        s_EnumMSIProducts_Override = std::move(value);
+    }
+
     using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
     static GetARPKeyFunc s_GetARPKey_Override;
 
@@ -124,6 +132,61 @@ namespace AppInstaller::Repository::Microsoft
         s_GetARPKey_Override = value;
     }
 #endif
+
+    ARPHelper::MSIScopeMap ARPHelper::GetMSIScopes()
+    {
+        MSIScopeMap result;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        auto enumerate = s_EnumMSIProducts_Override ? s_EnumMSIProducts_Override : EnumMSIProductsFunc{ MsiEnumProductsExW };
+#else
+        auto enumerate = MsiEnumProductsExW;
+#endif
+        for (DWORD index = 0; ; ++index)
+        {
+            wchar_t productCode[39]{};
+            MSIINSTALLCONTEXT context = MSIINSTALLCONTEXT_NONE;
+            std::vector<wchar_t> sid(256);
+            UINT error;
+            do
+            {
+                DWORD sidSize = static_cast<DWORD>(sid.size());
+                // A null SID limits user registrations to the caller. Never enumerate
+                // S-1-1-0 (all users), even when the client happens to be elevated.
+                error = enumerate(nullptr, nullptr, MSIINSTALLCONTEXT_ALL, index, productCode, &context, sid.data(), &sidSize);
+                if (error == ERROR_MORE_DATA)
+                {
+                    sid.resize(static_cast<size_t>(sidSize) + 1);
+                }
+            } while (error == ERROR_MORE_DATA);
+
+            if (error == ERROR_NO_MORE_ITEMS)
+            {
+                return result;
+            }
+            if (error != ERROR_SUCCESS)
+            {
+                AICLI_LOG(Repo, Warning, << "MSI context enumeration failed: " << error << "; ignoring MSI inventory rather than guessing scope");
+                return {};
+            }
+
+            auto scope = Manifest::ScopeEnum::Unknown;
+            if (context == MSIINSTALLCONTEXT_MACHINE)
+            {
+                scope = Manifest::ScopeEnum::Machine;
+            }
+            else if (context == MSIINSTALLCONTEXT_USERMANAGED || context == MSIINSTALLCONTEXT_USERUNMANAGED)
+            {
+                scope = Manifest::ScopeEnum::User;
+            }
+
+            auto [entry, inserted] = result.emplace(Utility::ToLower(Utility::ConvertToUTF8(productCode)), scope);
+            if (!inserted && entry->second != scope)
+            {
+                entry->second = Manifest::ScopeEnum::Unknown;
+            }
+        }
+    }
+
 
     Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
@@ -368,9 +431,13 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
-    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope) const
+    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope, Manifest::ScopeEnum scopeFilter) const
     {
         auto upgradeCodes = GetUpgradeCodes();
+        if (!m_msiScopes)
+        {
+            m_msiScopes = GetMSIScopes();
+        }
 
         for (auto architecture : Utility::GetApplicableArchitectures())
         {
@@ -378,12 +445,12 @@ namespace AppInstaller::Repository::Microsoft
 
             if (arpRootKey)
             {
-                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture), upgradeCodes);
+                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture), upgradeCodes, &m_msiScopes.value(), scopeFilter);
             }
         }
     }
 
-    void ARPHelper::PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes) const
+    void ARPHelper::PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes, const MSIScopeMap* msiScopes, Manifest::ScopeEnum scopeFilter) const
     {
         AICLI_LOG(Repo, Verbose, << "Examining ARP entries for " << scope << " | " << architecture);
 
@@ -468,10 +535,21 @@ namespace AppInstaller::Repository::Microsoft
                 // Pick up WindowsInstaller to determine if this is an MSI install.
                 // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
                 auto installedType = Manifest::InstallerTypeEnum::Exe;
+                std::string installedScope{ scope };
 
                 if (GetBoolValue(arpKey, WindowsInstaller))
                 {
                     installedType = Manifest::InstallerTypeEnum::Msi;
+                    if (msiScopes)
+                    {
+                        auto context = msiScopes->find(Utility::ToLower(productCode));
+                        if (context == msiScopes->end() || context->second == Manifest::ScopeEnum::Unknown)
+                        {
+                            AICLI_LOG(Repo, Warning, << "Ignoring MSI with unavailable or ambiguous installation context: " << productCode);
+                            continue;
+                        }
+                        installedScope = Manifest::ScopeToString(context->second);
+                    }
 
                     // If this is an MSI, look up the UpgradeCode
                     auto upgradeCodeItr = upgradeCodes.find(productCode);
@@ -479,6 +557,11 @@ namespace AppInstaller::Repository::Microsoft
                     {
                         manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = upgradeCodeItr->second;
                     }
+                }
+
+                if (scopeFilter != Manifest::ScopeEnum::Unknown && installedScope != Manifest::ScopeToString(scopeFilter))
+                {
+                    continue;
                 }
 
                 // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
@@ -509,7 +592,7 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex::IdType manifestId = manifestIdOpt.value();
 
                 // Pass scope along to metadata.
-                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, scope);
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, installedScope);
 
                 // TODO: Pass along architecture, although there are cases where it is not clear what architecture the package
                 //       is from it's ARP location, despite it very clearly being a specific architecture. And note that user

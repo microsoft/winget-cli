@@ -9,6 +9,8 @@
 #include <wil/resource.h>
 
 #include <string>
+#include <map>
+#include <optional>
 #include <vector>
 
 namespace AppInstaller::Repository::Microsoft
@@ -16,6 +18,13 @@ namespace AppInstaller::Repository::Microsoft
     // A helper to find the various locations that contain ARP (Add/Remove Programs) entries.
     struct ARPHelper
     {
+        // Keys are case-folded MSI ProductCodes. Unknown means multiple scopes.
+        using MSIScopeMap = std::map<std::string, Manifest::ScopeEnum>;
+
+        // Enumerates only the calling user's MSI registrations and machine registrations.
+        // An enumeration failure returns an empty map rather than guessing scope.
+        static MSIScopeMap GetMSIScopes();
+
         // See https://docs.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key for details.
         const std::wstring SubKeyPath{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
 
@@ -88,14 +97,17 @@ namespace AppInstaller::Repository::Microsoft
 
         // Populates the index with the ARP entries from the given scope (machine/user).
         // Handles all of the architectures for the given scope.
-        void PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope) const;
+        void PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope, Manifest::ScopeEnum scopeFilter = Manifest::ScopeEnum::Unknown) const;
 
         // Populates the index with the ARP entries from the given key.
         // This entry point is primarily to allow unit tests to operate of arbitrary keys;
         // product code should use PopulateIndexFromARP.
-        void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes = {}) const;
+        void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes = {}, const MSIScopeMap* msiScopes = nullptr, Manifest::ScopeEnum scopeFilter = Manifest::ScopeEnum::Unknown) const;
 
         // Creates registry watchers for the given scope
         std::vector<wil::unique_registry_watcher> CreateRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind)> callback);
+
+    private:
+        mutable std::optional<MSIScopeMap> m_msiScopes;
     };
 }
