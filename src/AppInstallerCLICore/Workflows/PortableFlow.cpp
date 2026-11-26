@@ -205,6 +205,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Build a map of installed target path → SHA256 as file entries are created,
             // so nested installer files that need hardlinks can reuse the hash without re-reading from disk.
+            // Files inside subdirectories are moved with their directory, so their hash is computed when first needed.
             std::map<std::filesystem::path, std::string> fileHashes;
 
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
@@ -252,11 +253,15 @@ namespace AppInstaller::CLI::Workflow
 
                 // If alias differs from original filename, create hardlink
                 // Hardlink will be placed in the same directory as the original file to avoid pathing issues and same-volume restrictions
-                if (commandAlias != originalFilename)
+                // File names are case-insensitive, so an alias that differs only by case would replace the original file
+                if (!CaseInsensitiveEquals(commandAlias.native(), originalFilename.native()))
                 {
                     std::filesystem::path hardlinkPath = targetPath.parent_path() / commandAlias;
-                    auto it = fileHashes.find(std::filesystem::weakly_canonical(targetPath));
-                    THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, it == fileHashes.end(), "Hash not found for hardlink target: %ls", targetPath.c_str());
+                    auto [it, inserted] = fileHashes.try_emplace(std::filesystem::weakly_canonical(targetPath));
+                    if (inserted)
+                    {
+                        it->second = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(installerPath / relativeFilePath));
+                    }
                     entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetPath, it->second));
                 }
                 entries.emplace_back(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath));
@@ -295,7 +300,7 @@ namespace AppInstaller::CLI::Workflow
             entries.emplace_back(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, fileSha256));
 
             // If alias differs from original filename, create hardlink
-            if (commandAlias != originalFilename)
+            if (!CaseInsensitiveEquals(commandAlias.native(), originalFilename.native()))
             {
                 std::filesystem::path hardlinkPath = targetInstallDirectory / commandAlias;
                 entries.emplace_back(PortableFileEntry::CreateHardlinkEntry(hardlinkPath, targetFullPath, fileSha256));
