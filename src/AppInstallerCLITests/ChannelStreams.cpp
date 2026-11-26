@@ -30,6 +30,9 @@ namespace
         // resumed would.
         void Recover(size_t additional = 16) { m_limit = m_written.size() + additional; }
 
+        // Makes the target refuse to synchronize, as a pipe whose reader has gone away would.
+        void FailSync() { m_failSync = true; }
+
     protected:
         std::streamsize xsputn(const char* data, std::streamsize count) override
         {
@@ -53,8 +56,14 @@ namespace
             return xsputn(&byte, 1) == 1 ? traits_type::not_eof(value) : traits_type::eof();
         }
 
+        int sync() override
+        {
+            return m_failSync ? -1 : 0;
+        }
+
     private:
         size_t m_limit = 0;
+        bool m_failSync = false;
         std::string m_written;
     };
 }
@@ -252,6 +261,46 @@ TEST_CASE("Utf8ToCodePageStreamBuf_ReportsWriteFailure", "[ChannelStreams]")
     REQUIRE(target.Written() == std::string{ "N" } + std::string{ s_cp866Name }.substr(0, 2));
 
     // Restoring the original buffer does not hide the failure from the caller.
+    REQUIRE(output.bad());
+}
+
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsRefusedFinalWrite", "[ChannelStreams]")
+{
+    // The target refuses every byte.
+    ShortWriteStreamBuf target{ 0 };
+    std::ostream output{ &target };
+
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+
+        // A single byte of a two byte sequence is held until the rest of the sequence arrives, so
+        // the refusal can only happen when the held output is written while the buffer is restored.
+        output.write("\xD0", 1);
+        REQUIRE_FALSE(output.bad());
+    }
+
+    REQUIRE(target.Written().empty());
+
+    // Losing the held output is reported to the stream instead of leaving it good().
+    REQUIRE(output.bad());
+}
+
+TEST_CASE("Utf8ToCodePageStreamBuf_ReportsFailedFinalSync", "[ChannelStreams]")
+{
+    ShortWriteStreamBuf target{ 64 };
+    std::ostream output{ &target };
+
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+
+        output << "Name";
+        REQUIRE_FALSE(output.bad());
+
+        // A reader that went away is reported by the final synchronization.
+        target.FailSync();
+    }
+
+    REQUIRE(target.Written() == "Name");
     REQUIRE(output.bad());
 }
 

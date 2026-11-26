@@ -220,35 +220,44 @@ namespace AppInstaller::CLI::Execution
 
     void Utf8ToCodePageStreamBuf::Restore()
     {
-        if (m_target)
+        if (!m_target)
         {
-            FlushAll();
+            return;
+        }
 
-            if (m_out.rdbuf() == this)
+        // A refused final write or a failed final synchronization loses output, so both have to be
+        // reflected in the stream state that the caller sees after this buffer is gone.
+        const bool flushed = FlushAll();
+        const bool synced = m_target->pubsync() == 0;
+
+        if (m_out.rdbuf() == this)
+        {
+            // basic_ios::rdbuf(streambuf*) clears the stream state, which would hide a failed
+            // write from callers that check the stream after this buffer is gone.
+            std::ios_base::iostate state = m_out.rdstate();
+            const std::ios_base::iostate exceptions = m_out.exceptions();
+
+            if (!flushed || !synced)
             {
-                // basic_ios::rdbuf(streambuf*) clears the stream state, which would hide a failed
-                // write from callers that check the stream after this buffer is gone.
-                const std::ios_base::iostate state = m_out.rdstate();
-                const std::ios_base::iostate exceptions = m_out.exceptions();
-
-                // Restoring the buffer and the state must not throw from a destructor.
-                m_out.exceptions(std::ios_base::goodbit);
-                m_out.rdbuf(m_target);
-                m_out.clear(state);
-
-                try
-                {
-                    m_out.exceptions(exceptions);
-                }
-                catch (...)
-                {
-                    // The state already reports the failure that the exception would repeat.
-                }
+                state |= std::ios_base::badbit;
             }
 
-            m_target->pubsync();
-            m_target = nullptr;
+            // Restoring the buffer and the state must not throw from a destructor.
+            m_out.exceptions(std::ios_base::goodbit);
+            m_out.rdbuf(m_target);
+            m_out.clear(state);
+
+            try
+            {
+                m_out.exceptions(exceptions);
+            }
+            catch (...)
+            {
+                // The state already reports the failure that the exception would repeat.
+            }
         }
+
+        m_target = nullptr;
     }
 
     void Utf8ToCodePageStreamBuf::SetBypass(bool bypass)

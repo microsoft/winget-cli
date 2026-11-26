@@ -44,7 +44,8 @@ namespace AppInstaller::CLI::Execution
         ~Utf8ToCodePageStreamBuf() override;
 
         // Writes any held output and restores the stream's original buffer. The state that a
-        // failed write set on the stream is kept, so callers still see the failure.
+        // failed write set on the stream is kept, and a final write or synchronization that fails
+        // is added to it, so callers still see the failure.
         void Restore();
 
         // Sets whether output is forwarded unchanged instead of being converted.
