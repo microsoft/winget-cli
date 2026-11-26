@@ -32,6 +32,7 @@ APPEXECLINK
 appinstallertest
 applic
 appname
+appone
 appshutdown
 APPTERMINATION
 archs
@@ -361,6 +362,7 @@ mgmt
 microsoftentraid
 microsoftentraidforazureblobstorage
 midl
+migratepintable
 minidump
 MINORVERSION
 missingdependency
@@ -463,6 +465,7 @@ Pherson
 pid
 pidl
 pidlist
+pintable
 PKCS
 pkgmgr
 pkgs

@@ -137,7 +137,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         // Reset all filter values to unselected
         SQLite::Builder::StatementBuilder builder;
-        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(false);
+        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).AssignValue(false);
 
         builder.Execute(m_connection);
     }
@@ -155,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         //          )
         //      )
         StatementBuilder builder;
-        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(true).Where(s_SearchResultsTable_Package).In().BeginParenthetical().
+        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).AssignValue(true).Where(s_SearchResultsTable_Package).In().BeginParenthetical().
             Select(s_SearchResultsTable_SubSelect_PackageAlias).From().BeginParenthetical();
 
         // Add the field specific portion

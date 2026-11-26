@@ -169,12 +169,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         StatementBuilder builder;
         builder.Update(s_SetInfoTable_Table).Set().
-            Column(s_SetInfoTable_Column_Name).Equals(ConvertToUTF8(configurationSet.Name())).
-            Column(s_SetInfoTable_Column_Origin).Equals(ConvertToUTF8(configurationSet.Origin())).
-            Column(s_SetInfoTable_Column_Path).Equals(ConvertToUTF8(configurationSet.Path())).
-            Column(s_SetInfoTable_Column_SchemaVersion).Equals(ConvertToUTF8(schemaVersion)).
-            Column(s_SetInfoTable_Column_Metadata).Equals(serializer->SerializeMetadataWithEnvironment(configurationSet.Metadata(), configurationSet.Environment())).
-            Column(s_SetInfoTable_Column_Variables).Equals(serializer->SerializeValueSet(configurationSet.Variables())).
+            Column(s_SetInfoTable_Column_Name).AssignValue(ConvertToUTF8(configurationSet.Name())).
+            Column(s_SetInfoTable_Column_Origin).AssignValue(ConvertToUTF8(configurationSet.Origin())).
+            Column(s_SetInfoTable_Column_Path).AssignValue(ConvertToUTF8(configurationSet.Path())).
+            Column(s_SetInfoTable_Column_SchemaVersion).AssignValue(ConvertToUTF8(schemaVersion)).
+            Column(s_SetInfoTable_Column_Metadata).AssignValue(serializer->SerializeMetadataWithEnvironment(configurationSet.Metadata(), configurationSet.Environment())).
+            Column(s_SetInfoTable_Column_Variables).AssignValue(serializer->SerializeValueSet(configurationSet.Variables())).
         Where(RowIDName).Equals(target);
 
         builder.Execute(m_connection);
