@@ -54,6 +54,9 @@ namespace AppInstaller::Filesystem
     // Appends the .exe extension to the path if not present.
     void AppendExtension(std::filesystem::path& value, const std::string& extension);
 
+    // Determines whether two file names are equal, ignoring case the way the file system does.
+    bool FileNamesEqual(const std::filesystem::path& first, const std::filesystem::path& second);
+
     // Checks if the path is a symlink and exists.
     bool SymlinkExists(const std::filesystem::path& symlinkPath);
     bool CreateSymlink(const std::filesystem::path& path, const std::filesystem::path& target);

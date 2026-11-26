@@ -592,7 +592,7 @@ namespace AppInstaller::CLI::Portable
             {
                 // If alias differs from original filename, a hardlink exists in the install directory.
                 // Track it so uninstall removes it even when state is reconstructed from ARP values.
-                if (!targetFullPath.empty() && !Utility::CaseInsensitiveEquals(targetFullPath.filename().native(), symlinkFullPath.filename().native()))
+                if (!targetFullPath.empty() && !Filesystem::FileNamesEqual(targetFullPath.filename(), symlinkFullPath.filename()))
                 {
                     std::filesystem::path hardlinkPath = InstallLocation / symlinkFullPath.filename();
 

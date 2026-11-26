@@ -816,6 +816,18 @@ TEST_CASE("PortableInstallFlow_ArchiveCommandAlias", "[InstallFlow][workflow]")
     // Only the files in the install directory are under test, so skip creating the alias symlink.
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(true);
 
+    // Keep the alias paths out of the real links directory, since installing removes existing files there.
+    TempDirectory links("PortableArchiveCommandAliasLinks", true);
+    const auto originalLinks = AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::PortableLinksUserLocation);
+    auto restoreLinks = wil::scope_exit([&]()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksUserLocation, originalLinks);
+        });
+    AppInstaller::Filesystem::PathDetails linksDetails;
+    linksDetails.Path = links.GetPath();
+    linksDetails.Create = false;
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksUserLocation, linksDetails);
+
     TestCommon::TempDirectory targetDirectory("TestPortableInstallRoot", false);
     TestCommon::TempDirectory extractedDirectory("TestPortableExtractedRoot", true);
     const std::filesystem::path extractedFile = extractedDirectory.GetPath() / relativeFilePath;
