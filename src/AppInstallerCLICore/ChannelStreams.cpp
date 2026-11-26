@@ -449,15 +449,9 @@ namespace AppInstaller::CLI::Execution
             return Write(value.data(), value.size());
         }
 
-        DWORD flags = MB_ERR_INVALID_CHARS;
-        int wideLength = MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), nullptr, 0);
-
-        if (wideLength == 0)
-        {
-            // Let Windows substitute a replacement character for the invalid sequence.
-            flags = 0;
-            wideLength = MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), nullptr, 0);
-        }
+        // Windows substitutes a replacement character for a sequence that is not valid here, which
+        // only applies to output that was not valid UTF-8 to begin with.
+        const int wideLength = MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0);
 
         if (wideLength <= 0)
         {
@@ -465,7 +459,7 @@ namespace AppInstaller::CLI::Execution
         }
 
         m_wide.resize(static_cast<size_t>(wideLength));
-        if (MultiByteToWideChar(CP_UTF8, flags, value.data(), static_cast<int>(value.size()), m_wide.data(), wideLength) != wideLength)
+        if (MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), m_wide.data(), wideLength) != wideLength)
         {
             return false;
         }
