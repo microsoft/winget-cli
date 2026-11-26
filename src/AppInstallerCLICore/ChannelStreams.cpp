@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ChannelStreams.h"
+#include <icu.h>
 
 
 namespace AppInstaller::CLI::Execution
@@ -299,39 +300,20 @@ namespace AppInstaller::CLI::Execution
     // Gets the length of the buffer that ends on a complete UTF-8 sequence.
     static size_t GetCompleteUtf8Length(const std::string& value)
     {
-        size_t sequenceStart = value.size();
-        size_t continuationBytes = 0;
-
-        while (sequenceStart > 0 && continuationBytes < 3 &&
-            (static_cast<unsigned char>(value[sequenceStart - 1]) & 0xC0) == 0x80)
+        if (value.empty())
         {
-            --sequenceStart;
-            ++continuationBytes;
+            return 0;
         }
 
-        if (sequenceStart == 0)
-        {
-            // Braces the whole buffer; let the conversion handle it as invalid.
-            return value.size();
-        }
+        // U8_PREV reports the code point that ends the buffer, or a negative value when that
+        // sequence is ill-formed or is still missing bytes that have not been written yet. A
+        // sequence that is not complete starts at the index it leaves behind, so that much of the
+        // buffer is held until the rest of the sequence arrives.
+        int32_t index = wil::safe_cast<int32_t>(value.size());
+        UChar32 codePoint = 0;
+        U8_PREV(reinterpret_cast<const uint8_t*>(value.data()), 0, index, codePoint);
 
-        // The lead byte determines how many bytes the sequence needs.
-        const unsigned char leadByte = static_cast<unsigned char>(value[sequenceStart - 1]);
-        size_t expectedBytes = 1;
-        if ((leadByte & 0xE0) == 0xC0)
-        {
-            expectedBytes = 2;
-        }
-        else if ((leadByte & 0xF0) == 0xE0)
-        {
-            expectedBytes = 3;
-        }
-        else if ((leadByte & 0xF8) == 0xF0)
-        {
-            expectedBytes = 4;
-        }
-
-        return (value.size() - (sequenceStart - 1)) < expectedBytes ? sequenceStart - 1 : value.size();
+        return codePoint < 0 ? static_cast<size_t>(index) : value.size();
     }
 
     bool Utf8ToCodePageStreamBuf::Put(const char* data, size_t count)

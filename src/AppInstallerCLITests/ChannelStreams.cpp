@@ -104,6 +104,27 @@ TEST_CASE("Utf8ToCodePageStreamBuf_HoldsIncompleteSequence", "[ChannelStreams]")
     }
 }
 
+TEST_CASE("Utf8ToCodePageStreamBuf_HoldsSplitThreeByteSequence", "[ChannelStreams]")
+{
+    std::ostringstream output;
+    {
+        Utf8ToCodePageStreamBuf buffer(output, 866);
+
+        // The truncation marker, written one byte at a time.
+        output.write("\xE2", 1);
+        output.flush();
+        REQUIRE(output.str().empty());
+
+        output.write("\x80", 1);
+        output.flush();
+        REQUIRE(output.str().empty());
+
+        output.write("\xA6", 1);
+        output.flush();
+        REQUIRE(output.str() == ":");
+    }
+}
+
 TEST_CASE("Utf8ToCodePageStreamBuf_RestoresOriginalBuffer", "[ChannelStreams]")
 {
     std::ostringstream output;
