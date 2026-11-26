@@ -807,6 +807,73 @@ TEST_CASE("PortableInstallFlow_RejectsEscapingPathsAtPointOfUse", "[InstallFlow]
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
 }
 
+TEST_CASE("PortableInstallFlow_ArchiveCommandAlias", "[InstallFlow][workflow]")
+{
+    const std::string relativeFilePath = GENERATE("TestPortable.exe", "subdir\\TestPortable.exe");
+    const std::string commandAlias = GENERATE("TestAlias", "testPortable");
+    CAPTURE(relativeFilePath, commandAlias);
+    TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);
+    // Only the files in the install directory are under test, so skip creating the alias symlink.
+    TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(true);
+
+    // Keep the alias paths out of the real links directory, since installing removes existing files there.
+    TempDirectory links("PortableArchiveCommandAliasLinks", true);
+    const auto originalLinks = AppInstaller::Runtime::GetPathDetailsFor(AppInstaller::Runtime::PathName::PortableLinksUserLocation);
+    auto restoreLinks = wil::scope_exit([&]()
+        {
+            AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksUserLocation, originalLinks);
+        });
+    AppInstaller::Filesystem::PathDetails linksDetails;
+    linksDetails.Path = links.GetPath();
+    linksDetails.Create = false;
+    AppInstaller::Runtime::TestHook_SetPathOverride(AppInstaller::Runtime::PathName::PortableLinksUserLocation, linksDetails);
+
+    TestCommon::TempDirectory targetDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempDirectory extractedDirectory("TestPortableExtractedRoot", true);
+    const std::filesystem::path extractedFile = extractedDirectory.GetPath() / relativeFilePath;
+    std::filesystem::create_directories(extractedFile.parent_path());
+    std::filesystem::copy_file(TestDataFile("AppInstallerTestExeInstaller.exe").GetPath(), extractedFile);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    ManifestInstaller installer;
+    installer.BaseInstallerType = InstallerTypeEnum::Zip;
+    installer.NestedInstallerFiles = { { relativeFilePath, commandAlias } };
+
+    const std::string productCode = "PortableArchiveCommandAliasTest";
+    AppInstaller::Registry::Portable::PortableARPEntry arpEntry(ScopeEnum::User, Architecture::X64, productCode);
+    auto cleanup = wil::scope_exit([&]() { arpEntry.Delete(); });
+    AppInstaller::CLI::Portable::PortableInstaller portableInstaller{
+        ScopeEnum::User, Architecture::X64, productCode, OperationType::Install };
+    portableInstaller.TargetInstallLocation = targetDirectory.GetPath();
+
+    context.Add<Execution::Data::Installer>(installer);
+    context.Add<Execution::Data::InstallerPath>(extractedDirectory.GetPath());
+    context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
+
+    PortableInstallImpl(context);
+    INFO(installOutput.str());
+
+    // A failed install has already been rolled back.
+    REQUIRE_FALSE(context.IsTerminated());
+
+    // Use CHECK to allow the uninstall to still occur
+    const std::filesystem::path installedFile = targetDirectory.GetPath() / relativeFilePath;
+    CHECK(std::filesystem::exists(installedFile));
+
+    // An alias that differs only by case refers to the original file, so no hardlink is created for it.
+    if (commandAlias == "TestAlias")
+    {
+        CHECK(std::filesystem::exists(installedFile.parent_path() / "TestAlias.exe"));
+    }
+
+    auto& installedPortable = context.Get<Execution::Data::PortableInstaller>();
+    installedPortable.PrepareForCleanUp();
+    installedPortable.Uninstall();
+}
+
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
     TestHook::SetIsRunningWithNonDefaultFullToken_Override tokenOverride(false);

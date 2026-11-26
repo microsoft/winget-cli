@@ -569,6 +569,11 @@ namespace AppInstaller::Filesystem
         }
     }
 
+    bool FileNamesEqual(const std::filesystem::path& first, const std::filesystem::path& second)
+    {
+        return CompareStringOrdinal(first.c_str(), -1, second.c_str(), -1, TRUE) == CSTR_EQUAL;
+    }
+
     bool SymlinkExists(const std::filesystem::path& symlinkPath)
     {
         return std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath));

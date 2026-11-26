@@ -198,6 +198,14 @@ TEST_CASE("ReplaceCommonPathPrefix", "[filesystem]")
     REQUIRE(shouldNotReplace.u8string() == "C:\\test1\\test3\\subdir1\\subdir2");
 }
 
+TEST_CASE("FileNamesEqual", "[filesystem]")
+{
+    REQUIRE(FileNamesEqual(L"Tool.exe", L"tool.exe"));
+    REQUIRE(FileNamesEqual(L"\u00DC.exe", L"\u00FC.exe"));
+    REQUIRE_FALSE(FileNamesEqual(L"tool.exe", L"tools.exe"));
+    REQUIRE_FALSE(FileNamesEqual(L"\u00DC.exe", L"U.exe"));
+}
+
 TEST_CASE("GetExecutablePathForProcess", "[filesystem]")
 {
     std::filesystem::path thisExecutable = GetExecutablePathForProcess(GetCurrentProcess());
