@@ -48,10 +48,11 @@ namespace AppInstaller::CLI
                 m_standardOutputStreamType = Execution::GetStandardHandleType(STD_OUTPUT_HANDLE);
 
                 // Only the console host interprets the code page, and changing it affects every
-                // process that shares the console. Only change it while this process writes its
-                // human readable output to the console, so that while that output is redirected the
-                // console keeps the code page that the redirected output is written in.
-                m_changedCodePage = IsConsoleStandardHandle(STD_OUTPUT_HANDLE);
+                // process that shares the console. Change it while this process writes either text
+                // stream to the console. The error stream is always UTF-8, and while human readable
+                // output is redirected the console keeps the code page that this process writes
+                // that output in, because the consumer chose it before this process ran.
+                m_changedCodePage = IsConsoleStandardHandle(STD_OUTPUT_HANDLE) || IsConsoleStandardHandle(STD_ERROR_HANDLE);
 
                 if (m_changedCodePage)
                 {
