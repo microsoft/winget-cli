@@ -78,6 +78,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return normalizedNameFieldsFound;
         }
+
     }
 
     Interface::Interface(Utility::NormalizationVersion normVersion) : m_normalizer(normVersion)
@@ -478,6 +479,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Now search on the unfolded value
         filter.Value = query.Value;
+        filter.Additional = query.Additional;
 
         for (MatchType match : GetDefaultMatchTypeOrder(query.Type))
         {
@@ -486,9 +488,27 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Command, PackageMatchField::Tag })
             {
                 filter.Field = field;
-                resultsTable.SearchOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable.SearchOnField(alternative);
+                }
             }
         }
+    }
+
+    std::vector<PackageMatchFilter> Interface::GetSearchAlternatives(const PackageMatchFilter& filter) const
+    {
+        std::vector<PackageMatchFilter> result{ filter };
+        if (filter.Field == PackageMatchField::Name && filter.Type != MatchType::Exact)
+        {
+            Utility::NormalizedString normalizedName = m_normalizer.NormalizeName(Utility::FoldCase(filter.Value)).GetNormalizedName(Utility::NormalizationField::None);
+            if (!normalizedName.empty())
+            {
+                result.emplace_back(PackageMatchField::NormalizedName, filter.Type, std::move(normalizedName));
+            }
+        }
+
+        return result;
     }
 
     OneToManyTableSchema Interface::GetOneToManyTableSchema() const
@@ -594,7 +614,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 for (MatchType match : GetDefaultMatchTypeOrder(include.Type))
                 {
                     include.Type = match;
-                    resultsTable->SearchOnField(include);
+                    for (const auto& alternative : GetSearchAlternatives(include))
+                    {
+                        resultsTable->SearchOnField(alternative);
+                    }
                 }
             }
 
@@ -612,7 +635,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
-                resultsTable->SearchOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable->SearchOnField(alternative);
+                }
             }
 
             // Skip the filter as we already know everything matches
@@ -632,7 +658,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
-                resultsTable->FilterOnField(filter);
+                for (const auto& alternative : GetSearchAlternatives(filter))
+                {
+                    resultsTable->FilterOnField(alternative);
+                }
             }
 
             resultsTable->CompleteFilter();

@@ -30,6 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const override;
+        std::vector<PackageMatchFilter> GetSearchAlternatives(const PackageMatchFilter& filter) const override;
         void PrepareForPackaging(SQLite::Connection& connection, bool vacuum) override;
 
         // The name normalization utility

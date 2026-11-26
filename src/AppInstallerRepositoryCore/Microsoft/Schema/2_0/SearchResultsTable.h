@@ -59,6 +59,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         virtual void BindStatementForMatchType(SQLite::Statement& statement, const PackageMatchFilter& filter, const std::vector<int>& bindIndex);
 
     private:
+        void SearchOnFieldInternal(const PackageMatchFilter& filter);
+        void FilterOnFieldInternal(const PackageMatchFilter& filter);
+
         const SQLite::Connection& m_connection;
         int m_sortOrdinalValue = 0;
     };
