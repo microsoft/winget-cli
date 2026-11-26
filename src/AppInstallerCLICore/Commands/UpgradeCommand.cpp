@@ -71,6 +71,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AuthenticationAccount),
             Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::IgnoreUnknown),
             Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
@@ -140,6 +141,11 @@ namespace AppInstaller::CLI
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         const auto argCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);
+
+        if (!ShouldListUpgrade(execArgs, argCategories))
+        {
+            Argument::ValidateArgumentDependency(execArgs, Args::Type::IgnoreUnknown, Args::Type::All);
+        }
 
         if (!ShouldListUpgrade(execArgs, argCategories) &&
             WI_IsFlagClear(argCategories, ArgTypeCategory::PackageQuery) &&

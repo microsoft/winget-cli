@@ -681,7 +681,7 @@ namespace AppInstaller::Utility
         THROW_IF_FAILED(hr);
 
         THROW_IF_FAILED(zoneIdentifier->Remove());
-        THROW_IF_FAILED(persistFile->Save(NULL, TRUE));
+        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
 
         AICLI_LOG(Core, Info, << "Finished removing motw");
     }

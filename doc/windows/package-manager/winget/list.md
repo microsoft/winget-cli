@@ -49,6 +49,7 @@ The options allow you to customize the list experience to meet your needs.
 | **--accept-source-agreements** | Accept all source agreements during source operations. |
 | **--upgrade-available** | Lists only packages which have an upgrade available. |
 | **-u,--unknown,--include-unknown** | List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument. |
+| **--ignore-unknown** | Suppress the summary about skipped packages with unknown versions. Requires `--upgrade-available` and cannot be combined with `--include-unknown`. |
 | **--pinned,--include-pinned** | List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument. |
 | **--sort** | Sort results by a property. Can be repeated for multi-field sorting (e.g., `--sort source --sort name`). Valid values: `name`, `id`, `version`, `source`, `available`, `relevance`. |
 | **--ascending,--asc** | Sort results in ascending order (default). |
@@ -72,6 +73,10 @@ The following example lists all application by ID from a specific source.
 The following example limits the output of list to 9 apps.
 
 ![list count command](images/list-count.png)
+
+## Ignoring packages with unknown versions
+
+To list available upgrades while silently skipping packages with unknown installed versions, use `winget list --upgrade-available --ignore-unknown`. This does not change package eligibility or suppress other diagnostics. Omit `--ignore-unknown` to restore the default summary. If only ignored packages remain, WinGet reports that no applicable upgrade was found.
 
 ## Sorting output
 

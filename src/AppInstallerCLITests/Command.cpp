@@ -6,6 +6,7 @@
 #include <AppInstallerStrings.h>
 #include <Commands/ListCommand.h>
 #include <Commands/RootCommand.h>
+#include <Commands/UpgradeCommand.h>
 #include <winget/Locale.h>
 #include <winget/UserSettings.h>
 
@@ -668,6 +669,96 @@ TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
     Invocation inv{ std::vector<std::string>(values) };
 
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
+}
+
+TEST_CASE("UpgradeCommand_IgnoreUnknownArguments", "[command][ignore-unknown]")
+{
+    std::vector<std::string> arguments{ "--ignore-unknown" };
+    bool valid = true;
+
+    SECTION("Discovery")
+    {
+    }
+    SECTION("Source-filtered discovery")
+    {
+        arguments.insert(arguments.end(), { "--source", "winget" });
+    }
+    SECTION("Bulk upgrade")
+    {
+        arguments.emplace_back("--all");
+    }
+    SECTION("Explicit package")
+    {
+        arguments.insert(arguments.end(), { "--id", "Test.Package" });
+        valid = false;
+    }
+    SECTION("Multiple explicit packages")
+    {
+        arguments.insert(arguments.end(), { "First.Package", "Second.Package" });
+        valid = false;
+    }
+    SECTION("Manifest upgrade")
+    {
+        arguments.insert(arguments.end(), { "--manifest", "test.yaml" });
+        valid = false;
+    }
+    SECTION("Conflicting inclusion")
+    {
+        arguments.emplace_back("--include-unknown");
+        valid = false;
+    }
+
+    UpgradeCommand command({});
+    Args args;
+    Invocation invocation{ std::move(arguments) };
+    command.ParseArguments(invocation, args);
+
+    if (valid)
+    {
+        REQUIRE_NOTHROW(command.ValidateArguments(args));
+    }
+    else
+    {
+        REQUIRE_THROWS_AS(command.ValidateArguments(args), CommandException);
+    }
+}
+
+TEST_CASE("ListCommand_IgnoreUnknownArguments", "[command][ignore-unknown]")
+{
+    std::vector<std::string> arguments{ "--upgrade-available", "--ignore-unknown" };
+    bool valid = true;
+
+    SECTION("Upgrade listing")
+    {
+    }
+    SECTION("Filtered upgrade listing")
+    {
+        arguments.insert(arguments.end(), { "--id", "Test.Package" });
+    }
+    SECTION("Ordinary listing")
+    {
+        arguments.erase(arguments.begin());
+        valid = false;
+    }
+    SECTION("Conflicting inclusion")
+    {
+        arguments.emplace_back("--include-unknown");
+        valid = false;
+    }
+
+    ListCommand command({});
+    Args args;
+    Invocation invocation{ std::move(arguments) };
+    command.ParseArguments(invocation, args);
+
+    if (valid)
+    {
+        REQUIRE_NOTHROW(command.ValidateArguments(args));
+    }
+    else
+    {
+        REQUIRE_THROWS_AS(command.ValidateArguments(args), CommandException);
+    }
 }
 
 TEST_CASE("EnsurePackageSortFieldCountMatchesLimit", "[command][listsort]")

@@ -30,6 +30,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
             Argument{ Execution::Args::Type::Upgrade, Resource::String::UpgradeArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::IgnoreUnknown),
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Execution::Args::Type::ListDetails),
             Argument::ForType(Execution::Args::Type::Sort),
@@ -82,6 +83,7 @@ namespace AppInstaller::CLI
     void ListCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IgnoreUnknown, Execution::Args::Type::Upgrade);
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
     }
 

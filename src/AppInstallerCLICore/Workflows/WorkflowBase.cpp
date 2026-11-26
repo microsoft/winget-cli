@@ -1150,6 +1150,7 @@ namespace AppInstaller::CLI::Workflow
         // ensure that the count is 0 when using the arguments.
         int packagesWithUnknownVersionSkipped = 0;
         int packagesWithUserPinsSkipped = 0;
+        const bool ignoreUnknown = context.Args.Contains(Execution::Args::Type::IgnoreUnknown);
 
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
@@ -1284,7 +1285,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (m_onlyShowUpgrades)
             {
-                if (linesForExplicitUpgrade.empty() && linesForPins.empty() && packagesWithUnknownVersionSkipped == 0 && packagesWithUserPinsSkipped == 0)
+                if (linesForExplicitUpgrade.empty() && linesForPins.empty() && (packagesWithUnknownVersionSkipped == 0 || ignoreUnknown) && packagesWithUserPinsSkipped == 0)
                 {
                     bool hasPackageFilter =
                         context.Args.Contains(Execution::Args::Type::Query) ||
@@ -1294,7 +1295,11 @@ namespace AppInstaller::CLI::Workflow
                         context.Args.Contains(Execution::Args::Type::Tag) ||
                         context.Args.Contains(Execution::Args::Type::Command);
 
-                    if (hasPackageFilter)
+                    if (packagesWithUnknownVersionSkipped > 0)
+                    {
+                        context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                    }
+                    else if (hasPackageFilter)
                     {
                         context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
                     }
@@ -1339,7 +1344,10 @@ namespace AppInstaller::CLI::Workflow
             if (packagesWithUnknownVersionSkipped > 0)
             {
                 AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
-                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
+                if (!ignoreUnknown)
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
+                }
             }
 
             if (packagesWithUserPinsSkipped > 0)
@@ -1777,6 +1785,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (Runtime::IsRunningWithNonDefaultFullToken())
         {
+            Runtime::LogTokenDiagnostics();
             context.Reporter.Error() << Resource::String::AdminContextActionProhibited << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_ACTION_PROHIBITED);
         }

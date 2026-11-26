@@ -315,7 +315,10 @@ namespace AppInstaller::CLI::Workflow
         if (packagesWithUnknownVersionSkipped > 0)
         {
             AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
-            context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
+            if (!context.Args.Contains(Execution::Args::Type::IgnoreUnknown))
+            {
+                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
+            }
         }
 
         if (packagesThatRequireExplicitSkipped > 0)

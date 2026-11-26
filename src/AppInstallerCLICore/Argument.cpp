@@ -174,7 +174,9 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::All:
             return { type, "all"_liv, 'r', "recurse"_liv, ArgTypeCategory::MultiplePackages };
         case Execution::Args::Type::IncludeUnknown:
-            return { type, "include-unknown"_liv, 'u', "unknown"_liv, ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "include-unknown"_liv, 'u', "unknown"_liv, ArgTypeCategory::CopyFlagToSubContext, ArgTypeExclusiveSet::UnknownVersion };
+        case Execution::Args::Type::IgnoreUnknown:
+            return { type, "ignore-unknown"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::UnknownVersion };
         case Execution::Args::Type::IncludePinned:
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:
@@ -433,6 +435,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride };
         case Args::Type::IgnoreUnavailable:
             return Argument{ type, Resource::String::IgnoreUnavailableArgumentDescription, ArgumentType::Flag };
+        case Args::Type::IgnoreUnknown:
+            return Argument{ type, Resource::String::IgnoreUnknownArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceName:
             return Argument{ type, Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
