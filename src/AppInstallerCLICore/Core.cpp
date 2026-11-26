@@ -41,16 +41,17 @@ namespace AppInstaller::CLI
         // RAII class to restore the console output codepage.
         struct ConsoleOutputCPRestore
         {
-            ConsoleOutputCPRestore(UINT cpToChangeTo)
+            ConsoleOutputCPRestore(UINT cpToChangeTo) :
+                m_targetCP(cpToChangeTo)
             {
                 m_previousCP = GetConsoleOutputCP();
                 m_standardOutputStreamType = Execution::GetStandardHandleType(STD_OUTPUT_HANDLE);
 
-                // Only the console host interprets the code page. Changing it affects every process
-                // that shares the console, so only do it while this process still writes to the
-                // console through one of its text streams.
-                m_changedCodePage = IsConsoleStandardHandle(STD_OUTPUT_HANDLE) ||
-                    IsConsoleStandardHandle(STD_ERROR_HANDLE);
+                // Only the console host interprets the code page, and changing it affects every
+                // process that shares the console. Only change it while this process writes its
+                // human readable output to the console, so that while that output is redirected the
+                // console keeps the code page that the redirected output is written in.
+                m_changedCodePage = IsConsoleStandardHandle(STD_OUTPUT_HANDLE);
 
                 if (m_changedCodePage)
                 {
@@ -76,11 +77,15 @@ namespace AppInstaller::CLI
             // output decode it with this code page, because they chose it before this process ran.
             UINT PreviousCodePage() const { return m_previousCP; }
 
+            // The code page that is in effect after this object was created.
+            UINT CurrentCodePage() const { return m_changedCodePage ? m_targetCP : m_previousCP; }
+
             // The type of the standard output handle, before any of the streams were used.
             DWORD StandardOutputStreamType() const { return m_standardOutputStreamType; }
 
         private:
             UINT m_previousCP = 0;
+            UINT m_targetCP = 0;
             DWORD m_standardOutputStreamType = FILE_TYPE_UNKNOWN;
             bool m_changedCodePage = false;
         };
@@ -245,18 +250,24 @@ namespace AppInstaller::CLI
         // Set output to UTF8
         ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
-        // A console host decodes the output of a native command with the code page that was active
-        // before it was switched to UTF-8, so the human readable output that a console host consumes
-        // has to be written in that code page. Machine readable channels bypass the conversion, and
-        // the user can opt out of the conversion entirely.
-        UINT redirectedOutputCodePage = utf8CP.PreviousCodePage();
-        if (Settings::User().Get<Settings::Setting::OutputPipedEncoding>() == Settings::PipedEncoding::Utf8)
+        // The output encoding has to match the code page that decodes the output. A console host that
+        // reads this process's redirected output decodes it with the code page that was active before
+        // the console was switched, because it chose that code page before this process ran. Output
+        // that the console renders itself is decoded with the code page that is in effect, which is
+        // UTF-8 after the switch. Machine readable channels bypass the conversion, and the user can
+        // opt out of the conversion entirely.
+        auto getHumanReadableCodePage = [&utf8CP](Settings::PipedEncoding pipedEncoding) -> UINT
         {
-            redirectedOutputCodePage = CP_UTF8;
-        }
+            if (pipedEncoding == Settings::PipedEncoding::Utf8)
+            {
+                return CP_UTF8;
+            }
+
+            return utf8CP.StandardOutputStreamType() == FILE_TYPE_PIPE ? utf8CP.PreviousCodePage() : utf8CP.CurrentCodePage();
+        };
 
         auto redirectedOutputEncoding = std::make_shared<Execution::RedirectedOutputEncoding>(
-            std::cout, utf8CP.StandardOutputStreamType(), redirectedOutputCodePage);
+            std::cout, utf8CP.StandardOutputStreamType(), getHumanReadableCodePage(Settings::User().Get<Settings::Setting::OutputPipedEncoding>()));
         context.Reporter.SetOutputEncoding(redirectedOutputEncoding);
 
         Logging::Telemetry().SetCaller("winget-cli");
